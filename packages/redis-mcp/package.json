@@ -1,0 +1,32 @@
+{
+  "name": "@robinsonai/redis-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Redis MCP server with 20+ tools for caching, sessions, and data management",
+  "type": "module",
+  "bin": {
+    "redis-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "redis",
+    "cache",
+    "session",
+    "model-context-protocol"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "redis": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+

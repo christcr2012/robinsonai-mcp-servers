@@ -7,12 +7,12 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspaces --if-present",
     "build:vercel": "npm run build -w @robinsonai/vercel-mcp",
     "build:neon": "npm run build -w @robinsonai/neon-mcp",
     "build:redis": "npm run build -w @robinsonai/redis-mcp",
     "build:github": "npm run build -w @robinsonai/github-mcp",
-    "link:all": "npm run link --workspaces"
+    "link:all": "npm run link --workspaces --if-present"
   },
   "keywords": [
     "mcp",
