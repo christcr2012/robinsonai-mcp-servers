@@ -1,0 +1,34 @@
+{
+  "name": "robinsonai-mcp-servers",
+  "version": "1.0.0",
+  "description": "Comprehensive MCP servers for Vercel, Neon, Redis, GitHub, and more - by Robinson AI Systems",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "build:vercel": "npm run build -w @robinsonai/vercel-mcp",
+    "build:neon": "npm run build -w @robinsonai/neon-mcp",
+    "build:redis": "npm run build -w @robinsonai/redis-mcp",
+    "build:github": "npm run build -w @robinsonai/github-mcp",
+    "link:all": "npm run link --workspaces"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "vercel",
+    "neon",
+    "redis",
+    "github",
+    "ai",
+    "automation"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+

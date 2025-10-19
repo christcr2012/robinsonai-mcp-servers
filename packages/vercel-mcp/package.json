@@ -1,0 +1,31 @@
+{
+  "name": "@robinsonai/vercel-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Vercel MCP server with 50+ tools for deployments, domains, env vars, and more",
+  "type": "module",
+  "bin": {
+    "vercel-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "vercel",
+    "deployment",
+    "serverless",
+    "model-context-protocol"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+
