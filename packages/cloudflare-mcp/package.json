@@ -1,0 +1,24 @@
+{
+  "name": "cloudflare-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Cloudflare MCP Server with 50+ tools for domain and DNS management",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "cloudflare-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "cloudflare": "^3.5.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
