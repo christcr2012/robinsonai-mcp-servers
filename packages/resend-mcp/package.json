@@ -1,7 +1,7 @@
 {
-  "name": "resend-mcp",
+  "name": "@robinsonai/resend-mcp",
   "version": "1.0.0",
-  "description": "Comprehensive Resend MCP Server with 60+ tools for email management",
+  "description": "Comprehensive Resend MCP Server with 49 tools for complete email API coverage",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -12,6 +12,15 @@
     "dev": "tsc --watch",
     "start": "node dist/index.js"
   },
+  "keywords": [
+    "mcp",
+    "resend",
+    "email",
+    "transactional-email",
+    "model-context-protocol"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "resend": "^4.0.1",

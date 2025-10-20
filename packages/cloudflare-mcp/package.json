@@ -1,7 +1,7 @@
 {
-  "name": "cloudflare-mcp",
+  "name": "@robinsonai/cloudflare-mcp",
   "version": "1.0.0",
-  "description": "Comprehensive Cloudflare MCP Server with 50+ tools for domain and DNS management",
+  "description": "Comprehensive Cloudflare MCP Server with 136 tools for complete Cloudflare API coverage",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -12,6 +12,16 @@
     "dev": "tsc --watch",
     "start": "node dist/index.js"
   },
+  "keywords": [
+    "mcp",
+    "cloudflare",
+    "dns",
+    "cdn",
+    "workers",
+    "model-context-protocol"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "cloudflare": "^3.5.0",

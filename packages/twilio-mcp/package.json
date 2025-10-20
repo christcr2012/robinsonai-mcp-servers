@@ -1,7 +1,7 @@
 {
-  "name": "twilio-mcp",
+  "name": "@robinsonai/twilio-mcp",
   "version": "1.0.0",
-  "description": "Comprehensive Twilio MCP Server with 70+ tools for SMS, voice, and phone number management",
+  "description": "Comprehensive Twilio MCP Server with 76 tools for complete communications API coverage",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -12,6 +12,16 @@
     "dev": "tsc --watch",
     "start": "node dist/index.js"
   },
+  "keywords": [
+    "mcp",
+    "twilio",
+    "sms",
+    "voice",
+    "communications",
+    "model-context-protocol"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "twilio": "^5.3.5",
