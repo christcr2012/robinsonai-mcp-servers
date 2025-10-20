@@ -1,10 +1,10 @@
 # OpenAI MCP Server
 
-Comprehensive OpenAI MCP server with **~80 tools** covering the complete OpenAI API surface area, including built-in cost management with approval workflows.
+Comprehensive OpenAI MCP server with **~86 tools** covering the complete OpenAI API surface area, including built-in cost management with approval workflows and advanced analytics.
 
 ## Features
 
-### ✅ Complete API Coverage (~80 Tools)
+### ✅ Complete API Coverage (~86 Tools)
 
 #### 1. **Chat & Completions** (3 tools)
 - `openai_chat_completion` - Standard chat completions
@@ -99,9 +99,15 @@ Comprehensive OpenAI MCP server with **~80 tools** covering the complete OpenAI 
 - `openai_retrieve_vector_store_file_batch` - Get batch status
 - `openai_cancel_vector_store_file_batch` - Cancel batch upload
 
-#### 15. **Cost Management** (2 tools) 💰
+#### 15. **Cost Management & Analytics** (8 tools) 💰📊
 - `openai_estimate_cost` - Estimate cost before execution
 - `openai_get_budget_status` - Get current budget status
+- `openai_get_cost_breakdown` - Detailed cost breakdown by model/operation/time
+- `openai_compare_models` - Compare costs between models
+- `openai_optimize_prompt` - Get prompt optimization suggestions
+- `openai_export_cost_report` - Export cost reports (CSV/JSON)
+- `openai_get_token_analytics` - Token usage analytics
+- `openai_suggest_cheaper_alternative` - Get cheaper model recommendations
 
 ---
 
@@ -128,7 +134,15 @@ Comprehensive OpenAI MCP server with **~80 tools** covering the complete OpenAI 
    - Automatic fallback to cheaper models when budget low
    - Recommendations for cost savings
 
-5. **Cost Tracking**
+5. **Advanced Analytics** 📊
+   - **Cost Breakdown**: Group costs by model, operation, day, or hour
+   - **Model Comparison**: Side-by-side cost analysis with savings calculations
+   - **Prompt Optimization**: AI-powered suggestions to reduce token usage
+   - **Token Analytics**: Track usage patterns and trends
+   - **Cheaper Alternatives**: Smart recommendations for cost-effective models
+   - **Export Reports**: CSV/JSON export for accounting and analysis
+
+6. **Cost Tracking**
    - Real-time cost tracking
    - Daily and monthly aggregates
    - Stored in JSON file
