@@ -1101,6 +1101,30 @@ class OpenAIMCP {
           case "openai_retrieve_file_content":
             return await this.retrieveFileContent(args);
 
+          // Fine-tuning
+          case "openai_create_fine_tune":
+            return await this.createFineTune(args);
+          case "openai_list_fine_tunes":
+            return await this.listFineTunes(args);
+          case "openai_retrieve_fine_tune":
+            return await this.retrieveFineTune(args);
+          case "openai_cancel_fine_tune":
+            return await this.cancelFineTune(args);
+          case "openai_list_fine_tune_events":
+            return await this.listFineTuneEvents(args);
+          case "openai_list_fine_tune_checkpoints":
+            return await this.listFineTuneCheckpoints(args);
+
+          // Batch API
+          case "openai_create_batch":
+            return await this.createBatch(args);
+          case "openai_retrieve_batch":
+            return await this.retrieveBatch(args);
+          case "openai_cancel_batch":
+            return await this.cancelBatch(args);
+          case "openai_list_batches":
+            return await this.listBatches(args);
+
           // Assistants
           case "openai_create_assistant":
             return await this.createAssistant(args);
@@ -1429,33 +1453,154 @@ class OpenAIMCP {
 
   // Images
   private async generateImage(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    const { model = "dall-e-3", prompt, n = 1, size = "1024x1024", quality = "standard", response_format } = args;
+
+    try {
+      // Estimate cost
+      const estimate = this.costManager.estimateImageCost(model, size, quality, n);
+
+      // Check if approval needed
+      if (estimate.budget_check.requires_approval) {
+        return this.formatResponse({
+          requires_approval: true,
+          approval_type: estimate.budget_check.requires_double_approval ? "double" : "standard",
+          cost_estimate: estimate,
+          message: `Generating ${n} image(s) with ${model} will cost approximately $${estimate.estimated_cost_usd.toFixed(4)}`,
+        });
+      }
+
+      // Make API call
+      const response = await this.openai.images.generate({
+        model,
+        prompt,
+        n,
+        size: size as any,
+        quality: quality as any,
+        response_format,
+      });
+
+      // Record cost
+      this.costManager.recordCost(estimate.estimated_cost_usd, model, "generate_image", {
+        count: n,
+        size,
+        quality,
+      });
+
+      return this.formatResponse({
+        images: response.data,
+        cost_info: {
+          estimated_cost: estimate.estimated_cost_usd,
+          actual_cost: estimate.estimated_cost_usd,
+          count: n,
+          daily_total: this.costManager.getDailySpent(),
+          monthly_total: this.costManager.getMonthlySpent(),
+        },
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   private async editImage(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    return this.formatResponse({
+      message: "Image editing requires file upload which is not yet supported in this MCP implementation",
+      note: "Use the OpenAI API directly for image editing"
+    });
   }
 
   private async createImageVariation(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    return this.formatResponse({
+      message: "Image variations require file upload which is not yet supported in this MCP implementation",
+      note: "Use the OpenAI API directly for image variations"
+    });
   }
 
   // Audio
   private async textToSpeech(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    const { model = "tts-1", input, voice = "alloy", response_format = "mp3", speed = 1.0 } = args;
+
+    try {
+      // Estimate cost (TTS is $0.015 per 1K characters)
+      const charCount = input.length;
+      const estimatedCost = (charCount / 1000) * 0.015;
+
+      // Check if approval needed
+      if (estimatedCost > parseFloat(process.env.OPENAI_APPROVAL_THRESHOLD || "0.50")) {
+        return this.formatResponse({
+          requires_approval: true,
+          estimated_cost: estimatedCost,
+          character_count: charCount,
+          message: `Converting ${charCount} characters to speech will cost approximately $${estimatedCost.toFixed(4)}`,
+        });
+      }
+
+      // Make API call
+      const response = await this.openai.audio.speech.create({
+        model,
+        input,
+        voice: voice as any,
+        response_format: response_format as any,
+        speed,
+      });
+
+      // Get audio buffer
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const base64Audio = buffer.toString('base64');
+
+      // Record cost
+      this.costManager.recordCost(estimatedCost, model, "text_to_speech", {
+        characters: charCount,
+      });
+
+      return this.formatResponse({
+        audio_base64: base64Audio,
+        format: response_format,
+        cost_info: {
+          actual_cost: estimatedCost,
+          characters: charCount,
+          daily_total: this.costManager.getDailySpent(),
+        },
+        note: "Audio returned as base64. Decode and save to file to use.",
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   private async speechToText(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    return this.formatResponse({
+      message: "Speech-to-text requires audio file upload which is not yet supported in this MCP implementation",
+      note: "Use the OpenAI API directly for Whisper transcription"
+    });
   }
 
   private async translateAudio(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    return this.formatResponse({
+      message: "Audio translation requires audio file upload which is not yet supported in this MCP implementation",
+      note: "Use the OpenAI API directly for Whisper translation"
+    });
   }
 
   // Moderation
   private async moderateContent(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    const { input } = args;
+
+    try {
+      // Moderation API is free, no cost estimation needed
+      const response = await this.openai.moderations.create({
+        input,
+      });
+
+      return this.formatResponse({
+        results: response.results,
+        flagged: response.results[0].flagged,
+        categories: response.results[0].categories,
+        category_scores: response.results[0].category_scores,
+        note: "Moderation API is free to use",
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   // Models
@@ -1498,23 +1643,205 @@ class OpenAIMCP {
 
   // Files
   private async uploadFile(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    return this.formatResponse({
+      message: "File upload requires file system access which is not yet supported in this MCP implementation",
+      note: "Use the OpenAI API directly or upload files through the OpenAI dashboard"
+    });
   }
 
   private async listFiles(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    const { purpose } = args;
+
+    try {
+      const response = await this.openai.files.list({ purpose });
+      return this.formatResponse({
+        files: response.data,
+        count: response.data.length,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   private async retrieveFile(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    const { file_id } = args;
+
+    try {
+      const response = await this.openai.files.retrieve(file_id);
+      return this.formatResponse(response);
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   private async deleteFile(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    const { file_id } = args;
+
+    try {
+      const response = await this.openai.files.del(file_id);
+      return this.formatResponse({
+        deleted: response.deleted,
+        file_id: response.id,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   private async retrieveFileContent(args: any) {
-    return this.formatResponse({ message: "Not yet implemented" });
+    const { file_id } = args;
+
+    try {
+      const response = await this.openai.files.content(file_id);
+      const content = await response.text();
+      return this.formatResponse({
+        file_id,
+        content,
+        size: content.length,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  // Fine-tuning
+  private async createFineTune(args: any) {
+    const { training_file, model = "gpt-3.5-turbo", validation_file, hyperparameters, suffix } = args;
+
+    try {
+      const response = await this.openai.fineTuning.jobs.create({
+        training_file,
+        model,
+        validation_file,
+        hyperparameters,
+        suffix,
+      });
+
+      return this.formatResponse(response);
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async listFineTunes(args: any) {
+    const { limit } = args;
+
+    try {
+      const response = await this.openai.fineTuning.jobs.list({ limit });
+      return this.formatResponse({
+        jobs: response.data,
+        count: response.data.length,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async retrieveFineTune(args: any) {
+    const { fine_tune_id } = args;
+
+    try {
+      const response = await this.openai.fineTuning.jobs.retrieve(fine_tune_id);
+      return this.formatResponse(response);
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async cancelFineTune(args: any) {
+    const { fine_tune_id } = args;
+
+    try {
+      const response = await this.openai.fineTuning.jobs.cancel(fine_tune_id);
+      return this.formatResponse(response);
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async listFineTuneEvents(args: any) {
+    const { fine_tune_id } = args;
+
+    try {
+      const response = await this.openai.fineTuning.jobs.listEvents(fine_tune_id);
+      return this.formatResponse({
+        events: response.data,
+        count: response.data.length,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async listFineTuneCheckpoints(args: any) {
+    const { fine_tune_id } = args;
+
+    try {
+      const response = await this.openai.fineTuning.jobs.checkpoints.list(fine_tune_id);
+      return this.formatResponse({
+        checkpoints: response.data,
+        count: response.data.length,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  // Batch API
+  private async createBatch(args: any) {
+    const { input_file_id, endpoint, completion_window = "24h", metadata } = args;
+
+    try {
+      const response = await this.openai.batches.create({
+        input_file_id,
+        endpoint,
+        completion_window,
+        metadata,
+      });
+
+      return this.formatResponse({
+        ...response,
+        note: "Batch API provides 50% cost savings for async processing!",
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async retrieveBatch(args: any) {
+    const { batch_id } = args;
+
+    try {
+      const response = await this.openai.batches.retrieve(batch_id);
+      return this.formatResponse(response);
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async cancelBatch(args: any) {
+    const { batch_id } = args;
+
+    try {
+      const response = await this.openai.batches.cancel(batch_id);
+      return this.formatResponse(response);
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async listBatches(args: any) {
+    const { limit } = args;
+
+    try {
+      const response = await this.openai.batches.list({ limit });
+      return this.formatResponse({
+        batches: response.data,
+        count: response.data.length,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   // Assistants
