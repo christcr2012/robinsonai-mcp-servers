@@ -294,6 +294,465 @@ class RobinsonAIRedisMCP {
             required: ["confirm"],
           },
         },
+
+        // String Operations
+        {
+          name: "redis_incr",
+          description: "Increment the integer value of a key by 1",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Redis key" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_decr",
+          description: "Decrement the integer value of a key by 1",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Redis key" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_incrby",
+          description: "Increment the integer value of a key by a specific amount",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Redis key" },
+              increment: { type: "number", description: "Amount to increment by" },
+            },
+            required: ["key", "increment"],
+          },
+        },
+        {
+          name: "redis_decrby",
+          description: "Decrement the integer value of a key by a specific amount",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Redis key" },
+              decrement: { type: "number", description: "Amount to decrement by" },
+            },
+            required: ["key", "decrement"],
+          },
+        },
+        {
+          name: "redis_append",
+          description: "Append a value to a key",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Redis key" },
+              value: { type: "string", description: "Value to append" },
+            },
+            required: ["key", "value"],
+          },
+        },
+        {
+          name: "redis_strlen",
+          description: "Get the length of the value stored in a key",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Redis key" },
+            },
+            required: ["key"],
+          },
+        },
+
+        // Hash Operations
+        {
+          name: "redis_hset",
+          description: "Set field in a hash",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Hash key" },
+              field: { type: "string", description: "Field name" },
+              value: { type: "string", description: "Field value" },
+            },
+            required: ["key", "field", "value"],
+          },
+        },
+        {
+          name: "redis_hget",
+          description: "Get field value from a hash",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Hash key" },
+              field: { type: "string", description: "Field name" },
+            },
+            required: ["key", "field"],
+          },
+        },
+        {
+          name: "redis_hgetall",
+          description: "Get all fields and values from a hash",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Hash key" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_hdel",
+          description: "Delete one or more hash fields",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Hash key" },
+              fields: {
+                type: "array",
+                items: { type: "string" },
+                description: "Field names to delete",
+              },
+            },
+            required: ["key", "fields"],
+          },
+        },
+        {
+          name: "redis_hexists",
+          description: "Check if a hash field exists",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Hash key" },
+              field: { type: "string", description: "Field name" },
+            },
+            required: ["key", "field"],
+          },
+        },
+        {
+          name: "redis_hkeys",
+          description: "Get all field names in a hash",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Hash key" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_hvals",
+          description: "Get all values in a hash",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Hash key" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_hlen",
+          description: "Get the number of fields in a hash",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Hash key" },
+            },
+            required: ["key"],
+          },
+        },
+
+        // List Operations
+        {
+          name: "redis_lpush",
+          description: "Prepend one or multiple values to a list",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "List key" },
+              values: {
+                type: "array",
+                items: { type: "string" },
+                description: "Values to prepend",
+              },
+            },
+            required: ["key", "values"],
+          },
+        },
+        {
+          name: "redis_rpush",
+          description: "Append one or multiple values to a list",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "List key" },
+              values: {
+                type: "array",
+                items: { type: "string" },
+                description: "Values to append",
+              },
+            },
+            required: ["key", "values"],
+          },
+        },
+        {
+          name: "redis_lpop",
+          description: "Remove and get the first element in a list",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "List key" },
+              count: { type: "number", description: "Number of elements to pop (optional)" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_rpop",
+          description: "Remove and get the last element in a list",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "List key" },
+              count: { type: "number", description: "Number of elements to pop (optional)" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_lrange",
+          description: "Get a range of elements from a list",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "List key" },
+              start: { type: "number", description: "Start index" },
+              stop: { type: "number", description: "Stop index" },
+            },
+            required: ["key", "start", "stop"],
+          },
+        },
+        {
+          name: "redis_llen",
+          description: "Get the length of a list",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "List key" },
+            },
+            required: ["key"],
+          },
+        },
+
+        // Set Operations
+        {
+          name: "redis_sadd",
+          description: "Add one or more members to a set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Set key" },
+              members: {
+                type: "array",
+                items: { type: "string" },
+                description: "Members to add",
+              },
+            },
+            required: ["key", "members"],
+          },
+        },
+        {
+          name: "redis_smembers",
+          description: "Get all members of a set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Set key" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_srem",
+          description: "Remove one or more members from a set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Set key" },
+              members: {
+                type: "array",
+                items: { type: "string" },
+                description: "Members to remove",
+              },
+            },
+            required: ["key", "members"],
+          },
+        },
+        {
+          name: "redis_sismember",
+          description: "Check if a value is a member of a set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Set key" },
+              member: { type: "string", description: "Member to check" },
+            },
+            required: ["key", "member"],
+          },
+        },
+        {
+          name: "redis_scard",
+          description: "Get the number of members in a set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Set key" },
+            },
+            required: ["key"],
+          },
+        },
+
+        // Sorted Set Operations
+        {
+          name: "redis_zadd",
+          description: "Add one or more members to a sorted set with scores",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+              members: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    score: { type: "number" },
+                    value: { type: "string" },
+                  },
+                },
+                description: "Array of {score, value} objects",
+              },
+            },
+            required: ["key", "members"],
+          },
+        },
+        {
+          name: "redis_zrange",
+          description: "Get a range of members from a sorted set by index",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+              start: { type: "number", description: "Start index" },
+              stop: { type: "number", description: "Stop index" },
+              withScores: { type: "boolean", description: "Include scores in result" },
+            },
+            required: ["key", "start", "stop"],
+          },
+        },
+        {
+          name: "redis_zrem",
+          description: "Remove one or more members from a sorted set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+              members: {
+                type: "array",
+                items: { type: "string" },
+                description: "Members to remove",
+              },
+            },
+            required: ["key", "members"],
+          },
+        },
+        {
+          name: "redis_zscore",
+          description: "Get the score of a member in a sorted set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+              member: { type: "string", description: "Member to get score for" },
+            },
+            required: ["key", "member"],
+          },
+        },
+        {
+          name: "redis_zcard",
+          description: "Get the number of members in a sorted set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_zrank",
+          description: "Get the rank of a member in a sorted set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+              member: { type: "string", description: "Member to get rank for" },
+            },
+            required: ["key", "member"],
+          },
+        },
+
+        // Key Inspection
+        {
+          name: "redis_type",
+          description: "Get the type of a key (string, list, set, zset, hash)",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Redis key" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_rename",
+          description: "Rename a key",
+          inputSchema: {
+            type: "object",
+            properties: {
+              oldKey: { type: "string", description: "Current key name" },
+              newKey: { type: "string", description: "New key name" },
+            },
+            required: ["oldKey", "newKey"],
+          },
+        },
+        {
+          name: "redis_persist",
+          description: "Remove the expiration from a key",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Redis key" },
+            },
+            required: ["key"],
+          },
+        },
+
+        // Pub/Sub Operations
+        {
+          name: "redis_publish",
+          description: "Publish a message to a channel",
+          inputSchema: {
+            type: "object",
+            properties: {
+              channel: { type: "string", description: "Channel name" },
+              message: { type: "string", description: "Message to publish" },
+            },
+            required: ["channel", "message"],
+          },
+        },
       ],
     }));
 
@@ -339,6 +798,91 @@ class RobinsonAIRedisMCP {
             return await this.handleCurrentDB();
           case "redis_flush_db":
             return await this.handleFlushDB(request.params.arguments);
+
+          // String Operations
+          case "redis_incr":
+            return await this.handleIncr(request.params.arguments);
+          case "redis_decr":
+            return await this.handleDecr(request.params.arguments);
+          case "redis_incrby":
+            return await this.handleIncrBy(request.params.arguments);
+          case "redis_decrby":
+            return await this.handleDecrBy(request.params.arguments);
+          case "redis_append":
+            return await this.handleAppend(request.params.arguments);
+          case "redis_strlen":
+            return await this.handleStrLen(request.params.arguments);
+
+          // Hash Operations
+          case "redis_hset":
+            return await this.handleHSet(request.params.arguments);
+          case "redis_hget":
+            return await this.handleHGet(request.params.arguments);
+          case "redis_hgetall":
+            return await this.handleHGetAll(request.params.arguments);
+          case "redis_hdel":
+            return await this.handleHDel(request.params.arguments);
+          case "redis_hexists":
+            return await this.handleHExists(request.params.arguments);
+          case "redis_hkeys":
+            return await this.handleHKeys(request.params.arguments);
+          case "redis_hvals":
+            return await this.handleHVals(request.params.arguments);
+          case "redis_hlen":
+            return await this.handleHLen(request.params.arguments);
+
+          // List Operations
+          case "redis_lpush":
+            return await this.handleLPush(request.params.arguments);
+          case "redis_rpush":
+            return await this.handleRPush(request.params.arguments);
+          case "redis_lpop":
+            return await this.handleLPop(request.params.arguments);
+          case "redis_rpop":
+            return await this.handleRPop(request.params.arguments);
+          case "redis_lrange":
+            return await this.handleLRange(request.params.arguments);
+          case "redis_llen":
+            return await this.handleLLen(request.params.arguments);
+
+          // Set Operations
+          case "redis_sadd":
+            return await this.handleSAdd(request.params.arguments);
+          case "redis_smembers":
+            return await this.handleSMembers(request.params.arguments);
+          case "redis_srem":
+            return await this.handleSRem(request.params.arguments);
+          case "redis_sismember":
+            return await this.handleSIsMember(request.params.arguments);
+          case "redis_scard":
+            return await this.handleSCard(request.params.arguments);
+
+          // Sorted Set Operations
+          case "redis_zadd":
+            return await this.handleZAdd(request.params.arguments);
+          case "redis_zrange":
+            return await this.handleZRange(request.params.arguments);
+          case "redis_zrem":
+            return await this.handleZRem(request.params.arguments);
+          case "redis_zscore":
+            return await this.handleZScore(request.params.arguments);
+          case "redis_zcard":
+            return await this.handleZCard(request.params.arguments);
+          case "redis_zrank":
+            return await this.handleZRank(request.params.arguments);
+
+          // Key Inspection
+          case "redis_type":
+            return await this.handleType(request.params.arguments);
+          case "redis_rename":
+            return await this.handleRename(request.params.arguments);
+          case "redis_persist":
+            return await this.handlePersist(request.params.arguments);
+
+          // Pub/Sub
+          case "redis_publish":
+            return await this.handlePublish(request.params.arguments);
+
           default:
             throw new Error(`Unknown tool: ${request.params.name}`);
         }
@@ -674,6 +1218,191 @@ class RobinsonAIRedisMCP {
         { type: "text", text: "Database flushed. All keys have been deleted." },
       ],
     };
+  }
+
+  // String Operations Handlers
+  private async handleIncr(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const value = await this.client!.incr(args.key);
+    return { content: [{ type: "text", text: `Incremented ${args.key} to ${value}` }] };
+  }
+
+  private async handleDecr(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const value = await this.client!.decr(args.key);
+    return { content: [{ type: "text", text: `Decremented ${args.key} to ${value}` }] };
+  }
+
+  private async handleIncrBy(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const value = await this.client!.incrBy(args.key, args.increment);
+    return { content: [{ type: "text", text: `Incremented ${args.key} by ${args.increment} to ${value}` }] };
+  }
+
+  private async handleDecrBy(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const value = await this.client!.decrBy(args.key, args.decrement);
+    return { content: [{ type: "text", text: `Decremented ${args.key} by ${args.decrement} to ${value}` }] };
+  }
+
+  private async handleAppend(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const length = await this.client!.append(args.key, args.value);
+    return { content: [{ type: "text", text: `Appended to ${args.key}, new length: ${length}` }] };
+  }
+
+  private async handleStrLen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const length = await this.client!.strLen(args.key);
+    return { content: [{ type: "text", text: `Length of ${args.key}: ${length}` }] };
+  }
+
+  // Hash Operations Handlers
+  private async handleHSet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.client!.hSet(args.key, args.field, args.value);
+    return { content: [{ type: "text", text: `Set ${args.field} in hash ${args.key}` }] };
+  }
+
+  private async handleHGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const value = await this.client!.hGet(args.key, args.field);
+    return { content: [{ type: "text", text: value !== undefined ? value : `Field ${args.field} not found in ${args.key}` }] };
+  }
+
+  private async handleHGetAll(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const hash = await this.client!.hGetAll(args.key);
+    return { content: [{ type: "text", text: JSON.stringify(hash, null, 2) }] };
+  }
+
+  private async handleHDel(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.hDel(args.key, args.fields);
+    return { content: [{ type: "text", text: `Deleted ${count} field(s) from hash ${args.key}` }] };
+  }
+
+  private async handleHExists(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const exists = await this.client!.hExists(args.key, args.field);
+    return { content: [{ type: "text", text: `Field ${args.field} ${exists ? 'exists' : 'does not exist'} in ${args.key}` }] };
+  }
+
+  private async handleHKeys(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const keys = await this.client!.hKeys(args.key);
+    return { content: [{ type: "text", text: JSON.stringify(keys, null, 2) }] };
+  }
+
+  private async handleHVals(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const values = await this.client!.hVals(args.key);
+    return { content: [{ type: "text", text: JSON.stringify(values, null, 2) }] };
+  }
+
+  private async handleHLen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const length = await this.client!.hLen(args.key);
+    return { content: [{ type: "text", text: `Hash ${args.key} has ${length} field(s)` }] };
+  }
+
+  // List Operations Handlers
+  private async handleLPush(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const length = await this.client!.lPush(args.key, args.values);
+    return { content: [{ type: "text", text: `Prepended ${args.values.length} value(s) to list ${args.key}, new length: ${length}` }] };
+  }
+
+  private async handleRPush(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const length = await this.client!.rPush(args.key, args.values);
+    return { content: [{ type: "text", text: `Appended ${args.values.length} value(s) to list ${args.key}, new length: ${length}` }] };
+  }
+
+  private async handleLPop(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const value = args.count ? await this.client!.lPop(args.key, args.count) : await this.client!.lPop(args.key);
+    return { content: [{ type: "text", text: value ? JSON.stringify(value) : `List ${args.key} is empty` }] };
+  }
+
+  private async handleRPop(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const value = args.count ? await this.client!.rPop(args.key, args.count) : await this.client!.rPop(args.key);
+    return { content: [{ type: "text", text: value ? JSON.stringify(value) : `List ${args.key} is empty` }] };
+  }
+
+  private async handleLRange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const values = await this.client!.lRange(args.key, args.start, args.stop);
+    return { content: [{ type: "text", text: JSON.stringify(values, null, 2) }] };
+  }
+
+  private async handleLLen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const length = await this.client!.lLen(args.key);
+    return { content: [{ type: "text", text: `List ${args.key} has ${length} element(s)` }] };
+  }
+
+  // Set Operations Handlers
+  private async handleSAdd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.sAdd(args.key, args.members);
+    return { content: [{ type: "text", text: `Added ${count} member(s) to set ${args.key}` }] };
+  }
+
+  private async handleSMembers(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const members = await this.client!.sMembers(args.key);
+    return { content: [{ type: "text", text: JSON.stringify(members, null, 2) }] };
+  }
+
+  private async handleSRem(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.sRem(args.key, args.members);
+    return { content: [{ type: "text", text: `Removed ${count} member(s) from set ${args.key}` }] };
+  }
+
+  private async handleSIsMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const isMember = await this.client!.sIsMember(args.key, args.member);
+    return { content: [{ type: "text", text: `${args.member} ${isMember ? 'is' : 'is not'} a member of ${args.key}` }] };
+  }
+
+  private async handleSCard(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.sCard(args.key);
+    return { content: [{ type: "text", text: `Set ${args.key} has ${count} member(s)` }] };
+  }
+
+  // Sorted Set Operations Handlers
+  private async handleZAdd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const members = args.members.map((m: any) => ({ score: m.score, value: m.value }));
+    const count = await this.client!.zAdd(args.key, members);
+    return { content: [{ type: "text", text: `Added ${count} member(s) to sorted set ${args.key}` }] };
+  }
+
+  private async handleZRange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const members = args.withScores
+      ? await this.client!.zRangeWithScores(args.key, args.start, args.stop)
+      : await this.client!.zRange(args.key, args.start, args.stop);
+    return { content: [{ type: "text", text: JSON.stringify(members, null, 2) }] };
+  }
+
+  private async handleZRem(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.zRem(args.key, args.members);
+    return { content: [{ type: "text", text: `Removed ${count} member(s) from sorted set ${args.key}` }] };
+  }
+
+  private async handleZScore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const score = await this.client!.zScore(args.key, args.member);
+    return { content: [{ type: "text", text: score !== null ? `Score: ${score}` : `Member ${args.member} not found in ${args.key}` }] };
+  }
+
+  private async handleZCard(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.zCard(args.key);
+    return { content: [{ type: "text", text: `Sorted set ${args.key} has ${count} member(s)` }] };
+  }
+
+  private async handleZRank(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const rank = await this.client!.zRank(args.key, args.member);
+    return { content: [{ type: "text", text: rank !== null ? `Rank: ${rank}` : `Member ${args.member} not found in ${args.key}` }] };
+  }
+
+  // Key Inspection Handlers
+  private async handleType(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const type = await this.client!.type(args.key);
+    return { content: [{ type: "text", text: `Type of ${args.key}: ${type}` }] };
+  }
+
+  private async handleRename(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.client!.rename(args.oldKey, args.newKey);
+    return { content: [{ type: "text", text: `Renamed ${args.oldKey} to ${args.newKey}` }] };
+  }
+
+  private async handlePersist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.client!.persist(args.key);
+    return { content: [{ type: "text", text: result ? `Removed expiration from ${args.key}` : `${args.key} does not have an expiration` }] };
+  }
+
+  // Pub/Sub Handlers
+  private async handlePublish(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.publish(args.channel, args.message);
+    return { content: [{ type: "text", text: `Published message to ${args.channel}, received by ${count} subscriber(s)` }] };
   }
 
   async run(): Promise<void> {

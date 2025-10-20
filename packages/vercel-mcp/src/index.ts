@@ -541,6 +541,159 @@ class VercelMCP {
             required: ["webhookId"],
           },
         },
+
+        // ==================== ALIASES ====================
+        {
+          name: "vercel_list_aliases",
+          description: "List all deployment aliases",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Optional project ID to filter" },
+              limit: { type: "number", description: "Number of aliases to return" },
+            },
+          },
+        },
+        {
+          name: "vercel_assign_alias",
+          description: "Assign an alias to a deployment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+              alias: { type: "string", description: "Alias domain" },
+            },
+            required: ["deploymentId", "alias"],
+          },
+        },
+        {
+          name: "vercel_delete_alias",
+          description: "Delete an alias",
+          inputSchema: {
+            type: "object",
+            properties: {
+              aliasId: { type: "string", description: "Alias ID or domain" },
+            },
+            required: ["aliasId"],
+          },
+        },
+
+        // ==================== SECRETS ====================
+        {
+          name: "vercel_list_secrets",
+          description: "List all secrets",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+          },
+        },
+        {
+          name: "vercel_create_secret",
+          description: "Create a new secret",
+          inputSchema: {
+            type: "object",
+            properties: {
+              name: { type: "string", description: "Secret name" },
+              value: { type: "string", description: "Secret value" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+            required: ["name", "value"],
+          },
+        },
+        {
+          name: "vercel_delete_secret",
+          description: "Delete a secret",
+          inputSchema: {
+            type: "object",
+            properties: {
+              nameOrId: { type: "string", description: "Secret name or ID" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+            required: ["nameOrId"],
+          },
+        },
+        {
+          name: "vercel_rename_secret",
+          description: "Rename a secret",
+          inputSchema: {
+            type: "object",
+            properties: {
+              nameOrId: { type: "string", description: "Current secret name or ID" },
+              newName: { type: "string", description: "New secret name" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+            required: ["nameOrId", "newName"],
+          },
+        },
+
+        // ==================== CHECKS ====================
+        {
+          name: "vercel_list_checks",
+          description: "List checks for a deployment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_create_check",
+          description: "Create a check for a deployment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+              name: { type: "string", description: "Check name" },
+              path: { type: "string", description: "Path to check" },
+              status: { type: "string", description: "Check status (running, completed)" },
+              conclusion: { type: "string", description: "Check conclusion (succeeded, failed, skipped)" },
+            },
+            required: ["deploymentId", "name"],
+          },
+        },
+        {
+          name: "vercel_update_check",
+          description: "Update a check",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+              checkId: { type: "string", description: "Check ID" },
+              status: { type: "string", description: "Check status" },
+              conclusion: { type: "string", description: "Check conclusion" },
+            },
+            required: ["deploymentId", "checkId"],
+          },
+        },
+
+        // ==================== DEPLOYMENT FILES ====================
+        {
+          name: "vercel_list_deployment_files",
+          description: "List files in a deployment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_get_deployment_file",
+          description: "Get a specific file from a deployment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+              fileId: { type: "string", description: "File ID" },
+            },
+            required: ["deploymentId", "fileId"],
+          },
+        },
       ],
     }));
 
@@ -641,6 +794,38 @@ class VercelMCP {
             return await this.createWebhook(args);
           case "vercel_delete_webhook":
             return await this.deleteWebhook(args);
+
+          // Aliases
+          case "vercel_list_aliases":
+            return await this.listAliases(args);
+          case "vercel_assign_alias":
+            return await this.assignAlias(args);
+          case "vercel_delete_alias":
+            return await this.deleteAlias(args);
+
+          // Secrets
+          case "vercel_list_secrets":
+            return await this.listSecrets(args);
+          case "vercel_create_secret":
+            return await this.createSecret(args);
+          case "vercel_delete_secret":
+            return await this.deleteSecret(args);
+          case "vercel_rename_secret":
+            return await this.renameSecret(args);
+
+          // Checks
+          case "vercel_list_checks":
+            return await this.listChecks(args);
+          case "vercel_create_check":
+            return await this.createCheck(args);
+          case "vercel_update_check":
+            return await this.updateCheck(args);
+
+          // Deployment Files
+          case "vercel_list_deployment_files":
+            return await this.listDeploymentFiles(args);
+          case "vercel_get_deployment_file":
+            return await this.getDeploymentFile(args);
 
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -987,6 +1172,111 @@ class VercelMCP {
     const data = await this.vercelFetch(`/v1/webhooks/${args.webhookId}`, {
       method: "DELETE",
     });
+    return this.formatResponse(data);
+  }
+
+  // ==================== ALIAS METHODS ====================
+
+  private async listAliases(args: any) {
+    const params = new URLSearchParams();
+    if (args.projectId) params.append("projectId", args.projectId);
+    if (args.limit) params.append("limit", args.limit.toString());
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const data = await this.vercelFetch(`/v4/aliases${query}`);
+    return this.formatResponse(data);
+  }
+
+  private async assignAlias(args: any) {
+    const data = await this.vercelFetch(`/v2/deployments/${args.deploymentId}/aliases`, {
+      method: "POST",
+      body: JSON.stringify({ alias: args.alias }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteAlias(args: any) {
+    const data = await this.vercelFetch(`/v2/aliases/${args.aliasId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  // ==================== SECRET METHODS ====================
+
+  private async listSecrets(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const data = await this.vercelFetch(`/v3/secrets${query}`);
+    return this.formatResponse(data);
+  }
+
+  private async createSecret(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const data = await this.vercelFetch(`/v3/secrets${query}`, {
+      method: "POST",
+      body: JSON.stringify({ name: args.name, value: args.value }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteSecret(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const data = await this.vercelFetch(`/v2/secrets/${args.nameOrId}${query}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async renameSecret(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const data = await this.vercelFetch(`/v2/secrets/${args.nameOrId}${query}`, {
+      method: "PATCH",
+      body: JSON.stringify({ name: args.newName }),
+    });
+    return this.formatResponse(data);
+  }
+
+  // ==================== CHECK METHODS ====================
+
+  private async listChecks(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/checks`);
+    return this.formatResponse(data);
+  }
+
+  private async createCheck(args: any) {
+    const { deploymentId, ...check } = args;
+    const data = await this.vercelFetch(`/v1/deployments/${deploymentId}/checks`, {
+      method: "POST",
+      body: JSON.stringify(check),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async updateCheck(args: any) {
+    const { deploymentId, checkId, ...update } = args;
+    const data = await this.vercelFetch(`/v1/deployments/${deploymentId}/checks/${checkId}`, {
+      method: "PATCH",
+      body: JSON.stringify(update),
+    });
+    return this.formatResponse(data);
+  }
+
+  // ==================== DEPLOYMENT FILE METHODS ====================
+
+  private async listDeploymentFiles(args: any) {
+    const data = await this.vercelFetch(`/v6/deployments/${args.deploymentId}/files`);
+    return this.formatResponse(data);
+  }
+
+  private async getDeploymentFile(args: any) {
+    const data = await this.vercelFetch(`/v6/deployments/${args.deploymentId}/files/${args.fileId}`);
     return this.formatResponse(data);
   }
 
