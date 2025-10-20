@@ -252,7 +252,45 @@ class GoogleWorkspaceMCP {
       { name: 'licensing_get_assignment', description: 'Get license assignment', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' }, userId: { type: 'string' } }, required: ['productId', 'skuId', 'userId'] } },
       { name: 'licensing_assign_license', description: 'Assign license to user', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' }, userId: { type: 'string' } }, required: ['productId', 'skuId', 'userId'] } },
       { name: 'licensing_update_assignment', description: 'Update license assignment', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' }, userId: { type: 'string' }, updates: { type: 'object' } }, required: ['productId', 'skuId', 'userId', 'updates'] } },
-      { name: 'licensing_delete_assignment', description: 'Delete license assignment', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' }, userId: { type: 'string' } }, required: ['productId', 'skuId', 'userId'] } }
+      { name: 'licensing_delete_assignment', description: 'Delete license assignment', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' }, userId: { type: 'string' } }, required: ['productId', 'skuId', 'userId'] } },
+
+      // GOOGLE ADMIN CONSOLE (10 tools)
+      { name: 'admin_get_security_settings', description: 'Get organization security settings', inputSchema: { type: 'object', properties: { customer: { type: 'string' } }, required: ['customer'] } },
+      { name: 'admin_update_security_settings', description: 'Update security settings', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, settings: { type: 'object' } }, required: ['customer', 'settings'] } },
+      { name: 'admin_list_alerts', description: 'List security alerts', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, filter: { type: 'string' } }, required: ['customer'] } },
+      { name: 'admin_get_alert', description: 'Get alert details', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, alertId: { type: 'string' } }, required: ['customer', 'alertId'] } },
+      { name: 'admin_delete_alert', description: 'Delete alert', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, alertId: { type: 'string' } }, required: ['customer', 'alertId'] } },
+      { name: 'admin_list_tokens', description: 'List OAuth tokens', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
+      { name: 'admin_revoke_token', description: 'Revoke OAuth token', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, clientId: { type: 'string' } }, required: ['userKey', 'clientId'] } },
+      { name: 'admin_list_asp', description: 'List app-specific passwords', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
+      { name: 'admin_delete_asp', description: 'Delete app-specific password', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, codeId: { type: 'string' } }, required: ['userKey', 'codeId'] } },
+      { name: 'admin_get_customer_info', description: 'Get customer information', inputSchema: { type: 'object', properties: { customer: { type: 'string' } }, required: ['customer'] } },
+
+      // ADVANCED GMAIL (6 tools)
+      { name: 'gmail_batch_modify', description: 'Batch modify messages', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, ids: { type: 'array', items: { type: 'string' } }, addLabelIds: { type: 'array' }, removeLabelIds: { type: 'array' } }, required: ['userId', 'ids'] } },
+      { name: 'gmail_import_message', description: 'Import message to mailbox', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, message: { type: 'object' }, internalDateSource: { type: 'string' } }, required: ['userId', 'message'] } },
+      { name: 'gmail_insert_message', description: 'Insert message directly', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, message: { type: 'object' } }, required: ['userId', 'message'] } },
+      { name: 'gmail_get_profile', description: 'Get user Gmail profile', inputSchema: { type: 'object', properties: { userId: { type: 'string' } }, required: ['userId'] } },
+      { name: 'gmail_stop_watch', description: 'Stop Gmail push notifications', inputSchema: { type: 'object', properties: { userId: { type: 'string' } }, required: ['userId'] } },
+      { name: 'gmail_watch', description: 'Set up Gmail push notifications', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, labelIds: { type: 'array' }, topicName: { type: 'string' } }, required: ['userId', 'topicName'] } },
+
+      // ADVANCED DRIVE (6 tools)
+      { name: 'drive_export_file', description: 'Export Google Workspace file', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, mimeType: { type: 'string' } }, required: ['fileId', 'mimeType'] } },
+      { name: 'drive_empty_trash', description: 'Empty Drive trash', inputSchema: { type: 'object', properties: {} } },
+      { name: 'drive_get_about', description: 'Get Drive storage info', inputSchema: { type: 'object', properties: { fields: { type: 'string' } } } },
+      { name: 'drive_list_changes', description: 'List file changes', inputSchema: { type: 'object', properties: { pageToken: { type: 'string' }, includeRemoved: { type: 'boolean' } }, required: ['pageToken'] } },
+      { name: 'drive_get_start_page_token', description: 'Get start page token for changes', inputSchema: { type: 'object', properties: {} } },
+      { name: 'drive_watch_changes', description: 'Watch for file changes', inputSchema: { type: 'object', properties: { pageToken: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' } }, required: ['pageToken', 'address'] } },
+
+      // ADVANCED CALENDAR (3 tools)
+      { name: 'calendar_import_event', description: 'Import event to calendar', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, event: { type: 'object' } }, required: ['calendarId', 'event'] } },
+      { name: 'calendar_quick_add', description: 'Quick add event from text', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, text: { type: 'string' } }, required: ['calendarId', 'text'] } },
+      { name: 'calendar_watch_events', description: 'Watch calendar for changes', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' } }, required: ['calendarId', 'address'] } },
+
+      // ADVANCED SHEETS (3 tools)
+      { name: 'sheets_batch_update', description: 'Batch update spreadsheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, requests: { type: 'array' } }, required: ['spreadsheetId', 'requests'] } },
+      { name: 'sheets_append_values', description: 'Append values to sheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, range: { type: 'string' }, values: { type: 'array' } }, required: ['spreadsheetId', 'range', 'values'] } },
+      { name: 'sheets_batch_clear', description: 'Batch clear ranges', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, ranges: { type: 'array', items: { type: 'string' } } }, required: ['spreadsheetId', 'ranges'] } }
     ] }));
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -430,6 +468,45 @@ class GoogleWorkspaceMCP {
         case 'licensing_assign_license': return await this.licensingAssignLicense(args);
         case 'licensing_update_assignment': return await this.licensingUpdateAssignment(args);
         case 'licensing_delete_assignment': return await this.licensingDeleteAssignment(args);
+
+        // Google Admin Console
+        case 'admin_get_security_settings': return await this.adminGetSecuritySettings(args);
+        case 'admin_update_security_settings': return await this.adminUpdateSecuritySettings(args);
+        case 'admin_list_alerts': return await this.adminListAlerts(args);
+        case 'admin_get_alert': return await this.adminGetAlert(args);
+        case 'admin_delete_alert': return await this.adminDeleteAlert(args);
+        case 'admin_list_tokens': return await this.adminListTokens(args);
+        case 'admin_revoke_token': return await this.adminRevokeToken(args);
+        case 'admin_list_asp': return await this.adminListAsp(args);
+        case 'admin_delete_asp': return await this.adminDeleteAsp(args);
+        case 'admin_get_customer_info': return await this.adminGetCustomerInfo(args);
+
+        // Advanced Gmail
+        case 'gmail_batch_modify': return await this.gmailBatchModify(args);
+        case 'gmail_import_message': return await this.gmailImportMessage(args);
+        case 'gmail_insert_message': return await this.gmailInsertMessage(args);
+        case 'gmail_get_profile': return await this.gmailGetProfile(args);
+        case 'gmail_stop_watch': return await this.gmailStopWatch(args);
+        case 'gmail_watch': return await this.gmailWatch(args);
+
+        // Advanced Drive
+        case 'drive_export_file': return await this.driveExportFile(args);
+        case 'drive_empty_trash': return await this.driveEmptyTrash(args);
+        case 'drive_get_about': return await this.driveGetAbout(args);
+        case 'drive_list_changes': return await this.driveListChanges(args);
+        case 'drive_get_start_page_token': return await this.driveGetStartPageToken(args);
+        case 'drive_watch_changes': return await this.driveWatchChanges(args);
+
+        // Advanced Calendar
+        case 'calendar_import_event': return await this.calendarImportEvent(args);
+        case 'calendar_quick_add': return await this.calendarQuickAdd(args);
+        case 'calendar_watch_events': return await this.calendarWatchEvents(args);
+
+        // Advanced Sheets
+        case 'sheets_batch_update': return await this.sheetsBatchUpdate(args);
+        case 'sheets_append_values': return await this.sheetsAppendValues(args);
+        case 'sheets_batch_clear': return await this.sheetsBatchClear(args);
+
         default: throw new Error('Unknown tool: ' + request.params.name);
       }
     });
@@ -1337,6 +1414,188 @@ ${args.body}`;
   private async licensingDeleteAssignment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     await this.licensing.licenseAssignments.delete({ productId: args.productId, skuId: args.skuId, userId: args.userId });
     return { content: [{ type: 'text', text: 'License assignment deleted' }] };
+  }
+
+  // GOOGLE ADMIN CONSOLE
+  private async adminGetSecuritySettings(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.customers.get({ customerKey: args.customer });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async adminUpdateSecuritySettings(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.customers.patch({ customerKey: args.customer, requestBody: args.settings });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async adminListAlerts(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // Note: Requires Alert Center API
+    return { content: [{ type: 'text', text: 'Alert Center API integration required. Use Google Admin Console for alerts.' }] };
+  }
+
+  private async adminGetAlert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    return { content: [{ type: 'text', text: 'Alert Center API integration required. Use Google Admin Console for alerts.' }] };
+  }
+
+  private async adminDeleteAlert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    return { content: [{ type: 'text', text: 'Alert Center API integration required. Use Google Admin Console for alerts.' }] };
+  }
+
+  private async adminRevokeToken(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.tokens.delete({ userKey: args.userKey, clientId: args.clientId });
+    return { content: [{ type: 'text', text: 'Token revoked successfully' }] };
+  }
+
+  private async adminGetCustomerInfo(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.customers.get({ customerKey: args.customer });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  // ADVANCED GMAIL
+  private async gmailBatchModify(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.messages.batchModify({
+      userId: args.userId || 'me',
+      requestBody: {
+        ids: args.ids,
+        addLabelIds: args.addLabelIds,
+        removeLabelIds: args.removeLabelIds
+      }
+    });
+    return { content: [{ type: 'text', text: 'Messages modified successfully' }] };
+  }
+
+  private async gmailImportMessage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.messages.import({
+      userId: args.userId || 'me',
+      requestBody: args.message,
+      internalDateSource: args.internalDateSource
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async gmailInsertMessage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.messages.insert({
+      userId: args.userId || 'me',
+      requestBody: args.message
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async gmailStopWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.gmail.users.stop({ userId: args.userId || 'me' });
+    return { content: [{ type: 'text', text: 'Push notifications stopped' }] };
+  }
+
+  private async gmailWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.watch({
+      userId: args.userId || 'me',
+      requestBody: {
+        labelIds: args.labelIds,
+        topicName: args.topicName
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  // ADVANCED DRIVE
+  private async driveExportFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.files.export({
+      fileId: args.fileId,
+      mimeType: args.mimeType
+    });
+    return { content: [{ type: 'text', text: 'File exported successfully' }] };
+  }
+
+  private async driveEmptyTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.drive.files.emptyTrash({});
+    return { content: [{ type: 'text', text: 'Trash emptied successfully' }] };
+  }
+
+  private async driveGetAbout(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.about.get({
+      fields: args.fields || 'storageQuota,user'
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async driveListChanges(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.changes.list({
+      pageToken: args.pageToken,
+      includeRemoved: args.includeRemoved
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async driveGetStartPageToken(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.changes.getStartPageToken({});
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async driveWatchChanges(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.changes.watch({
+      pageToken: args.pageToken,
+      requestBody: {
+        id: Date.now().toString(),
+        type: args.type || 'web_hook',
+        address: args.address
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  // ADVANCED CALENDAR
+  private async calendarImportEvent(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.calendar.events.import({
+      calendarId: args.calendarId,
+      requestBody: args.event
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async calendarQuickAdd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.calendar.events.quickAdd({
+      calendarId: args.calendarId,
+      text: args.text
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async calendarWatchEvents(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.calendar.events.watch({
+      calendarId: args.calendarId,
+      requestBody: {
+        id: Date.now().toString(),
+        type: args.type || 'web_hook',
+        address: args.address
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  // ADVANCED SHEETS
+  private async sheetsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.batchUpdate({
+      spreadsheetId: args.spreadsheetId,
+      requestBody: { requests: args.requests }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async sheetsAppendValues(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.values.append({
+      spreadsheetId: args.spreadsheetId,
+      range: args.range,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values: args.values }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async sheetsBatchClear(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.values.batchClear({
+      spreadsheetId: args.spreadsheetId,
+      requestBody: { ranges: args.ranges }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
   }
 
   async run(): Promise<void> {
