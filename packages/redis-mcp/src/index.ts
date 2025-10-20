@@ -753,6 +753,353 @@ class RobinsonAIRedisMCP {
             required: ["channel", "message"],
           },
         },
+        {
+          name: "redis_xadd",
+          description: "Add entry to a stream",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Stream key" },
+              id: { type: "string", description: "Entry ID (* for auto-generate)" },
+              fields: { type: "object", description: "Field-value pairs" },
+            },
+            required: ["key", "id", "fields"],
+          },
+        },
+        {
+          name: "redis_xread",
+          description: "Read entries from one or more streams",
+          inputSchema: {
+            type: "object",
+            properties: {
+              streams: { type: "object", description: "Stream keys and IDs" },
+              count: { type: "number", description: "Max entries to return" },
+              block: { type: "number", description: "Block for milliseconds" },
+            },
+            required: ["streams"],
+          },
+        },
+        {
+          name: "redis_xrange",
+          description: "Get range of entries from a stream",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Stream key" },
+              start: { type: "string", description: "Start ID (- for min)" },
+              end: { type: "string", description: "End ID (+ for max)" },
+              count: { type: "number", description: "Max entries" },
+            },
+            required: ["key", "start", "end"],
+          },
+        },
+        {
+          name: "redis_xlen",
+          description: "Get the length of a stream",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Stream key" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_geoadd",
+          description: "Add geospatial items (longitude, latitude, member)",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Geo key" },
+              members: { type: "array", description: "Array of [lng, lat, name]" },
+            },
+            required: ["key", "members"],
+          },
+        },
+        {
+          name: "redis_geodist",
+          description: "Get distance between two members",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Geo key" },
+              member1: { type: "string", description: "First member" },
+              member2: { type: "string", description: "Second member" },
+              unit: { type: "string", description: "Unit (m, km, mi, ft)" },
+            },
+            required: ["key", "member1", "member2"],
+          },
+        },
+        {
+          name: "redis_georadius",
+          description: "Query members within radius",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Geo key" },
+              longitude: { type: "number", description: "Center longitude" },
+              latitude: { type: "number", description: "Center latitude" },
+              radius: { type: "number", description: "Radius" },
+              unit: { type: "string", description: "Unit (m, km, mi, ft)" },
+            },
+            required: ["key", "longitude", "latitude", "radius", "unit"],
+          },
+        },
+        {
+          name: "redis_pfadd",
+          description: "Add elements to HyperLogLog",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "HyperLogLog key" },
+              elements: { type: "array", description: "Elements to add" },
+            },
+            required: ["key", "elements"],
+          },
+        },
+        {
+          name: "redis_pfcount",
+          description: "Get cardinality of HyperLogLog",
+          inputSchema: {
+            type: "object",
+            properties: {
+              keys: { type: "array", description: "HyperLogLog keys" },
+            },
+            required: ["keys"],
+          },
+        },
+        {
+          name: "redis_setbit",
+          description: "Set or clear bit at offset",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Key" },
+              offset: { type: "number", description: "Bit offset" },
+              value: { type: "number", description: "0 or 1" },
+            },
+            required: ["key", "offset", "value"],
+          },
+        },
+        {
+          name: "redis_getbit",
+          description: "Get bit value at offset",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Key" },
+              offset: { type: "number", description: "Bit offset" },
+            },
+            required: ["key", "offset"],
+          },
+        },
+        {
+          name: "redis_bitcount",
+          description: "Count set bits in a string",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Key" },
+              start: { type: "number", description: "Start byte" },
+              end: { type: "number", description: "End byte" },
+            },
+            required: ["key"],
+          },
+        },
+        {
+          name: "redis_zrangebyscore",
+          description: "Get members in sorted set by score range",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+              min: { type: "string", description: "Min score" },
+              max: { type: "string", description: "Max score" },
+              withscores: { type: "boolean", description: "Include scores" },
+            },
+            required: ["key", "min", "max"],
+          },
+        },
+        {
+          name: "redis_zincrby",
+          description: "Increment score of member in sorted set",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+              increment: { type: "number", description: "Increment amount" },
+              member: { type: "string", description: "Member" },
+            },
+            required: ["key", "increment", "member"],
+          },
+        },
+        {
+          name: "redis_zcount",
+          description: "Count members in score range",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+              min: { type: "string", description: "Min score" },
+              max: { type: "string", description: "Max score" },
+            },
+            required: ["key", "min", "max"],
+          },
+        },
+        {
+          name: "redis_scan",
+          description: "Incrementally iterate keys",
+          inputSchema: {
+            type: "object",
+            properties: {
+              cursor: { type: "string", description: "Cursor (0 to start)" },
+              match: { type: "string", description: "Pattern to match" },
+              count: { type: "number", description: "Hint for count" },
+            },
+            required: ["cursor"],
+          },
+        },
+        {
+          name: "redis_hscan",
+          description: "Incrementally iterate hash fields",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Hash key" },
+              cursor: { type: "string", description: "Cursor" },
+              match: { type: "string", description: "Pattern" },
+              count: { type: "number", description: "Count hint" },
+            },
+            required: ["key", "cursor"],
+          },
+        },
+        {
+          name: "redis_sscan",
+          description: "Incrementally iterate set members",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Set key" },
+              cursor: { type: "string", description: "Cursor" },
+              match: { type: "string", description: "Pattern" },
+              count: { type: "number", description: "Count hint" },
+            },
+            required: ["key", "cursor"],
+          },
+        },
+        {
+          name: "redis_zscan",
+          description: "Incrementally iterate sorted set members",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Sorted set key" },
+              cursor: { type: "string", description: "Cursor" },
+              match: { type: "string", description: "Pattern" },
+              count: { type: "number", description: "Count hint" },
+            },
+            required: ["key", "cursor"],
+          },
+        },
+        {
+          name: "redis_getrange",
+          description: "Get substring of string value",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Key" },
+              start: { type: "number", description: "Start offset" },
+              end: { type: "number", description: "End offset" },
+            },
+            required: ["key", "start", "end"],
+          },
+        },
+        {
+          name: "redis_setrange",
+          description: "Overwrite part of string at offset",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Key" },
+              offset: { type: "number", description: "Offset" },
+              value: { type: "string", description: "Value" },
+            },
+            required: ["key", "offset", "value"],
+          },
+        },
+        {
+          name: "redis_sinter",
+          description: "Intersect multiple sets",
+          inputSchema: {
+            type: "object",
+            properties: {
+              keys: { type: "array", description: "Set keys" },
+            },
+            required: ["keys"],
+          },
+        },
+        {
+          name: "redis_sunion",
+          description: "Union multiple sets",
+          inputSchema: {
+            type: "object",
+            properties: {
+              keys: { type: "array", description: "Set keys" },
+            },
+            required: ["keys"],
+          },
+        },
+        {
+          name: "redis_sdiff",
+          description: "Difference of sets",
+          inputSchema: {
+            type: "object",
+            properties: {
+              keys: { type: "array", description: "Set keys" },
+            },
+            required: ["keys"],
+          },
+        },
+        {
+          name: "redis_zunionstore",
+          description: "Union sorted sets and store result",
+          inputSchema: {
+            type: "object",
+            properties: {
+              destination: { type: "string", description: "Destination key" },
+              keys: { type: "array", description: "Source keys" },
+              weights: { type: "array", description: "Weights" },
+            },
+            required: ["destination", "keys"],
+          },
+        },
+        {
+          name: "redis_zinterstore",
+          description: "Intersect sorted sets and store result",
+          inputSchema: {
+            type: "object",
+            properties: {
+              destination: { type: "string", description: "Destination key" },
+              keys: { type: "array", description: "Source keys" },
+              weights: { type: "array", description: "Weights" },
+            },
+            required: ["destination", "keys"],
+          },
+        },
+        {
+          name: "redis_linsert",
+          description: "Insert element before or after pivot in list",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "List key" },
+              position: { type: "string", description: "BEFORE or AFTER" },
+              pivot: { type: "string", description: "Pivot element" },
+              element: { type: "string", description: "Element to insert" },
+            },
+            required: ["key", "position", "pivot", "element"],
+          },
+        },
       ],
     }));
 
@@ -878,6 +1225,80 @@ class RobinsonAIRedisMCP {
             return await this.handleRename(request.params.arguments);
           case "redis_persist":
             return await this.handlePersist(request.params.arguments);
+
+          // Streams
+          case "redis_xadd":
+            return await this.handleXAdd(request.params.arguments);
+          case "redis_xread":
+            return await this.handleXRead(request.params.arguments);
+          case "redis_xrange":
+            return await this.handleXRange(request.params.arguments);
+          case "redis_xlen":
+            return await this.handleXLen(request.params.arguments);
+
+          // Geospatial
+          case "redis_geoadd":
+            return await this.handleGeoAdd(request.params.arguments);
+          case "redis_geodist":
+            return await this.handleGeoDist(request.params.arguments);
+          case "redis_georadius":
+            return await this.handleGeoRadius(request.params.arguments);
+
+          // HyperLogLog
+          case "redis_pfadd":
+            return await this.handlePfAdd(request.params.arguments);
+          case "redis_pfcount":
+            return await this.handlePfCount(request.params.arguments);
+
+          // Bitmaps
+          case "redis_setbit":
+            return await this.handleSetBit(request.params.arguments);
+          case "redis_getbit":
+            return await this.handleGetBit(request.params.arguments);
+          case "redis_bitcount":
+            return await this.handleBitCount(request.params.arguments);
+
+          // Advanced Sorted Sets
+          case "redis_zrangebyscore":
+            return await this.handleZRangeByScore(request.params.arguments);
+          case "redis_zincrby":
+            return await this.handleZIncrBy(request.params.arguments);
+          case "redis_zcount":
+            return await this.handleZCount(request.params.arguments);
+
+          // Scan operations
+          case "redis_scan":
+            return await this.handleScan(request.params.arguments);
+          case "redis_hscan":
+            return await this.handleHScan(request.params.arguments);
+          case "redis_sscan":
+            return await this.handleSScan(request.params.arguments);
+          case "redis_zscan":
+            return await this.handleZScan(request.params.arguments);
+
+          // String range
+          case "redis_getrange":
+            return await this.handleGetRange(request.params.arguments);
+          case "redis_setrange":
+            return await this.handleSetRange(request.params.arguments);
+
+          // Set operations
+          case "redis_sinter":
+            return await this.handleSInter(request.params.arguments);
+          case "redis_sunion":
+            return await this.handleSUnion(request.params.arguments);
+          case "redis_sdiff":
+            return await this.handleSDiff(request.params.arguments);
+
+          // Sorted set store
+          case "redis_zunionstore":
+            return await this.handleZUnionStore(request.params.arguments);
+          case "redis_zinterstore":
+            return await this.handleZInterStore(request.params.arguments);
+
+          // List insert
+          case "redis_linsert":
+            return await this.handleLInsert(request.params.arguments);
 
           // Pub/Sub
           case "redis_publish":
@@ -1397,6 +1818,172 @@ class RobinsonAIRedisMCP {
   private async handlePersist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     const result = await this.client!.persist(args.key);
     return { content: [{ type: "text", text: result ? `Removed expiration from ${args.key}` : `${args.key} does not have an expiration` }] };
+  }
+
+  // Stream Handlers
+  private async handleXAdd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const id = await this.client!.xAdd(args.key, args.id, args.fields);
+    return { content: [{ type: "text", text: `Added entry to stream ${args.key} with ID: ${id}` }] };
+  }
+
+  private async handleXRead(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const options: any = {};
+    if (args.count) options.COUNT = args.count;
+    if (args.block !== undefined) options.BLOCK = args.block;
+    const result = await this.client!.xRead(args.streams, options);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  private async handleXRange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.client!.xRange(args.key, args.start, args.end, args.count ? { COUNT: args.count } : undefined);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  private async handleXLen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const length = await this.client!.xLen(args.key);
+    return { content: [{ type: "text", text: `Stream ${args.key} length: ${length}` }] };
+  }
+
+  // Geospatial Handlers
+  private async handleGeoAdd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.geoAdd(args.key, args.members);
+    return { content: [{ type: "text", text: `Added ${count} geospatial items to ${args.key}` }] };
+  }
+
+  private async handleGeoDist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const distance = await this.client!.geoDist(args.key, args.member1, args.member2, args.unit || 'm');
+    return { content: [{ type: "text", text: `Distance: ${distance} ${args.unit || 'm'}` }] };
+  }
+
+  private async handleGeoRadius(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.client!.geoRadius(args.key, { longitude: args.longitude, latitude: args.latitude }, args.radius, args.unit);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  // HyperLogLog Handlers
+  private async handlePfAdd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.client!.pfAdd(args.key, args.elements);
+    return { content: [{ type: "text", text: `PfAdd result: ${result}` }] };
+  }
+
+  private async handlePfCount(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.pfCount(args.keys);
+    return { content: [{ type: "text", text: `Cardinality: ${count}` }] };
+  }
+
+  // Bitmap Handlers
+  private async handleSetBit(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const oldValue = await this.client!.setBit(args.key, args.offset, args.value);
+    return { content: [{ type: "text", text: `Set bit at offset ${args.offset}, old value: ${oldValue}` }] };
+  }
+
+  private async handleGetBit(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const value = await this.client!.getBit(args.key, args.offset);
+    return { content: [{ type: "text", text: `Bit value at offset ${args.offset}: ${value}` }] };
+  }
+
+  private async handleBitCount(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.bitCount(args.key, args.start, args.end);
+    return { content: [{ type: "text", text: `Bit count: ${count}` }] };
+  }
+
+  // Advanced Sorted Set Handlers
+  private async handleZRangeByScore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const options: any = {};
+    if (args.withscores) options.WITHSCORES = true;
+    const result = await this.client!.zRangeByScore(args.key, args.min, args.max, options);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  private async handleZIncrBy(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const newScore = await this.client!.zIncrBy(args.key, args.increment, args.member);
+    return { content: [{ type: "text", text: `New score for ${args.member}: ${newScore}` }] };
+  }
+
+  private async handleZCount(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const count = await this.client!.zCount(args.key, args.min, args.max);
+    return { content: [{ type: "text", text: `Count in range: ${count}` }] };
+  }
+
+  // Scan Handlers
+  private async handleScan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const options: any = {};
+    if (args.match) options.MATCH = args.match;
+    if (args.count) options.COUNT = args.count;
+    const result = await this.client!.scan(parseInt(args.cursor), options);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  private async handleHScan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const options: any = {};
+    if (args.match) options.MATCH = args.match;
+    if (args.count) options.COUNT = args.count;
+    const result = await this.client!.hScan(args.key, parseInt(args.cursor), options);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  private async handleSScan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const options: any = {};
+    if (args.match) options.MATCH = args.match;
+    if (args.count) options.COUNT = args.count;
+    const result = await this.client!.sScan(args.key, parseInt(args.cursor), options);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  private async handleZScan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const options: any = {};
+    if (args.match) options.MATCH = args.match;
+    if (args.count) options.COUNT = args.count;
+    const result = await this.client!.zScan(args.key, parseInt(args.cursor), options);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  // String Range Handlers
+  private async handleGetRange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const value = await this.client!.getRange(args.key, args.start, args.end);
+    return { content: [{ type: "text", text: value }] };
+  }
+
+  private async handleSetRange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const length = await this.client!.setRange(args.key, args.offset, args.value);
+    return { content: [{ type: "text", text: `String length after modification: ${length}` }] };
+  }
+
+  // Set Operation Handlers
+  private async handleSInter(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.client!.sInter(args.keys);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  private async handleSUnion(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.client!.sUnion(args.keys);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  private async handleSDiff(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.client!.sDiff(args.keys);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+
+  // Sorted Set Store Handlers
+  private async handleZUnionStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const options: any = { KEYS: args.keys };
+    if (args.weights) options.WEIGHTS = args.weights;
+    const count = await this.client!.zUnionStore(args.destination, args.keys, options);
+    return { content: [{ type: "text", text: `Stored ${count} members in ${args.destination}` }] };
+  }
+
+  private async handleZInterStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const options: any = { KEYS: args.keys };
+    if (args.weights) options.WEIGHTS = args.weights;
+    const count = await this.client!.zInterStore(args.destination, args.keys, options);
+    return { content: [{ type: "text", text: `Stored ${count} members in ${args.destination}` }] };
+  }
+
+  // List Insert Handler
+  private async handleLInsert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const length = await this.client!.lInsert(args.key, args.position, args.pivot, args.element);
+    return { content: [{ type: "text", text: `List length after insert: ${length}` }] };
   }
 
   // Pub/Sub Handlers
