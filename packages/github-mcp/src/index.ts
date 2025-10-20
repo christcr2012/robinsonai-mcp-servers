@@ -302,6 +302,71 @@ class GitHubMCP {
         { name: 'list_projects', description: 'List repository projects', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
         { name: 'get_project', description: 'Get project details', inputSchema: { type: 'object', properties: { project_id: { type: 'number' } }, required: ['project_id'] } },
         { name: 'create_project', description: 'Create a project', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, body: { type: 'string' } }, required: ['owner', 'repo', 'name'] } },
+
+        // ADVANCED ACTIONS (10 tools)
+        { name: 'list_workflow_runs', description: 'List workflow runs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' }, status: { type: 'string' }, per_page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'get_workflow_run', description: 'Get workflow run details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'cancel_workflow_run', description: 'Cancel workflow run', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'rerun_workflow', description: 'Re-run workflow', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'download_workflow_logs', description: 'Download workflow logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'list_workflow_jobs', description: 'List workflow jobs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'get_workflow_job', description: 'Get workflow job details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, job_id: { type: 'number' } }, required: ['owner', 'repo', 'job_id'] } },
+        { name: 'download_job_logs', description: 'Download job logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, job_id: { type: 'number' } }, required: ['owner', 'repo', 'job_id'] } },
+        { name: 'list_repo_secrets', description: 'List repository secrets', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'create_repo_secret', description: 'Create repository secret', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' }, encrypted_value: { type: 'string' } }, required: ['owner', 'repo', 'secret_name', 'encrypted_value'] } },
+
+        // PACKAGES (8 tools)
+        { name: 'list_packages', description: 'List packages for organization', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string', enum: ['npm', 'maven', 'rubygems', 'docker', 'nuget', 'container'] } }, required: ['org', 'package_type'] } },
+        { name: 'get_package', description: 'Get package details', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
+        { name: 'delete_package', description: 'Delete package', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
+        { name: 'restore_package', description: 'Restore deleted package', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
+        { name: 'list_package_versions', description: 'List package versions', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
+        { name: 'get_package_version', description: 'Get package version', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' }, version_id: { type: 'number' } }, required: ['org', 'package_type', 'package_name', 'version_id'] } },
+        { name: 'delete_package_version', description: 'Delete package version', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' }, version_id: { type: 'number' } }, required: ['org', 'package_type', 'package_name', 'version_id'] } },
+        { name: 'restore_package_version', description: 'Restore package version', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' }, version_id: { type: 'number' } }, required: ['org', 'package_type', 'package_name', 'version_id'] } },
+
+        // PROJECTS V2 (8 tools)
+        { name: 'list_org_projects_v2', description: 'List organization projects v2', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'get_project_v2', description: 'Get project v2 details', inputSchema: { type: 'object', properties: { project_id: { type: 'string' } }, required: ['project_id'] } },
+        { name: 'create_project_v2', description: 'Create project v2', inputSchema: { type: 'object', properties: { org: { type: 'string' }, title: { type: 'string' } }, required: ['org', 'title'] } },
+        { name: 'update_project_v2', description: 'Update project v2', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, title: { type: 'string' }, description: { type: 'string' } }, required: ['project_id'] } },
+        { name: 'delete_project_v2', description: 'Delete project v2', inputSchema: { type: 'object', properties: { project_id: { type: 'string' } }, required: ['project_id'] } },
+        { name: 'list_project_items', description: 'List project items', inputSchema: { type: 'object', properties: { project_id: { type: 'string' } }, required: ['project_id'] } },
+        { name: 'add_project_item', description: 'Add item to project', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, content_id: { type: 'string' } }, required: ['project_id', 'content_id'] } },
+        { name: 'remove_project_item', description: 'Remove item from project', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, item_id: { type: 'string' } }, required: ['project_id', 'item_id'] } },
+
+        // DISCUSSIONS (8 tools)
+        { name: 'list_discussions', description: 'List repository discussions', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, category: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'get_discussion', description: 'Get discussion details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' } }, required: ['owner', 'repo', 'discussion_number'] } },
+        { name: 'create_discussion', description: 'Create discussion', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, body: { type: 'string' }, category_id: { type: 'string' } }, required: ['owner', 'repo', 'title', 'body', 'category_id'] } },
+        { name: 'update_discussion', description: 'Update discussion', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' }, title: { type: 'string' }, body: { type: 'string' } }, required: ['owner', 'repo', 'discussion_number'] } },
+        { name: 'delete_discussion', description: 'Delete discussion', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' } }, required: ['owner', 'repo', 'discussion_number'] } },
+        { name: 'list_discussion_comments', description: 'List discussion comments', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' } }, required: ['owner', 'repo', 'discussion_number'] } },
+        { name: 'create_discussion_comment', description: 'Create discussion comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' }, body: { type: 'string' } }, required: ['owner', 'repo', 'discussion_number', 'body'] } },
+        { name: 'list_discussion_categories', description: 'List discussion categories', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+
+        // CODESPACES (7 tools)
+        { name: 'list_codespaces', description: 'List user codespaces', inputSchema: { type: 'object', properties: { per_page: { type: 'number' } } } },
+        { name: 'get_codespace', description: 'Get codespace details', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
+        { name: 'create_codespace', description: 'Create codespace', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' }, machine: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'start_codespace', description: 'Start codespace', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
+        { name: 'stop_codespace', description: 'Stop codespace', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
+        { name: 'delete_codespace', description: 'Delete codespace', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
+        { name: 'list_repo_codespaces', description: 'List repository codespaces', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+
+        // COPILOT (5 tools)
+        { name: 'get_copilot_org_settings', description: 'Get Copilot organization settings', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'list_copilot_seats', description: 'List Copilot seat assignments', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'add_copilot_seats', description: 'Add Copilot seats', inputSchema: { type: 'object', properties: { org: { type: 'string' }, selected_usernames: { type: 'array', items: { type: 'string' } } }, required: ['org', 'selected_usernames'] } },
+        { name: 'remove_copilot_seats', description: 'Remove Copilot seats', inputSchema: { type: 'object', properties: { org: { type: 'string' }, selected_usernames: { type: 'array', items: { type: 'string' } } }, required: ['org', 'selected_usernames'] } },
+        { name: 'get_copilot_usage', description: 'Get Copilot usage metrics', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
+
+        // ADVANCED SECURITY (5 tools)
+        { name: 'list_code_scanning_alerts', description: 'List code scanning alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'dismissed', 'fixed'] } }, required: ['owner', 'repo'] } },
+        { name: 'get_code_scanning_alert', description: 'Get code scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' } }, required: ['owner', 'repo', 'alert_number'] } },
+        { name: 'update_code_scanning_alert', description: 'Update code scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['dismissed', 'open'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
+        { name: 'list_secret_scanning_alerts', description: 'List secret scanning alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo'] } },
+        { name: 'update_secret_scanning_alert', description: 'Update secret scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
       ]
     }));
 
@@ -537,6 +602,71 @@ class GitHubMCP {
           case 'list_projects': return await this.listProjects(args);
           case 'get_project': return await this.getProject(args);
           case 'create_project': return await this.createProject(args);
+
+          // Advanced Actions
+          case 'list_workflow_runs': return await this.listWorkflowRuns(args);
+          case 'get_workflow_run': return await this.getWorkflowRun(args);
+          case 'cancel_workflow_run': return await this.cancelWorkflowRun(args);
+          case 'rerun_workflow': return await this.rerunWorkflow(args);
+          case 'download_workflow_logs': return await this.downloadWorkflowRunLogs(args);
+          case 'list_workflow_jobs': return await this.listWorkflowRunJobs(args);
+          case 'get_workflow_job': return await this.getWorkflowRunJob(args);
+          case 'download_job_logs': return await this.downloadJobLogs(args);
+          case 'list_repo_secrets': return await this.listRepoSecrets(args);
+          case 'create_repo_secret': return await this.createRepoSecretHandler(args);
+
+          // Packages
+          case 'list_packages': return await this.listPackages(args);
+          case 'get_package': return await this.getPackage(args);
+          case 'delete_package': return await this.deletePackage(args);
+          case 'restore_package': return await this.restorePackage(args);
+          case 'list_package_versions': return await this.listPackageVersions(args);
+          case 'get_package_version': return await this.getPackageVersion(args);
+          case 'delete_package_version': return await this.deletePackageVersion(args);
+          case 'restore_package_version': return await this.restorePackageVersion(args);
+
+          // Projects v2
+          case 'list_org_projects_v2': return await this.listOrgProjectsV2(args);
+          case 'get_project_v2': return await this.getProjectV2(args);
+          case 'create_project_v2': return await this.createProjectV2(args);
+          case 'update_project_v2': return await this.updateProjectV2(args);
+          case 'delete_project_v2': return await this.deleteProjectV2(args);
+          case 'list_project_items': return await this.listProjectItems(args);
+          case 'add_project_item': return await this.addProjectItem(args);
+          case 'remove_project_item': return await this.removeProjectItem(args);
+
+          // Discussions
+          case 'list_discussions': return await this.listDiscussions(args);
+          case 'get_discussion': return await this.getDiscussion(args);
+          case 'create_discussion': return await this.createDiscussion(args);
+          case 'update_discussion': return await this.updateDiscussion(args);
+          case 'delete_discussion': return await this.deleteDiscussion(args);
+          case 'list_discussion_comments': return await this.listDiscussionComments(args);
+          case 'create_discussion_comment': return await this.createDiscussionComment(args);
+          case 'list_discussion_categories': return await this.listDiscussionCategories(args);
+
+          // Codespaces
+          case 'list_codespaces': return await this.listCodespaces(args);
+          case 'get_codespace': return await this.getCodespace(args);
+          case 'create_codespace': return await this.createCodespace(args);
+          case 'start_codespace': return await this.startCodespace(args);
+          case 'stop_codespace': return await this.stopCodespace(args);
+          case 'delete_codespace': return await this.deleteCodespace(args);
+          case 'list_repo_codespaces': return await this.listRepoCodespaces(args);
+
+          // Copilot
+          case 'get_copilot_org_settings': return await this.getCopilotOrgSettings(args);
+          case 'list_copilot_seats': return await this.listCopilotSeats(args);
+          case 'add_copilot_seats': return await this.addCopilotSeats(args);
+          case 'remove_copilot_seats': return await this.removeCopilotSeats(args);
+          case 'get_copilot_usage': return await this.getCopilotUsage(args);
+
+          // Advanced Security
+          case 'list_code_scanning_alerts': return await this.listCodeScanningAlerts(args);
+          case 'get_code_scanning_alert': return await this.getCodeScanningAlert(args);
+          case 'update_code_scanning_alert': return await this.updateCodeScanningAlert(args);
+          case 'list_secret_scanning_alerts': return await this.listSecretScanningAlerts(args);
+          case 'update_secret_scanning_alert': return await this.updateSecretScanningAlert(args);
 
           default:
             throw new Error(`Unknown tool: ${request.params.name}`);
@@ -1948,12 +2078,263 @@ class GitHubMCP {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
+  private async createRepoSecretHandler(args: any) {
+    const response = await this.client.put(`/repos/${args.owner}/${args.repo}/actions/secrets/${args.secret_name}`, {
+      encrypted_value: args.encrypted_value
+    });
+    return { content: [{ type: 'text', text: 'Secret created successfully' }] };
+  }
+
+  // PACKAGES
+  private async listPackages(args: any) {
+    const response = await this.client.get(`/orgs/${args.org}/packages`, { package_type: args.package_type });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async getPackage(args: any) {
+    const response = await this.client.get(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async deletePackage(args: any) {
+    const response = await this.client.delete(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}`);
+    return { content: [{ type: 'text', text: 'Package deleted' }] };
+  }
+
+  private async restorePackage(args: any) {
+    const response = await this.client.post(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/restore`, {});
+    return { content: [{ type: 'text', text: 'Package restored' }] };
+  }
+
+  private async listPackageVersions(args: any) {
+    const response = await this.client.get(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/versions`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async getPackageVersion(args: any) {
+    const response = await this.client.get(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/versions/${args.version_id}`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async deletePackageVersion(args: any) {
+    const response = await this.client.delete(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/versions/${args.version_id}`);
+    return { content: [{ type: 'text', text: 'Package version deleted' }] };
+  }
+
+  private async restorePackageVersion(args: any) {
+    const response = await this.client.post(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/versions/${args.version_id}/restore`, {});
+    return { content: [{ type: 'text', text: 'Package version restored' }] };
+  }
+
+  // PROJECTS V2 (GraphQL)
+  private async listOrgProjectsV2(args: any) {
+    const query = `query { organization(login: "${args.org}") { projectsV2(first: 20) { nodes { id title } } } }`;
+    const response = await this.client.post('/graphql', { query });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async getProjectV2(args: any) {
+    const query = `query { node(id: "${args.project_id}") { ... on ProjectV2 { id title description } } }`;
+    const response = await this.client.post('/graphql', { query });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async createProjectV2(args: any) {
+    const mutation = `mutation { createProjectV2(input: { ownerId: "${args.org}", title: "${args.title}" }) { projectV2 { id title } } }`;
+    const response = await this.client.post('/graphql', { query: mutation });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async updateProjectV2(args: any) {
+    const mutation = `mutation { updateProjectV2(input: { projectId: "${args.project_id}", title: "${args.title || ''}" }) { projectV2 { id title } } }`;
+    const response = await this.client.post('/graphql', { query: mutation });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async deleteProjectV2(args: any) {
+    const mutation = `mutation { deleteProjectV2(input: { projectId: "${args.project_id}" }) { projectV2 { id } } }`;
+    const response = await this.client.post('/graphql', { query: mutation });
+    return { content: [{ type: 'text', text: 'Project deleted' }] };
+  }
+
+  private async listProjectItems(args: any) {
+    const query = `query { node(id: "${args.project_id}") { ... on ProjectV2 { items(first: 20) { nodes { id } } } } }`;
+    const response = await this.client.post('/graphql', { query });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async addProjectItem(args: any) {
+    const mutation = `mutation { addProjectV2ItemById(input: { projectId: "${args.project_id}", contentId: "${args.content_id}" }) { item { id } } }`;
+    const response = await this.client.post('/graphql', { query: mutation });
+    return { content: [{ type: 'text', text: 'Item added to project' }] };
+  }
+
+  private async removeProjectItem(args: any) {
+    const mutation = `mutation { deleteProjectV2Item(input: { projectId: "${args.project_id}", itemId: "${args.item_id}" }) { deletedItemId } }`;
+    const response = await this.client.post('/graphql', { query: mutation });
+    return { content: [{ type: 'text', text: 'Item removed from project' }] };
+  }
+
+  // DISCUSSIONS
+  private async listDiscussions(args: any) {
+    const params: any = {};
+    if (args.category) params.category = args.category;
+    const response = await this.client.get(`/repos/${args.owner}/${args.repo}/discussions`, params);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async getDiscussion(args: any) {
+    const response = await this.client.get(`/repos/${args.owner}/${args.repo}/discussions/${args.discussion_number}`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async createDiscussion(args: any) {
+    const response = await this.client.post(`/repos/${args.owner}/${args.repo}/discussions`, {
+      title: args.title,
+      body: args.body,
+      category_id: args.category_id
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async updateDiscussion(args: any) {
+    const body: any = {};
+    if (args.title) body.title = args.title;
+    if (args.body) body.body = args.body;
+    const response = await this.client.patch(`/repos/${args.owner}/${args.repo}/discussions/${args.discussion_number}`, body);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async deleteDiscussion(args: any) {
+    const response = await this.client.delete(`/repos/${args.owner}/${args.repo}/discussions/${args.discussion_number}`);
+    return { content: [{ type: 'text', text: 'Discussion deleted' }] };
+  }
+
+  private async listDiscussionComments(args: any) {
+    const response = await this.client.get(`/repos/${args.owner}/${args.repo}/discussions/${args.discussion_number}/comments`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async createDiscussionComment(args: any) {
+    const response = await this.client.post(`/repos/${args.owner}/${args.repo}/discussions/${args.discussion_number}/comments`, {
+      body: args.body
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async listDiscussionCategories(args: any) {
+    const response = await this.client.get(`/repos/${args.owner}/${args.repo}/discussions/categories`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  // CODESPACES
+  private async listCodespaces(args: any) {
+    const params: any = {};
+    if (args.per_page) params.per_page = args.per_page;
+    const response = await this.client.get('/user/codespaces', params);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async getCodespace(args: any) {
+    const response = await this.client.get(`/user/codespaces/${args.codespace_name}`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async createCodespace(args: any) {
+    const body: any = {};
+    if (args.ref) body.ref = args.ref;
+    if (args.machine) body.machine = args.machine;
+    const response = await this.client.post(`/repos/${args.owner}/${args.repo}/codespaces`, body);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async startCodespace(args: any) {
+    const response = await this.client.post(`/user/codespaces/${args.codespace_name}/start`, {});
+    return { content: [{ type: 'text', text: 'Codespace started' }] };
+  }
+
+  private async stopCodespace(args: any) {
+    const response = await this.client.post(`/user/codespaces/${args.codespace_name}/stop`, {});
+    return { content: [{ type: 'text', text: 'Codespace stopped' }] };
+  }
+
+  private async deleteCodespace(args: any) {
+    const response = await this.client.delete(`/user/codespaces/${args.codespace_name}`);
+    return { content: [{ type: 'text', text: 'Codespace deleted' }] };
+  }
+
+  private async listRepoCodespaces(args: any) {
+    const response = await this.client.get(`/repos/${args.owner}/${args.repo}/codespaces`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  // COPILOT
+  private async getCopilotOrgSettings(args: any) {
+    const response = await this.client.get(`/orgs/${args.org}/copilot/billing`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async listCopilotSeats(args: any) {
+    const response = await this.client.get(`/orgs/${args.org}/copilot/billing/seats`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async addCopilotSeats(args: any) {
+    const response = await this.client.post(`/orgs/${args.org}/copilot/billing/selected_users`, {
+      selected_usernames: args.selected_usernames
+    });
+    return { content: [{ type: 'text', text: 'Copilot seats added' }] };
+  }
+
+  private async removeCopilotSeats(args: any) {
+    const response = await this.client.delete(`/orgs/${args.org}/copilot/billing/selected_users`);
+    return { content: [{ type: 'text', text: 'Copilot seats removed' }] };
+  }
+
+  private async getCopilotUsage(args: any) {
+    const response = await this.client.get(`/orgs/${args.org}/copilot/usage`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  // ADVANCED SECURITY
+  private async listCodeScanningAlerts(args: any) {
+    const params: any = {};
+    if (args.state) params.state = args.state;
+    const response = await this.client.get(`/repos/${args.owner}/${args.repo}/code-scanning/alerts`, params);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async getCodeScanningAlert(args: any) {
+    const response = await this.client.get(`/repos/${args.owner}/${args.repo}/code-scanning/alerts/${args.alert_number}`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async updateCodeScanningAlert(args: any) {
+    const response = await this.client.patch(`/repos/${args.owner}/${args.repo}/code-scanning/alerts/${args.alert_number}`, {
+      state: args.state
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async listSecretScanningAlerts(args: any) {
+    const params: any = {};
+    if (args.state) params.state = args.state;
+    const response = await this.client.get(`/repos/${args.owner}/${args.repo}/secret-scanning/alerts`, params);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async updateSecretScanningAlert(args: any) {
+    const response = await this.client.patch(`/repos/${args.owner}/${args.repo}/secret-scanning/alerts/${args.alert_number}`, {
+      state: args.state
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
 
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('@robinsonai/github-mcp server running on stdio');
-    console.error('199 GitHub tools available');
+    console.error('250 GitHub tools available');
   }
 }
 
