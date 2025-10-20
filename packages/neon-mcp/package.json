@@ -1,31 +1,35 @@
 {
   "name": "@robinsonai/neon-mcp",
-  "version": "1.0.0",
-  "description": "Enhanced Neon database MCP server with advanced workflows and management tools",
+  "version": "2.0.0",
+  "description": "Comprehensive Neon PostgreSQL MCP server with 145 tools for complete database management",
   "type": "module",
+  "main": "dist/index.js",
   "bin": {
-    "neon-mcp": "./dist/index.js"
+    "neon-mcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc -w",
-    "prepublishOnly": "npm run build"
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
   },
   "keywords": [
     "mcp",
     "neon",
     "database",
     "postgresql",
-    "model-context-protocol"
+    "model-context-protocol",
+    "database-management",
+    "performance-monitoring",
+    "cost-optimization"
   ],
   "author": "Robinson AI Systems",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.4"
+    "@modelcontextprotocol/sdk": "^1.20.1",
+    "axios": "^1.12.2"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
-    "typescript": "^5.7.2"
+    "@types/node": "^22.18.11",
+    "typescript": "^5.9.3"
   }
 }
-

@@ -1,7 +1,7 @@
 {
   "name": "@robinsonai/github-mcp",
-  "version": "1.0.0",
-  "description": "Enhanced GitHub MCP server with advanced automation and workflow tools",
+  "version": "2.0.0",
+  "description": "Comprehensive GitHub MCP server with 199 tools - 8.6x more than official GitHub MCP",
   "type": "module",
   "bin": {
     "github-mcp": "./dist/index.js"
@@ -21,11 +21,11 @@
   "author": "Robinson AI Systems",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.4"
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@octokit/rest": "^22.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2"
   }
 }
-

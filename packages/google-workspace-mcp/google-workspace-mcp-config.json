@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "google-workspace": {
+      "command": "npx",
+      "args": [
+        "google-workspace-mcp",
+        "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\google-workspace-mcp\\service-account-key.json",
+        "ops@robinsonaisystems.com"
+      ]
+    }
+  }
+}

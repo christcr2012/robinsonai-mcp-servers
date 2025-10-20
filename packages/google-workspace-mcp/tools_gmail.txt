@@ -1,0 +1,17 @@
+
+      // Gmail Tools (15)
+      { name: "gmail_send_message", description: "Send an email via Gmail", inputSchema: { type: "object", properties: { to: { type: "string" }, subject: { type: "string" }, body: { type: "string" } }, required: ["to", "subject", "body"] } },
+      { name: "gmail_list_messages", description: "List Gmail messages", inputSchema: { type: "object", properties: { maxResults: { type: "number" }, query: { type: "string" } } } },
+      { name: "gmail_get_message", description: "Get a specific Gmail message", inputSchema: { type: "object", properties: { messageId: { type: "string" } }, required: ["messageId"] } },
+      { name: "gmail_delete_message", description: "Delete a Gmail message", inputSchema: { type: "object", properties: { messageId: { type: "string" } }, required: ["messageId"] } },
+      { name: "gmail_list_labels", description: "List all Gmail labels", inputSchema: { type: "object", properties: {} } },
+      { name: "gmail_create_label", description: "Create a new Gmail label", inputSchema: { type: "object", properties: { name: { type: "string" } }, required: ["name"] } },
+      { name: "gmail_delete_label", description: "Delete a Gmail label", inputSchema: { type: "object", properties: { labelId: { type: "string" } }, required: ["labelId"] } },
+      { name: "gmail_modify_labels", description: "Add/remove labels from a message", inputSchema: { type: "object", properties: { messageId: { type: "string" }, addLabels: { type: "array" }, removeLabels: { type: "array" } }, required: ["messageId"] } },
+      { name: "gmail_list_drafts", description: "List Gmail drafts", inputSchema: { type: "object", properties: { maxResults: { type: "number" } } } },
+      { name: "gmail_create_draft", description: "Create a Gmail draft", inputSchema: { type: "object", properties: { to: { type: "string" }, subject: { type: "string" }, body: { type: "string" } }, required: ["to", "subject", "body"] } },
+      { name: "gmail_send_draft", description: "Send a Gmail draft", inputSchema: { type: "object", properties: { draftId: { type: "string" } }, required: ["draftId"] } },
+      { name: "gmail_delete_draft", description: "Delete a Gmail draft", inputSchema: { type: "object", properties: { draftId: { type: "string" } }, required: ["draftId"] } },
+      { name: "gmail_get_profile", description: "Get Gmail profile information", inputSchema: { type: "object", properties: {} } },
+      { name: "gmail_list_threads", description: "List Gmail threads", inputSchema: { type: "object", properties: { maxResults: { type: "number" }, query: { type: "string" } } } },
+      { name: "gmail_get_thread", description: "Get a specific Gmail thread", inputSchema: { type: "object", properties: { threadId: { type: "string" } }, required: ["threadId"] } },

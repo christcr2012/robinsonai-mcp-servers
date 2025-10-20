@@ -694,6 +694,909 @@ class VercelMCP {
             required: ["deploymentId", "fileId"],
           },
         },
+
+        // ==================== BLOB STORAGE ====================
+        {
+          name: "vercel_blob_list",
+          description: "List blobs in Vercel Blob storage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              limit: { type: "number", description: "Number of blobs to return" },
+              cursor: { type: "string", description: "Pagination cursor" },
+            },
+          },
+        },
+        {
+          name: "vercel_blob_put",
+          description: "Upload a blob to Vercel Blob storage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              pathname: { type: "string", description: "Path for the blob" },
+              body: { type: "string", description: "Blob content (base64 encoded)" },
+              contentType: { type: "string", description: "Content type" },
+            },
+            required: ["pathname", "body"],
+          },
+        },
+        {
+          name: "vercel_blob_delete",
+          description: "Delete a blob from Vercel Blob storage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              url: { type: "string", description: "Blob URL to delete" },
+            },
+            required: ["url"],
+          },
+        },
+        {
+          name: "vercel_blob_head",
+          description: "Get blob metadata without downloading content",
+          inputSchema: {
+            type: "object",
+            properties: {
+              url: { type: "string", description: "Blob URL" },
+            },
+            required: ["url"],
+          },
+        },
+
+        // ==================== KV STORAGE ====================
+        {
+          name: "vercel_kv_get",
+          description: "Get a value from Vercel KV storage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Key to retrieve" },
+              storeId: { type: "string", description: "KV store ID" },
+            },
+            required: ["key", "storeId"],
+          },
+        },
+        {
+          name: "vercel_kv_set",
+          description: "Set a value in Vercel KV storage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Key to set" },
+              value: { type: "string", description: "Value to store" },
+              storeId: { type: "string", description: "KV store ID" },
+              ex: { type: "number", description: "Expiration in seconds" },
+            },
+            required: ["key", "value", "storeId"],
+          },
+        },
+        {
+          name: "vercel_kv_delete",
+          description: "Delete a key from Vercel KV storage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              key: { type: "string", description: "Key to delete" },
+              storeId: { type: "string", description: "KV store ID" },
+            },
+            required: ["key", "storeId"],
+          },
+        },
+        {
+          name: "vercel_kv_list_keys",
+          description: "List keys in Vercel KV storage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              storeId: { type: "string", description: "KV store ID" },
+              pattern: { type: "string", description: "Key pattern to match" },
+              cursor: { type: "string", description: "Pagination cursor" },
+            },
+            required: ["storeId"],
+          },
+        },
+
+        // ==================== POSTGRES ====================
+        {
+          name: "vercel_postgres_list_databases",
+          description: "List Vercel Postgres databases",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+          },
+        },
+        {
+          name: "vercel_postgres_create_database",
+          description: "Create a Vercel Postgres database",
+          inputSchema: {
+            type: "object",
+            properties: {
+              name: { type: "string", description: "Database name" },
+              region: { type: "string", description: "Region (e.g., us-east-1)" },
+            },
+            required: ["name"],
+          },
+        },
+        {
+          name: "vercel_postgres_delete_database",
+          description: "Delete a Vercel Postgres database",
+          inputSchema: {
+            type: "object",
+            properties: {
+              databaseId: { type: "string", description: "Database ID" },
+            },
+            required: ["databaseId"],
+          },
+        },
+        {
+          name: "vercel_postgres_get_connection_string",
+          description: "Get Postgres connection string",
+          inputSchema: {
+            type: "object",
+            properties: {
+              databaseId: { type: "string", description: "Database ID" },
+            },
+            required: ["databaseId"],
+          },
+        },
+
+        // ==================== FIREWALL & SECURITY ====================
+        {
+          name: "vercel_list_firewall_rules",
+          description: "List firewall rules (WAF)",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_create_firewall_rule",
+          description: "Create a custom firewall rule",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              name: { type: "string", description: "Rule name" },
+              action: { type: "string", description: "Action: allow, deny, challenge" },
+              condition: { type: "object", description: "Rule condition" },
+            },
+            required: ["projectId", "name", "action"],
+          },
+        },
+        {
+          name: "vercel_update_firewall_rule",
+          description: "Update a firewall rule",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              ruleId: { type: "string", description: "Rule ID" },
+              name: { type: "string", description: "Rule name" },
+              action: { type: "string", description: "Action: allow, deny, challenge" },
+              enabled: { type: "boolean", description: "Enable/disable rule" },
+            },
+            required: ["projectId", "ruleId"],
+          },
+        },
+        {
+          name: "vercel_delete_firewall_rule",
+          description: "Delete a firewall rule",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              ruleId: { type: "string", description: "Rule ID" },
+            },
+            required: ["projectId", "ruleId"],
+          },
+        },
+        {
+          name: "vercel_get_firewall_analytics",
+          description: "Get firewall analytics and logs",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_list_blocked_ips",
+          description: "List blocked IP addresses",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_block_ip",
+          description: "Block an IP address",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              ipAddress: { type: "string", description: "IP address to block" },
+              notes: { type: "string", description: "Optional notes" },
+            },
+            required: ["projectId", "ipAddress"],
+          },
+        },
+        {
+          name: "vercel_unblock_ip",
+          description: "Unblock an IP address",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              ipAddress: { type: "string", description: "IP address to unblock" },
+            },
+            required: ["projectId", "ipAddress"],
+          },
+        },
+        {
+          name: "vercel_enable_attack_challenge_mode",
+          description: "Enable attack challenge mode",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              enabled: { type: "boolean", description: "Enable/disable" },
+            },
+            required: ["projectId", "enabled"],
+          },
+        },
+        {
+          name: "vercel_get_security_events",
+          description: "Get security event logs",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+              limit: { type: "number", description: "Number of events" },
+            },
+            required: ["projectId"],
+          },
+        },
+
+        // ==================== MONITORING & OBSERVABILITY ====================
+        {
+          name: "vercel_get_runtime_logs_stream",
+          description: "Stream runtime logs in real-time",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+              follow: { type: "boolean", description: "Follow logs" },
+              limit: { type: "number", description: "Number of log entries" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_get_build_logs",
+          description: "Get build logs for a deployment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_get_error_logs",
+          description: "Get error logs only",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_get_bandwidth_usage",
+          description: "Get bandwidth usage metrics",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_function_invocations",
+          description: "Get function invocation metrics",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_cache_metrics",
+          description: "Get cache performance metrics",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_traces",
+          description: "Get OpenTelemetry traces",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              deploymentId: { type: "string", description: "Deployment ID" },
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_performance_insights",
+          description: "Get performance insights",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_web_vitals",
+          description: "Get Web Vitals metrics",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+            },
+            required: ["projectId"],
+          },
+        },
+
+        // ==================== BILLING & USAGE ====================
+        {
+          name: "vercel_get_billing_summary",
+          description: "Get billing summary",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+          },
+        },
+        {
+          name: "vercel_get_usage_metrics",
+          description: "Get detailed usage metrics",
+          inputSchema: {
+            type: "object",
+            properties: {
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+          },
+        },
+        {
+          name: "vercel_get_invoice",
+          description: "Get a specific invoice",
+          inputSchema: {
+            type: "object",
+            properties: {
+              invoiceId: { type: "string", description: "Invoice ID" },
+            },
+            required: ["invoiceId"],
+          },
+        },
+        {
+          name: "vercel_list_invoices",
+          description: "List all invoices",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", description: "Optional team ID" },
+              limit: { type: "number", description: "Number of invoices" },
+            },
+          },
+        },
+        {
+          name: "vercel_get_spending_limits",
+          description: "Get spending limits",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+          },
+        },
+        {
+          name: "vercel_update_spending_limits",
+          description: "Update spending limits",
+          inputSchema: {
+            type: "object",
+            properties: {
+              maxMonthlySpend: { type: "number", description: "Maximum monthly spend" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+            required: ["maxMonthlySpend"],
+          },
+        },
+        {
+          name: "vercel_get_cost_breakdown",
+          description: "Get cost breakdown by resource",
+          inputSchema: {
+            type: "object",
+            properties: {
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+          },
+        },
+        {
+          name: "vercel_export_usage_report",
+          description: "Export usage report",
+          inputSchema: {
+            type: "object",
+            properties: {
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+              format: { type: "string", description: "Format: csv, json" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+            required: ["format"],
+          },
+        },
+
+        // ==================== INTEGRATIONS & MARKETPLACE ====================
+        {
+          name: "vercel_list_integrations",
+          description: "List installed integrations",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+          },
+        },
+        {
+          name: "vercel_get_integration",
+          description: "Get integration details",
+          inputSchema: {
+            type: "object",
+            properties: {
+              integrationId: { type: "string", description: "Integration ID" },
+            },
+            required: ["integrationId"],
+          },
+        },
+        {
+          name: "vercel_install_integration",
+          description: "Install a marketplace integration",
+          inputSchema: {
+            type: "object",
+            properties: {
+              integrationSlug: { type: "string", description: "Integration slug" },
+              teamId: { type: "string", description: "Optional team ID" },
+              configuration: { type: "object", description: "Integration configuration" },
+            },
+            required: ["integrationSlug"],
+          },
+        },
+        {
+          name: "vercel_uninstall_integration",
+          description: "Uninstall an integration",
+          inputSchema: {
+            type: "object",
+            properties: {
+              integrationId: { type: "string", description: "Integration ID" },
+            },
+            required: ["integrationId"],
+          },
+        },
+        {
+          name: "vercel_list_integration_configurations",
+          description: "List integration configurations",
+          inputSchema: {
+            type: "object",
+            properties: {
+              integrationId: { type: "string", description: "Integration ID" },
+            },
+            required: ["integrationId"],
+          },
+        },
+        {
+          name: "vercel_update_integration_configuration",
+          description: "Update integration configuration",
+          inputSchema: {
+            type: "object",
+            properties: {
+              integrationId: { type: "string", description: "Integration ID" },
+              configurationId: { type: "string", description: "Configuration ID" },
+              configuration: { type: "object", description: "New configuration" },
+            },
+            required: ["integrationId", "configurationId", "configuration"],
+          },
+        },
+        {
+          name: "vercel_get_integration_logs",
+          description: "Get integration logs",
+          inputSchema: {
+            type: "object",
+            properties: {
+              integrationId: { type: "string", description: "Integration ID" },
+              limit: { type: "number", description: "Number of log entries" },
+            },
+            required: ["integrationId"],
+          },
+        },
+        {
+          name: "vercel_trigger_integration_sync",
+          description: "Trigger integration sync",
+          inputSchema: {
+            type: "object",
+            properties: {
+              integrationId: { type: "string", description: "Integration ID" },
+            },
+            required: ["integrationId"],
+          },
+        },
+
+        // ==================== AUDIT LOGS ====================
+        {
+          name: "vercel_list_audit_logs",
+          description: "List audit logs",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", description: "Optional team ID" },
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+              limit: { type: "number", description: "Number of logs" },
+            },
+          },
+        },
+        {
+          name: "vercel_get_audit_log",
+          description: "Get a specific audit log entry",
+          inputSchema: {
+            type: "object",
+            properties: {
+              logId: { type: "string", description: "Log ID" },
+            },
+            required: ["logId"],
+          },
+        },
+        {
+          name: "vercel_export_audit_logs",
+          description: "Export audit logs",
+          inputSchema: {
+            type: "object",
+            properties: {
+              from: { type: "number", description: "Start timestamp (ms)" },
+              to: { type: "number", description: "End timestamp (ms)" },
+              format: { type: "string", description: "Format: csv, json" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+            required: ["format"],
+          },
+        },
+        {
+          name: "vercel_get_compliance_report",
+          description: "Get compliance report",
+          inputSchema: {
+            type: "object",
+            properties: {
+              reportType: { type: "string", description: "Report type: soc2, gdpr, hipaa" },
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+            required: ["reportType"],
+          },
+        },
+        {
+          name: "vercel_list_access_events",
+          description: "List access events",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", description: "Optional team ID" },
+              userId: { type: "string", description: "Filter by user ID" },
+              limit: { type: "number", description: "Number of events" },
+            },
+          },
+        },
+
+        // ==================== CRON JOBS ====================
+        {
+          name: "vercel_list_cron_jobs",
+          description: "List all cron jobs",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_create_cron_job",
+          description: "Create a cron job",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              path: { type: "string", description: "Function path" },
+              schedule: { type: "string", description: "Cron schedule expression" },
+            },
+            required: ["projectId", "path", "schedule"],
+          },
+        },
+        {
+          name: "vercel_update_cron_job",
+          description: "Update a cron job",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              cronId: { type: "string", description: "Cron job ID" },
+              schedule: { type: "string", description: "New cron schedule" },
+              enabled: { type: "boolean", description: "Enable/disable" },
+            },
+            required: ["projectId", "cronId"],
+          },
+        },
+        {
+          name: "vercel_delete_cron_job",
+          description: "Delete a cron job",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              cronId: { type: "string", description: "Cron job ID" },
+            },
+            required: ["projectId", "cronId"],
+          },
+        },
+        {
+          name: "vercel_trigger_cron_job",
+          description: "Manually trigger a cron job",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              cronId: { type: "string", description: "Cron job ID" },
+            },
+            required: ["projectId", "cronId"],
+          },
+        },
+
+        // ==================== ADVANCED ROUTING ====================
+        {
+          name: "vercel_list_redirects",
+          description: "List all redirects for a project",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_create_redirect",
+          description: "Create a redirect rule",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              source: { type: "string", description: "Source path" },
+              destination: { type: "string", description: "Destination path" },
+              permanent: { type: "boolean", description: "Permanent redirect (301)" },
+            },
+            required: ["projectId", "source", "destination"],
+          },
+        },
+        {
+          name: "vercel_delete_redirect",
+          description: "Delete a redirect rule",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              redirectId: { type: "string", description: "Redirect ID" },
+            },
+            required: ["projectId", "redirectId"],
+          },
+        },
+        {
+          name: "vercel_list_custom_headers",
+          description: "List custom headers",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_create_custom_header",
+          description: "Create a custom header",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              source: { type: "string", description: "Source path" },
+              headers: { type: "array", description: "Array of header objects" },
+            },
+            required: ["projectId", "source", "headers"],
+          },
+        },
+        {
+          name: "vercel_delete_custom_header",
+          description: "Delete a custom header",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+              headerId: { type: "string", description: "Header ID" },
+            },
+            required: ["projectId", "headerId"],
+          },
+        },
+
+        // ==================== PREVIEW COMMENTS ====================
+        {
+          name: "vercel_list_comments",
+          description: "List deployment comments",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_create_comment",
+          description: "Create a comment on a deployment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string", description: "Deployment ID" },
+              text: { type: "string", description: "Comment text" },
+              path: { type: "string", description: "Page path" },
+            },
+            required: ["deploymentId", "text"],
+          },
+        },
+        {
+          name: "vercel_update_comment",
+          description: "Update a comment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              commentId: { type: "string", description: "Comment ID" },
+              text: { type: "string", description: "New comment text" },
+            },
+            required: ["commentId", "text"],
+          },
+        },
+        {
+          name: "vercel_delete_comment",
+          description: "Delete a comment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              commentId: { type: "string", description: "Comment ID" },
+            },
+            required: ["commentId"],
+          },
+        },
+        {
+          name: "vercel_resolve_comment",
+          description: "Resolve or unresolve a comment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              commentId: { type: "string", description: "Comment ID" },
+              resolved: { type: "boolean", description: "Resolved status" },
+            },
+            required: ["commentId", "resolved"],
+          },
+        },
+
+        // ==================== GIT INTEGRATION ====================
+        {
+          name: "vercel_list_git_repositories",
+          description: "List connected Git repositories",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", description: "Optional team ID" },
+            },
+          },
+        },
+        {
+          name: "vercel_connect_git_repository",
+          description: "Connect a new Git repository",
+          inputSchema: {
+            type: "object",
+            properties: {
+              type: { type: "string", description: "Git provider: github, gitlab, bitbucket" },
+              repo: { type: "string", description: "Repository path (owner/repo)" },
+              projectId: { type: "string", description: "Project ID to connect to" },
+            },
+            required: ["type", "repo"],
+          },
+        },
+        {
+          name: "vercel_disconnect_git_repository",
+          description: "Disconnect a Git repository",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_sync_git_repository",
+          description: "Sync Git repository",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_git_integration_status",
+          description: "Get Git integration status",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string", description: "Project ID" },
+            },
+            required: ["projectId"],
+          },
+        },
       ],
     }));
 
@@ -826,6 +1729,176 @@ class VercelMCP {
             return await this.listDeploymentFiles(args);
           case "vercel_get_deployment_file":
             return await this.getDeploymentFile(args);
+
+          // Blob Storage
+          case "vercel_blob_list":
+            return await this.blobList(args);
+          case "vercel_blob_put":
+            return await this.blobPut(args);
+          case "vercel_blob_delete":
+            return await this.blobDelete(args);
+          case "vercel_blob_head":
+            return await this.blobHead(args);
+
+          // KV Storage
+          case "vercel_kv_get":
+            return await this.kvGet(args);
+          case "vercel_kv_set":
+            return await this.kvSet(args);
+          case "vercel_kv_delete":
+            return await this.kvDelete(args);
+          case "vercel_kv_list_keys":
+            return await this.kvListKeys(args);
+
+          // Postgres
+          case "vercel_postgres_list_databases":
+            return await this.postgresListDatabases(args);
+          case "vercel_postgres_create_database":
+            return await this.postgresCreateDatabase(args);
+          case "vercel_postgres_delete_database":
+            return await this.postgresDeleteDatabase(args);
+          case "vercel_postgres_get_connection_string":
+            return await this.postgresGetConnectionString(args);
+
+          // Firewall & Security
+          case "vercel_list_firewall_rules":
+            return await this.listFirewallRules(args);
+          case "vercel_create_firewall_rule":
+            return await this.createFirewallRule(args);
+          case "vercel_update_firewall_rule":
+            return await this.updateFirewallRule(args);
+          case "vercel_delete_firewall_rule":
+            return await this.deleteFirewallRule(args);
+          case "vercel_get_firewall_analytics":
+            return await this.getFirewallAnalytics(args);
+          case "vercel_list_blocked_ips":
+            return await this.listBlockedIps(args);
+          case "vercel_block_ip":
+            return await this.blockIp(args);
+          case "vercel_unblock_ip":
+            return await this.unblockIp(args);
+          case "vercel_enable_attack_challenge_mode":
+            return await this.enableAttackChallengeMode(args);
+          case "vercel_get_security_events":
+            return await this.getSecurityEvents(args);
+
+          // Monitoring & Observability
+          case "vercel_get_runtime_logs_stream":
+            return await this.getRuntimeLogsStream(args);
+          case "vercel_get_build_logs":
+            return await this.getBuildLogs(args);
+          case "vercel_get_error_logs":
+            return await this.getErrorLogs(args);
+          case "vercel_get_bandwidth_usage":
+            return await this.getBandwidthUsage(args);
+          case "vercel_get_function_invocations":
+            return await this.getFunctionInvocations(args);
+          case "vercel_get_cache_metrics":
+            return await this.getCacheMetrics(args);
+          case "vercel_get_traces":
+            return await this.getTraces(args);
+          case "vercel_get_performance_insights":
+            return await this.getPerformanceInsights(args);
+          case "vercel_get_web_vitals":
+            return await this.getWebVitals(args);
+
+          // Billing & Usage
+          case "vercel_get_billing_summary":
+            return await this.getBillingSummary(args);
+          case "vercel_get_usage_metrics":
+            return await this.getUsageMetrics(args);
+          case "vercel_get_invoice":
+            return await this.getInvoice(args);
+          case "vercel_list_invoices":
+            return await this.listInvoices(args);
+          case "vercel_get_spending_limits":
+            return await this.getSpendingLimits(args);
+          case "vercel_update_spending_limits":
+            return await this.updateSpendingLimits(args);
+          case "vercel_get_cost_breakdown":
+            return await this.getCostBreakdown(args);
+          case "vercel_export_usage_report":
+            return await this.exportUsageReport(args);
+
+          // Integrations & Marketplace
+          case "vercel_list_integrations":
+            return await this.listIntegrations(args);
+          case "vercel_get_integration":
+            return await this.getIntegration(args);
+          case "vercel_install_integration":
+            return await this.installIntegration(args);
+          case "vercel_uninstall_integration":
+            return await this.uninstallIntegration(args);
+          case "vercel_list_integration_configurations":
+            return await this.listIntegrationConfigurations(args);
+          case "vercel_update_integration_configuration":
+            return await this.updateIntegrationConfiguration(args);
+          case "vercel_get_integration_logs":
+            return await this.getIntegrationLogs(args);
+          case "vercel_trigger_integration_sync":
+            return await this.triggerIntegrationSync(args);
+
+          // Audit Logs
+          case "vercel_list_audit_logs":
+            return await this.listAuditLogs(args);
+          case "vercel_get_audit_log":
+            return await this.getAuditLog(args);
+          case "vercel_export_audit_logs":
+            return await this.exportAuditLogs(args);
+          case "vercel_get_compliance_report":
+            return await this.getComplianceReport(args);
+          case "vercel_list_access_events":
+            return await this.listAccessEvents(args);
+
+          // Cron Jobs
+          case "vercel_list_cron_jobs":
+            return await this.listCronJobs(args);
+          case "vercel_create_cron_job":
+            return await this.createCronJob(args);
+          case "vercel_update_cron_job":
+            return await this.updateCronJob(args);
+          case "vercel_delete_cron_job":
+            return await this.deleteCronJob(args);
+          case "vercel_trigger_cron_job":
+            return await this.triggerCronJob(args);
+
+          // Advanced Routing
+          case "vercel_list_redirects":
+            return await this.listRedirects(args);
+          case "vercel_create_redirect":
+            return await this.createRedirect(args);
+          case "vercel_delete_redirect":
+            return await this.deleteRedirect(args);
+          case "vercel_list_custom_headers":
+            return await this.listCustomHeaders(args);
+          case "vercel_create_custom_header":
+            return await this.createCustomHeader(args);
+          case "vercel_delete_custom_header":
+            return await this.deleteCustomHeader(args);
+
+          // Preview Comments
+          case "vercel_list_comments":
+            return await this.listComments(args);
+          case "vercel_create_comment":
+            return await this.createComment(args);
+          case "vercel_update_comment":
+            return await this.updateComment(args);
+          case "vercel_delete_comment":
+            return await this.deleteComment(args);
+          case "vercel_resolve_comment":
+            return await this.resolveComment(args);
+
+          // Git Integration
+          case "vercel_list_git_repositories":
+            return await this.listGitRepositories(args);
+          case "vercel_connect_git_repository":
+            return await this.connectGitRepository(args);
+          case "vercel_disconnect_git_repository":
+            return await this.disconnectGitRepository(args);
+          case "vercel_sync_git_repository":
+            return await this.syncGitRepository(args);
+          case "vercel_get_git_integration_status":
+            return await this.getGitIntegrationStatus(args);
 
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -1278,6 +2351,627 @@ class VercelMCP {
   private async getDeploymentFile(args: any) {
     const data = await this.vercelFetch(`/v6/deployments/${args.deploymentId}/files/${args.fileId}`);
     return this.formatResponse(data);
+  }
+
+  // ==================== BLOB STORAGE METHODS ====================
+
+  private async blobList(args: any) {
+    const params = new URLSearchParams();
+    if (args.limit) params.append("limit", args.limit.toString());
+    if (args.cursor) params.append("cursor", args.cursor);
+    const data = await this.vercelFetch(`/v1/blob?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async blobPut(args: any) {
+    const data = await this.vercelFetch(`/v1/blob`, {
+      method: "PUT",
+      body: JSON.stringify({
+        pathname: args.pathname,
+        body: args.body,
+        contentType: args.contentType,
+      }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async blobDelete(args: any) {
+    const data = await this.vercelFetch(`/v1/blob`, {
+      method: "DELETE",
+      body: JSON.stringify({ url: args.url }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async blobHead(args: any) {
+    const data = await this.vercelFetch(`/v1/blob/head?url=${encodeURIComponent(args.url)}`);
+    return this.formatResponse(data);
+  }
+
+  // ==================== KV STORAGE METHODS ====================
+
+  private async kvGet(args: any) {
+    const data = await this.vercelFetch(`/v1/kv/${args.storeId}/get/${args.key}`);
+    return this.formatResponse(data);
+  }
+
+  private async kvSet(args: any) {
+    const body: any = { key: args.key, value: args.value };
+    if (args.ex) body.ex = args.ex;
+    const data = await this.vercelFetch(`/v1/kv/${args.storeId}/set`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async kvDelete(args: any) {
+    const data = await this.vercelFetch(`/v1/kv/${args.storeId}/delete/${args.key}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async kvListKeys(args: any) {
+    const params = new URLSearchParams();
+    if (args.pattern) params.append("pattern", args.pattern);
+    if (args.cursor) params.append("cursor", args.cursor);
+    const data = await this.vercelFetch(`/v1/kv/${args.storeId}/keys?${params}`);
+    return this.formatResponse(data);
+  }
+
+  // ==================== POSTGRES METHODS ====================
+
+  private async postgresListDatabases(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/postgres?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async postgresCreateDatabase(args: any) {
+    const data = await this.vercelFetch(`/v1/postgres`, {
+      method: "POST",
+      body: JSON.stringify({
+        name: args.name,
+        region: args.region,
+      }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async postgresDeleteDatabase(args: any) {
+    const data = await this.vercelFetch(`/v1/postgres/${args.databaseId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async postgresGetConnectionString(args: any) {
+    const data = await this.vercelFetch(`/v1/postgres/${args.databaseId}/connection-string`);
+    return this.formatResponse(data);
+  }
+
+  // ==================== FIREWALL & SECURITY METHODS ====================
+
+  private async listFirewallRules(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/rules?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async createFirewallRule(args: any) {
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/rules`, {
+      method: "POST",
+      body: JSON.stringify({
+        name: args.name,
+        action: args.action,
+        condition: args.condition,
+      }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async updateFirewallRule(args: any) {
+    const body: any = {};
+    if (args.name) body.name = args.name;
+    if (args.action) body.action = args.action;
+    if (args.enabled !== undefined) body.enabled = args.enabled;
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/rules/${args.ruleId}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteFirewallRule(args: any) {
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/rules/${args.ruleId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getFirewallAnalytics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/analytics?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async listBlockedIps(args: any) {
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/blocked-ips`);
+    return this.formatResponse(data);
+  }
+
+  private async blockIp(args: any) {
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/blocked-ips`, {
+      method: "POST",
+      body: JSON.stringify({
+        ipAddress: args.ipAddress,
+        notes: args.notes,
+      }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async unblockIp(args: any) {
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/blocked-ips/${encodeURIComponent(args.ipAddress)}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async enableAttackChallengeMode(args: any) {
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/challenge-mode`, {
+      method: "PATCH",
+      body: JSON.stringify({ enabled: args.enabled }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getSecurityEvents(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/security/events/${args.projectId}?${params}`);
+    return this.formatResponse(data);
+  }
+
+  // ==================== MONITORING & OBSERVABILITY METHODS ====================
+
+  private async getRuntimeLogsStream(args: any) {
+    const params = new URLSearchParams();
+    if (args.follow) params.append("follow", "1");
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v2/deployments/${args.deploymentId}/events?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getBuildLogs(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/builds`);
+    return this.formatResponse(data);
+  }
+
+  private async getErrorLogs(args: any) {
+    const params = new URLSearchParams();
+    params.append("type", "error");
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v2/deployments/${args.deploymentId}/events?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getBandwidthUsage(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/analytics/${args.projectId}/bandwidth?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getFunctionInvocations(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/analytics/${args.projectId}/functions?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getCacheMetrics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/analytics/${args.projectId}/cache?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getTraces(args: any) {
+    const params = new URLSearchParams();
+    if (args.deploymentId) params.append("deploymentId", args.deploymentId);
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/traces/${args.projectId}?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getPerformanceInsights(args: any) {
+    const data = await this.vercelFetch(`/v1/insights/${args.projectId}/performance`);
+    return this.formatResponse(data);
+  }
+
+  private async getWebVitals(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/analytics/${args.projectId}/web-vitals?${params}`);
+    return this.formatResponse(data);
+  }
+
+  // ==================== BILLING & USAGE METHODS ====================
+
+  private async getBillingSummary(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/summary?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getUsageMetrics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/usage?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getInvoice(args: any) {
+    const data = await this.vercelFetch(`/v1/billing/invoices/${args.invoiceId}`);
+    return this.formatResponse(data);
+  }
+
+  private async listInvoices(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/billing/invoices?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getSpendingLimits(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/limits?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async updateSpendingLimits(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/limits?${params}`, {
+      method: "PATCH",
+      body: JSON.stringify({ maxMonthlySpend: args.maxMonthlySpend }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getCostBreakdown(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/breakdown?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async exportUsageReport(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    params.append("format", args.format);
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/export?${params}`);
+    return this.formatResponse(data);
+  }
+
+  // ==================== INTEGRATIONS & MARKETPLACE METHODS ====================
+
+  private async listIntegrations(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/integrations?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getIntegration(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}`);
+    return this.formatResponse(data);
+  }
+
+  private async installIntegration(args: any) {
+    const body: any = { integrationSlug: args.integrationSlug };
+    if (args.teamId) body.teamId = args.teamId;
+    if (args.configuration) body.configuration = args.configuration;
+    const data = await this.vercelFetch(`/v1/integrations/install`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async uninstallIntegration(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listIntegrationConfigurations(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}/configurations`);
+    return this.formatResponse(data);
+  }
+
+  private async updateIntegrationConfiguration(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}/configurations/${args.configurationId}`, {
+      method: "PATCH",
+      body: JSON.stringify(args.configuration),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getIntegrationLogs(args: any) {
+    const params = new URLSearchParams();
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}/logs?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async triggerIntegrationSync(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}/sync`, {
+      method: "POST",
+    });
+    return this.formatResponse(data);
+  }
+
+  // ==================== AUDIT LOGS METHODS ====================
+
+  private async listAuditLogs(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/audit-logs?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getAuditLog(args: any) {
+    const data = await this.vercelFetch(`/v1/audit-logs/${args.logId}`);
+    return this.formatResponse(data);
+  }
+
+  private async exportAuditLogs(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    params.append("format", args.format);
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/audit-logs/export?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getComplianceReport(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/compliance/${args.reportType}?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async listAccessEvents(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    if (args.userId) params.append("userId", args.userId);
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/access-events?${params}`);
+    return this.formatResponse(data);
+  }
+
+  // ==================== CRON JOBS METHODS ====================
+
+  private async listCronJobs(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/crons`);
+    return this.formatResponse(data);
+  }
+
+  private async createCronJob(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/crons`, {
+      method: "POST",
+      body: JSON.stringify({
+        path: args.path,
+        schedule: args.schedule,
+      }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async updateCronJob(args: any) {
+    const body: any = {};
+    if (args.schedule) body.schedule = args.schedule;
+    if (args.enabled !== undefined) body.enabled = args.enabled;
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/crons/${args.cronId}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteCronJob(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/crons/${args.cronId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async triggerCronJob(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/crons/${args.cronId}/trigger`, {
+      method: "POST",
+    });
+    return this.formatResponse(data);
+  }
+
+  // ==================== ADVANCED ROUTING METHODS ====================
+
+  private async listRedirects(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    // Redirects are part of project configuration
+    return this.formatResponse(data.redirects || []);
+  }
+
+  private async createRedirect(args: any) {
+    // Get current project config
+    const project = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    const redirects = project.redirects || [];
+    redirects.push({
+      source: args.source,
+      destination: args.destination,
+      permanent: args.permanent || false,
+    });
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ redirects }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteRedirect(args: any) {
+    // Get current project config
+    const project = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    const redirects = (project.redirects || []).filter((_: any, i: number) => i.toString() !== args.redirectId);
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ redirects }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listCustomHeaders(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    // Headers are part of project configuration
+    return this.formatResponse(data.headers || []);
+  }
+
+  private async createCustomHeader(args: any) {
+    // Get current project config
+    const project = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    const headers = project.headers || [];
+    headers.push({
+      source: args.source,
+      headers: args.headers,
+    });
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ headers }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteCustomHeader(args: any) {
+    // Get current project config
+    const project = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    const headers = (project.headers || []).filter((_: any, i: number) => i.toString() !== args.headerId);
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ headers }),
+    });
+    return this.formatResponse(data);
+  }
+
+  // ==================== PREVIEW COMMENTS METHODS ====================
+
+  private async listComments(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/comments`);
+    return this.formatResponse(data);
+  }
+
+  private async createComment(args: any) {
+    const body: any = { text: args.text };
+    if (args.path) body.path = args.path;
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/comments`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async updateComment(args: any) {
+    const data = await this.vercelFetch(`/v1/comments/${args.commentId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ text: args.text }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteComment(args: any) {
+    const data = await this.vercelFetch(`/v1/comments/${args.commentId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async resolveComment(args: any) {
+    const data = await this.vercelFetch(`/v1/comments/${args.commentId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ resolved: args.resolved }),
+    });
+    return this.formatResponse(data);
+  }
+
+  // ==================== GIT INTEGRATION METHODS ====================
+
+  private async listGitRepositories(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/git/repositories?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async connectGitRepository(args: any) {
+    const body: any = {
+      type: args.type,
+      repo: args.repo,
+    };
+    if (args.projectId) body.projectId = args.projectId;
+    const data = await this.vercelFetch(`/v1/git/repositories`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async disconnectGitRepository(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ link: null }),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async syncGitRepository(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/git/sync`, {
+      method: "POST",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getGitIntegrationStatus(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    return this.formatResponse({
+      connected: !!data.link,
+      link: data.link,
+    });
   }
 
   async run(): Promise<void> {

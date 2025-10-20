@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\github-mcp\\dist\\index.js"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_TOKEN_HERE"
+      }
+    }
+  }
+}
+

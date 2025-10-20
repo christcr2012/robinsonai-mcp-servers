@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": [
+        "@robinsonai/github-mcp",
+        "YOUR_GITHUB_TOKEN_HERE"
+      ]
+    }
+  }
+}
+

@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import { google } from "googleapis";
+
+class GoogleWorkspaceMCP {
+  private server: Server;
+  private auth: any;
+  private gmail: any;
+  private drive: any;
+  private calendar: any;
+  private sheets: any;
+  private docs: any;
+  private slides: any;
+  private admin: any;
+  private tasks: any;
+  private people: any;
+
+  constructor() {
+    this.server = new Server({ name: "@robinsonai/google-workspace-mcp", version: "2.0.0" }, { capabilities: { tools: {} } });
+    const serviceAccountKeyPath = process.argv[2];
+    const userEmail = process.argv[3] || "me";
+    if (!serviceAccountKeyPath) {
+      console.error("Usage: google-workspace-mcp service-account-key.json user-email");
+      process.exit(1);
+    }
+    this.auth = new google.auth.GoogleAuth({
+      keyFile: serviceAccountKeyPath,
+      scopes: [
+        "https://www.googleapis.com/auth/gmail.modify",
+        "https://www.googleapis.com/auth/gmail.settings.basic",
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/calendar",
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/documents",
+        "https://www.googleapis.com/auth/presentations",
+        "https://www.googleapis.com/auth/admin.directory.user",
+        "https://www.googleapis.com/auth/admin.directory.group",
+        "https://www.googleapis.com/auth/admin.directory.orgunit",
+        "https://www.googleapis.com/auth/admin.directory.domain",
+        "https://www.googleapis.com/auth/admin.directory.device.mobile",
+        "https://www.googleapis.com/auth/admin.directory.device.chromeos",
+        "https://www.googleapis.com/auth/admin.directory.resource.calendar",
+        "https://www.googleapis.com/auth/admin.directory.rolemanagement",
+        "https://www.googleapis.com/auth/admin.reports.audit.readonly",
+        "https://www.googleapis.com/auth/admin.reports.usage.readonly",
+        "https://www.googleapis.com/auth/tasks",
+        "https://www.googleapis.com/auth/contacts",
+      ],
+      clientOptions: { subject: userEmail !== "me" ? userEmail : undefined },
+    });
+    this.gmail = google.gmail({ version: "v1", auth: this.auth });
+    this.drive = google.drive({ version: "v3", auth: this.auth });
+    this.calendar = google.calendar({ version: "v3", auth: this.auth });
+    this.sheets = google.sheets({ version: "v4", auth: this.auth });
+    this.docs = google.docs({ version: "v1", auth: this.auth });
+    this.slides = google.slides({ version: "v1", auth: this.auth });
+    this.admin = google.admin({ version: "directory_v1", auth: this.auth });
+    this.tasks = google.tasks({ version: "v1", auth: this.auth });
+    this.people = google.people({ version: "v1", auth: this.auth });
+    this.setupHandlers();
+  }

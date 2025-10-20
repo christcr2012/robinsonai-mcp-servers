@@ -1,0 +1,35 @@
+{
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.1",
+    "googleapis": "^140.0.0",
+    "google-auth-library": "^9.0.0"
+  },
+  "name": "@robinsonai/google-workspace-mcp",
+  "bin": {
+    "google-workspace-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "start": "node dist/index.js",
+    "watch": "tsc --watch",
+    "build": "tsc"
+  },
+  "version": "1.0.0",
+  "keywords": [
+    "mcp",
+    "google-workspace",
+    "gmail",
+    "drive",
+    "calendar",
+    "sheets",
+    "docs"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.18.11",
+    "typescript": "^5.9.3"
+  },
+  "type": "module",
+  "author": "Robinson AI Systems",
+  "description": "Google Workspace MCP server for Gmail, Drive, Calendar, Sheets, and Docs",
+  "main": "dist/index.js",
+  "license": "MIT"
+}

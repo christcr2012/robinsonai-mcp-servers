@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "neon": {
+      "command": "npx",
+      "args": [
+        "neon-mcp",
+        "napi_71z83xrn7sm79kc5v2x5hko2ilanrsl611jzaa9wp6zr3d0fb5alzkdgesgts6fh"
+      ]
+    }
+  }
+}
+
