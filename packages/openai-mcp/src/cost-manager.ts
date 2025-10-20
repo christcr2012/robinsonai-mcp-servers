@@ -327,5 +327,20 @@ export class CostManager {
       config: this.config,
     };
   }
+
+  public getCostHistory() {
+    // Return all cost records from all days and months
+    const allRecords: any[] = [];
+
+    // Collect from daily records
+    Object.values(this.costData.daily).forEach((day: any) => {
+      allRecords.push(...day.calls);
+    });
+
+    // Sort by timestamp (newest first)
+    allRecords.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+    return allRecords;
+  }
 }
 

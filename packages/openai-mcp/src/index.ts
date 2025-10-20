@@ -1038,6 +1038,102 @@ class OpenAIMCP {
             properties: {},
           },
         },
+        {
+          name: "openai_get_cost_breakdown",
+          description: "Get detailed cost breakdown by model, operation, and time period",
+          inputSchema: {
+            type: "object",
+            properties: {
+              group_by: {
+                type: "string",
+                description: "Group by: model, operation, day, hour",
+                enum: ["model", "operation", "day", "hour"],
+              },
+              start_date: { type: "string", description: "Start date (YYYY-MM-DD)" },
+              end_date: { type: "string", description: "End date (YYYY-MM-DD)" },
+            },
+          },
+        },
+        {
+          name: "openai_compare_models",
+          description: "Compare cost and performance between different models for the same task",
+          inputSchema: {
+            type: "object",
+            properties: {
+              models: {
+                type: "array",
+                description: "Models to compare (e.g., ['gpt-4', 'gpt-3.5-turbo'])",
+              },
+              input_text: { type: "string", description: "Sample input text" },
+              max_tokens: { type: "number", description: "Max output tokens" },
+            },
+            required: ["models", "input_text"],
+          },
+        },
+        {
+          name: "openai_optimize_prompt",
+          description: "Analyze prompt and suggest optimizations to reduce token usage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              prompt: { type: "string", description: "Prompt to optimize" },
+              model: { type: "string", description: "Target model" },
+            },
+            required: ["prompt"],
+          },
+        },
+        {
+          name: "openai_export_cost_report",
+          description: "Export cost report in CSV or JSON format",
+          inputSchema: {
+            type: "object",
+            properties: {
+              format: {
+                type: "string",
+                description: "Export format",
+                enum: ["csv", "json"],
+              },
+              start_date: { type: "string", description: "Start date (YYYY-MM-DD)" },
+              end_date: { type: "string", description: "End date (YYYY-MM-DD)" },
+            },
+            required: ["format"],
+          },
+        },
+        {
+          name: "openai_get_token_analytics",
+          description: "Get detailed token usage analytics and patterns",
+          inputSchema: {
+            type: "object",
+            properties: {
+              period: {
+                type: "string",
+                description: "Time period",
+                enum: ["today", "week", "month", "all"],
+              },
+            },
+          },
+        },
+        {
+          name: "openai_suggest_cheaper_alternative",
+          description: "Suggest cheaper model alternatives for a given task",
+          inputSchema: {
+            type: "object",
+            properties: {
+              current_model: { type: "string", description: "Current model being used" },
+              task_type: {
+                type: "string",
+                description: "Type of task",
+                enum: ["chat", "completion", "embedding", "image"],
+              },
+              quality_requirement: {
+                type: "string",
+                description: "Quality requirement",
+                enum: ["highest", "high", "medium", "low"],
+              },
+            },
+            required: ["current_model", "task_type"],
+          },
+        },
       ],
     }));
 
@@ -1210,6 +1306,18 @@ class OpenAIMCP {
             return await this.estimateCost(args);
           case "openai_get_budget_status":
             return await this.getBudgetStatus(args);
+          case "openai_get_cost_breakdown":
+            return await this.getCostBreakdown(args);
+          case "openai_compare_models":
+            return await this.compareModels(args);
+          case "openai_optimize_prompt":
+            return await this.optimizePrompt(args);
+          case "openai_export_cost_report":
+            return await this.exportCostReport(args);
+          case "openai_get_token_analytics":
+            return await this.getTokenAnalytics(args);
+          case "openai_suggest_cheaper_alternative":
+            return await this.suggestCheaperAlternative(args);
 
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -2157,6 +2265,325 @@ class OpenAIMCP {
   private async getBudgetStatus(args: any) {
     const status = this.costManager.getBudgetStatus();
     return this.formatResponse(status);
+  }
+
+  // Advanced Cost Analytics
+  private async getCostBreakdown(args: any) {
+    const { group_by = "model", start_date, end_date } = args;
+
+    try {
+      const history = this.costManager.getCostHistory();
+      const breakdown: any = {};
+
+      // Filter by date range if provided
+      let filteredHistory = history;
+      if (start_date || end_date) {
+        filteredHistory = history.filter((entry: any) => {
+          const entryDate = new Date(entry.timestamp);
+          if (start_date && entryDate < new Date(start_date)) return false;
+          if (end_date && entryDate > new Date(end_date)) return false;
+          return true;
+        });
+      }
+
+      // Group by specified field
+      filteredHistory.forEach((entry: any) => {
+        let key: string;
+        switch (group_by) {
+          case "model":
+            key = entry.model;
+            break;
+          case "operation":
+            key = entry.operation;
+            break;
+          case "day":
+            key = new Date(entry.timestamp).toISOString().split("T")[0];
+            break;
+          case "hour":
+            key = new Date(entry.timestamp).toISOString().slice(0, 13);
+            break;
+          default:
+            key = "unknown";
+        }
+
+        if (!breakdown[key]) {
+          breakdown[key] = {
+            total_cost: 0,
+            count: 0,
+            operations: [],
+          };
+        }
+
+        breakdown[key].total_cost += entry.cost;
+        breakdown[key].count += 1;
+        breakdown[key].operations.push(entry.operation);
+      });
+
+      // Calculate totals
+      const totalCost = Object.values(breakdown).reduce((sum: number, item: any) => sum + item.total_cost, 0);
+      const totalOperations = filteredHistory.length;
+
+      return this.formatResponse({
+        breakdown,
+        summary: {
+          total_cost: totalCost,
+          total_operations: totalOperations,
+          group_by,
+          period: start_date && end_date ? `${start_date} to ${end_date}` : "all time",
+        },
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async compareModels(args: any) {
+    const { models, input_text, max_tokens = 1000 } = args;
+
+    try {
+      const comparisons = models.map((model: string) => {
+        const estimate = this.costManager.estimateChatCost(model, input_text, max_tokens);
+        const inputTokens = estimate.breakdown?.input_tokens || 0;
+        const outputTokens = estimate.breakdown?.output_tokens || 0;
+        const totalTokens = inputTokens + outputTokens;
+
+        return {
+          model,
+          estimated_cost: estimate.estimated_cost_usd,
+          input_tokens: inputTokens,
+          output_tokens: outputTokens,
+          total_tokens: totalTokens,
+          cost_per_1k_tokens: totalTokens > 0 ? (estimate.estimated_cost_usd / totalTokens) * 1000 : 0,
+        };
+      });
+
+      // Sort by cost
+      comparisons.sort((a: any, b: any) => a.estimated_cost - b.estimated_cost);
+
+      const cheapest = comparisons[0];
+      const mostExpensive = comparisons[comparisons.length - 1];
+      const savings = mostExpensive.estimated_cost - cheapest.estimated_cost;
+      const savingsPercent = ((savings / mostExpensive.estimated_cost) * 100).toFixed(1);
+
+      return this.formatResponse({
+        comparisons,
+        recommendation: {
+          cheapest_model: cheapest.model,
+          cheapest_cost: cheapest.estimated_cost,
+          most_expensive_model: mostExpensive.model,
+          most_expensive_cost: mostExpensive.estimated_cost,
+          potential_savings: savings,
+          savings_percent: `${savingsPercent}%`,
+          note: `Using ${cheapest.model} instead of ${mostExpensive.model} saves ${savingsPercent}% ($${savings.toFixed(4)} per request)`,
+        },
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async optimizePrompt(args: any) {
+    const { prompt, model = "gpt-4" } = args;
+
+    try {
+      const currentTokens = this.costManager.estimateTokens(prompt, model);
+      const currentCost = this.costManager.estimateChatCost(model, prompt, 1000);
+
+      // Provide optimization suggestions
+      const suggestions = [];
+
+      if (prompt.length > 1000) {
+        suggestions.push({
+          type: "length",
+          suggestion: "Consider shortening the prompt - it's quite long",
+          potential_savings: "10-30% token reduction",
+        });
+      }
+
+      if (prompt.includes("\n\n\n")) {
+        suggestions.push({
+          type: "whitespace",
+          suggestion: "Remove excessive whitespace and newlines",
+          potential_savings: "5-10% token reduction",
+        });
+      }
+
+      if (prompt.split(" ").some((word: string) => word.length > 20)) {
+        suggestions.push({
+          type: "verbosity",
+          suggestion: "Use more concise language",
+          potential_savings: "10-20% token reduction",
+        });
+      }
+
+      return this.formatResponse({
+        current_analysis: {
+          token_count: currentTokens,
+          estimated_cost: currentCost.estimated_cost_usd,
+          model,
+        },
+        suggestions,
+        note: "These are general suggestions. Actual savings depend on implementation.",
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async exportCostReport(args: any) {
+    const { format, start_date, end_date } = args;
+
+    try {
+      const history = this.costManager.getCostHistory();
+
+      // Filter by date range
+      let filteredHistory = history;
+      if (start_date || end_date) {
+        filteredHistory = history.filter((entry: any) => {
+          const entryDate = new Date(entry.timestamp);
+          if (start_date && entryDate < new Date(start_date)) return false;
+          if (end_date && entryDate > new Date(end_date)) return false;
+          return true;
+        });
+      }
+
+      if (format === "json") {
+        return this.formatResponse({
+          format: "json",
+          data: filteredHistory,
+          total_cost: filteredHistory.reduce((sum: number, entry: any) => sum + entry.cost, 0),
+          total_operations: filteredHistory.length,
+        });
+      } else if (format === "csv") {
+        // Generate CSV
+        const csvHeader = "Timestamp,Model,Operation,Cost,Details\n";
+        const csvRows = filteredHistory
+          .map(
+            (entry: any) =>
+              `${entry.timestamp},${entry.model},${entry.operation},${entry.cost},"${JSON.stringify(entry.details).replace(/"/g, '""')}"`
+          )
+          .join("\n");
+        const csv = csvHeader + csvRows;
+
+        return this.formatResponse({
+          format: "csv",
+          data: csv,
+          total_cost: filteredHistory.reduce((sum: number, entry: any) => sum + entry.cost, 0),
+          total_operations: filteredHistory.length,
+          note: "CSV data provided as string. Save to file to use.",
+        });
+      }
+
+      return this.formatResponse({ error: "Invalid format. Use 'json' or 'csv'." });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async getTokenAnalytics(args: any) {
+    const { period = "all" } = args;
+
+    try {
+      const history = this.costManager.getCostHistory();
+
+      // Filter by period
+      const now = new Date();
+      const filteredHistory = history.filter((entry: any) => {
+        const entryDate = new Date(entry.timestamp);
+        switch (period) {
+          case "today":
+            return entryDate.toDateString() === now.toDateString();
+          case "week":
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return entryDate >= weekAgo;
+          case "month":
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            return entryDate >= monthAgo;
+          default:
+            return true;
+        }
+      });
+
+      // Calculate token statistics
+      const totalTokens = filteredHistory.reduce((sum: number, entry: any) => {
+        return sum + (entry.details?.tokens?.total_tokens || entry.details?.tokens || 0);
+      }, 0);
+
+      const avgTokensPerRequest =
+        filteredHistory.length > 0 ? totalTokens / filteredHistory.length : 0;
+
+      return this.formatResponse({
+        period,
+        total_tokens: totalTokens,
+        total_requests: filteredHistory.length,
+        avg_tokens_per_request: Math.round(avgTokensPerRequest),
+        total_cost: filteredHistory.reduce((sum: number, entry: any) => sum + entry.cost, 0),
+        cost_per_1k_tokens: filteredHistory.length > 0 ? (filteredHistory.reduce((sum: number, entry: any) => sum + entry.cost, 0) / totalTokens) * 1000 : 0,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async suggestCheaperAlternative(args: any) {
+    const { current_model, task_type, quality_requirement = "high" } = args;
+
+    try {
+      const alternatives: any = {
+        "gpt-4": {
+          highest: [],
+          high: ["gpt-4-turbo"],
+          medium: ["gpt-3.5-turbo"],
+          low: ["gpt-3.5-turbo"],
+        },
+        "gpt-4-turbo": {
+          highest: [],
+          high: [],
+          medium: ["gpt-3.5-turbo"],
+          low: ["gpt-3.5-turbo"],
+        },
+        "gpt-3.5-turbo": {
+          highest: [],
+          high: [],
+          medium: [],
+          low: [],
+        },
+        "text-embedding-3-large": {
+          highest: [],
+          high: ["text-embedding-3-small"],
+          medium: ["text-embedding-3-small"],
+          low: ["text-embedding-ada-002"],
+        },
+        "dall-e-3": {
+          highest: [],
+          high: [],
+          medium: ["dall-e-2"],
+          low: ["dall-e-2"],
+        },
+      };
+
+      const suggestions = alternatives[current_model]?.[quality_requirement] || [];
+
+      if (suggestions.length === 0) {
+        return this.formatResponse({
+          current_model,
+          message: `${current_model} is already the most cost-effective option for ${quality_requirement} quality ${task_type} tasks.`,
+          alternatives: [],
+        });
+      }
+
+      return this.formatResponse({
+        current_model,
+        quality_requirement,
+        task_type,
+        suggestions: suggestions.map((model: string) => ({
+          model,
+          note: `Consider switching to ${model} for cost savings while maintaining ${quality_requirement} quality.`,
+        })),
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   async run() {
