@@ -1597,6 +1597,362 @@ class VercelMCP {
             required: ["projectId"],
           },
         },
+
+        // EDGE MIDDLEWARE (5 tools)
+        {
+          name: "vercel_list_middleware",
+          description: "List Edge Middleware functions",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              deploymentId: { type: "string" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_middleware_logs",
+          description: "Get Edge Middleware execution logs",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              deploymentId: { type: "string" },
+              limit: { type: "number" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_middleware_metrics",
+          description: "Get Edge Middleware performance metrics",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              from: { type: "string" },
+              to: { type: "string" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_test_middleware",
+          description: "Test Edge Middleware locally",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              code: { type: "string" },
+              testRequest: { type: "object" },
+            },
+            required: ["projectId", "code"],
+          },
+        },
+        {
+          name: "vercel_deploy_middleware",
+          description: "Deploy Edge Middleware",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              code: { type: "string" },
+              config: { type: "object" },
+            },
+            required: ["projectId", "code"],
+          },
+        },
+
+        // MONITORING & OBSERVABILITY (5 tools)
+        {
+          name: "vercel_get_deployment_health",
+          description: "Get deployment health status",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_get_error_rate",
+          description: "Get error rate metrics",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              deploymentId: { type: "string" },
+              from: { type: "string" },
+              to: { type: "string" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_response_time",
+          description: "Get response time metrics",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              deploymentId: { type: "string" },
+              from: { type: "string" },
+              to: { type: "string" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_get_uptime_metrics",
+          description: "Get uptime and availability metrics",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              from: { type: "string" },
+              to: { type: "string" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_create_alert",
+          description: "Create monitoring alert",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              name: { type: "string" },
+              metric: { type: "string" },
+              threshold: { type: "number" },
+              webhookUrl: { type: "string" },
+            },
+            required: ["projectId", "name", "metric", "threshold"],
+          },
+        },
+
+        // TEAM MANAGEMENT (5 tools)
+        {
+          name: "vercel_invite_team_member",
+          description: "Invite user to team",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string" },
+              email: { type: "string" },
+              role: { type: "string", enum: ["OWNER", "MEMBER", "VIEWER"] },
+            },
+            required: ["teamId", "email"],
+          },
+        },
+        {
+          name: "vercel_remove_team_member",
+          description: "Remove user from team",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string" },
+              userId: { type: "string" },
+            },
+            required: ["teamId", "userId"],
+          },
+        },
+        {
+          name: "vercel_update_team_member_role",
+          description: "Update team member role",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string" },
+              userId: { type: "string" },
+              role: { type: "string", enum: ["OWNER", "MEMBER", "VIEWER"] },
+            },
+            required: ["teamId", "userId", "role"],
+          },
+        },
+        {
+          name: "vercel_get_team_activity",
+          description: "Get team activity log",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string" },
+              limit: { type: "number" },
+              from: { type: "string" },
+              to: { type: "string" },
+            },
+            required: ["teamId"],
+          },
+        },
+        {
+          name: "vercel_get_team_usage",
+          description: "Get team resource usage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string" },
+              from: { type: "string" },
+              to: { type: "string" },
+            },
+            required: ["teamId"],
+          },
+        },
+
+        // ADVANCED DEPLOYMENT (5 tools)
+        {
+          name: "vercel_promote_deployment",
+          description: "Promote deployment to production",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_rollback_deployment",
+          description: "Rollback to previous deployment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              targetDeploymentId: { type: "string" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_pause_deployment",
+          description: "Pause deployment traffic",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_resume_deployment",
+          description: "Resume deployment traffic",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_get_deployment_diff",
+          description: "Compare two deployments",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId1: { type: "string" },
+              deploymentId2: { type: "string" },
+            },
+            required: ["deploymentId1", "deploymentId2"],
+          },
+        },
+
+        // STORAGE MANAGEMENT (5 tools)
+        {
+          name: "vercel_get_storage_usage",
+          description: "Get storage usage across all stores",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string" },
+            },
+          },
+        },
+        {
+          name: "vercel_optimize_storage",
+          description: "Get storage optimization recommendations",
+          inputSchema: {
+            type: "object",
+            properties: {
+              teamId: { type: "string" },
+            },
+          },
+        },
+        {
+          name: "vercel_export_blob_data",
+          description: "Export blob storage data",
+          inputSchema: {
+            type: "object",
+            properties: {
+              storeId: { type: "string" },
+              format: { type: "string", enum: ["json", "csv"] },
+            },
+            required: ["storeId"],
+          },
+        },
+        {
+          name: "vercel_import_blob_data",
+          description: "Import data to blob storage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              storeId: { type: "string" },
+              data: { type: "string" },
+              format: { type: "string", enum: ["json", "csv"] },
+            },
+            required: ["storeId", "data"],
+          },
+        },
+        {
+          name: "vercel_clone_storage",
+          description: "Clone storage to another environment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              sourceStoreId: { type: "string" },
+              targetStoreId: { type: "string" },
+            },
+            required: ["sourceStoreId", "targetStoreId"],
+          },
+        },
+
+        // ADVANCED SECURITY (3 tools)
+        {
+          name: "vercel_scan_deployment_security",
+          description: "Run security scan on deployment",
+          inputSchema: {
+            type: "object",
+            properties: {
+              deploymentId: { type: "string" },
+            },
+            required: ["deploymentId"],
+          },
+        },
+        {
+          name: "vercel_get_security_headers",
+          description: "Get security headers configuration",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+            },
+            required: ["projectId"],
+          },
+        },
+        {
+          name: "vercel_update_security_headers",
+          description: "Update security headers",
+          inputSchema: {
+            type: "object",
+            properties: {
+              projectId: { type: "string" },
+              headers: { type: "object" },
+            },
+            required: ["projectId", "headers"],
+          },
+        },
       ],
     }));
 
@@ -1899,6 +2255,74 @@ class VercelMCP {
             return await this.syncGitRepository(args);
           case "vercel_get_git_integration_status":
             return await this.getGitIntegrationStatus(args);
+
+          // Edge Middleware
+          case "vercel_list_middleware":
+            return await this.listMiddleware(args);
+          case "vercel_get_middleware_logs":
+            return await this.getMiddlewareLogs(args);
+          case "vercel_get_middleware_metrics":
+            return await this.getMiddlewareMetrics(args);
+          case "vercel_test_middleware":
+            return await this.testMiddleware(args);
+          case "vercel_deploy_middleware":
+            return await this.deployMiddleware(args);
+
+          // Monitoring & Observability
+          case "vercel_get_deployment_health":
+            return await this.getDeploymentHealth(args);
+          case "vercel_get_error_rate":
+            return await this.getErrorRate(args);
+          case "vercel_get_response_time":
+            return await this.getResponseTime(args);
+          case "vercel_get_uptime_metrics":
+            return await this.getUptimeMetrics(args);
+          case "vercel_create_alert":
+            return await this.createAlert(args);
+
+          // Team Management
+          case "vercel_invite_team_member":
+            return await this.inviteTeamMember(args);
+          case "vercel_remove_team_member":
+            return await this.removeTeamMember(args);
+          case "vercel_update_team_member_role":
+            return await this.updateTeamMemberRole(args);
+          case "vercel_get_team_activity":
+            return await this.getTeamActivity(args);
+          case "vercel_get_team_usage":
+            return await this.getTeamUsage(args);
+
+          // Advanced Deployment
+          case "vercel_promote_deployment":
+            return await this.promoteDeployment(args);
+          case "vercel_rollback_deployment":
+            return await this.rollbackDeployment(args);
+          case "vercel_pause_deployment":
+            return await this.pauseDeployment(args);
+          case "vercel_resume_deployment":
+            return await this.resumeDeployment(args);
+          case "vercel_get_deployment_diff":
+            return await this.getDeploymentDiff(args);
+
+          // Storage Management
+          case "vercel_get_storage_usage":
+            return await this.getStorageUsage(args);
+          case "vercel_optimize_storage":
+            return await this.optimizeStorage(args);
+          case "vercel_export_blob_data":
+            return await this.exportBlobData(args);
+          case "vercel_import_blob_data":
+            return await this.importBlobData(args);
+          case "vercel_clone_storage":
+            return await this.cloneStorage(args);
+
+          // Advanced Security
+          case "vercel_scan_deployment_security":
+            return await this.scanDeploymentSecurity(args);
+          case "vercel_get_security_headers":
+            return await this.getSecurityHeaders(args);
+          case "vercel_update_security_headers":
+            return await this.updateSecurityHeaders(args);
 
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -2972,6 +3396,223 @@ class VercelMCP {
       connected: !!data.link,
       link: data.link,
     });
+  }
+
+  // EDGE MIDDLEWARE
+  private async listMiddleware(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/middleware`);
+    return this.formatResponse(data);
+  }
+
+  private async getMiddlewareLogs(args: any) {
+    const params = new URLSearchParams();
+    if (args.deploymentId) params.append('deploymentId', args.deploymentId);
+    if (args.limit) params.append('limit', args.limit.toString());
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/middleware/logs?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getMiddlewareMetrics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/middleware/metrics?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async testMiddleware(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/middleware/test`, {
+      method: 'POST',
+      body: JSON.stringify({ code: args.code, testRequest: args.testRequest })
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deployMiddleware(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/middleware`, {
+      method: 'POST',
+      body: JSON.stringify({ code: args.code, config: args.config })
+    });
+    return this.formatResponse(data);
+  }
+
+  // MONITORING & OBSERVABILITY
+  private async getDeploymentHealth(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/health`);
+    return this.formatResponse(data);
+  }
+
+  private async getErrorRate(args: any) {
+    const params = new URLSearchParams();
+    if (args.deploymentId) params.append('deploymentId', args.deploymentId);
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/metrics/errors?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getResponseTime(args: any) {
+    const params = new URLSearchParams();
+    if (args.deploymentId) params.append('deploymentId', args.deploymentId);
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/metrics/response-time?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getUptimeMetrics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/metrics/uptime?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async createAlert(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/alerts`, {
+      method: 'POST',
+      body: JSON.stringify({
+        name: args.name,
+        metric: args.metric,
+        threshold: args.threshold,
+        webhookUrl: args.webhookUrl
+      })
+    });
+    return this.formatResponse(data);
+  }
+
+  // TEAM MANAGEMENT
+  private async inviteTeamMember(args: any) {
+    const data = await this.vercelFetch(`/v1/teams/${args.teamId}/members`, {
+      method: 'POST',
+      body: JSON.stringify({ email: args.email, role: args.role || 'MEMBER' })
+    });
+    return this.formatResponse(data);
+  }
+
+  private async removeTeamMember(args: any) {
+    const data = await this.vercelFetch(`/v1/teams/${args.teamId}/members/${args.userId}`, {
+      method: 'DELETE'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async updateTeamMemberRole(args: any) {
+    const data = await this.vercelFetch(`/v1/teams/${args.teamId}/members/${args.userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role: args.role })
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getTeamActivity(args: any) {
+    const params = new URLSearchParams();
+    if (args.limit) params.append('limit', args.limit.toString());
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/teams/${args.teamId}/activity?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getTeamUsage(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/teams/${args.teamId}/usage?${params}`);
+    return this.formatResponse(data);
+  }
+
+  // ADVANCED DEPLOYMENT
+  private async promoteDeployment(args: any) {
+    const data = await this.vercelFetch(`/v13/deployments/${args.deploymentId}/promote`, {
+      method: 'POST'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async rollbackDeployment(args: any) {
+    const data = await this.vercelFetch(`/v13/deployments/${args.projectId}/rollback`, {
+      method: 'POST',
+      body: JSON.stringify({ targetDeploymentId: args.targetDeploymentId })
+    });
+    return this.formatResponse(data);
+  }
+
+  private async pauseDeployment(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/pause`, {
+      method: 'POST'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async resumeDeployment(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/resume`, {
+      method: 'POST'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getDeploymentDiff(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/diff?deployment1=${args.deploymentId1}&deployment2=${args.deploymentId2}`);
+    return this.formatResponse(data);
+  }
+
+  // STORAGE MANAGEMENT
+  private async getStorageUsage(args: any) {
+    const params = args.teamId ? `?teamId=${args.teamId}` : '';
+    const data = await this.vercelFetch(`/v1/storage/usage${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async optimizeStorage(args: any) {
+    const params = args.teamId ? `?teamId=${args.teamId}` : '';
+    const data = await this.vercelFetch(`/v1/storage/optimize${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async exportBlobData(args: any) {
+    const data = await this.vercelFetch(`/v1/blob/${args.storeId}/export?format=${args.format || 'json'}`);
+    return this.formatResponse(data);
+  }
+
+  private async importBlobData(args: any) {
+    const data = await this.vercelFetch(`/v1/blob/${args.storeId}/import`, {
+      method: 'POST',
+      body: JSON.stringify({ data: args.data, format: args.format || 'json' })
+    });
+    return this.formatResponse(data);
+  }
+
+  private async cloneStorage(args: any) {
+    const data = await this.vercelFetch(`/v1/storage/clone`, {
+      method: 'POST',
+      body: JSON.stringify({
+        sourceStoreId: args.sourceStoreId,
+        targetStoreId: args.targetStoreId
+      })
+    });
+    return this.formatResponse(data);
+  }
+
+  // ADVANCED SECURITY
+  private async scanDeploymentSecurity(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/security-scan`, {
+      method: 'POST'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getSecurityHeaders(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/security-headers`);
+    return this.formatResponse(data);
+  }
+
+  private async updateSecurityHeaders(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/security-headers`, {
+      method: 'PATCH',
+      body: JSON.stringify({ headers: args.headers })
+    });
+    return this.formatResponse(data);
   }
 
   async run(): Promise<void> {
