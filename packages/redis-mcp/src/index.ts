@@ -36,10 +36,11 @@ class RobinsonAIRedisMCP {
       }
     );
 
-    // Get Redis URL from command line args
-    const redisUrl = process.argv[2];
+    // Get Redis URL from environment variable or command line args
+    const redisUrl = process.env.REDIS_URL || process.argv[2];
     if (!redisUrl) {
       console.error("Usage: @robinsonai/redis-mcp <redis-url>");
+      console.error("Or set REDIS_URL environment variable");
       process.exit(1);
     }
 

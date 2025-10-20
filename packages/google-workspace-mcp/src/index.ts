@@ -24,10 +24,11 @@ class GoogleWorkspaceMCP {
 
   constructor() {
     this.server = new Server({ name: '@robinsonai/google-workspace-mcp', version: '1.0.0' }, { capabilities: { tools: {} } });
-    const serviceAccountKeyPath = process.argv[2];
-    const userEmail = process.argv[3] || 'me';
+    const serviceAccountKeyPath = process.env.GOOGLE_SERVICE_ACCOUNT_KEY || process.argv[2];
+    const userEmail = process.env.GOOGLE_USER_EMAIL || process.argv[3] || 'me';
     if (!serviceAccountKeyPath) {
       console.error('Usage: google-workspace-mcp service-account-key.json user-email');
+      console.error('Or set GOOGLE_SERVICE_ACCOUNT_KEY and GOOGLE_USER_EMAIL environment variables');
       process.exit(1);
     }
     this.auth = new google.auth.GoogleAuth({

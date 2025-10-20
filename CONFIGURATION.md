@@ -4,29 +4,49 @@ This guide explains how to configure all 9 Robinson AI Systems MCP servers with 
 
 ## Prerequisites
 
-1. **Build all MCP servers:**
+1. **Build and link all MCP servers:**
    ```bash
    cd robinsonai-mcp-servers
    npm install
    npm run build
+
+   # Link all packages globally
+   cd packages/github-mcp && npm link
+   cd ../vercel-mcp && npm link
+   cd ../neon-mcp && npm link
+   cd ../google-workspace-mcp && npm link
+   cd ../resend-mcp && npm link --force
+   cd ../twilio-mcp && npm link --force
+   cd ../cloudflare-mcp && npm link --force
+   cd ../redis-mcp && npm link
+   cd ../openai-mcp && npm link
    ```
 
 2. **Obtain API credentials** for each service you want to use.
+
+## IMPORTANT: Use npx, NOT node
+
+**All MCP servers MUST be run with `npx` command, NOT `node` command.**
+
+The `node` command does not work for MCP servers. Always use:
+- ✅ `"command": "npx"`
+- ❌ NOT `"command": "node"`
 
 ## Augment VS Code Extension Configuration
 
 ### Configuration Location
 
-The MCP servers are configured in the Augment extension settings. Access via:
-- Click the settings icon in Augment's chat window, OR
-- Press `Cmd/Ctrl + Shift + P` → "Augment: Open Settings"
+The MCP servers are configured in the Augment extension settings:
+- **File location**: `C:\Users\<username>\AppData\Roaming\Code\User\mcp.json` (Windows)
+- **Access via UI**: Click the settings icon in Augment's chat window, OR
+- **Access via command**: Press `Cmd/Ctrl + Shift + P` → "Augment: Open Settings"
 
 ### Configuration Format
 
 Each MCP server needs:
-- **Command**: Path to the executable (node + path to dist/index.js)
-- **Arguments**: API tokens/credentials (can use environment variables)
-- **Environment Variables**: Optional, for storing credentials securely
+- **Command**: MUST be `"npx"` (NOT `"node"`)
+- **Arguments**: Package name with `-y` flag (e.g., `["-y", "@robinsonai/github-mcp"]`)
+- **Environment Variables**: API tokens/credentials stored in `env` object
 
 ---
 

@@ -1086,9 +1086,10 @@ class NeonMCP {
   }
 }
 
-const apiKey = process.argv[2];
+const apiKey = process.env.NEON_API_KEY || process.argv[2];
 if (!apiKey) {
   console.error('Usage: neon-mcp <NEON_API_KEY>');
+  console.error('Or set NEON_API_KEY environment variable');
   process.exit(1);
 }
 
