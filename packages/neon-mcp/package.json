@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "neon-mcp": "dist/index.js"
+    "neon-mcp": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",

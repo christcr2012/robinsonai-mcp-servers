@@ -6,7 +6,7 @@
   },
   "name": "@robinsonai/google-workspace-mcp",
   "bin": {
-    "google-workspace-mcp": "dist/index.js"
+    "google-workspace-mcp": "./dist/index.js"
   },
   "scripts": {
     "start": "node dist/index.js",

@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "openai-mcp": "dist/index.js"
+    "openai-mcp": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
