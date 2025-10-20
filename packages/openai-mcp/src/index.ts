@@ -9,13 +9,25 @@ import {
 import OpenAI from "openai";
 import { CostManager } from "./cost-manager.js";
 
+const OPENAI_ADMIN_KEY = process.env.OPENAI_ADMIN_KEY || "";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.argv[2] || "";
 
-if (!OPENAI_API_KEY) {
-  console.error("Error: OPENAI_API_KEY is required");
+// Use admin key if available (it can do everything), otherwise use regular API key
+const API_KEY = OPENAI_ADMIN_KEY || OPENAI_API_KEY;
+
+if (!API_KEY) {
+  console.error("Error: OPENAI_API_KEY or OPENAI_ADMIN_KEY is required");
   console.error("Usage: openai-mcp <OPENAI_API_KEY>");
-  console.error("Or set OPENAI_API_KEY environment variable");
+  console.error("Or set OPENAI_API_KEY or OPENAI_ADMIN_KEY environment variable");
+  console.error("\nNote: Admin keys can do everything regular keys can do, PLUS enterprise features");
+  console.error("      (Usage API, Projects, Users, etc.)");
   process.exit(1);
+}
+
+if (OPENAI_ADMIN_KEY) {
+  console.log("✅ Using OpenAI Admin Key - All features enabled!");
+} else {
+  console.log("ℹ️  Using regular API Key - Enterprise features require admin key");
 }
 
 class OpenAIMCP {
@@ -24,7 +36,7 @@ class OpenAIMCP {
   private costManager: CostManager;
 
   constructor() {
-    this.openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+    this.openai = new OpenAI({ apiKey: API_KEY });
     this.costManager = new CostManager();
 
     this.server = new Server(
@@ -3021,23 +3033,84 @@ class OpenAIMCP {
 
   // Usage & Billing API (NEW Dec 2024)
   private async getUsage(args: any) {
-    return this.formatResponse({
-      message: "Usage API requires an Organization Admin Key (not regular API key)",
-      note: "This endpoint is available at: GET https://api.openai.com/v1/organization/usage",
-      documentation: "https://platform.openai.com/docs/api-reference/usage",
-      required_scope: "api.usage.read",
-      how_to_enable: "Create an Organization Admin Key at https://platform.openai.com/organization/admin-keys",
-    });
+    if (!OPENAI_ADMIN_KEY) {
+      return this.formatResponse({
+        error: "Usage API requires an Organization Admin Key",
+        note: "Set OPENAI_ADMIN_KEY environment variable with your admin key",
+        how_to_get: "Create an Organization Admin Key at https://platform.openai.com/organization/admin-keys",
+        required_scope: "api.usage.read",
+      });
+    }
+
+    const { start_time, end_time, bucket_width, project_ids, user_ids, api_key_ids, models, group_by, limit } = args;
+
+    try {
+      const params = new URLSearchParams();
+      if (start_time) params.append("start_time", start_time.toString());
+      if (end_time) params.append("end_time", end_time.toString());
+      if (bucket_width) params.append("bucket_width", bucket_width);
+      if (limit) params.append("limit", limit.toString());
+      if (project_ids) project_ids.forEach((id: string) => params.append("project_ids[]", id));
+      if (user_ids) user_ids.forEach((id: string) => params.append("user_ids[]", id));
+      if (api_key_ids) api_key_ids.forEach((id: string) => params.append("api_key_ids[]", id));
+      if (models) models.forEach((model: string) => params.append("models[]", model));
+      if (group_by) group_by.forEach((field: string) => params.append("group_by[]", field));
+
+      const response = await fetch(`https://api.openai.com/v1/organization/usage?${params}`, {
+        headers: {
+          Authorization: `Bearer ${OPENAI_ADMIN_KEY}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return this.formatResponse({ error: error.error?.message || "Failed to fetch usage data" });
+      }
+
+      const data = await response.json();
+      return this.formatResponse(data);
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   private async getCosts(args: any) {
-    return this.formatResponse({
-      message: "Costs API requires an Organization Admin Key (not regular API key)",
-      note: "This endpoint is available at: GET https://api.openai.com/v1/organization/costs",
-      documentation: "https://platform.openai.com/docs/api-reference/usage",
-      required_scope: "api.usage.read",
-      how_to_enable: "Create an Organization Admin Key at https://platform.openai.com/organization/admin-keys",
-    });
+    if (!OPENAI_ADMIN_KEY) {
+      return this.formatResponse({
+        error: "Costs API requires an Organization Admin Key",
+        note: "Set OPENAI_ADMIN_KEY environment variable",
+      });
+    }
+
+    const { start_time, end_time, bucket_width = "1d", project_ids, group_by, limit } = args;
+
+    try {
+      const params = new URLSearchParams();
+      if (start_time) params.append("start_time", start_time.toString());
+      if (end_time) params.append("end_time", end_time.toString());
+      params.append("bucket_width", bucket_width);
+      if (limit) params.append("limit", limit.toString());
+      if (project_ids) project_ids.forEach((id: string) => params.append("project_ids[]", id));
+      if (group_by) group_by.forEach((field: string) => params.append("group_by[]", field));
+
+      const response = await fetch(`https://api.openai.com/v1/organization/costs?${params}`, {
+        headers: {
+          Authorization: `Bearer ${OPENAI_ADMIN_KEY}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return this.formatResponse({ error: error.error?.message || "Failed to fetch costs" });
+      }
+
+      const data = await response.json();
+      return this.formatResponse(data);
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
   }
 
   private async getUsageCompletions(args: any) {
