@@ -1,0 +1,24 @@
+{
+  "name": "twilio-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Twilio MCP Server with 70+ tools for SMS, voice, and phone number management",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "twilio-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "twilio": "^5.3.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
