@@ -1,10 +1,10 @@
 # OpenAI MCP Server
 
-Comprehensive OpenAI MCP server with **~86 tools** covering the complete OpenAI API surface area, including built-in cost management with approval workflows and advanced analytics.
+**The Most Comprehensive OpenAI MCP Server** with **~110 tools** covering the complete OpenAI API surface area, enterprise management, and advanced cost analytics.
 
-## Features
+## 🎯 Features
 
-### ✅ Complete API Coverage (~86 Tools)
+### ✅ Complete API Coverage (~110 Tools)
 
 #### 1. **Chat & Completions** (3 tools)
 - `openai_chat_completion` - Standard chat completions
@@ -109,6 +109,45 @@ Comprehensive OpenAI MCP server with **~86 tools** covering the complete OpenAI 
 - `openai_get_token_analytics` - Token usage analytics
 - `openai_suggest_cheaper_alternative` - Get cheaper model recommendations
 
+#### 16. **Usage & Billing API** (8 tools) 🆕 NEW Dec 2024!
+- `openai_get_usage` - Get actual API usage from OpenAI
+- `openai_get_costs` - Get daily cost breakdown from OpenAI
+- `openai_get_usage_completions` - Completion usage details
+- `openai_get_usage_embeddings` - Embeddings usage details
+- `openai_get_usage_moderations` - Moderation usage details
+- `openai_get_usage_images` - Image generation usage details
+- `openai_get_usage_audio_speeches` - TTS usage details
+- `openai_get_usage_audio_transcriptions` - Whisper usage details
+
+#### 17. **Projects & Organization** (5 tools) 🏢
+- `openai_list_projects` - List all projects
+- `openai_get_project` - Get project details
+- `openai_create_project` - Create new project
+- `openai_update_project` - Update project settings
+- `openai_archive_project` - Archive project
+
+#### 18. **Users & Invites** (7 tools) 👥
+- `openai_list_users` - List organization users
+- `openai_get_user` - Get user details
+- `openai_update_user` - Update user role
+- `openai_delete_user` - Remove user
+- `openai_list_invites` - List pending invites
+- `openai_create_invite` - Invite user
+- `openai_delete_invite` - Cancel invite
+
+#### 19. **Rate Limits** (1 tool) ⚡
+- `openai_get_rate_limits` - Check current rate limits
+
+#### 20. **Advanced Cost Features** (8 tools) 🚀
+- `openai_track_user_cost` - Track costs per user/tenant
+- `openai_get_user_costs` - Get user cost breakdown
+- `openai_set_cost_alert` - Set up cost alerts with webhooks
+- `openai_list_cost_alerts` - List configured alerts
+- `openai_delete_cost_alert` - Delete alert
+- `openai_forecast_costs` - AI-powered cost forecasting
+- `openai_detect_cost_anomalies` - Detect unusual spending
+- `openai_get_budget_recommendations` - Smart budget suggestions
+
 ---
 
 ## 💰 Built-In Cost Management
@@ -142,7 +181,28 @@ Comprehensive OpenAI MCP server with **~86 tools** covering the complete OpenAI 
    - **Cheaper Alternatives**: Smart recommendations for cost-effective models
    - **Export Reports**: CSV/JSON export for accounting and analysis
 
-6. **Cost Tracking**
+6. **Usage & Billing API** 🆕 NEW Dec 2024!
+   - **Real Usage Data**: Get actual usage from OpenAI's API
+   - **Cost Breakdown**: Daily spend breakdown from OpenAI
+   - **Granular Tracking**: Monitor by minute/hour/day
+   - **Filter by**: Project, User, API Key, Model
+   - **Requires**: Organization Admin Key
+
+7. **Enterprise Management** 🏢
+   - **Projects**: Create, manage, archive projects
+   - **Users**: Manage organization users and roles
+   - **Invites**: Send and manage user invitations
+   - **Rate Limits**: Monitor API rate limits
+   - **Requires**: Organization Admin Key
+
+8. **Advanced Cost Features** 🚀
+   - **Multi-User Tracking**: Track costs per user/tenant
+   - **Cost Alerts**: Webhook/email notifications for budget thresholds
+   - **Cost Forecasting**: AI-powered 30-day predictions
+   - **Anomaly Detection**: Detect unusual spending patterns
+   - **Budget Recommendations**: Smart suggestions based on usage
+
+9. **Cost Tracking**
    - Real-time cost tracking
    - Daily and monthly aggregates
    - Stored in JSON file
@@ -298,7 +358,9 @@ const run = await openai_create_run({
 
 ## Implementation Status
 
-### ✅ COMPLETE - Production Ready!
+### ✅ COMPLETE - Production Ready! (~110 Tools)
+
+#### Core API Tools (70+ tools)
 - ✅ **Chat & Completions** (3 tools) - Full implementation with cost tracking
 - ✅ **Embeddings** (2 tools) - Single and batch with cost estimation
 - ✅ **Images (DALL-E)** (1 tool) - Image generation with cost tracking
@@ -312,18 +374,36 @@ const run = await openai_create_run({
 - ✅ **Threads** (4 tools) - Full CRUD operations
 - ✅ **Messages** (5 tools) - Full CRUD operations
 - ✅ **Runs** (9 tools) - Complete run management
-- ✅ **Cost Management** (2 tools) - Estimation and budget status
+
+#### Cost Management & Analytics (16 tools)
+- ✅ **Basic Cost Management** (2 tools) - Estimation and budget status
+- ✅ **Advanced Analytics** (6 tools) - Breakdown, comparison, optimization
+- ✅ **Advanced Features** (8 tools) - Multi-user tracking, alerts, forecasting
+
+#### Enterprise Management (20+ tools) - Requires Admin Key
+- ✅ **Usage & Billing API** (8 tools) - Real usage data from OpenAI (NEW Dec 2024!)
+- ✅ **Projects** (5 tools) - Project management
+- ✅ **Users & Invites** (7 tools) - User management
+- ✅ **Rate Limits** (1 tool) - Rate limit monitoring
+
+#### Infrastructure
 - ✅ **Cost tracking system** - Real-time budget monitoring
 - ✅ **Approval workflows** - Standard and double approval
 - ✅ **Error handling** - Comprehensive error responses
+- ✅ **Multi-user tracking** - Per-user/tenant cost tracking
+- ✅ **Cost alerts** - Webhook/email notifications
+- ✅ **Forecasting** - AI-powered cost predictions
+- ✅ **Anomaly detection** - Unusual spending detection
 
-### ⏸️ Not Implemented (Require File System Access)
+### ⏸️ Not Implemented (Require File System Access or Admin Keys)
 - ❌ File upload (requires file system access)
 - ❌ Image editing/variations (requires file upload)
 - ❌ Whisper transcription (requires file upload)
 - ❌ Vector Stores (awaiting OpenAI SDK update)
+- ⚠️ Usage/Billing/Projects/Users APIs (require Organization Admin Key - endpoints documented)
 
 ### 📋 Future Enhancements
+- Implement actual API calls for Usage/Billing/Projects/Users (when admin key provided)
 - Add response caching
 - Add rate limiting
 - Write unit tests
