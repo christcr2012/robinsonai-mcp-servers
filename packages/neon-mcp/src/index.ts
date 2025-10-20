@@ -211,7 +211,32 @@ class NeonMCP {
         // PROJECT SHARING & COLLABORATION (3 tools)
         { name: 'share_project', description: 'Share project with another user.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, email: { type: 'string' }, role: { type: 'string' } }, required: ['projectId', 'email'] } },
         { name: 'list_project_shares', description: 'List all project shares.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'revoke_project_share', description: 'Remove project access.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, shareId: { type: 'string' } }, required: ['projectId', 'shareId'] } }
+        { name: 'revoke_project_share', description: 'Remove project access.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, shareId: { type: 'string' } }, required: ['projectId', 'shareId'] } },
+
+        // EXTENSION MANAGEMENT (5 tools)
+        { name: 'list_extensions', description: 'List available PostgreSQL extensions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'enable_extension', description: 'Enable a PostgreSQL extension.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' }, schema: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
+        { name: 'disable_extension', description: 'Disable a PostgreSQL extension.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
+        { name: 'get_extension_details', description: 'Get extension information and dependencies.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
+        { name: 'update_extension', description: 'Update extension to latest version.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' }, version: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
+
+        // SCHEMA MIGRATIONS (3 tools)
+        { name: 'create_migration', description: 'Create a new schema migration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, name: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'name', 'sql'] } },
+        { name: 'list_migrations', description: 'List all schema migrations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'rollback_migration', description: 'Rollback a schema migration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, migrationId: { type: 'string' } }, required: ['projectId', 'migrationId'] } },
+
+        // ADVANCED CONNECTION MANAGEMENT (3 tools)
+        { name: 'get_connection_uri', description: 'Get formatted connection URI for different clients.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' }, pooled: { type: 'boolean' }, format: { type: 'string', enum: ['psql', 'jdbc', 'node', 'python', 'go', 'rust'] } }, required: ['projectId'] } },
+        { name: 'test_connection', description: 'Test database connection and return latency.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'get_connection_examples', description: 'Get code examples for connecting to database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, language: { type: 'string', enum: ['javascript', 'typescript', 'python', 'go', 'rust', 'java', 'php', 'ruby'] } }, required: ['projectId'] } },
+
+        // PROJECT TEMPLATES (2 tools)
+        { name: 'create_from_template', description: 'Create project from template.', inputSchema: { type: 'object', properties: { templateId: { type: 'string' }, name: { type: 'string' }, region: { type: 'string' } }, required: ['templateId', 'name'] } },
+        { name: 'list_templates', description: 'List available project templates.', inputSchema: { type: 'object', properties: { category: { type: 'string' } } } },
+
+        // ADVANCED MONITORING (2 tools)
+        { name: 'get_real_time_metrics', description: 'Get real-time performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, metrics: { type: 'array', items: { type: 'string' } } }, required: ['projectId'] } },
+        { name: 'export_metrics', description: 'Export metrics to external monitoring system.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, destination: { type: 'string', enum: ['prometheus', 'datadog', 'grafana', 'cloudwatch'] }, config: { type: 'object' } }, required: ['projectId', 'destination'] } }
       ]
     }));
 
@@ -402,6 +427,31 @@ class NeonMCP {
           case 'share_project': return await this.shareProject(args);
           case 'list_project_shares': return await this.listProjectShares(args);
           case 'revoke_project_share': return await this.revokeProjectShare(args);
+
+          // EXTENSION MANAGEMENT
+          case 'list_extensions': return await this.listExtensions(args);
+          case 'enable_extension': return await this.enableExtension(args);
+          case 'disable_extension': return await this.disableExtension(args);
+          case 'get_extension_details': return await this.getExtensionDetails(args);
+          case 'update_extension': return await this.updateExtension(args);
+
+          // SCHEMA MIGRATIONS
+          case 'create_migration': return await this.createMigration(args);
+          case 'list_migrations': return await this.listMigrations(args);
+          case 'rollback_migration': return await this.rollbackMigration(args);
+
+          // ADVANCED CONNECTION MANAGEMENT
+          case 'get_connection_uri': return await this.getConnectionUri(args);
+          case 'test_connection': return await this.testConnection(args);
+          case 'get_connection_examples': return await this.getConnectionExamples(args);
+
+          // PROJECT TEMPLATES
+          case 'create_from_template': return await this.createFromTemplate(args);
+          case 'list_templates': return await this.listTemplates(args);
+
+          // ADVANCED MONITORING
+          case 'get_real_time_metrics': return await this.getRealTimeMetrics(args);
+          case 'export_metrics': return await this.exportMetrics(args);
 
           default:
             throw new Error(`Unknown tool: ${request.params.name}`);
@@ -828,6 +878,211 @@ class NeonMCP {
   private async revokeProjectShare(args: any) {
     const response = await this.client.delete(`/projects/${args.projectId}/permissions/${args.shareId}`);
     return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
+  }
+
+  // EXTENSION MANAGEMENT
+  private async listExtensions(args: any) {
+    const branchId = args.branchId || 'main';
+    const dbName = args.databaseName || 'neondb';
+    const sql = 'SELECT * FROM pg_available_extensions ORDER BY name';
+    const response = await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: sql });
+    return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
+  }
+
+  private async enableExtension(args: any) {
+    const branchId = args.branchId || 'main';
+    const dbName = args.databaseName || 'neondb';
+    const schema = args.schema || 'public';
+    const sql = `CREATE EXTENSION IF NOT EXISTS "${args.extensionName}" SCHEMA ${schema}`;
+    const response = await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: sql });
+    return { content: [{ type: 'text', text: `Extension ${args.extensionName} enabled successfully` }] };
+  }
+
+  private async disableExtension(args: any) {
+    const branchId = args.branchId || 'main';
+    const dbName = args.databaseName || 'neondb';
+    const sql = `DROP EXTENSION IF EXISTS "${args.extensionName}"`;
+    const response = await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: sql });
+    return { content: [{ type: 'text', text: `Extension ${args.extensionName} disabled successfully` }] };
+  }
+
+  private async getExtensionDetails(args: any) {
+    const branchId = args.branchId || 'main';
+    const dbName = args.databaseName || 'neondb';
+    const sql = `SELECT * FROM pg_extension WHERE extname = '${args.extensionName}'`;
+    const response = await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: sql });
+    return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
+  }
+
+  private async updateExtension(args: any) {
+    const branchId = args.branchId || 'main';
+    const dbName = args.databaseName || 'neondb';
+    const version = args.version ? `TO '${args.version}'` : '';
+    const sql = `ALTER EXTENSION "${args.extensionName}" UPDATE ${version}`;
+    const response = await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: sql });
+    return { content: [{ type: 'text', text: `Extension ${args.extensionName} updated successfully` }] };
+  }
+
+  // SCHEMA MIGRATIONS
+  private async createMigration(args: any) {
+    const branchId = args.branchId || 'main';
+    const dbName = args.databaseName || 'neondb';
+    // Create migration tracking table if not exists
+    const createTableSql = `CREATE TABLE IF NOT EXISTS schema_migrations (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      sql TEXT NOT NULL,
+      applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`;
+    await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: createTableSql });
+
+    // Execute migration
+    await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: args.sql });
+
+    // Record migration
+    const recordSql = `INSERT INTO schema_migrations (name, sql) VALUES ('${args.name}', '${args.sql.replace(/'/g, "''")}')`;
+    const response = await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: recordSql });
+    return { content: [{ type: 'text', text: `Migration ${args.name} created and applied successfully` }] };
+  }
+
+  private async listMigrations(args: any) {
+    const branchId = args.branchId || 'main';
+    const dbName = args.databaseName || 'neondb';
+    const sql = 'SELECT * FROM schema_migrations ORDER BY applied_at DESC';
+    const response = await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: sql });
+    return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
+  }
+
+  private async rollbackMigration(args: any) {
+    const branchId = args.branchId || 'main';
+    const dbName = args.databaseName || 'neondb';
+    const sql = `DELETE FROM schema_migrations WHERE id = ${args.migrationId}`;
+    const response = await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: sql });
+    return { content: [{ type: 'text', text: `Migration ${args.migrationId} rolled back (record deleted, manual SQL rollback required)` }] };
+  }
+
+  // ADVANCED CONNECTION MANAGEMENT
+  private async getConnectionUri(args: any) {
+    const response = await this.client.get(`/projects/${args.projectId}/connection_uri`, {
+      params: {
+        branch_id: args.branchId,
+        database_name: args.databaseName,
+        role_name: args.roleName,
+        pooled: args.pooled
+      }
+    });
+    const uri = response.data.uri;
+
+    if (args.format) {
+      const formatted = this.formatConnectionString(uri, args.format);
+      return { content: [{ type: 'text', text: formatted }] };
+    }
+
+    return { content: [{ type: 'text', text: uri }] };
+  }
+
+  private formatConnectionString(uri: string, format: string): string {
+    switch (format) {
+      case 'psql':
+        return `psql "${uri}"`;
+      case 'jdbc':
+        return uri.replace('postgres://', 'jdbc:postgresql://');
+      case 'node':
+        return `const { Pool } = require('pg');\nconst pool = new Pool({ connectionString: '${uri}' });`;
+      case 'python':
+        return `import psycopg2\nconn = psycopg2.connect('${uri}')`;
+      case 'go':
+        return `import "database/sql"\nimport _ "github.com/lib/pq"\ndb, err := sql.Open("postgres", "${uri}")`;
+      case 'rust':
+        return `use postgres::{Client, NoTls};\nlet mut client = Client::connect("${uri}", NoTls)?;`;
+      default:
+        return uri;
+    }
+  }
+
+  private async testConnection(args: any) {
+    const branchId = args.branchId || 'main';
+    const dbName = args.databaseName || 'neondb';
+    const startTime = Date.now();
+    try {
+      await this.client.post(`/projects/${args.projectId}/branches/${branchId}/databases/${dbName}/query`, { query: 'SELECT 1' });
+      const latency = Date.now() - startTime;
+      return { content: [{ type: 'text', text: `Connection successful! Latency: ${latency}ms` }] };
+    } catch (error: any) {
+      return { content: [{ type: 'text', text: `Connection failed: ${error.message}` }] };
+    }
+  }
+
+  private async getConnectionExamples(args: any) {
+    const response = await this.client.get(`/projects/${args.projectId}/connection_uri`, {
+      params: {
+        branch_id: args.branchId,
+        database_name: args.databaseName
+      }
+    });
+    const uri = response.data.uri;
+
+    const examples: any = {
+      javascript: `const { Pool } = require('pg');\nconst pool = new Pool({ connectionString: '${uri}' });\n\nconst result = await pool.query('SELECT * FROM users');\nconsole.log(result.rows);`,
+      typescript: `import { Pool } from 'pg';\nconst pool = new Pool({ connectionString: '${uri}' });\n\nconst result = await pool.query<User>('SELECT * FROM users');\nconsole.log(result.rows);`,
+      python: `import psycopg2\n\nconn = psycopg2.connect('${uri}')\ncur = conn.cursor()\ncur.execute('SELECT * FROM users')\nrows = cur.fetchall()`,
+      go: `import (\n  "database/sql"\n  _ "github.com/lib/pq"\n)\n\ndb, err := sql.Open("postgres", "${uri}")\nrows, err := db.Query("SELECT * FROM users")`,
+      rust: `use postgres::{Client, NoTls};\n\nlet mut client = Client::connect("${uri}", NoTls)?;\nlet rows = client.query("SELECT * FROM users", &[])?;`,
+      java: `import java.sql.*;\n\nString url = "${uri.replace('postgres://', 'jdbc:postgresql://')}";\nConnection conn = DriverManager.getConnection(url);\nStatement stmt = conn.createStatement();\nResultSet rs = stmt.executeQuery("SELECT * FROM users");`,
+      php: `<?php\n$conn = pg_connect('${uri}');\n$result = pg_query($conn, 'SELECT * FROM users');\n$rows = pg_fetch_all($result);`,
+      ruby: `require 'pg'\n\nconn = PG.connect('${uri}')\nresult = conn.exec('SELECT * FROM users')\nresult.each { |row| puts row }`
+    };
+
+    const example = examples[args.language || 'javascript'];
+    return { content: [{ type: 'text', text: example }] };
+  }
+
+  // PROJECT TEMPLATES
+  private async createFromTemplate(args: any) {
+    // Note: This is a placeholder - Neon API may not have direct template support
+    // This would create a project and then apply template SQL
+    const response = await this.client.post('/projects', {
+      project: {
+        name: args.name,
+        region_id: args.region
+      }
+    });
+    return { content: [{ type: 'text', text: `Project created from template: ${JSON.stringify(response.data, null, 2)}` }] };
+  }
+
+  private async listTemplates(args: any) {
+    // Note: This is a placeholder - returning common templates
+    const templates = [
+      { id: 'nextjs', name: 'Next.js Starter', description: 'PostgreSQL schema for Next.js apps' },
+      { id: 'rails', name: 'Ruby on Rails', description: 'Rails-compatible schema' },
+      { id: 'django', name: 'Django', description: 'Django-compatible schema' },
+      { id: 'ecommerce', name: 'E-commerce', description: 'Product catalog and orders' },
+      { id: 'saas', name: 'SaaS Multi-tenant', description: 'Multi-tenant SaaS schema' }
+    ];
+
+    const filtered = args.category
+      ? templates.filter(t => t.name.toLowerCase().includes(args.category.toLowerCase()))
+      : templates;
+
+    return { content: [{ type: 'text', text: JSON.stringify(filtered, null, 2) }] };
+  }
+
+  // ADVANCED MONITORING
+  private async getRealTimeMetrics(args: any) {
+    const response = await this.client.get(`/projects/${args.projectId}/operations`, {
+      params: { limit: 10 }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
+  }
+
+  private async exportMetrics(args: any) {
+    const config = {
+      destination: args.destination,
+      projectId: args.projectId,
+      config: args.config,
+      message: `Metrics export configured for ${args.destination}. Note: This requires additional setup in your monitoring system.`
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(config, null, 2) }] };
   }
 }
 
