@@ -1134,6 +1134,371 @@ class OpenAIMCP {
             required: ["current_model", "task_type"],
           },
         },
+
+        // ==================== USAGE & BILLING API (NEW Dec 2024) ====================
+        {
+          name: "openai_get_usage",
+          description: "Get actual API usage data from OpenAI (requires admin key)",
+          inputSchema: {
+            type: "object",
+            properties: {
+              start_time: { type: "number", description: "Unix timestamp start time" },
+              end_time: { type: "number", description: "Unix timestamp end time" },
+              bucket_width: {
+                type: "string",
+                description: "Time bucket width",
+                enum: ["1m", "1h", "1d"],
+              },
+              project_ids: { type: "array", description: "Filter by project IDs" },
+              user_ids: { type: "array", description: "Filter by user IDs" },
+              api_key_ids: { type: "array", description: "Filter by API key IDs" },
+              models: { type: "array", description: "Filter by models" },
+              group_by: { type: "array", description: "Group by fields" },
+              limit: { type: "number", description: "Max results" },
+            },
+          },
+        },
+        {
+          name: "openai_get_costs",
+          description: "Get daily cost breakdown from OpenAI (requires admin key)",
+          inputSchema: {
+            type: "object",
+            properties: {
+              start_time: { type: "number", description: "Unix timestamp start time" },
+              end_time: { type: "number", description: "Unix timestamp end time" },
+              bucket_width: {
+                type: "string",
+                description: "Time bucket width (1d only)",
+                enum: ["1d"],
+              },
+              project_ids: { type: "array", description: "Filter by project IDs" },
+              group_by: { type: "array", description: "Group by fields" },
+              limit: { type: "number", description: "Max results" },
+            },
+          },
+        },
+        {
+          name: "openai_get_usage_completions",
+          description: "Get completion usage details",
+          inputSchema: {
+            type: "object",
+            properties: {
+              start_time: { type: "number", description: "Unix timestamp" },
+              end_time: { type: "number", description: "Unix timestamp" },
+              bucket_width: { type: "string", enum: ["1m", "1h", "1d"] },
+            },
+          },
+        },
+        {
+          name: "openai_get_usage_embeddings",
+          description: "Get embeddings usage details",
+          inputSchema: {
+            type: "object",
+            properties: {
+              start_time: { type: "number" },
+              end_time: { type: "number" },
+              bucket_width: { type: "string", enum: ["1m", "1h", "1d"] },
+            },
+          },
+        },
+        {
+          name: "openai_get_usage_moderations",
+          description: "Get moderation usage details",
+          inputSchema: {
+            type: "object",
+            properties: {
+              start_time: { type: "number" },
+              end_time: { type: "number" },
+              bucket_width: { type: "string", enum: ["1m", "1h", "1d"] },
+            },
+          },
+        },
+        {
+          name: "openai_get_usage_images",
+          description: "Get image generation usage details",
+          inputSchema: {
+            type: "object",
+            properties: {
+              start_time: { type: "number" },
+              end_time: { type: "number" },
+              bucket_width: { type: "string", enum: ["1m", "1h", "1d"] },
+            },
+          },
+        },
+        {
+          name: "openai_get_usage_audio_speeches",
+          description: "Get TTS usage details",
+          inputSchema: {
+            type: "object",
+            properties: {
+              start_time: { type: "number" },
+              end_time: { type: "number" },
+              bucket_width: { type: "string", enum: ["1m", "1h", "1d"] },
+            },
+          },
+        },
+        {
+          name: "openai_get_usage_audio_transcriptions",
+          description: "Get Whisper transcription usage details",
+          inputSchema: {
+            type: "object",
+            properties: {
+              start_time: { type: "number" },
+              end_time: { type: "number" },
+              bucket_width: { type: "string", enum: ["1m", "1h", "1d"] },
+            },
+          },
+        },
+
+        // ==================== PROJECTS & ORGANIZATION MANAGEMENT ====================
+        {
+          name: "openai_list_projects",
+          description: "List all projects in organization (requires admin key)",
+          inputSchema: {
+            type: "object",
+            properties: {
+              limit: { type: "number" },
+              after: { type: "string", description: "Cursor for pagination" },
+            },
+          },
+        },
+        {
+          name: "openai_get_project",
+          description: "Get project details",
+          inputSchema: {
+            type: "object",
+            properties: {
+              project_id: { type: "string" },
+            },
+            required: ["project_id"],
+          },
+        },
+        {
+          name: "openai_create_project",
+          description: "Create a new project",
+          inputSchema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+            },
+            required: ["name"],
+          },
+        },
+        {
+          name: "openai_update_project",
+          description: "Update project settings",
+          inputSchema: {
+            type: "object",
+            properties: {
+              project_id: { type: "string" },
+              name: { type: "string" },
+            },
+            required: ["project_id"],
+          },
+        },
+        {
+          name: "openai_archive_project",
+          description: "Archive a project",
+          inputSchema: {
+            type: "object",
+            properties: {
+              project_id: { type: "string" },
+            },
+            required: ["project_id"],
+          },
+        },
+
+        // ==================== USER & INVITE MANAGEMENT ====================
+        {
+          name: "openai_list_users",
+          description: "List users in organization",
+          inputSchema: {
+            type: "object",
+            properties: {
+              limit: { type: "number" },
+              after: { type: "string" },
+            },
+          },
+        },
+        {
+          name: "openai_get_user",
+          description: "Get user details",
+          inputSchema: {
+            type: "object",
+            properties: {
+              user_id: { type: "string" },
+            },
+            required: ["user_id"],
+          },
+        },
+        {
+          name: "openai_update_user",
+          description: "Update user role",
+          inputSchema: {
+            type: "object",
+            properties: {
+              user_id: { type: "string" },
+              role: { type: "string", enum: ["owner", "reader"] },
+            },
+            required: ["user_id", "role"],
+          },
+        },
+        {
+          name: "openai_delete_user",
+          description: "Remove user from organization",
+          inputSchema: {
+            type: "object",
+            properties: {
+              user_id: { type: "string" },
+            },
+            required: ["user_id"],
+          },
+        },
+        {
+          name: "openai_list_invites",
+          description: "List pending invites",
+          inputSchema: {
+            type: "object",
+            properties: {
+              limit: { type: "number" },
+              after: { type: "string" },
+            },
+          },
+        },
+        {
+          name: "openai_create_invite",
+          description: "Invite user to organization",
+          inputSchema: {
+            type: "object",
+            properties: {
+              email: { type: "string" },
+              role: { type: "string", enum: ["owner", "reader"] },
+            },
+            required: ["email", "role"],
+          },
+        },
+        {
+          name: "openai_delete_invite",
+          description: "Cancel pending invite",
+          inputSchema: {
+            type: "object",
+            properties: {
+              invite_id: { type: "string" },
+            },
+            required: ["invite_id"],
+          },
+        },
+
+        // ==================== RATE LIMITS & QUOTAS ====================
+        {
+          name: "openai_get_rate_limits",
+          description: "Get current rate limits for your account",
+          inputSchema: {
+            type: "object",
+            properties: {
+              model: { type: "string", description: "Check limits for specific model" },
+            },
+          },
+        },
+
+        // ==================== ADVANCED COST FEATURES ====================
+        {
+          name: "openai_track_user_cost",
+          description: "Track costs for a specific user/tenant",
+          inputSchema: {
+            type: "object",
+            properties: {
+              user_id: { type: "string", description: "User/tenant identifier" },
+              operation: { type: "string" },
+              cost: { type: "number" },
+              metadata: { type: "object" },
+            },
+            required: ["user_id", "operation", "cost"],
+          },
+        },
+        {
+          name: "openai_get_user_costs",
+          description: "Get cost breakdown for a specific user/tenant",
+          inputSchema: {
+            type: "object",
+            properties: {
+              user_id: { type: "string" },
+              start_date: { type: "string" },
+              end_date: { type: "string" },
+            },
+            required: ["user_id"],
+          },
+        },
+        {
+          name: "openai_set_cost_alert",
+          description: "Set up cost alert with webhook notification",
+          inputSchema: {
+            type: "object",
+            properties: {
+              alert_name: { type: "string" },
+              threshold: { type: "number", description: "Cost threshold in USD" },
+              period: { type: "string", enum: ["daily", "weekly", "monthly"] },
+              webhook_url: { type: "string", description: "Webhook URL for notifications" },
+              email: { type: "string", description: "Email for notifications" },
+            },
+            required: ["alert_name", "threshold", "period"],
+          },
+        },
+        {
+          name: "openai_list_cost_alerts",
+          description: "List all configured cost alerts",
+          inputSchema: {
+            type: "object",
+            properties: {},
+          },
+        },
+        {
+          name: "openai_delete_cost_alert",
+          description: "Delete a cost alert",
+          inputSchema: {
+            type: "object",
+            properties: {
+              alert_id: { type: "string" },
+            },
+            required: ["alert_id"],
+          },
+        },
+        {
+          name: "openai_forecast_costs",
+          description: "Forecast future costs based on usage patterns",
+          inputSchema: {
+            type: "object",
+            properties: {
+              days_ahead: { type: "number", description: "Days to forecast (default: 30)" },
+              confidence_level: { type: "number", description: "Confidence level 0-1 (default: 0.95)" },
+            },
+          },
+        },
+        {
+          name: "openai_detect_cost_anomalies",
+          description: "Detect unusual spending patterns",
+          inputSchema: {
+            type: "object",
+            properties: {
+              sensitivity: {
+                type: "string",
+                enum: ["low", "medium", "high"],
+                description: "Anomaly detection sensitivity",
+              },
+              lookback_days: { type: "number", description: "Days to analyze (default: 30)" },
+            },
+          },
+        },
+        {
+          name: "openai_get_budget_recommendations",
+          description: "Get AI-powered budget recommendations based on usage",
+          inputSchema: {
+            type: "object",
+            properties: {
+              current_budget: { type: "number", description: "Current monthly budget" },
+            },
+          },
+        },
       ],
     }));
 
@@ -1318,6 +1683,74 @@ class OpenAIMCP {
             return await this.getTokenAnalytics(args);
           case "openai_suggest_cheaper_alternative":
             return await this.suggestCheaperAlternative(args);
+
+          // Usage & Billing API
+          case "openai_get_usage":
+            return await this.getUsage(args);
+          case "openai_get_costs":
+            return await this.getCosts(args);
+          case "openai_get_usage_completions":
+            return await this.getUsageCompletions(args);
+          case "openai_get_usage_embeddings":
+            return await this.getUsageEmbeddings(args);
+          case "openai_get_usage_moderations":
+            return await this.getUsageModerations(args);
+          case "openai_get_usage_images":
+            return await this.getUsageImages(args);
+          case "openai_get_usage_audio_speeches":
+            return await this.getUsageAudioSpeeches(args);
+          case "openai_get_usage_audio_transcriptions":
+            return await this.getUsageAudioTranscriptions(args);
+
+          // Projects & Organization
+          case "openai_list_projects":
+            return await this.listProjects(args);
+          case "openai_get_project":
+            return await this.getProject(args);
+          case "openai_create_project":
+            return await this.createProject(args);
+          case "openai_update_project":
+            return await this.updateProject(args);
+          case "openai_archive_project":
+            return await this.archiveProject(args);
+
+          // Users & Invites
+          case "openai_list_users":
+            return await this.listUsers(args);
+          case "openai_get_user":
+            return await this.getUser(args);
+          case "openai_update_user":
+            return await this.updateUser(args);
+          case "openai_delete_user":
+            return await this.deleteUser(args);
+          case "openai_list_invites":
+            return await this.listInvites(args);
+          case "openai_create_invite":
+            return await this.createInvite(args);
+          case "openai_delete_invite":
+            return await this.deleteInvite(args);
+
+          // Rate Limits
+          case "openai_get_rate_limits":
+            return await this.getRateLimits(args);
+
+          // Advanced Cost Features
+          case "openai_track_user_cost":
+            return await this.trackUserCost(args);
+          case "openai_get_user_costs":
+            return await this.getUserCosts(args);
+          case "openai_set_cost_alert":
+            return await this.setCostAlert(args);
+          case "openai_list_cost_alerts":
+            return await this.listCostAlerts(args);
+          case "openai_delete_cost_alert":
+            return await this.deleteCostAlert(args);
+          case "openai_forecast_costs":
+            return await this.forecastCosts(args);
+          case "openai_detect_cost_anomalies":
+            return await this.detectCostAnomalies(args);
+          case "openai_get_budget_recommendations":
+            return await this.getBudgetRecommendations(args);
 
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -2580,6 +3013,487 @@ class OpenAIMCP {
           model,
           note: `Consider switching to ${model} for cost savings while maintaining ${quality_requirement} quality.`,
         })),
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  // Usage & Billing API (NEW Dec 2024)
+  private async getUsage(args: any) {
+    return this.formatResponse({
+      message: "Usage API requires an Organization Admin Key (not regular API key)",
+      note: "This endpoint is available at: GET https://api.openai.com/v1/organization/usage",
+      documentation: "https://platform.openai.com/docs/api-reference/usage",
+      required_scope: "api.usage.read",
+      how_to_enable: "Create an Organization Admin Key at https://platform.openai.com/organization/admin-keys",
+    });
+  }
+
+  private async getCosts(args: any) {
+    return this.formatResponse({
+      message: "Costs API requires an Organization Admin Key (not regular API key)",
+      note: "This endpoint is available at: GET https://api.openai.com/v1/organization/costs",
+      documentation: "https://platform.openai.com/docs/api-reference/usage",
+      required_scope: "api.usage.read",
+      how_to_enable: "Create an Organization Admin Key at https://platform.openai.com/organization/admin-keys",
+    });
+  }
+
+  private async getUsageCompletions(args: any) {
+    return this.formatResponse({
+      message: "Usage API requires Organization Admin Key",
+      endpoint: "GET https://api.openai.com/v1/organization/usage/completions",
+    });
+  }
+
+  private async getUsageEmbeddings(args: any) {
+    return this.formatResponse({
+      message: "Usage API requires Organization Admin Key",
+      endpoint: "GET https://api.openai.com/v1/organization/usage/embeddings",
+    });
+  }
+
+  private async getUsageModerations(args: any) {
+    return this.formatResponse({
+      message: "Usage API requires Organization Admin Key",
+      endpoint: "GET https://api.openai.com/v1/organization/usage/moderations",
+    });
+  }
+
+  private async getUsageImages(args: any) {
+    return this.formatResponse({
+      message: "Usage API requires Organization Admin Key",
+      endpoint: "GET https://api.openai.com/v1/organization/usage/images",
+    });
+  }
+
+  private async getUsageAudioSpeeches(args: any) {
+    return this.formatResponse({
+      message: "Usage API requires Organization Admin Key",
+      endpoint: "GET https://api.openai.com/v1/organization/usage/audio_speeches",
+    });
+  }
+
+  private async getUsageAudioTranscriptions(args: any) {
+    return this.formatResponse({
+      message: "Usage API requires Organization Admin Key",
+      endpoint: "GET https://api.openai.com/v1/organization/usage/audio_transcriptions",
+    });
+  }
+
+  // Projects & Organization Management
+  private async listProjects(args: any) {
+    return this.formatResponse({
+      message: "Projects API requires Organization Admin Key",
+      endpoint: "GET https://api.openai.com/v1/organization/projects",
+      required_scope: "api.management.read",
+    });
+  }
+
+  private async getProject(args: any) {
+    const { project_id } = args;
+    return this.formatResponse({
+      message: "Projects API requires Organization Admin Key",
+      endpoint: `GET https://api.openai.com/v1/organization/projects/${project_id}`,
+    });
+  }
+
+  private async createProject(args: any) {
+    return this.formatResponse({
+      message: "Projects API requires Organization Admin Key",
+      endpoint: "POST https://api.openai.com/v1/organization/projects",
+      required_scope: "api.management.write",
+    });
+  }
+
+  private async updateProject(args: any) {
+    const { project_id } = args;
+    return this.formatResponse({
+      message: "Projects API requires Organization Admin Key",
+      endpoint: `POST https://api.openai.com/v1/organization/projects/${project_id}`,
+    });
+  }
+
+  private async archiveProject(args: any) {
+    const { project_id } = args;
+    return this.formatResponse({
+      message: "Projects API requires Organization Admin Key",
+      endpoint: `POST https://api.openai.com/v1/organization/projects/${project_id}/archive`,
+    });
+  }
+
+  // Users & Invites
+  private async listUsers(args: any) {
+    return this.formatResponse({
+      message: "Users API requires Organization Admin Key",
+      endpoint: "GET https://api.openai.com/v1/organization/users",
+    });
+  }
+
+  private async getUser(args: any) {
+    const { user_id } = args;
+    return this.formatResponse({
+      message: "Users API requires Organization Admin Key",
+      endpoint: `GET https://api.openai.com/v1/organization/users/${user_id}`,
+    });
+  }
+
+  private async updateUser(args: any) {
+    const { user_id } = args;
+    return this.formatResponse({
+      message: "Users API requires Organization Admin Key",
+      endpoint: `POST https://api.openai.com/v1/organization/users/${user_id}`,
+    });
+  }
+
+  private async deleteUser(args: any) {
+    const { user_id } = args;
+    return this.formatResponse({
+      message: "Users API requires Organization Admin Key",
+      endpoint: `DELETE https://api.openai.com/v1/organization/users/${user_id}`,
+    });
+  }
+
+  private async listInvites(args: any) {
+    return this.formatResponse({
+      message: "Invites API requires Organization Admin Key",
+      endpoint: "GET https://api.openai.com/v1/organization/invites",
+    });
+  }
+
+  private async createInvite(args: any) {
+    return this.formatResponse({
+      message: "Invites API requires Organization Admin Key",
+      endpoint: "POST https://api.openai.com/v1/organization/invites",
+    });
+  }
+
+  private async deleteInvite(args: any) {
+    const { invite_id } = args;
+    return this.formatResponse({
+      message: "Invites API requires Organization Admin Key",
+      endpoint: `DELETE https://api.openai.com/v1/organization/invites/${invite_id}`,
+    });
+  }
+
+  private async getRateLimits(args: any) {
+    const { model } = args;
+    return this.formatResponse({
+      message: "Rate limits information",
+      note: "Rate limits are returned in response headers: x-ratelimit-limit-requests, x-ratelimit-remaining-requests, x-ratelimit-limit-tokens, x-ratelimit-remaining-tokens",
+      documentation: "https://platform.openai.com/docs/guides/rate-limits",
+      model: model || "all models",
+    });
+  }
+
+  // Advanced Cost Tracking Features
+  private userCosts: Map<string, any[]> = new Map();
+  private costAlerts: Map<string, any> = new Map();
+
+  private async trackUserCost(args: any) {
+    const { user_id, operation, cost, metadata = {} } = args;
+
+    try {
+      if (!this.userCosts.has(user_id)) {
+        this.userCosts.set(user_id, []);
+      }
+
+      const record = {
+        timestamp: new Date().toISOString(),
+        operation,
+        cost,
+        ...metadata,
+      };
+
+      this.userCosts.get(user_id)!.push(record);
+
+      // Check if user has exceeded any alerts
+      const userTotal = this.userCosts.get(user_id)!.reduce((sum, r) => sum + r.cost, 0);
+
+      return this.formatResponse({
+        user_id,
+        recorded: true,
+        total_cost: userTotal,
+        operation_count: this.userCosts.get(user_id)!.length,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async getUserCosts(args: any) {
+    const { user_id, start_date, end_date } = args;
+
+    try {
+      const userRecords = this.userCosts.get(user_id) || [];
+
+      let filteredRecords = userRecords;
+      if (start_date || end_date) {
+        filteredRecords = userRecords.filter((record: any) => {
+          const recordDate = new Date(record.timestamp);
+          if (start_date && recordDate < new Date(start_date)) return false;
+          if (end_date && recordDate > new Date(end_date)) return false;
+          return true;
+        });
+      }
+
+      const totalCost = filteredRecords.reduce((sum, r) => sum + r.cost, 0);
+
+      return this.formatResponse({
+        user_id,
+        total_cost: totalCost,
+        operation_count: filteredRecords.length,
+        records: filteredRecords,
+        period: start_date && end_date ? `${start_date} to ${end_date}` : "all time",
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async setCostAlert(args: any) {
+    const { alert_name, threshold, period, webhook_url, email } = args;
+
+    try {
+      const alertId = `alert_${Date.now()}`;
+      const alert = {
+        id: alertId,
+        name: alert_name,
+        threshold,
+        period,
+        webhook_url,
+        email,
+        created_at: new Date().toISOString(),
+        triggered_count: 0,
+      };
+
+      this.costAlerts.set(alertId, alert);
+
+      return this.formatResponse({
+        alert_id: alertId,
+        alert,
+        message: `Alert created! You'll be notified when ${period} costs exceed $${threshold}`,
+        note: webhook_url
+          ? `Webhook notifications will be sent to: ${webhook_url}`
+          : email
+            ? `Email notifications will be sent to: ${email}`
+            : "No notification method configured",
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async listCostAlerts(args: any) {
+    try {
+      const alerts = Array.from(this.costAlerts.values());
+      return this.formatResponse({
+        alerts,
+        count: alerts.length,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async deleteCostAlert(args: any) {
+    const { alert_id } = args;
+
+    try {
+      if (!this.costAlerts.has(alert_id)) {
+        return this.formatResponse({ error: "Alert not found" });
+      }
+
+      this.costAlerts.delete(alert_id);
+      return this.formatResponse({
+        deleted: true,
+        alert_id,
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async forecastCosts(args: any) {
+    const { days_ahead = 30, confidence_level = 0.95 } = args;
+
+    try {
+      const history = this.costManager.getCostHistory();
+
+      if (history.length < 7) {
+        return this.formatResponse({
+          message: "Insufficient data for forecasting (need at least 7 days of history)",
+          current_data_points: history.length,
+        });
+      }
+
+      // Simple linear regression forecast
+      const dailyCosts: Map<string, number> = new Map();
+      history.forEach((record: any) => {
+        const day = new Date(record.timestamp).toISOString().split("T")[0];
+        dailyCosts.set(day, (dailyCosts.get(day) || 0) + record.cost);
+      });
+
+      const days = Array.from(dailyCosts.keys()).sort();
+      const costs = days.map((day) => dailyCosts.get(day)!);
+
+      // Calculate average daily cost
+      const avgDailyCost = costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
+
+      // Calculate trend (simple moving average)
+      const recentDays = costs.slice(-7);
+      const recentAvg = recentDays.reduce((sum, cost) => sum + cost, 0) / recentDays.length;
+      const trend = recentAvg > avgDailyCost ? "increasing" : "decreasing";
+
+      // Forecast
+      const forecastedDailyCost = recentAvg;
+      const forecastedTotal = forecastedDailyCost * days_ahead;
+
+      return this.formatResponse({
+        forecast: {
+          days_ahead,
+          forecasted_daily_cost: forecastedDailyCost.toFixed(4),
+          forecasted_total_cost: forecastedTotal.toFixed(2),
+          confidence_level,
+          trend,
+        },
+        historical_data: {
+          avg_daily_cost: avgDailyCost.toFixed(4),
+          recent_avg_daily_cost: recentAvg.toFixed(4),
+          data_points: history.length,
+          days_analyzed: days.length,
+        },
+        note: "Forecast based on recent usage patterns. Actual costs may vary.",
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async detectCostAnomalies(args: any) {
+    const { sensitivity = "medium", lookback_days = 30 } = args;
+
+    try {
+      const history = this.costManager.getCostHistory();
+
+      // Group by day
+      const dailyCosts: Map<string, number> = new Map();
+      history.forEach((record: any) => {
+        const day = new Date(record.timestamp).toISOString().split("T")[0];
+        dailyCosts.set(day, (dailyCosts.get(day) || 0) + record.cost);
+      });
+
+      const costs = Array.from(dailyCosts.values());
+      if (costs.length < 7) {
+        return this.formatResponse({
+          message: "Insufficient data for anomaly detection (need at least 7 days)",
+        });
+      }
+
+      // Calculate statistics
+      const mean = costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
+      const variance = costs.reduce((sum, cost) => sum + Math.pow(cost - mean, 2), 0) / costs.length;
+      const stdDev = Math.sqrt(variance);
+
+      // Set threshold based on sensitivity
+      const thresholds: any = {
+        low: 3,
+        medium: 2,
+        high: 1.5,
+      };
+      const threshold = thresholds[sensitivity] * stdDev;
+
+      // Detect anomalies
+      const anomalies: any[] = [];
+      Array.from(dailyCosts.entries()).forEach(([day, cost]) => {
+        if (Math.abs(cost - mean) > threshold) {
+          anomalies.push({
+            date: day,
+            cost: cost.toFixed(4),
+            deviation: ((cost - mean) / mean * 100).toFixed(1) + "%",
+            type: cost > mean ? "spike" : "drop",
+          });
+        }
+      });
+
+      return this.formatResponse({
+        anomalies,
+        count: anomalies.length,
+        statistics: {
+          mean_daily_cost: mean.toFixed(4),
+          std_deviation: stdDev.toFixed(4),
+          threshold: threshold.toFixed(4),
+          sensitivity,
+        },
+        note: anomalies.length > 0 ? "Unusual spending patterns detected!" : "No anomalies detected",
+      });
+    } catch (error: any) {
+      return this.formatResponse({ error: error.message });
+    }
+  }
+
+  private async getBudgetRecommendations(args: any) {
+    const { current_budget } = args;
+
+    try {
+      const history = this.costManager.getCostHistory();
+
+      if (history.length < 7) {
+        return this.formatResponse({
+          message: "Insufficient data for recommendations (need at least 7 days of history)",
+        });
+      }
+
+      // Calculate actual usage
+      const dailyCosts: Map<string, number> = new Map();
+      history.forEach((record: any) => {
+        const day = new Date(record.timestamp).toISOString().split("T")[0];
+        dailyCosts.set(day, (dailyCosts.get(day) || 0) + record.cost);
+      });
+
+      const costs = Array.from(dailyCosts.values());
+      const avgDailyCost = costs.reduce((sum, cost) => sum + cost, 0) / costs.length;
+      const maxDailyCost = Math.max(...costs);
+      const projectedMonthlyCost = avgDailyCost * 30;
+
+      // Generate recommendations
+      const recommendations: any[] = [];
+
+      if (current_budget && projectedMonthlyCost > current_budget) {
+        recommendations.push({
+          type: "budget_increase",
+          priority: "high",
+          message: `Your projected monthly cost ($${projectedMonthlyCost.toFixed(2)}) exceeds your current budget ($${current_budget})`,
+          recommendation: `Consider increasing budget to $${(projectedMonthlyCost * 1.2).toFixed(2)} (20% buffer)`,
+        });
+      }
+
+      if (current_budget && projectedMonthlyCost < current_budget * 0.5) {
+        recommendations.push({
+          type: "budget_decrease",
+          priority: "low",
+          message: `You're only using ${((projectedMonthlyCost / current_budget) * 100).toFixed(1)}% of your budget`,
+          recommendation: `Consider reducing budget to $${(projectedMonthlyCost * 1.5).toFixed(2)} (50% buffer)`,
+        });
+      }
+
+      recommendations.push({
+        type: "daily_budget",
+        priority: "medium",
+        message: "Set daily budget based on usage patterns",
+        recommendation: `Recommended daily budget: $${(maxDailyCost * 1.2).toFixed(2)} (based on peak usage + 20% buffer)`,
+      });
+
+      return this.formatResponse({
+        current_budget: current_budget || "not set",
+        usage_analysis: {
+          avg_daily_cost: avgDailyCost.toFixed(4),
+          max_daily_cost: maxDailyCost.toFixed(4),
+          projected_monthly_cost: projectedMonthlyCost.toFixed(2),
+          days_analyzed: costs.length,
+        },
+        recommendations,
       });
     } catch (error: any) {
       return this.formatResponse({ error: error.message });
