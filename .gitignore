@@ -10,4 +10,5 @@ dist/
 packages/unified-mcp/unified-mcp-config.json
 *-config.json
 !mcp-config-*.json
+mcp-config-enhanced.json
 
