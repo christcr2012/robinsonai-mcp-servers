@@ -1,0 +1,89 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "node",
+      "args": [
+        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/github-mcp/dist/index.js"
+      ],
+      "env": {
+        "GITHUB_TOKEN": "YOUR_GITHUB_TOKEN_HERE"
+      }
+    },
+    "vercel": {
+      "command": "node",
+      "args": [
+        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/vercel-mcp/dist/index.js"
+      ],
+      "env": {
+        "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE"
+      }
+    },
+    "neon": {
+      "command": "node",
+      "args": [
+        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/neon-mcp/dist/index.js"
+      ],
+      "env": {
+        "NEON_API_KEY": "YOUR_NEON_API_KEY_HERE"
+      }
+    },
+    "google-workspace": {
+      "command": "node",
+      "args": [
+        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/google-workspace-mcp/dist/index.js"
+      ],
+      "env": {
+        "GOOGLE_SERVICE_ACCOUNT_KEY": "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/google-workspace-mcp/service-account-key.json",
+        "GOOGLE_USER_EMAIL": "ops@robinsonaisystems.com"
+      }
+    },
+    "resend": {
+      "command": "node",
+      "args": [
+        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/resend-mcp/dist/index.js"
+      ],
+      "env": {
+        "RESEND_API_KEY": "YOUR_RESEND_API_KEY_HERE"
+      }
+    },
+    "twilio": {
+      "command": "node",
+      "args": [
+        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/twilio-mcp/dist/index.js"
+      ],
+      "env": {
+        "TWILIO_ACCOUNT_SID": "YOUR_TWILIO_ACCOUNT_SID_HERE",
+        "TWILIO_AUTH_TOKEN": "YOUR_TWILIO_AUTH_TOKEN_HERE"
+      }
+    },
+    "cloudflare": {
+      "command": "node",
+      "args": [
+        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/cloudflare-mcp/dist/index.js"
+      ],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "YOUR_CLOUDFLARE_API_TOKEN_HERE",
+        "CLOUDFLARE_ACCOUNT_ID": "YOUR_CLOUDFLARE_ACCOUNT_ID_HERE"
+      }
+    },
+    "redis": {
+      "command": "node",
+      "args": [
+        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/redis-mcp/dist/index.js"
+      ],
+      "env": {
+        "REDIS_URL": "redis://localhost:6379"
+      }
+    },
+    "openai": {
+      "command": "node",
+      "args": [
+        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/openai-mcp/dist/index.js"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY_HERE"
+      }
+    }
+  }
+}
+
