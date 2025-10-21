@@ -1,27 +1,27 @@
 {
   "mcpServers": {
     "github": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/github-mcp/dist/index.js"
+        "github-mcp"
       ],
       "env": {
         "GITHUB_TOKEN": "YOUR_GITHUB_TOKEN_HERE"
       }
     },
     "vercel": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/vercel-mcp/dist/index.js"
+        "vercel-mcp"
       ],
       "env": {
         "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE"
       }
     },
     "neon": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/neon-mcp/dist/index.js"
+        "neon-mcp"
       ],
       "env": {
         "NEON_API_KEY": "YOUR_NEON_API_KEY_HERE"

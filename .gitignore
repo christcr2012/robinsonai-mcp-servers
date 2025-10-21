@@ -6,3 +6,8 @@ dist/
 .env.local
 *.tsbuildinfo
 
+# Config files with secrets
+packages/unified-mcp/unified-mcp-config.json
+*-config.json
+!mcp-config-*.json
+

@@ -1,45 +1,45 @@
 {
   "mcpServers": {
     "github": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/github-mcp/dist/index.js"
+        "github-mcp"
       ],
       "env": {
         "GITHUB_TOKEN": "YOUR_GITHUB_TOKEN_HERE"
       }
     },
     "vercel": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/vercel-mcp/dist/index.js"
+        "vercel-mcp"
       ],
       "env": {
         "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE"
       }
     },
     "neon": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/neon-mcp/dist/index.js"
+        "neon-mcp"
       ],
       "env": {
         "NEON_API_KEY": "YOUR_NEON_API_KEY_HERE"
       }
     },
     "resend": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/resend-mcp/dist/index.js"
+        "resend-mcp"
       ],
       "env": {
         "RESEND_API_KEY": "YOUR_RESEND_API_KEY_HERE"
       }
     },
     "cloudflare": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/cloudflare-mcp/dist/index.js"
+        "cloudflare-mcp"
       ],
       "env": {
         "CLOUDFLARE_API_TOKEN": "YOUR_CLOUDFLARE_API_TOKEN_HERE",
@@ -47,9 +47,9 @@
       }
     },
     "openai": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/openai-mcp/dist/index.js"
+        "openai-mcp"
       ],
       "env": {
         "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY_HERE"

@@ -45,27 +45,41 @@ The MCP servers are configured in the Augment extension settings:
 
 Each MCP server needs:
 - **Command**: MUST be `"npx"` (NOT `"node"`)
-- **Arguments**: Package name with `-y` flag (e.g., `["-y", "@robinsonai/github-mcp"]`)
+- **Arguments**: Bin name from package.json (e.g., `["github-mcp"]` for locally linked, or `["-y", "@robinsonai/github-mcp"]` for published)
 - **Environment Variables**: API tokens/credentials stored in `env` object
+
+**IMPORTANT**: Augment Code requires `npx` command. Using `node` with file paths does NOT work for tool discovery.
 
 ---
 
 ## Individual Server Configurations
 
-### 1. GitHub MCP (250 tools)
+### 1. GitHub MCP (240 tools)
 
 **Required:** GitHub Personal Access Token
 
-**Configuration:**
+**Configuration (Locally Linked):**
 ```json
 {
   "mcpServers": {
     "github": {
-      "command": "node",
-      "args": [
-        "C:/Users/chris/Git Local/robinsonai-mcp-servers/packages/github-mcp/dist/index.js",
-        "${GITHUB_TOKEN}"
-      ],
+      "command": "npx",
+      "args": ["github-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
+    }
+  }
+}
+```
+
+**Configuration (Published to npm):**
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@robinsonai/github-mcp"],
       "env": {
         "GITHUB_TOKEN": "ghp_your_token_here"
       }
