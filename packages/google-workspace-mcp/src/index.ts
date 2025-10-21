@@ -261,22 +261,16 @@ class GoogleWorkspaceMCP {
       { name: 'admin_list_alerts', description: 'List security alerts', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, filter: { type: 'string' } }, required: ['customer'] } },
       { name: 'admin_get_alert', description: 'Get alert details', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, alertId: { type: 'string' } }, required: ['customer', 'alertId'] } },
       { name: 'admin_delete_alert', description: 'Delete alert', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, alertId: { type: 'string' } }, required: ['customer', 'alertId'] } },
-      { name: 'admin_list_tokens', description: 'List OAuth tokens', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
-      { name: 'admin_revoke_token', description: 'Revoke OAuth token', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, clientId: { type: 'string' } }, required: ['userKey', 'clientId'] } },
-      { name: 'admin_list_asp', description: 'List app-specific passwords', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
-      { name: 'admin_delete_asp', description: 'Delete app-specific password', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, codeId: { type: 'string' } }, required: ['userKey', 'codeId'] } },
       { name: 'admin_get_customer_info', description: 'Get customer information', inputSchema: { type: 'object', properties: { customer: { type: 'string' } }, required: ['customer'] } },
 
       // ADVANCED GMAIL (6 tools)
       { name: 'gmail_batch_modify', description: 'Batch modify messages', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, ids: { type: 'array', items: { type: 'string' } }, addLabelIds: { type: 'array' }, removeLabelIds: { type: 'array' } }, required: ['userId', 'ids'] } },
       { name: 'gmail_import_message', description: 'Import message to mailbox', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, message: { type: 'object' }, internalDateSource: { type: 'string' } }, required: ['userId', 'message'] } },
       { name: 'gmail_insert_message', description: 'Insert message directly', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, message: { type: 'object' } }, required: ['userId', 'message'] } },
-      { name: 'gmail_get_profile', description: 'Get user Gmail profile', inputSchema: { type: 'object', properties: { userId: { type: 'string' } }, required: ['userId'] } },
       { name: 'gmail_stop_watch', description: 'Stop Gmail push notifications', inputSchema: { type: 'object', properties: { userId: { type: 'string' } }, required: ['userId'] } },
       { name: 'gmail_watch', description: 'Set up Gmail push notifications', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, labelIds: { type: 'array' }, topicName: { type: 'string' } }, required: ['userId', 'topicName'] } },
 
-      // ADVANCED DRIVE (6 tools)
-      { name: 'drive_export_file', description: 'Export Google Workspace file', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, mimeType: { type: 'string' } }, required: ['fileId', 'mimeType'] } },
+      // ADVANCED DRIVE (5 tools)
       { name: 'drive_empty_trash', description: 'Empty Drive trash', inputSchema: { type: 'object', properties: {} } },
       { name: 'drive_get_about', description: 'Get Drive storage info', inputSchema: { type: 'object', properties: { fields: { type: 'string' } } } },
       { name: 'drive_list_changes', description: 'List file changes', inputSchema: { type: 'object', properties: { pageToken: { type: 'string' }, includeRemoved: { type: 'boolean' } }, required: ['pageToken'] } },
@@ -288,9 +282,7 @@ class GoogleWorkspaceMCP {
       { name: 'calendar_quick_add', description: 'Quick add event from text', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, text: { type: 'string' } }, required: ['calendarId', 'text'] } },
       { name: 'calendar_watch_events', description: 'Watch calendar for changes', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' } }, required: ['calendarId', 'address'] } },
 
-      // ADVANCED SHEETS (3 tools)
-      { name: 'sheets_batch_update', description: 'Batch update spreadsheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, requests: { type: 'array' } }, required: ['spreadsheetId', 'requests'] } },
-      { name: 'sheets_append_values', description: 'Append values to sheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, range: { type: 'string' }, values: { type: 'array' } }, required: ['spreadsheetId', 'range', 'values'] } },
+      // ADVANCED SHEETS (2 tools)
       { name: 'sheets_batch_clear', description: 'Batch clear ranges', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, ranges: { type: 'array', items: { type: 'string' } } }, required: ['spreadsheetId', 'ranges'] } }
     ] }));
 

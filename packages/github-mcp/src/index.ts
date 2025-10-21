@@ -75,298 +75,288 @@ class GitHubMCP {
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
         // REPOSITORY MANAGEMENT (20 tools)
-        { name: 'list_repos', description: 'List repositories for authenticated user or organization', inputSchema: { type: 'object', properties: { org: { type: 'string' }, type: { type: 'string', enum: ['all', 'owner', 'public', 'private', 'member'] }, sort: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } } } },
-        { name: 'get_repo', description: 'Get repository details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'create_repo', description: 'Create a new repository', inputSchema: { type: 'object', properties: { name: { type: 'string' }, description: { type: 'string' }, private: { type: 'boolean' }, auto_init: { type: 'boolean' }, gitignore_template: { type: 'string' }, license_template: { type: 'string' }, org: { type: 'string' } }, required: ['name'] } },
-        { name: 'update_repo', description: 'Update repository settings', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, private: { type: 'boolean' }, has_issues: { type: 'boolean' }, has_projects: { type: 'boolean' }, has_wiki: { type: 'boolean' } }, required: ['owner', 'repo'] } },
-        { name: 'delete_repo', description: 'Delete a repository', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'list_repo_topics', description: 'List repository topics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'replace_repo_topics', description: 'Replace all repository topics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, names: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'names'] } },
-        { name: 'list_repo_languages', description: 'List programming languages used in repository', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'list_repo_tags', description: 'List repository tags', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'list_repo_teams', description: 'List teams with access to repository', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'transfer_repo', description: 'Transfer repository to another user/org', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, new_owner: { type: 'string' } }, required: ['owner', 'repo', 'new_owner'] } },
-        { name: 'enable_automated_security_fixes', description: 'Enable automated security fixes', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'disable_automated_security_fixes', description: 'Disable automated security fixes', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'enable_vulnerability_alerts', description: 'Enable vulnerability alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'disable_vulnerability_alerts', description: 'Disable vulnerability alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'get_repo_readme', description: 'Get repository README', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'get_repo_license', description: 'Get repository license', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'get_repo_community_profile', description: 'Get community profile metrics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'get_repo_stats_contributors', description: 'Get contributor statistics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'get_repo_stats_commit_activity', description: 'Get commit activity statistics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_list_repos', description: 'List repositories for authenticated user or organization', inputSchema: { type: 'object', properties: { org: { type: 'string' }, type: { type: 'string', enum: ['all', 'owner', 'public', 'private', 'member'] }, sort: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } } } },
+        { name: 'github_get_repo', description: 'Get repository details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_create_repo', description: 'Create a new repository', inputSchema: { type: 'object', properties: { name: { type: 'string' }, description: { type: 'string' }, private: { type: 'boolean' }, auto_init: { type: 'boolean' }, gitignore_template: { type: 'string' }, license_template: { type: 'string' }, org: { type: 'string' } }, required: ['name'] } },
+        { name: 'github_update_repo', description: 'Update repository settings', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, private: { type: 'boolean' }, has_issues: { type: 'boolean' }, has_projects: { type: 'boolean' }, has_wiki: { type: 'boolean' } }, required: ['owner', 'repo'] } },
+        { name: 'github_delete_repo', description: 'Delete a repository', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_list_repo_topics', description: 'List repository topics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_replace_repo_topics', description: 'Replace all repository topics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, names: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'names'] } },
+        { name: 'github_list_repo_languages', description: 'List programming languages used in repository', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_list_repo_tags', description: 'List repository tags', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_list_repo_teams', description: 'List teams with access to repository', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_transfer_repo', description: 'Transfer repository to another user/org', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, new_owner: { type: 'string' } }, required: ['owner', 'repo', 'new_owner'] } },
+        { name: 'github_enable_automated_security_fixes', description: 'Enable automated security fixes', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_disable_automated_security_fixes', description: 'Disable automated security fixes', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_enable_vulnerability_alerts', description: 'Enable vulnerability alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_disable_vulnerability_alerts', description: 'Disable vulnerability alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_readme', description: 'Get repository README', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_license', description: 'Get repository license', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_community_profile', description: 'Get community profile metrics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_stats_contributors', description: 'Get contributor statistics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_stats_commit_activity', description: 'Get commit activity statistics', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
 
         // BRANCHES (15 tools)
-        { name: 'list_branches', description: 'List repository branches', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, protected: { type: 'boolean' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_branch', description: 'Get branch details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'create_branch', description: 'Create a new branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string'}, branch: { type: 'string' }, from_branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'delete_branch', description: 'Delete a branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'merge_branch', description: 'Merge a branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, base: { type: 'string' }, head: { type: 'string' }, commit_message: { type: 'string' } }, required: ['owner', 'repo', 'base', 'head'] } },
-        { name: 'get_branch_protection', description: 'Get branch protection rules', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'update_branch_protection', description: 'Update branch protection rules', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' }, required_status_checks: { type: 'object' }, enforce_admins: { type: 'boolean' }, required_pull_request_reviews: { type: 'object' }, restrictions: { type: 'object' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'delete_branch_protection', description: 'Remove branch protection', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'get_required_status_checks', description: 'Get required status checks', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'update_required_status_checks', description: 'Update required status checks', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' }, strict: { type: 'boolean' }, contexts: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'get_admin_enforcement', description: 'Get admin enforcement status', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'set_admin_enforcement', description: 'Enable/disable admin enforcement', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'get_pull_request_review_enforcement', description: 'Get PR review enforcement', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'update_pull_request_review_enforcement', description: 'Update PR review enforcement', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' }, dismissal_restrictions: { type: 'object' }, dismiss_stale_reviews: { type: 'boolean' }, require_code_owner_reviews: { type: 'boolean' }, required_approving_review_count: { type: 'number' } }, required: ['owner', 'repo', 'branch'] } },
-        { name: 'rename_branch', description: 'Rename a branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' }, new_name: { type: 'string' } }, required: ['owner', 'repo', 'branch', 'new_name'] } },
+        { name: 'github_list_branches', description: 'List repository branches', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, protected: { type: 'boolean' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_branch', description: 'Get branch details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_create_branch', description: 'Create a new branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string'}, branch: { type: 'string' }, from_branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_delete_branch', description: 'Delete a branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_merge_branch', description: 'Merge a branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, base: { type: 'string' }, head: { type: 'string' }, commit_message: { type: 'string' } }, required: ['owner', 'repo', 'base', 'head'] } },
+        { name: 'github_get_branch_protection', description: 'Get branch protection rules', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_update_branch_protection', description: 'Update branch protection rules', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' }, required_status_checks: { type: 'object' }, enforce_admins: { type: 'boolean' }, required_pull_request_reviews: { type: 'object' }, restrictions: { type: 'object' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_delete_branch_protection', description: 'Remove branch protection', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_get_required_status_checks', description: 'Get required status checks', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_update_required_status_checks', description: 'Update required status checks', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' }, strict: { type: 'boolean' }, contexts: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_get_admin_enforcement', description: 'Get admin enforcement status', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_set_admin_enforcement', description: 'Enable/disable admin enforcement', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_get_pull_request_review_enforcement', description: 'Get PR review enforcement', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_update_pull_request_review_enforcement', description: 'Update PR review enforcement', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' }, dismissal_restrictions: { type: 'object' }, dismiss_stale_reviews: { type: 'boolean' }, require_code_owner_reviews: { type: 'boolean' }, required_approving_review_count: { type: 'number' } }, required: ['owner', 'repo', 'branch'] } },
+        { name: 'github_rename_branch', description: 'Rename a branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' }, new_name: { type: 'string' } }, required: ['owner', 'repo', 'branch', 'new_name'] } },
 
         // COMMITS (10 tools)
-        { name: 'list_commits', description: 'List commits', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, sha: { type: 'string' }, path: { type: 'string' }, author: { type: 'string' }, since: { type: 'string' }, until: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_commit', description: 'Get commit details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'ref'] } },
-        { name: 'compare_commits', description: 'Compare two commits', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, base: { type: 'string' }, head: { type: 'string' } }, required: ['owner', 'repo', 'base', 'head'] } },
-        { name: 'list_commit_comments', description: 'List commit comments', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'ref'] } },
-        { name: 'create_commit_comment', description: 'Create commit comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, commit_sha: { type: 'string' }, body: { type: 'string' }, path: { type: 'string' }, position: { type: 'number' } }, required: ['owner', 'repo', 'commit_sha', 'body'] } },
-        { name: 'get_commit_status', description: 'Get combined commit status', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'ref'] } },
-        { name: 'list_commit_statuses', description: 'List commit statuses', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'ref'] } },
-        { name: 'create_commit_status', description: 'Create commit status', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, sha: { type: 'string' }, state: { type: 'string', enum: ['error', 'failure', 'pending', 'success'] }, target_url: { type: 'string' }, description: { type: 'string' }, context: { type: 'string' } }, required: ['owner', 'repo', 'sha', 'state'] } },
-        { name: 'list_pull_requests_associated_with_commit', description: 'List PRs associated with commit', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, commit_sha: { type: 'string' } }, required: ['owner', 'repo', 'commit_sha'] } },
-        { name: 'get_commit_signature_verification', description: 'Get commit signature verification', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'ref'] } },
+        { name: 'github_list_commits', description: 'List commits', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, sha: { type: 'string' }, path: { type: 'string' }, author: { type: 'string' }, since: { type: 'string' }, until: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_commit', description: 'Get commit details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'ref'] } },
+        { name: 'github_compare_commits', description: 'Compare two commits', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, base: { type: 'string' }, head: { type: 'string' } }, required: ['owner', 'repo', 'base', 'head'] } },
+        { name: 'github_list_commit_comments', description: 'List commit comments', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'ref'] } },
+        { name: 'github_create_commit_comment', description: 'Create commit comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, commit_sha: { type: 'string' }, body: { type: 'string' }, path: { type: 'string' }, position: { type: 'number' } }, required: ['owner', 'repo', 'commit_sha', 'body'] } },
+        { name: 'github_get_commit_status', description: 'Get combined commit status', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'ref'] } },
+        { name: 'github_list_commit_statuses', description: 'List commit statuses', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'ref'] } },
+        { name: 'github_create_commit_status', description: 'Create commit status', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, sha: { type: 'string' }, state: { type: 'string', enum: ['error', 'failure', 'pending', 'success'] }, target_url: { type: 'string' }, description: { type: 'string' }, context: { type: 'string' } }, required: ['owner', 'repo', 'sha', 'state'] } },
+        { name: 'github_list_pull_requests_associated_with_commit', description: 'List PRs associated with commit', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, commit_sha: { type: 'string' } }, required: ['owner', 'repo', 'commit_sha'] } },
+        { name: 'github_get_commit_signature_verification', description: 'Get commit signature verification', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'ref'] } },
 
         // ISSUES (20 tools)
-        { name: 'list_issues', description: 'List issues', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, labels: { type: 'array', items: { type: 'string' } }, sort: { type: 'string' }, direction: { type: 'string' }, since: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_issue', description: 'Get issue details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
-        { name: 'create_issue', description: 'Create an issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, body: { type: 'string' }, assignees: { type: 'array', items: { type: 'string' } }, milestone: { type: 'number' }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'title'] } },
-        { name: 'update_issue', description: 'Update an issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, title: { type: 'string' }, body: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed'] }, assignees: { type: 'array', items: { type: 'string' } }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number'] } },
-        { name: 'lock_issue', description: 'Lock an issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, lock_reason: { type: 'string', enum: ['off-topic', 'too heated', 'resolved', 'spam'] } }, required: ['owner', 'repo', 'issue_number'] } },
-        { name: 'unlock_issue', description: 'Unlock an issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
-        { name: 'add_assignees', description: 'Add assignees to issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, assignees: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number', 'assignees'] } },
-        { name: 'remove_assignees', description: 'Remove assignees from issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, assignees: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number', 'assignees'] } },
-        { name: 'add_labels', description: 'Add labels to issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number', 'labels'] } },
-        { name: 'remove_label', description: 'Remove label from issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, name: { type: 'string' } }, required: ['owner', 'repo', 'issue_number', 'name'] } },
-        { name: 'replace_labels', description: 'Replace all labels on issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number'] } },
-        { name: 'list_issue_comments', description: 'List issue comments', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, since: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
-        { name: 'create_issue_comment', description: 'Create issue comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, body: { type: 'string' } }, required: ['owner', 'repo', 'issue_number', 'body'] } },
-        { name: 'update_issue_comment', description: 'Update issue comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, comment_id: { type: 'number' }, body: { type: 'string' } }, required: ['owner', 'repo', 'comment_id', 'body'] } },
-        { name: 'delete_issue_comment', description: 'Delete issue comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, comment_id: { type: 'number' } }, required: ['owner', 'repo', 'comment_id'] } },
-        { name: 'list_issue_events', description: 'List issue events', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
-        { name: 'list_issue_timeline', description: 'List issue timeline events', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
-        { name: 'list_labels', description: 'List repository labels', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'create_label', description: 'Create a label', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, color: { type: 'string' }, description: { type: 'string' } }, required: ['owner', 'repo', 'name', 'color'] } },
-        { name: 'delete_label', description: 'Delete a label', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' } }, required: ['owner', 'repo', 'name'] } },
+        { name: 'github_list_issues', description: 'List issues', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, labels: { type: 'array', items: { type: 'string' } }, sort: { type: 'string' }, direction: { type: 'string' }, since: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_issue', description: 'Get issue details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_create_issue', description: 'Create an issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, body: { type: 'string' }, assignees: { type: 'array', items: { type: 'string' } }, milestone: { type: 'number' }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'title'] } },
+        { name: 'github_update_issue', description: 'Update an issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, title: { type: 'string' }, body: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed'] }, assignees: { type: 'array', items: { type: 'string' } }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_lock_issue', description: 'Lock an issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, lock_reason: { type: 'string', enum: ['off-topic', 'too heated', 'resolved', 'spam'] } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_unlock_issue', description: 'Unlock an issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_add_assignees', description: 'Add assignees to issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, assignees: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number', 'assignees'] } },
+        { name: 'github_remove_assignees', description: 'Remove assignees from issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, assignees: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number', 'assignees'] } },
+        { name: 'github_add_labels', description: 'Add labels to issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number', 'labels'] } },
+        { name: 'github_remove_label', description: 'Remove label from issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, name: { type: 'string' } }, required: ['owner', 'repo', 'issue_number', 'name'] } },
+        { name: 'github_replace_labels', description: 'Replace all labels on issue', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_list_issue_comments', description: 'List issue comments', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, since: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_create_issue_comment', description: 'Create issue comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, body: { type: 'string' } }, required: ['owner', 'repo', 'issue_number', 'body'] } },
+        { name: 'github_update_issue_comment', description: 'Update issue comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, comment_id: { type: 'number' }, body: { type: 'string' } }, required: ['owner', 'repo', 'comment_id', 'body'] } },
+        { name: 'github_delete_issue_comment', description: 'Delete issue comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, comment_id: { type: 'number' } }, required: ['owner', 'repo', 'comment_id'] } },
+        { name: 'github_list_issue_events', description: 'List issue events', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_list_issue_timeline', description: 'List issue timeline events', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_list_labels', description: 'List repository labels', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_create_label', description: 'Create a label', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, color: { type: 'string' }, description: { type: 'string' } }, required: ['owner', 'repo', 'name', 'color'] } },
+        { name: 'github_delete_label', description: 'Delete a label', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' } }, required: ['owner', 'repo', 'name'] } },
 
         // PULL REQUESTS (25 tools)
-        { name: 'list_pull_requests', description: 'List pull requests', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, head: { type: 'string' }, base: { type: 'string' }, sort: { type: 'string' }, direction: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_pull_request', description: 'Get pull request details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'create_pull_request', description: 'Create a pull request', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, head: { type: 'string' }, base: { type: 'string' }, body: { type: 'string' }, draft: { type: 'boolean' }, maintainer_can_modify: { type: 'boolean' } }, required: ['owner', 'repo', 'title', 'head', 'base'] } },
-        { name: 'update_pull_request', description: 'Update a pull request', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, title: { type: 'string' }, body: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed'] }, base: { type: 'string' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'merge_pull_request', description: 'Merge a pull request', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, commit_title: { type: 'string' }, commit_message: { type: 'string' }, merge_method: { type: 'string', enum: ['merge', 'squash', 'rebase'] } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'get_pull_request_merge_status', description: 'Check if PR can be merged', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'list_pull_request_commits', description: 'List PR commits', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'list_pull_request_files', description: 'List PR files', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'list_pull_request_reviews', description: 'List PR reviews', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'get_pull_request_review', description: 'Get PR review', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, review_id: { type: 'number' } }, required: ['owner', 'repo', 'pull_number', 'review_id'] } },
-        { name: 'create_pull_request_review', description: 'Create PR review', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, body: { type: 'string' }, event: { type: 'string', enum: ['APPROVE', 'REQUEST_CHANGES', 'COMMENT'] }, comments: { type: 'array' } }, required: ['owner', 'repo', 'pull_number', 'event'] } },
-        { name: 'submit_pull_request_review', description: 'Submit PR review', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, review_id: { type: 'number' }, body: { type: 'string' }, event: { type: 'string', enum: ['APPROVE', 'REQUEST_CHANGES', 'COMMENT'] } }, required: ['owner', 'repo', 'pull_number', 'review_id', 'event'] } },
-        { name: 'dismiss_pull_request_review', description: 'Dismiss PR review', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, review_id: { type: 'number' }, message: { type: 'string' } }, required: ['owner', 'repo', 'pull_number', 'review_id', 'message'] } },
-        { name: 'list_pull_request_review_comments', description: 'List PR review comments', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'create_pull_request_review_comment', description: 'Create PR review comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, body: { type: 'string' }, commit_id: { type: 'string' }, path: { type: 'string' }, line: { type: 'number' } }, required: ['owner', 'repo', 'pull_number', 'body', 'commit_id', 'path'] } },
-        { name: 'update_pull_request_review_comment', description: 'Update PR review comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, comment_id: { type: 'number' }, body: { type: 'string' } }, required: ['owner', 'repo', 'comment_id', 'body'] } },
-        { name: 'delete_pull_request_review_comment', description: 'Delete PR review comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, comment_id: { type: 'number' } }, required: ['owner', 'repo', 'comment_id'] } },
-        { name: 'request_pull_request_reviewers', description: 'Request PR reviewers', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, reviewers: { type: 'array', items: { type: 'string' } }, team_reviewers: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'remove_pull_request_reviewers', description: 'Remove PR reviewers', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, reviewers: { type: 'array', items: { type: 'string' } }, team_reviewers: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'update_pull_request_branch', description: 'Update PR branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, expected_head_sha: { type: 'string' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'list_requested_reviewers', description: 'List requested reviewers', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'check_pull_request_reviewability', description: 'Check if PR is reviewable', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'get_pull_request_diff', description: 'Get PR diff', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'get_pull_request_patch', description: 'Get PR patch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
-        { name: 'convert_issue_to_pull_request', description: 'Convert issue to PR', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, head: { type: 'string' }, base: { type: 'string' } }, required: ['owner', 'repo', 'issue_number', 'head', 'base'] } },
+        { name: 'github_list_pull_requests', description: 'List pull requests', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, head: { type: 'string' }, base: { type: 'string' }, sort: { type: 'string' }, direction: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_pull_request', description: 'Get pull request details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_create_pull_request', description: 'Create a pull request', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, head: { type: 'string' }, base: { type: 'string' }, body: { type: 'string' }, draft: { type: 'boolean' }, maintainer_can_modify: { type: 'boolean' } }, required: ['owner', 'repo', 'title', 'head', 'base'] } },
+        { name: 'github_update_pull_request', description: 'Update a pull request', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, title: { type: 'string' }, body: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed'] }, base: { type: 'string' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_merge_pull_request', description: 'Merge a pull request', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, commit_title: { type: 'string' }, commit_message: { type: 'string' }, merge_method: { type: 'string', enum: ['merge', 'squash', 'rebase'] } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_get_pull_request_merge_status', description: 'Check if PR can be merged', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_list_pull_request_commits', description: 'List PR commits', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_list_pull_request_files', description: 'List PR files', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_list_pull_request_reviews', description: 'List PR reviews', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_get_pull_request_review', description: 'Get PR review', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, review_id: { type: 'number' } }, required: ['owner', 'repo', 'pull_number', 'review_id'] } },
+        { name: 'github_create_pull_request_review', description: 'Create PR review', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, body: { type: 'string' }, event: { type: 'string', enum: ['APPROVE', 'REQUEST_CHANGES', 'COMMENT'] }, comments: { type: 'array' } }, required: ['owner', 'repo', 'pull_number', 'event'] } },
+        { name: 'github_submit_pull_request_review', description: 'Submit PR review', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, review_id: { type: 'number' }, body: { type: 'string' }, event: { type: 'string', enum: ['APPROVE', 'REQUEST_CHANGES', 'COMMENT'] } }, required: ['owner', 'repo', 'pull_number', 'review_id', 'event'] } },
+        { name: 'github_dismiss_pull_request_review', description: 'Dismiss PR review', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, review_id: { type: 'number' }, message: { type: 'string' } }, required: ['owner', 'repo', 'pull_number', 'review_id', 'message'] } },
+        { name: 'github_list_pull_request_review_comments', description: 'List PR review comments', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_create_pull_request_review_comment', description: 'Create PR review comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, body: { type: 'string' }, commit_id: { type: 'string' }, path: { type: 'string' }, line: { type: 'number' } }, required: ['owner', 'repo', 'pull_number', 'body', 'commit_id', 'path'] } },
+        { name: 'github_update_pull_request_review_comment', description: 'Update PR review comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, comment_id: { type: 'number' }, body: { type: 'string' } }, required: ['owner', 'repo', 'comment_id', 'body'] } },
+        { name: 'github_delete_pull_request_review_comment', description: 'Delete PR review comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, comment_id: { type: 'number' } }, required: ['owner', 'repo', 'comment_id'] } },
+        { name: 'github_request_pull_request_reviewers', description: 'Request PR reviewers', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, reviewers: { type: 'array', items: { type: 'string' } }, team_reviewers: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_remove_pull_request_reviewers', description: 'Remove PR reviewers', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, reviewers: { type: 'array', items: { type: 'string' } }, team_reviewers: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_update_pull_request_branch', description: 'Update PR branch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' }, expected_head_sha: { type: 'string' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_list_requested_reviewers', description: 'List requested reviewers', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_check_pull_request_reviewability', description: 'Check if PR is reviewable', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_get_pull_request_diff', description: 'Get PR diff', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_get_pull_request_patch', description: 'Get PR patch', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
+        { name: 'github_convert_issue_to_pull_request', description: 'Convert issue to PR', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, head: { type: 'string' }, base: { type: 'string' } }, required: ['owner', 'repo', 'issue_number', 'head', 'base'] } },
 
         // GITHUB ACTIONS (20 tools)
-        { name: 'list_workflows', description: 'List repository workflows', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_workflow', description: 'Get workflow details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' } }, required: ['owner', 'repo', 'workflow_id'] } },
-        { name: 'disable_workflow', description: 'Disable a workflow', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' } }, required: ['owner', 'repo', 'workflow_id'] } },
-        { name: 'enable_workflow', description: 'Enable a workflow', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' } }, required: ['owner', 'repo', 'workflow_id'] } },
-        { name: 'create_workflow_dispatch', description: 'Trigger workflow dispatch event', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' }, ref: { type: 'string' }, inputs: { type: 'object' } }, required: ['owner', 'repo', 'workflow_id', 'ref'] } },
-        { name: 'list_workflow_runs', description: 'List workflow runs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' }, actor: { type: 'string' }, branch: { type: 'string' }, event: { type: 'string' }, status: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_workflow_run', description: 'Get workflow run details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'cancel_workflow_run', description: 'Cancel a workflow run', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'rerun_workflow', description: 'Re-run a workflow', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'rerun_failed_jobs', description: 'Re-run failed jobs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'delete_workflow_run', description: 'Delete a workflow run', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'list_workflow_run_artifacts', description: 'List workflow run artifacts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'download_workflow_run_logs', description: 'Download workflow run logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'delete_workflow_run_logs', description: 'Delete workflow run logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'list_workflow_run_jobs', description: 'List jobs for workflow run', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' }, filter: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'get_workflow_run_job', description: 'Get job details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, job_id: { type: 'number' } }, required: ['owner', 'repo', 'job_id'] } },
-        { name: 'download_job_logs', description: 'Download job logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, job_id: { type: 'number' } }, required: ['owner', 'repo', 'job_id'] } },
-        { name: 'list_repo_secrets', description: 'List repository secrets', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'create_or_update_repo_secret', description: 'Create/update repository secret', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' }, encrypted_value: { type: 'string' } }, required: ['owner', 'repo', 'secret_name', 'encrypted_value'] } },
-        { name: 'delete_repo_secret', description: 'Delete repository secret', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' } }, required: ['owner', 'repo', 'secret_name'] } },
+        { name: 'github_list_workflows', description: 'List repository workflows', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_workflow', description: 'Get workflow details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' } }, required: ['owner', 'repo', 'workflow_id'] } },
+        { name: 'github_disable_workflow', description: 'Disable a workflow', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' } }, required: ['owner', 'repo', 'workflow_id'] } },
+        { name: 'github_enable_workflow', description: 'Enable a workflow', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' } }, required: ['owner', 'repo', 'workflow_id'] } },
+        { name: 'github_create_workflow_dispatch', description: 'Trigger workflow dispatch event', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' }, ref: { type: 'string' }, inputs: { type: 'object' } }, required: ['owner', 'repo', 'workflow_id', 'ref'] } },
+        { name: 'github_list_workflow_runs', description: 'List workflow runs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' }, actor: { type: 'string' }, branch: { type: 'string' }, event: { type: 'string' }, status: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_workflow_run', description: 'Get workflow run details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'github_cancel_workflow_run', description: 'Cancel a workflow run', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'github_rerun_workflow', description: 'Re-run a workflow', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'github_rerun_failed_jobs', description: 'Re-run failed jobs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'github_delete_workflow_run', description: 'Delete a workflow run', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'github_list_workflow_run_artifacts', description: 'List workflow run artifacts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'github_download_workflow_run_logs', description: 'Download workflow run logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'github_delete_workflow_run_logs', description: 'Delete workflow run logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'github_list_workflow_run_jobs', description: 'List jobs for workflow run', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' }, filter: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+        { name: 'github_get_workflow_run_job', description: 'Get job details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, job_id: { type: 'number' } }, required: ['owner', 'repo', 'job_id'] } },
+        { name: 'github_download_job_logs', description: 'Download job logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, job_id: { type: 'number' } }, required: ['owner', 'repo', 'job_id'] } },
+        { name: 'github_list_repo_secrets', description: 'List repository secrets', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_create_or_update_repo_secret', description: 'Create/update repository secret', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' }, encrypted_value: { type: 'string' } }, required: ['owner', 'repo', 'secret_name', 'encrypted_value'] } },
+        { name: 'github_delete_repo_secret', description: 'Delete repository secret', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' } }, required: ['owner', 'repo', 'secret_name'] } },
 
         // RELEASES (12 tools)
-        { name: 'list_releases', description: 'List releases', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_release', description: 'Get release details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, release_id: { type: 'number' } }, required: ['owner', 'repo', 'release_id'] } },
-        { name: 'get_latest_release', description: 'Get latest release', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'get_release_by_tag', description: 'Get release by tag', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tag: { type: 'string' } }, required: ['owner', 'repo', 'tag'] } },
-        { name: 'create_release', description: 'Create a release', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tag_name: { type: 'string' }, target_commitish: { type: 'string' }, name: { type: 'string' }, body: { type: 'string' }, draft: { type: 'boolean' }, prerelease: { type: 'boolean' } }, required: ['owner', 'repo', 'tag_name'] } },
-        { name: 'update_release', description: 'Update a release', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, release_id: { type: 'number' }, tag_name: { type: 'string' }, name: { type: 'string' }, body: { type: 'string' }, draft: { type: 'boolean' }, prerelease: { type: 'boolean' } }, required: ['owner', 'repo', 'release_id'] } },
-        { name: 'delete_release', description: 'Delete a release', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, release_id: { type: 'number' } }, required: ['owner', 'repo', 'release_id'] } },
-        { name: 'list_release_assets', description: 'List release assets', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, release_id: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'release_id'] } },
-        { name: 'get_release_asset', description: 'Get release asset', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, asset_id: { type: 'number' } }, required: ['owner', 'repo', 'asset_id'] } },
-        { name: 'update_release_asset', description: 'Update release asset', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, asset_id: { type: 'number' }, name: { type: 'string' }, label: { type: 'string' } }, required: ['owner', 'repo', 'asset_id'] } },
-        { name: 'delete_release_asset', description: 'Delete release asset', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, asset_id: { type: 'number' } }, required: ['owner', 'repo', 'asset_id'] } },
-        { name: 'generate_release_notes', description: 'Generate release notes', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tag_name: { type: 'string' }, target_commitish: { type: 'string' }, previous_tag_name: { type: 'string' } }, required: ['owner', 'repo', 'tag_name'] } },
+        { name: 'github_list_releases', description: 'List releases', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_release', description: 'Get release details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, release_id: { type: 'number' } }, required: ['owner', 'repo', 'release_id'] } },
+        { name: 'github_get_latest_release', description: 'Get latest release', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_release_by_tag', description: 'Get release by tag', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tag: { type: 'string' } }, required: ['owner', 'repo', 'tag'] } },
+        { name: 'github_create_release', description: 'Create a release', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tag_name: { type: 'string' }, target_commitish: { type: 'string' }, name: { type: 'string' }, body: { type: 'string' }, draft: { type: 'boolean' }, prerelease: { type: 'boolean' } }, required: ['owner', 'repo', 'tag_name'] } },
+        { name: 'github_update_release', description: 'Update a release', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, release_id: { type: 'number' }, tag_name: { type: 'string' }, name: { type: 'string' }, body: { type: 'string' }, draft: { type: 'boolean' }, prerelease: { type: 'boolean' } }, required: ['owner', 'repo', 'release_id'] } },
+        { name: 'github_delete_release', description: 'Delete a release', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, release_id: { type: 'number' } }, required: ['owner', 'repo', 'release_id'] } },
+        { name: 'github_list_release_assets', description: 'List release assets', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, release_id: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'release_id'] } },
+        { name: 'github_get_release_asset', description: 'Get release asset', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, asset_id: { type: 'number' } }, required: ['owner', 'repo', 'asset_id'] } },
+        { name: 'github_update_release_asset', description: 'Update release asset', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, asset_id: { type: 'number' }, name: { type: 'string' }, label: { type: 'string' } }, required: ['owner', 'repo', 'asset_id'] } },
+        { name: 'github_delete_release_asset', description: 'Delete release asset', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, asset_id: { type: 'number' } }, required: ['owner', 'repo', 'asset_id'] } },
+        { name: 'github_generate_release_notes', description: 'Generate release notes', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tag_name: { type: 'string' }, target_commitish: { type: 'string' }, previous_tag_name: { type: 'string' } }, required: ['owner', 'repo', 'tag_name'] } },
 
         // FILES & CONTENT (15 tools)
-        { name: 'get_content', description: 'Get repository content', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, path: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'path'] } },
-        { name: 'create_or_update_file', description: 'Create or update file', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, path: { type: 'string' }, message: { type: 'string' }, content: { type: 'string' }, sha: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'path', 'message', 'content'] } },
-        { name: 'delete_file', description: 'Delete a file', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, path: { type: 'string' }, message: { type: 'string' }, sha: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'path', 'message', 'sha'] } },
-        { name: 'get_archive', description: 'Download repository archive', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, archive_format: { type: 'string', enum: ['tarball', 'zipball'] }, ref: { type: 'string' } }, required: ['owner', 'repo', 'archive_format'] } },
-        { name: 'list_repo_contributors', description: 'List repository contributors', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, anon: { type: 'boolean' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_repo_clones', description: 'Get repository clones', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per: { type: 'string', enum: ['day', 'week'] } }, required: ['owner', 'repo'] } },
-        { name: 'get_repo_views', description: 'Get repository views', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per: { type: 'string', enum: ['day', 'week'] } }, required: ['owner', 'repo'] } },
-        { name: 'get_repo_top_paths', description: 'Get top referral paths', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'get_repo_top_referrers', description: 'Get top referrers', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'create_tree', description: 'Create a tree', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tree: { type: 'array' }, base_tree: { type: 'string' } }, required: ['owner', 'repo', 'tree'] } },
-        { name: 'get_tree', description: 'Get a tree', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tree_sha: { type: 'string' }, recursive: { type: 'boolean' } }, required: ['owner', 'repo', 'tree_sha'] } },
-        { name: 'get_blob', description: 'Get a blob', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, file_sha: { type: 'string' } }, required: ['owner', 'repo', 'file_sha'] } },
-        { name: 'create_blob', description: 'Create a blob', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, content: { type: 'string' }, encoding: { type: 'string' } }, required: ['owner', 'repo', 'content'] } },
-        { name: 'create_commit', description: 'Create a commit', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, message: { type: 'string' }, tree: { type: 'string' }, parents: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'message', 'tree'] } },
-        { name: 'get_ref', description: 'Get a reference', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'ref'] } },
+        { name: 'github_get_content', description: 'Get repository content', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, path: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'path'] } },
+        { name: 'github_create_or_update_file', description: 'Create or update file', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, path: { type: 'string' }, message: { type: 'string' }, content: { type: 'string' }, sha: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'path', 'message', 'content'] } },
+        { name: 'github_delete_file', description: 'Delete a file', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, path: { type: 'string' }, message: { type: 'string' }, sha: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'path', 'message', 'sha'] } },
+        { name: 'github_get_archive', description: 'Download repository archive', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, archive_format: { type: 'string', enum: ['tarball', 'zipball'] }, ref: { type: 'string' } }, required: ['owner', 'repo', 'archive_format'] } },
+        { name: 'github_list_repo_contributors', description: 'List repository contributors', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, anon: { type: 'boolean' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_clones', description: 'Get repository clones', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per: { type: 'string', enum: ['day', 'week'] } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_views', description: 'Get repository views', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per: { type: 'string', enum: ['day', 'week'] } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_top_paths', description: 'Get top referral paths', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_top_referrers', description: 'Get top referrers', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_create_tree', description: 'Create a tree', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tree: { type: 'array' }, base_tree: { type: 'string' } }, required: ['owner', 'repo', 'tree'] } },
+        { name: 'github_get_tree', description: 'Get a tree', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, tree_sha: { type: 'string' }, recursive: { type: 'boolean' } }, required: ['owner', 'repo', 'tree_sha'] } },
+        { name: 'github_get_blob', description: 'Get a blob', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, file_sha: { type: 'string' } }, required: ['owner', 'repo', 'file_sha'] } },
+        { name: 'github_create_blob', description: 'Create a blob', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, content: { type: 'string' }, encoding: { type: 'string' } }, required: ['owner', 'repo', 'content'] } },
+        { name: 'github_create_commit', description: 'Create a commit', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, message: { type: 'string' }, tree: { type: 'string' }, parents: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'message', 'tree'] } },
+        { name: 'github_get_ref', description: 'Get a reference', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'ref'] } },
 
         // COLLABORATORS & PERMISSIONS (10 tools)
-        { name: 'list_collaborators', description: 'List repository collaborators', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, affiliation: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'check_collaborator', description: 'Check if user is collaborator', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, username: { type: 'string' } }, required: ['owner', 'repo', 'username'] } },
-        { name: 'add_collaborator', description: 'Add repository collaborator', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, username: { type: 'string' }, permission: { type: 'string', enum: ['pull', 'push', 'admin', 'maintain', 'triage'] } }, required: ['owner', 'repo', 'username'] } },
-        { name: 'remove_collaborator', description: 'Remove repository collaborator', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, username: { type: 'string' } }, required: ['owner', 'repo', 'username'] } },
-        { name: 'get_collaborator_permission', description: 'Get collaborator permission level', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, username: { type: 'string' } }, required: ['owner', 'repo', 'username'] } },
-        { name: 'list_invitations', description: 'List repository invitations', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'update_invitation', description: 'Update repository invitation', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, invitation_id: { type: 'number' }, permissions: { type: 'string' } }, required: ['owner', 'repo', 'invitation_id'] } },
-        { name: 'delete_invitation', description: 'Delete repository invitation', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, invitation_id: { type: 'number' } }, required: ['owner', 'repo', 'invitation_id'] } },
-        { name: 'list_deploy_keys', description: 'List deploy keys', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'create_deploy_key', description: 'Create deploy key', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, key: { type: 'string' }, read_only: { type: 'boolean' } }, required: ['owner', 'repo', 'title', 'key'] } },
+        { name: 'github_list_collaborators', description: 'List repository collaborators', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, affiliation: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_check_collaborator', description: 'Check if user is collaborator', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, username: { type: 'string' } }, required: ['owner', 'repo', 'username'] } },
+        { name: 'github_add_collaborator', description: 'Add repository collaborator', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, username: { type: 'string' }, permission: { type: 'string', enum: ['pull', 'push', 'admin', 'maintain', 'triage'] } }, required: ['owner', 'repo', 'username'] } },
+        { name: 'github_remove_collaborator', description: 'Remove repository collaborator', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, username: { type: 'string' } }, required: ['owner', 'repo', 'username'] } },
+        { name: 'github_get_collaborator_permission', description: 'Get collaborator permission level', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, username: { type: 'string' } }, required: ['owner', 'repo', 'username'] } },
+        { name: 'github_list_invitations', description: 'List repository invitations', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_update_invitation', description: 'Update repository invitation', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, invitation_id: { type: 'number' }, permissions: { type: 'string' } }, required: ['owner', 'repo', 'invitation_id'] } },
+        { name: 'github_delete_invitation', description: 'Delete repository invitation', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, invitation_id: { type: 'number' } }, required: ['owner', 'repo', 'invitation_id'] } },
+        { name: 'github_list_deploy_keys', description: 'List deploy keys', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_create_deploy_key', description: 'Create deploy key', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, key: { type: 'string' }, read_only: { type: 'boolean' } }, required: ['owner', 'repo', 'title', 'key'] } },
 
         // WEBHOOKS (8 tools)
-        { name: 'list_webhooks', description: 'List repository webhooks', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_webhook', description: 'Get webhook details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
-        { name: 'create_webhook', description: 'Create a webhook', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, config: { type: 'object' }, events: { type: 'array', items: { type: 'string' } }, active: { type: 'boolean' } }, required: ['owner', 'repo', 'config'] } },
-        { name: 'update_webhook', description: 'Update a webhook', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' }, config: { type: 'object' }, events: { type: 'array', items: { type: 'string' } }, active: { type: 'boolean' } }, required: ['owner', 'repo', 'hook_id'] } },
-        { name: 'delete_webhook', description: 'Delete a webhook', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
-        { name: 'ping_webhook', description: 'Ping a webhook', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
-        { name: 'test_webhook', description: 'Test webhook push', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
-        { name: 'list_webhook_deliveries', description: 'List webhook deliveries', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' }, per_page: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
+        { name: 'github_list_webhooks', description: 'List repository webhooks', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_webhook', description: 'Get webhook details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
+        { name: 'github_create_webhook', description: 'Create a webhook', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, config: { type: 'object' }, events: { type: 'array', items: { type: 'string' } }, active: { type: 'boolean' } }, required: ['owner', 'repo', 'config'] } },
+        { name: 'github_update_webhook', description: 'Update a webhook', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' }, config: { type: 'object' }, events: { type: 'array', items: { type: 'string' } }, active: { type: 'boolean' } }, required: ['owner', 'repo', 'hook_id'] } },
+        { name: 'github_delete_webhook', description: 'Delete a webhook', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
+        { name: 'github_ping_webhook', description: 'Ping a webhook', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
+        { name: 'github_test_webhook', description: 'Test webhook push', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
+        { name: 'github_list_webhook_deliveries', description: 'List webhook deliveries', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, hook_id: { type: 'number' }, per_page: { type: 'number' } }, required: ['owner', 'repo', 'hook_id'] } },
 
         // ORGANIZATIONS & TEAMS (12 tools)
-        { name: 'list_user_orgs', description: 'List user organizations', inputSchema: { type: 'object', properties: { username: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } } } },
-        { name: 'get_org', description: 'Get organization details', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
-        { name: 'update_org', description: 'Update organization', inputSchema: { type: 'object', properties: { org: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, email: { type: 'string' }, location: { type: 'string' } }, required: ['org'] } },
-        { name: 'list_org_members', description: 'List organization members', inputSchema: { type: 'object', properties: { org: { type: 'string' }, filter: { type: 'string' }, role: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org'] } },
-        { name: 'check_org_membership', description: 'Check organization membership', inputSchema: { type: 'object', properties: { org: { type: 'string' }, username: { type: 'string' } }, required: ['org', 'username'] } },
-        { name: 'remove_org_member', description: 'Remove organization member', inputSchema: { type: 'object', properties: { org: { type: 'string' }, username: { type: 'string' } }, required: ['org', 'username'] } },
-        { name: 'list_org_teams', description: 'List organization teams', inputSchema: { type: 'object', properties: { org: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org'] } },
-        { name: 'get_team', description: 'Get team details', inputSchema: { type: 'object', properties: { org: { type: 'string' }, team_slug: { type: 'string' } }, required: ['org', 'team_slug'] } },
-        { name: 'create_team', description: 'Create a team', inputSchema: { type: 'object', properties: { org: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, privacy: { type: 'string', enum: ['secret', 'closed'] } }, required: ['org', 'name'] } },
-        { name: 'update_team', description: 'Update a team', inputSchema: { type: 'object', properties: { org: { type: 'string' }, team_slug: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, privacy: { type: 'string' } }, required: ['org', 'team_slug'] } },
-        { name: 'delete_team', description: 'Delete a team', inputSchema: { type: 'object', properties: { org: { type: 'string' }, team_slug: { type: 'string' } }, required: ['org', 'team_slug'] } },
-        { name: 'list_team_members', description: 'List team members', inputSchema: { type: 'object', properties: { org: { type: 'string' }, team_slug: { type: 'string' }, role: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org', 'team_slug'] } },
+        { name: 'github_list_user_orgs', description: 'List user organizations', inputSchema: { type: 'object', properties: { username: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } } } },
+        { name: 'github_get_org', description: 'Get organization details', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_update_org', description: 'Update organization', inputSchema: { type: 'object', properties: { org: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, email: { type: 'string' }, location: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_list_org_members', description: 'List organization members', inputSchema: { type: 'object', properties: { org: { type: 'string' }, filter: { type: 'string' }, role: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org'] } },
+        { name: 'github_check_org_membership', description: 'Check organization membership', inputSchema: { type: 'object', properties: { org: { type: 'string' }, username: { type: 'string' } }, required: ['org', 'username'] } },
+        { name: 'github_remove_org_member', description: 'Remove organization member', inputSchema: { type: 'object', properties: { org: { type: 'string' }, username: { type: 'string' } }, required: ['org', 'username'] } },
+        { name: 'github_list_org_teams', description: 'List organization teams', inputSchema: { type: 'object', properties: { org: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org'] } },
+        { name: 'github_get_team', description: 'Get team details', inputSchema: { type: 'object', properties: { org: { type: 'string' }, team_slug: { type: 'string' } }, required: ['org', 'team_slug'] } },
+        { name: 'github_create_team', description: 'Create a team', inputSchema: { type: 'object', properties: { org: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, privacy: { type: 'string', enum: ['secret', 'closed'] } }, required: ['org', 'name'] } },
+        { name: 'github_update_team', description: 'Update a team', inputSchema: { type: 'object', properties: { org: { type: 'string' }, team_slug: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, privacy: { type: 'string' } }, required: ['org', 'team_slug'] } },
+        { name: 'github_delete_team', description: 'Delete a team', inputSchema: { type: 'object', properties: { org: { type: 'string' }, team_slug: { type: 'string' } }, required: ['org', 'team_slug'] } },
+        { name: 'github_list_team_members', description: 'List team members', inputSchema: { type: 'object', properties: { org: { type: 'string' }, team_slug: { type: 'string' }, role: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org', 'team_slug'] } },
 
         // SEARCH (6 tools)
-        { name: 'search_repositories', description: 'Search repositories', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
-        { name: 'search_code', description: 'Search code', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
-        { name: 'search_issues', description: 'Search issues and pull requests', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
-        { name: 'search_users', description: 'Search users', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
-        { name: 'search_commits', description: 'Search commits', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
-        { name: 'search_topics', description: 'Search topics', inputSchema: { type: 'object', properties: { q: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
+        { name: 'github_search_repositories', description: 'Search repositories', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
+        { name: 'github_search_code', description: 'Search code', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
+        { name: 'github_search_issues', description: 'Search issues and pull requests', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
+        { name: 'github_search_users', description: 'Search users', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
+        { name: 'github_search_commits', description: 'Search commits', inputSchema: { type: 'object', properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
+        { name: 'github_search_topics', description: 'Search topics', inputSchema: { type: 'object', properties: { q: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
 
         // USERS (8 tools)
-        { name: 'get_authenticated_user', description: 'Get authenticated user', inputSchema: { type: 'object', properties: {} } },
-        { name: 'get_user', description: 'Get user details', inputSchema: { type: 'object', properties: { username: { type: 'string' } }, required: ['username'] } },
-        { name: 'update_authenticated_user', description: 'Update authenticated user', inputSchema: { type: 'object', properties: { name: { type: 'string' }, email: { type: 'string' }, blog: { type: 'string' }, company: { type: 'string' }, location: { type: 'string' }, bio: { type: 'string' } } } },
-        { name: 'list_user_repos', description: 'List user repositories', inputSchema: { type: 'object', properties: { username: { type: 'string' }, type: { type: 'string' }, sort: { type: 'string' }, direction: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['username'] } },
-        { name: 'list_user_followers', description: 'List user followers', inputSchema: { type: 'object', properties: { username: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['username'] } },
-        { name: 'list_user_following', description: 'List users followed by user', inputSchema: { type: 'object', properties: { username: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['username'] } },
-        { name: 'check_following', description: 'Check if user follows another user', inputSchema: { type: 'object', properties: { username: { type: 'string' }, target_user: { type: 'string' } }, required: ['username', 'target_user'] } },
-        { name: 'list_user_gists', description: 'List user gists', inputSchema: { type: 'object', properties: { username: { type: 'string' }, since: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['username'] } },
+        { name: 'github_get_authenticated_user', description: 'Get authenticated user', inputSchema: { type: 'object', properties: {} } },
+        { name: 'github_get_user', description: 'Get user details', inputSchema: { type: 'object', properties: { username: { type: 'string' } }, required: ['username'] } },
+        { name: 'github_update_authenticated_user', description: 'Update authenticated user', inputSchema: { type: 'object', properties: { name: { type: 'string' }, email: { type: 'string' }, blog: { type: 'string' }, company: { type: 'string' }, location: { type: 'string' }, bio: { type: 'string' } } } },
+        { name: 'github_list_user_repos', description: 'List user repositories', inputSchema: { type: 'object', properties: { username: { type: 'string' }, type: { type: 'string' }, sort: { type: 'string' }, direction: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['username'] } },
+        { name: 'github_list_user_followers', description: 'List user followers', inputSchema: { type: 'object', properties: { username: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['username'] } },
+        { name: 'github_list_user_following', description: 'List users followed by user', inputSchema: { type: 'object', properties: { username: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['username'] } },
+        { name: 'github_check_following', description: 'Check if user follows another user', inputSchema: { type: 'object', properties: { username: { type: 'string' }, target_user: { type: 'string' } }, required: ['username', 'target_user'] } },
+        { name: 'github_list_user_gists', description: 'List user gists', inputSchema: { type: 'object', properties: { username: { type: 'string' }, since: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['username'] } },
 
         // GISTS (10 tools)
-        { name: 'list_gists', description: 'List public gists', inputSchema: { type: 'object', properties: { since: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } } } },
-        { name: 'get_gist', description: 'Get gist details', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
-        { name: 'create_gist', description: 'Create a gist', inputSchema: { type: 'object', properties: { description: { type: 'string' }, files: { type: 'object' }, public: { type: 'boolean' } }, required: ['files'] } },
-        { name: 'update_gist', description: 'Update a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' }, description: { type: 'string' }, files: { type: 'object' } }, required: ['gist_id'] } },
-        { name: 'delete_gist', description: 'Delete a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
-        { name: 'star_gist', description: 'Star a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
-        { name: 'unstar_gist', description: 'Unstar a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
-        { name: 'check_gist_star', description: 'Check if gist is starred', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
-        { name: 'fork_gist', description: 'Fork a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
-        { name: 'list_gist_commits', description: 'List gist commits', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['gist_id'] } },
+        { name: 'github_list_gists', description: 'List public gists', inputSchema: { type: 'object', properties: { since: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } } } },
+        { name: 'github_get_gist', description: 'Get gist details', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
+        { name: 'github_create_gist', description: 'Create a gist', inputSchema: { type: 'object', properties: { description: { type: 'string' }, files: { type: 'object' }, public: { type: 'boolean' } }, required: ['files'] } },
+        { name: 'github_update_gist', description: 'Update a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' }, description: { type: 'string' }, files: { type: 'object' } }, required: ['gist_id'] } },
+        { name: 'github_delete_gist', description: 'Delete a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
+        { name: 'github_star_gist', description: 'Star a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
+        { name: 'github_unstar_gist', description: 'Unstar a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
+        { name: 'github_check_gist_star', description: 'Check if gist is starred', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
+        { name: 'github_fork_gist', description: 'Fork a gist', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' } }, required: ['gist_id'] } },
+        { name: 'github_list_gist_commits', description: 'List gist commits', inputSchema: { type: 'object', properties: { gist_id: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['gist_id'] } },
 
         // MILESTONES & PROJECTS (8 tools)
-        { name: 'list_milestones', description: 'List milestones', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, sort: { type: 'string' }, direction: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_milestone', description: 'Get milestone details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, milestone_number: { type: 'number' } }, required: ['owner', 'repo', 'milestone_number'] } },
-        { name: 'create_milestone', description: 'Create a milestone', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, state: { type: 'string' }, description: { type: 'string' }, due_on: { type: 'string' } }, required: ['owner', 'repo', 'title'] } },
-        { name: 'update_milestone', description: 'Update a milestone', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, milestone_number: { type: 'number' }, title: { type: 'string' }, state: { type: 'string' }, description: { type: 'string' }, due_on: { type: 'string' } }, required: ['owner', 'repo', 'milestone_number'] } },
-        { name: 'delete_milestone', description: 'Delete a milestone', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, milestone_number: { type: 'number' } }, required: ['owner', 'repo', 'milestone_number'] } },
-        { name: 'list_projects', description: 'List repository projects', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_project', description: 'Get project details', inputSchema: { type: 'object', properties: { project_id: { type: 'number' } }, required: ['project_id'] } },
-        { name: 'create_project', description: 'Create a project', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, body: { type: 'string' } }, required: ['owner', 'repo', 'name'] } },
+        { name: 'github_list_milestones', description: 'List milestones', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, sort: { type: 'string' }, direction: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_milestone', description: 'Get milestone details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, milestone_number: { type: 'number' } }, required: ['owner', 'repo', 'milestone_number'] } },
+        { name: 'github_create_milestone', description: 'Create a milestone', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, state: { type: 'string' }, description: { type: 'string' }, due_on: { type: 'string' } }, required: ['owner', 'repo', 'title'] } },
+        { name: 'github_update_milestone', description: 'Update a milestone', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, milestone_number: { type: 'number' }, title: { type: 'string' }, state: { type: 'string' }, description: { type: 'string' }, due_on: { type: 'string' } }, required: ['owner', 'repo', 'milestone_number'] } },
+        { name: 'github_delete_milestone', description: 'Delete a milestone', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, milestone_number: { type: 'number' } }, required: ['owner', 'repo', 'milestone_number'] } },
+        { name: 'github_list_projects', description: 'List repository projects', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_project', description: 'Get project details', inputSchema: { type: 'object', properties: { project_id: { type: 'number' } }, required: ['project_id'] } },
+        { name: 'github_create_project', description: 'Create a project', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, body: { type: 'string' } }, required: ['owner', 'repo', 'name'] } },
 
-        // ADVANCED ACTIONS (10 tools)
-        { name: 'list_workflow_runs', description: 'List workflow runs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' }, status: { type: 'string' }, per_page: { type: 'number' } }, required: ['owner', 'repo'] } },
-        { name: 'get_workflow_run', description: 'Get workflow run details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'cancel_workflow_run', description: 'Cancel workflow run', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'rerun_workflow', description: 'Re-run workflow', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'download_workflow_logs', description: 'Download workflow logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'list_workflow_jobs', description: 'List workflow jobs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
-        { name: 'get_workflow_job', description: 'Get workflow job details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, job_id: { type: 'number' } }, required: ['owner', 'repo', 'job_id'] } },
-        { name: 'download_job_logs', description: 'Download job logs', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, job_id: { type: 'number' } }, required: ['owner', 'repo', 'job_id'] } },
-        { name: 'list_repo_secrets', description: 'List repository secrets', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'create_repo_secret', description: 'Create repository secret', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' }, encrypted_value: { type: 'string' } }, required: ['owner', 'repo', 'secret_name', 'encrypted_value'] } },
+
 
         // PACKAGES (8 tools)
-        { name: 'list_packages', description: 'List packages for organization', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string', enum: ['npm', 'maven', 'rubygems', 'docker', 'nuget', 'container'] } }, required: ['org', 'package_type'] } },
-        { name: 'get_package', description: 'Get package details', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
-        { name: 'delete_package', description: 'Delete package', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
-        { name: 'restore_package', description: 'Restore deleted package', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
-        { name: 'list_package_versions', description: 'List package versions', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
-        { name: 'get_package_version', description: 'Get package version', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' }, version_id: { type: 'number' } }, required: ['org', 'package_type', 'package_name', 'version_id'] } },
-        { name: 'delete_package_version', description: 'Delete package version', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' }, version_id: { type: 'number' } }, required: ['org', 'package_type', 'package_name', 'version_id'] } },
-        { name: 'restore_package_version', description: 'Restore package version', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' }, version_id: { type: 'number' } }, required: ['org', 'package_type', 'package_name', 'version_id'] } },
+        { name: 'github_list_packages', description: 'List packages for organization', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string', enum: ['npm', 'maven', 'rubygems', 'docker', 'nuget', 'container'] } }, required: ['org', 'package_type'] } },
+        { name: 'github_get_package', description: 'Get package details', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
+        { name: 'github_delete_package', description: 'Delete package', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
+        { name: 'github_restore_package', description: 'Restore deleted package', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
+        { name: 'github_list_package_versions', description: 'List package versions', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' } }, required: ['org', 'package_type', 'package_name'] } },
+        { name: 'github_get_package_version', description: 'Get package version', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' }, version_id: { type: 'number' } }, required: ['org', 'package_type', 'package_name', 'version_id'] } },
+        { name: 'github_delete_package_version', description: 'Delete package version', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' }, version_id: { type: 'number' } }, required: ['org', 'package_type', 'package_name', 'version_id'] } },
+        { name: 'github_restore_package_version', description: 'Restore package version', inputSchema: { type: 'object', properties: { org: { type: 'string' }, package_type: { type: 'string' }, package_name: { type: 'string' }, version_id: { type: 'number' } }, required: ['org', 'package_type', 'package_name', 'version_id'] } },
 
         // PROJECTS V2 (8 tools)
-        { name: 'list_org_projects_v2', description: 'List organization projects v2', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
-        { name: 'get_project_v2', description: 'Get project v2 details', inputSchema: { type: 'object', properties: { project_id: { type: 'string' } }, required: ['project_id'] } },
-        { name: 'create_project_v2', description: 'Create project v2', inputSchema: { type: 'object', properties: { org: { type: 'string' }, title: { type: 'string' } }, required: ['org', 'title'] } },
-        { name: 'update_project_v2', description: 'Update project v2', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, title: { type: 'string' }, description: { type: 'string' } }, required: ['project_id'] } },
-        { name: 'delete_project_v2', description: 'Delete project v2', inputSchema: { type: 'object', properties: { project_id: { type: 'string' } }, required: ['project_id'] } },
-        { name: 'list_project_items', description: 'List project items', inputSchema: { type: 'object', properties: { project_id: { type: 'string' } }, required: ['project_id'] } },
-        { name: 'add_project_item', description: 'Add item to project', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, content_id: { type: 'string' } }, required: ['project_id', 'content_id'] } },
-        { name: 'remove_project_item', description: 'Remove item from project', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, item_id: { type: 'string' } }, required: ['project_id', 'item_id'] } },
+        { name: 'github_list_org_projects_v2', description: 'List organization projects v2', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_get_project_v2', description: 'Get project v2 details', inputSchema: { type: 'object', properties: { project_id: { type: 'string' } }, required: ['project_id'] } },
+        { name: 'github_create_project_v2', description: 'Create project v2', inputSchema: { type: 'object', properties: { org: { type: 'string' }, title: { type: 'string' } }, required: ['org', 'title'] } },
+        { name: 'github_update_project_v2', description: 'Update project v2', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, title: { type: 'string' }, description: { type: 'string' } }, required: ['project_id'] } },
+        { name: 'github_delete_project_v2', description: 'Delete project v2', inputSchema: { type: 'object', properties: { project_id: { type: 'string' } }, required: ['project_id'] } },
+        { name: 'github_list_project_items', description: 'List project items', inputSchema: { type: 'object', properties: { project_id: { type: 'string' } }, required: ['project_id'] } },
+        { name: 'github_add_project_item', description: 'Add item to project', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, content_id: { type: 'string' } }, required: ['project_id', 'content_id'] } },
+        { name: 'github_remove_project_item', description: 'Remove item from project', inputSchema: { type: 'object', properties: { project_id: { type: 'string' }, item_id: { type: 'string' } }, required: ['project_id', 'item_id'] } },
 
         // DISCUSSIONS (8 tools)
-        { name: 'list_discussions', description: 'List repository discussions', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, category: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'get_discussion', description: 'Get discussion details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' } }, required: ['owner', 'repo', 'discussion_number'] } },
-        { name: 'create_discussion', description: 'Create discussion', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, body: { type: 'string' }, category_id: { type: 'string' } }, required: ['owner', 'repo', 'title', 'body', 'category_id'] } },
-        { name: 'update_discussion', description: 'Update discussion', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' }, title: { type: 'string' }, body: { type: 'string' } }, required: ['owner', 'repo', 'discussion_number'] } },
-        { name: 'delete_discussion', description: 'Delete discussion', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' } }, required: ['owner', 'repo', 'discussion_number'] } },
-        { name: 'list_discussion_comments', description: 'List discussion comments', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' } }, required: ['owner', 'repo', 'discussion_number'] } },
-        { name: 'create_discussion_comment', description: 'Create discussion comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' }, body: { type: 'string' } }, required: ['owner', 'repo', 'discussion_number', 'body'] } },
-        { name: 'list_discussion_categories', description: 'List discussion categories', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_list_discussions', description: 'List repository discussions', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, category: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_discussion', description: 'Get discussion details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' } }, required: ['owner', 'repo', 'discussion_number'] } },
+        { name: 'github_create_discussion', description: 'Create discussion', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, title: { type: 'string' }, body: { type: 'string' }, category_id: { type: 'string' } }, required: ['owner', 'repo', 'title', 'body', 'category_id'] } },
+        { name: 'github_update_discussion', description: 'Update discussion', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' }, title: { type: 'string' }, body: { type: 'string' } }, required: ['owner', 'repo', 'discussion_number'] } },
+        { name: 'github_delete_discussion', description: 'Delete discussion', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' } }, required: ['owner', 'repo', 'discussion_number'] } },
+        { name: 'github_list_discussion_comments', description: 'List discussion comments', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' } }, required: ['owner', 'repo', 'discussion_number'] } },
+        { name: 'github_create_discussion_comment', description: 'Create discussion comment', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, discussion_number: { type: 'number' }, body: { type: 'string' } }, required: ['owner', 'repo', 'discussion_number', 'body'] } },
+        { name: 'github_list_discussion_categories', description: 'List discussion categories', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
 
         // CODESPACES (7 tools)
-        { name: 'list_codespaces', description: 'List user codespaces', inputSchema: { type: 'object', properties: { per_page: { type: 'number' } } } },
-        { name: 'get_codespace', description: 'Get codespace details', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
-        { name: 'create_codespace', description: 'Create codespace', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' }, machine: { type: 'string' } }, required: ['owner', 'repo'] } },
-        { name: 'start_codespace', description: 'Start codespace', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
-        { name: 'stop_codespace', description: 'Stop codespace', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
-        { name: 'delete_codespace', description: 'Delete codespace', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
-        { name: 'list_repo_codespaces', description: 'List repository codespaces', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_list_codespaces', description: 'List user codespaces', inputSchema: { type: 'object', properties: { per_page: { type: 'number' } } } },
+        { name: 'github_get_codespace', description: 'Get codespace details', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
+        { name: 'github_create_codespace', description: 'Create codespace', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' }, machine: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_start_codespace', description: 'Start codespace', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
+        { name: 'github_stop_codespace', description: 'Stop codespace', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
+        { name: 'github_delete_codespace', description: 'Delete codespace', inputSchema: { type: 'object', properties: { codespace_name: { type: 'string' } }, required: ['codespace_name'] } },
+        { name: 'github_list_repo_codespaces', description: 'List repository codespaces', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
 
         // COPILOT (5 tools)
-        { name: 'get_copilot_org_settings', description: 'Get Copilot organization settings', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
-        { name: 'list_copilot_seats', description: 'List Copilot seat assignments', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
-        { name: 'add_copilot_seats', description: 'Add Copilot seats', inputSchema: { type: 'object', properties: { org: { type: 'string' }, selected_usernames: { type: 'array', items: { type: 'string' } } }, required: ['org', 'selected_usernames'] } },
-        { name: 'remove_copilot_seats', description: 'Remove Copilot seats', inputSchema: { type: 'object', properties: { org: { type: 'string' }, selected_usernames: { type: 'array', items: { type: 'string' } } }, required: ['org', 'selected_usernames'] } },
-        { name: 'get_copilot_usage', description: 'Get Copilot usage metrics', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_get_copilot_org_settings', description: 'Get Copilot organization settings', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_list_copilot_seats', description: 'List Copilot seat assignments', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_add_copilot_seats', description: 'Add Copilot seats', inputSchema: { type: 'object', properties: { org: { type: 'string' }, selected_usernames: { type: 'array', items: { type: 'string' } } }, required: ['org', 'selected_usernames'] } },
+        { name: 'github_remove_copilot_seats', description: 'Remove Copilot seats', inputSchema: { type: 'object', properties: { org: { type: 'string' }, selected_usernames: { type: 'array', items: { type: 'string' } } }, required: ['org', 'selected_usernames'] } },
+        { name: 'github_get_copilot_usage', description: 'Get Copilot usage metrics', inputSchema: { type: 'object', properties: { org: { type: 'string' } }, required: ['org'] } },
 
         // ADVANCED SECURITY (5 tools)
-        { name: 'list_code_scanning_alerts', description: 'List code scanning alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'dismissed', 'fixed'] } }, required: ['owner', 'repo'] } },
-        { name: 'get_code_scanning_alert', description: 'Get code scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' } }, required: ['owner', 'repo', 'alert_number'] } },
-        { name: 'update_code_scanning_alert', description: 'Update code scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['dismissed', 'open'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
-        { name: 'list_secret_scanning_alerts', description: 'List secret scanning alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo'] } },
-        { name: 'update_secret_scanning_alert', description: 'Update secret scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
+        { name: 'github_list_code_scanning_alerts', description: 'List code scanning alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'dismissed', 'fixed'] } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_code_scanning_alert', description: 'Get code scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' } }, required: ['owner', 'repo', 'alert_number'] } },
+        { name: 'github_update_code_scanning_alert', description: 'Update code scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['dismissed', 'open'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
+        { name: 'github_list_secret_scanning_alerts', description: 'List secret scanning alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo'] } },
+        { name: 'github_update_secret_scanning_alert', description: 'Update secret scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
       ]
     }));
 
@@ -375,298 +365,298 @@ class GitHubMCP {
       try {
         switch (request.params.name) {
           // REPOSITORY MANAGEMENT
-          case 'list_repos': return await this.listRepos(args);
-          case 'get_repo': return await this.getRepo(args);
-          case 'create_repo': return await this.createRepo(args);
-          case 'update_repo': return await this.updateRepo(args);
-          case 'delete_repo': return await this.deleteRepo(args);
-          case 'list_repo_topics': return await this.listRepoTopics(args);
-          case 'replace_repo_topics': return await this.replaceRepoTopics(args);
-          case 'list_repo_languages': return await this.listRepoLanguages(args);
-          case 'list_repo_tags': return await this.listRepoTags(args);
-          case 'list_repo_teams': return await this.listRepoTeams(args);
-          case 'transfer_repo': return await this.transferRepo(args);
-          case 'enable_automated_security_fixes': return await this.enableAutomatedSecurityFixes(args);
-          case 'disable_automated_security_fixes': return await this.disableAutomatedSecurityFixes(args);
-          case 'enable_vulnerability_alerts': return await this.enableVulnerabilityAlerts(args);
-          case 'disable_vulnerability_alerts': return await this.disableVulnerabilityAlerts(args);
-          case 'get_repo_readme': return await this.getRepoReadme(args);
-          case 'get_repo_license': return await this.getRepoLicense(args);
-          case 'get_repo_community_profile': return await this.getRepoCommunityProfile(args);
-          case 'get_repo_stats_contributors': return await this.getRepoStatsContributors(args);
-          case 'get_repo_stats_commit_activity': return await this.getRepoStatsCommitActivity(args);
+          case 'github_list_repos': return await this.listRepos(args);
+          case 'github_get_repo': return await this.getRepo(args);
+          case 'github_create_repo': return await this.createRepo(args);
+          case 'github_update_repo': return await this.updateRepo(args);
+          case 'github_delete_repo': return await this.deleteRepo(args);
+          case 'github_list_repo_topics': return await this.listRepoTopics(args);
+          case 'github_replace_repo_topics': return await this.replaceRepoTopics(args);
+          case 'github_list_repo_languages': return await this.listRepoLanguages(args);
+          case 'github_list_repo_tags': return await this.listRepoTags(args);
+          case 'github_list_repo_teams': return await this.listRepoTeams(args);
+          case 'github_transfer_repo': return await this.transferRepo(args);
+          case 'github_enable_automated_security_fixes': return await this.enableAutomatedSecurityFixes(args);
+          case 'github_disable_automated_security_fixes': return await this.disableAutomatedSecurityFixes(args);
+          case 'github_enable_vulnerability_alerts': return await this.enableVulnerabilityAlerts(args);
+          case 'github_disable_vulnerability_alerts': return await this.disableVulnerabilityAlerts(args);
+          case 'github_get_repo_readme': return await this.getRepoReadme(args);
+          case 'github_get_repo_license': return await this.getRepoLicense(args);
+          case 'github_get_repo_community_profile': return await this.getRepoCommunityProfile(args);
+          case 'github_get_repo_stats_contributors': return await this.getRepoStatsContributors(args);
+          case 'github_get_repo_stats_commit_activity': return await this.getRepoStatsCommitActivity(args);
 
           // BRANCHES
-          case 'list_branches': return await this.listBranches(args);
-          case 'get_branch': return await this.getBranch(args);
-          case 'create_branch': return await this.createBranch(args);
-          case 'delete_branch': return await this.deleteBranch(args);
-          case 'merge_branch': return await this.mergeBranch(args);
-          case 'get_branch_protection': return await this.getBranchProtection(args);
-          case 'update_branch_protection': return await this.updateBranchProtection(args);
-          case 'delete_branch_protection': return await this.deleteBranchProtection(args);
-          case 'get_required_status_checks': return await this.getRequiredStatusChecks(args);
-          case 'update_required_status_checks': return await this.updateRequiredStatusChecks(args);
-          case 'get_admin_enforcement': return await this.getAdminEnforcement(args);
-          case 'set_admin_enforcement': return await this.setAdminEnforcement(args);
-          case 'get_pull_request_review_enforcement': return await this.getPullRequestReviewEnforcement(args);
-          case 'update_pull_request_review_enforcement': return await this.updatePullRequestReviewEnforcement(args);
-          case 'rename_branch': return await this.renameBranch(args);
+          case 'github_list_branches': return await this.listBranches(args);
+          case 'github_get_branch': return await this.getBranch(args);
+          case 'github_create_branch': return await this.createBranch(args);
+          case 'github_delete_branch': return await this.deleteBranch(args);
+          case 'github_merge_branch': return await this.mergeBranch(args);
+          case 'github_get_branch_protection': return await this.getBranchProtection(args);
+          case 'github_update_branch_protection': return await this.updateBranchProtection(args);
+          case 'github_delete_branch_protection': return await this.deleteBranchProtection(args);
+          case 'github_get_required_status_checks': return await this.getRequiredStatusChecks(args);
+          case 'github_update_required_status_checks': return await this.updateRequiredStatusChecks(args);
+          case 'github_get_admin_enforcement': return await this.getAdminEnforcement(args);
+          case 'github_set_admin_enforcement': return await this.setAdminEnforcement(args);
+          case 'github_get_pull_request_review_enforcement': return await this.getPullRequestReviewEnforcement(args);
+          case 'github_update_pull_request_review_enforcement': return await this.updatePullRequestReviewEnforcement(args);
+          case 'github_rename_branch': return await this.renameBranch(args);
 
           // COMMITS
-          case 'list_commits': return await this.listCommits(args);
-          case 'get_commit': return await this.getCommit(args);
-          case 'compare_commits': return await this.compareCommits(args);
-          case 'list_commit_comments': return await this.listCommitComments(args);
-          case 'create_commit_comment': return await this.createCommitComment(args);
-          case 'get_commit_status': return await this.getCommitStatus(args);
-          case 'list_commit_statuses': return await this.listCommitStatuses(args);
-          case 'create_commit_status': return await this.createCommitStatus(args);
-          case 'list_pull_requests_associated_with_commit': return await this.listPullRequestsAssociatedWithCommit(args);
-          case 'get_commit_signature_verification': return await this.getCommitSignatureVerification(args);
+          case 'github_list_commits': return await this.listCommits(args);
+          case 'github_get_commit': return await this.getCommit(args);
+          case 'github_compare_commits': return await this.compareCommits(args);
+          case 'github_list_commit_comments': return await this.listCommitComments(args);
+          case 'github_create_commit_comment': return await this.createCommitComment(args);
+          case 'github_get_commit_status': return await this.getCommitStatus(args);
+          case 'github_list_commit_statuses': return await this.listCommitStatuses(args);
+          case 'github_create_commit_status': return await this.createCommitStatus(args);
+          case 'github_list_pull_requests_associated_with_commit': return await this.listPullRequestsAssociatedWithCommit(args);
+          case 'github_get_commit_signature_verification': return await this.getCommitSignatureVerification(args);
 
           // ISSUES
-          case 'list_issues': return await this.listIssues(args);
-          case 'get_issue': return await this.getIssue(args);
-          case 'create_issue': return await this.createIssue(args);
-          case 'update_issue': return await this.updateIssue(args);
-          case 'lock_issue': return await this.lockIssue(args);
-          case 'unlock_issue': return await this.unlockIssue(args);
-          case 'add_assignees': return await this.addAssignees(args);
-          case 'remove_assignees': return await this.removeAssignees(args);
-          case 'add_labels': return await this.addLabels(args);
-          case 'remove_label': return await this.removeLabel(args);
-          case 'replace_labels': return await this.replaceLabels(args);
-          case 'list_issue_comments': return await this.listIssueComments(args);
-          case 'create_issue_comment': return await this.createIssueComment(args);
-          case 'update_issue_comment': return await this.updateIssueComment(args);
-          case 'delete_issue_comment': return await this.deleteIssueComment(args);
-          case 'list_issue_events': return await this.listIssueEvents(args);
-          case 'list_issue_timeline': return await this.listIssueTimeline(args);
-          case 'list_labels': return await this.listLabels(args);
-          case 'create_label': return await this.createLabel(args);
-          case 'delete_label': return await this.deleteLabel(args);
+          case 'github_list_issues': return await this.listIssues(args);
+          case 'github_get_issue': return await this.getIssue(args);
+          case 'github_create_issue': return await this.createIssue(args);
+          case 'github_update_issue': return await this.updateIssue(args);
+          case 'github_lock_issue': return await this.lockIssue(args);
+          case 'github_unlock_issue': return await this.unlockIssue(args);
+          case 'github_add_assignees': return await this.addAssignees(args);
+          case 'github_remove_assignees': return await this.removeAssignees(args);
+          case 'github_add_labels': return await this.addLabels(args);
+          case 'github_remove_label': return await this.removeLabel(args);
+          case 'github_replace_labels': return await this.replaceLabels(args);
+          case 'github_list_issue_comments': return await this.listIssueComments(args);
+          case 'github_create_issue_comment': return await this.createIssueComment(args);
+          case 'github_update_issue_comment': return await this.updateIssueComment(args);
+          case 'github_delete_issue_comment': return await this.deleteIssueComment(args);
+          case 'github_list_issue_events': return await this.listIssueEvents(args);
+          case 'github_list_issue_timeline': return await this.listIssueTimeline(args);
+          case 'github_list_labels': return await this.listLabels(args);
+          case 'github_create_label': return await this.createLabel(args);
+          case 'github_delete_label': return await this.deleteLabel(args);
 
           // PULL REQUESTS
-          case 'list_pull_requests': return await this.listPullRequests(args);
-          case 'get_pull_request': return await this.getPullRequest(args);
-          case 'create_pull_request': return await this.createPullRequest(args);
-          case 'update_pull_request': return await this.updatePullRequest(args);
-          case 'merge_pull_request': return await this.mergePullRequest(args);
-          case 'get_pull_request_merge_status': return await this.getPullRequestMergeStatus(args);
-          case 'list_pull_request_commits': return await this.listPullRequestCommits(args);
-          case 'list_pull_request_files': return await this.listPullRequestFiles(args);
-          case 'list_pull_request_reviews': return await this.listPullRequestReviews(args);
-          case 'get_pull_request_review': return await this.getPullRequestReview(args);
-          case 'create_pull_request_review': return await this.createPullRequestReview(args);
-          case 'submit_pull_request_review': return await this.submitPullRequestReview(args);
-          case 'dismiss_pull_request_review': return await this.dismissPullRequestReview(args);
-          case 'list_pull_request_review_comments': return await this.listPullRequestReviewComments(args);
-          case 'create_pull_request_review_comment': return await this.createPullRequestReviewComment(args);
-          case 'update_pull_request_review_comment': return await this.updatePullRequestReviewComment(args);
-          case 'delete_pull_request_review_comment': return await this.deletePullRequestReviewComment(args);
-          case 'request_pull_request_reviewers': return await this.requestPullRequestReviewers(args);
-          case 'remove_pull_request_reviewers': return await this.removePullRequestReviewers(args);
-          case 'update_pull_request_branch': return await this.updatePullRequestBranch(args);
-          case 'list_requested_reviewers': return await this.listRequestedReviewers(args);
-          case 'check_pull_request_reviewability': return await this.checkPullRequestReviewability(args);
-          case 'get_pull_request_diff': return await this.getPullRequestDiff(args);
-          case 'get_pull_request_patch': return await this.getPullRequestPatch(args);
-          case 'convert_issue_to_pull_request': return await this.convertIssueToPullRequest(args);
+          case 'github_list_pull_requests': return await this.listPullRequests(args);
+          case 'github_get_pull_request': return await this.getPullRequest(args);
+          case 'github_create_pull_request': return await this.createPullRequest(args);
+          case 'github_update_pull_request': return await this.updatePullRequest(args);
+          case 'github_merge_pull_request': return await this.mergePullRequest(args);
+          case 'github_get_pull_request_merge_status': return await this.getPullRequestMergeStatus(args);
+          case 'github_list_pull_request_commits': return await this.listPullRequestCommits(args);
+          case 'github_list_pull_request_files': return await this.listPullRequestFiles(args);
+          case 'github_list_pull_request_reviews': return await this.listPullRequestReviews(args);
+          case 'github_get_pull_request_review': return await this.getPullRequestReview(args);
+          case 'github_create_pull_request_review': return await this.createPullRequestReview(args);
+          case 'github_submit_pull_request_review': return await this.submitPullRequestReview(args);
+          case 'github_dismiss_pull_request_review': return await this.dismissPullRequestReview(args);
+          case 'github_list_pull_request_review_comments': return await this.listPullRequestReviewComments(args);
+          case 'github_create_pull_request_review_comment': return await this.createPullRequestReviewComment(args);
+          case 'github_update_pull_request_review_comment': return await this.updatePullRequestReviewComment(args);
+          case 'github_delete_pull_request_review_comment': return await this.deletePullRequestReviewComment(args);
+          case 'github_request_pull_request_reviewers': return await this.requestPullRequestReviewers(args);
+          case 'github_remove_pull_request_reviewers': return await this.removePullRequestReviewers(args);
+          case 'github_update_pull_request_branch': return await this.updatePullRequestBranch(args);
+          case 'github_list_requested_reviewers': return await this.listRequestedReviewers(args);
+          case 'github_check_pull_request_reviewability': return await this.checkPullRequestReviewability(args);
+          case 'github_get_pull_request_diff': return await this.getPullRequestDiff(args);
+          case 'github_get_pull_request_patch': return await this.getPullRequestPatch(args);
+          case 'github_convert_issue_to_pull_request': return await this.convertIssueToPullRequest(args);
 
           // GITHUB ACTIONS
-          case 'list_workflows': return await this.listWorkflows(args);
-          case 'get_workflow': return await this.getWorkflow(args);
-          case 'disable_workflow': return await this.disableWorkflow(args);
-          case 'enable_workflow': return await this.enableWorkflow(args);
-          case 'create_workflow_dispatch': return await this.createWorkflowDispatch(args);
-          case 'list_workflow_runs': return await this.listWorkflowRuns(args);
-          case 'get_workflow_run': return await this.getWorkflowRun(args);
-          case 'cancel_workflow_run': return await this.cancelWorkflowRun(args);
-          case 'rerun_workflow': return await this.rerunWorkflow(args);
-          case 'rerun_failed_jobs': return await this.rerunFailedJobs(args);
-          case 'delete_workflow_run': return await this.deleteWorkflowRun(args);
-          case 'list_workflow_run_artifacts': return await this.listWorkflowRunArtifacts(args);
-          case 'download_workflow_run_logs': return await this.downloadWorkflowRunLogs(args);
-          case 'delete_workflow_run_logs': return await this.deleteWorkflowRunLogs(args);
-          case 'list_workflow_run_jobs': return await this.listWorkflowRunJobs(args);
-          case 'get_workflow_run_job': return await this.getWorkflowRunJob(args);
-          case 'download_job_logs': return await this.downloadJobLogs(args);
-          case 'list_repo_secrets': return await this.listRepoSecrets(args);
-          case 'create_or_update_repo_secret': return await this.createOrUpdateRepoSecret(args);
-          case 'delete_repo_secret': return await this.deleteRepoSecret(args);
+          case 'github_list_workflows': return await this.listWorkflows(args);
+          case 'github_get_workflow': return await this.getWorkflow(args);
+          case 'github_disable_workflow': return await this.disableWorkflow(args);
+          case 'github_enable_workflow': return await this.enableWorkflow(args);
+          case 'github_create_workflow_dispatch': return await this.createWorkflowDispatch(args);
+          case 'github_list_workflow_runs': return await this.listWorkflowRuns(args);
+          case 'github_get_workflow_run': return await this.getWorkflowRun(args);
+          case 'github_cancel_workflow_run': return await this.cancelWorkflowRun(args);
+          case 'github_rerun_workflow': return await this.rerunWorkflow(args);
+          case 'github_rerun_failed_jobs': return await this.rerunFailedJobs(args);
+          case 'github_delete_workflow_run': return await this.deleteWorkflowRun(args);
+          case 'github_list_workflow_run_artifacts': return await this.listWorkflowRunArtifacts(args);
+          case 'github_download_workflow_run_logs': return await this.downloadWorkflowRunLogs(args);
+          case 'github_delete_workflow_run_logs': return await this.deleteWorkflowRunLogs(args);
+          case 'github_list_workflow_run_jobs': return await this.listWorkflowRunJobs(args);
+          case 'github_get_workflow_run_job': return await this.getWorkflowRunJob(args);
+          case 'github_download_job_logs': return await this.downloadJobLogs(args);
+          case 'github_list_repo_secrets': return await this.listRepoSecrets(args);
+          case 'github_create_or_update_repo_secret': return await this.createOrUpdateRepoSecret(args);
+          case 'github_delete_repo_secret': return await this.deleteRepoSecret(args);
 
           // RELEASES
-          case 'list_releases': return await this.listReleases(args);
-          case 'get_release': return await this.getRelease(args);
-          case 'get_latest_release': return await this.getLatestRelease(args);
-          case 'get_release_by_tag': return await this.getReleaseByTag(args);
-          case 'create_release': return await this.createRelease(args);
-          case 'update_release': return await this.updateRelease(args);
-          case 'delete_release': return await this.deleteRelease(args);
-          case 'list_release_assets': return await this.listReleaseAssets(args);
-          case 'get_release_asset': return await this.getReleaseAsset(args);
-          case 'update_release_asset': return await this.updateReleaseAsset(args);
-          case 'delete_release_asset': return await this.deleteReleaseAsset(args);
-          case 'generate_release_notes': return await this.generateReleaseNotes(args);
+          case 'github_list_releases': return await this.listReleases(args);
+          case 'github_get_release': return await this.getRelease(args);
+          case 'github_get_latest_release': return await this.getLatestRelease(args);
+          case 'github_get_release_by_tag': return await this.getReleaseByTag(args);
+          case 'github_create_release': return await this.createRelease(args);
+          case 'github_update_release': return await this.updateRelease(args);
+          case 'github_delete_release': return await this.deleteRelease(args);
+          case 'github_list_release_assets': return await this.listReleaseAssets(args);
+          case 'github_get_release_asset': return await this.getReleaseAsset(args);
+          case 'github_update_release_asset': return await this.updateReleaseAsset(args);
+          case 'github_delete_release_asset': return await this.deleteReleaseAsset(args);
+          case 'github_generate_release_notes': return await this.generateReleaseNotes(args);
 
           // FILES & CONTENT
-          case 'get_content': return await this.getContent(args);
-          case 'create_or_update_file': return await this.createOrUpdateFile(args);
-          case 'delete_file': return await this.deleteFile(args);
-          case 'get_archive': return await this.getArchive(args);
-          case 'list_repo_contributors': return await this.listRepoContributors(args);
-          case 'get_repo_clones': return await this.getRepoClones(args);
-          case 'get_repo_views': return await this.getRepoViews(args);
-          case 'get_repo_top_paths': return await this.getRepoTopPaths(args);
-          case 'get_repo_top_referrers': return await this.getRepoTopReferrers(args);
-          case 'create_tree': return await this.createTree(args);
-          case 'get_tree': return await this.getTree(args);
-          case 'get_blob': return await this.getBlob(args);
-          case 'create_blob': return await this.createBlob(args);
-          case 'create_commit': return await this.createCommit(args);
-          case 'get_ref': return await this.getRef(args);
+          case 'github_get_content': return await this.getContent(args);
+          case 'github_create_or_update_file': return await this.createOrUpdateFile(args);
+          case 'github_delete_file': return await this.deleteFile(args);
+          case 'github_get_archive': return await this.getArchive(args);
+          case 'github_list_repo_contributors': return await this.listRepoContributors(args);
+          case 'github_get_repo_clones': return await this.getRepoClones(args);
+          case 'github_get_repo_views': return await this.getRepoViews(args);
+          case 'github_get_repo_top_paths': return await this.getRepoTopPaths(args);
+          case 'github_get_repo_top_referrers': return await this.getRepoTopReferrers(args);
+          case 'github_create_tree': return await this.createTree(args);
+          case 'github_get_tree': return await this.getTree(args);
+          case 'github_get_blob': return await this.getBlob(args);
+          case 'github_create_blob': return await this.createBlob(args);
+          case 'github_create_commit': return await this.createCommit(args);
+          case 'github_get_ref': return await this.getRef(args);
 
           // COLLABORATORS & PERMISSIONS
-          case 'list_collaborators': return await this.listCollaborators(args);
-          case 'check_collaborator': return await this.checkCollaborator(args);
-          case 'add_collaborator': return await this.addCollaborator(args);
-          case 'remove_collaborator': return await this.removeCollaborator(args);
-          case 'get_collaborator_permission': return await this.getCollaboratorPermission(args);
-          case 'list_invitations': return await this.listInvitations(args);
-          case 'update_invitation': return await this.updateInvitation(args);
-          case 'delete_invitation': return await this.deleteInvitation(args);
-          case 'list_deploy_keys': return await this.listDeployKeys(args);
-          case 'create_deploy_key': return await this.createDeployKey(args);
+          case 'github_list_collaborators': return await this.listCollaborators(args);
+          case 'github_check_collaborator': return await this.checkCollaborator(args);
+          case 'github_add_collaborator': return await this.addCollaborator(args);
+          case 'github_remove_collaborator': return await this.removeCollaborator(args);
+          case 'github_get_collaborator_permission': return await this.getCollaboratorPermission(args);
+          case 'github_list_invitations': return await this.listInvitations(args);
+          case 'github_update_invitation': return await this.updateInvitation(args);
+          case 'github_delete_invitation': return await this.deleteInvitation(args);
+          case 'github_list_deploy_keys': return await this.listDeployKeys(args);
+          case 'github_create_deploy_key': return await this.createDeployKey(args);
 
           // WEBHOOKS
-          case 'list_webhooks': return await this.listWebhooks(args);
-          case 'get_webhook': return await this.getWebhook(args);
-          case 'create_webhook': return await this.createWebhook(args);
-          case 'update_webhook': return await this.updateWebhook(args);
-          case 'delete_webhook': return await this.deleteWebhook(args);
-          case 'ping_webhook': return await this.pingWebhook(args);
-          case 'test_webhook': return await this.testWebhook(args);
-          case 'list_webhook_deliveries': return await this.listWebhookDeliveries(args);
+          case 'github_list_webhooks': return await this.listWebhooks(args);
+          case 'github_get_webhook': return await this.getWebhook(args);
+          case 'github_create_webhook': return await this.createWebhook(args);
+          case 'github_update_webhook': return await this.updateWebhook(args);
+          case 'github_delete_webhook': return await this.deleteWebhook(args);
+          case 'github_ping_webhook': return await this.pingWebhook(args);
+          case 'github_test_webhook': return await this.testWebhook(args);
+          case 'github_list_webhook_deliveries': return await this.listWebhookDeliveries(args);
 
           // ORGANIZATIONS & TEAMS
-          case 'list_user_orgs': return await this.listUserOrgs(args);
-          case 'get_org': return await this.getOrg(args);
-          case 'update_org': return await this.updateOrg(args);
-          case 'list_org_members': return await this.listOrgMembers(args);
-          case 'check_org_membership': return await this.checkOrgMembership(args);
-          case 'remove_org_member': return await this.removeOrgMember(args);
-          case 'list_org_teams': return await this.listOrgTeams(args);
-          case 'get_team': return await this.getTeam(args);
-          case 'create_team': return await this.createTeam(args);
-          case 'update_team': return await this.updateTeam(args);
-          case 'delete_team': return await this.deleteTeam(args);
-          case 'list_team_members': return await this.listTeamMembers(args);
+          case 'github_list_user_orgs': return await this.listUserOrgs(args);
+          case 'github_get_org': return await this.getOrg(args);
+          case 'github_update_org': return await this.updateOrg(args);
+          case 'github_list_org_members': return await this.listOrgMembers(args);
+          case 'github_check_org_membership': return await this.checkOrgMembership(args);
+          case 'github_remove_org_member': return await this.removeOrgMember(args);
+          case 'github_list_org_teams': return await this.listOrgTeams(args);
+          case 'github_get_team': return await this.getTeam(args);
+          case 'github_create_team': return await this.createTeam(args);
+          case 'github_update_team': return await this.updateTeam(args);
+          case 'github_delete_team': return await this.deleteTeam(args);
+          case 'github_list_team_members': return await this.listTeamMembers(args);
 
           // SEARCH
-          case 'search_repositories': return await this.searchRepositories(args);
-          case 'search_code': return await this.searchCode(args);
-          case 'search_issues': return await this.searchIssues(args);
-          case 'search_users': return await this.searchUsers(args);
-          case 'search_commits': return await this.searchCommits(args);
-          case 'search_topics': return await this.searchTopics(args);
+          case 'github_search_repositories': return await this.searchRepositories(args);
+          case 'github_search_code': return await this.searchCode(args);
+          case 'github_search_issues': return await this.searchIssues(args);
+          case 'github_search_users': return await this.searchUsers(args);
+          case 'github_search_commits': return await this.searchCommits(args);
+          case 'github_search_topics': return await this.searchTopics(args);
 
           // USERS
-          case 'get_authenticated_user': return await this.getAuthenticatedUser(args);
-          case 'get_user': return await this.getUser(args);
-          case 'update_authenticated_user': return await this.updateAuthenticatedUser(args);
-          case 'list_user_repos': return await this.listUserRepos(args);
-          case 'list_user_followers': return await this.listUserFollowers(args);
-          case 'list_user_following': return await this.listUserFollowing(args);
-          case 'check_following': return await this.checkFollowing(args);
-          case 'list_user_gists': return await this.listUserGists(args);
+          case 'github_get_authenticated_user': return await this.getAuthenticatedUser(args);
+          case 'github_get_user': return await this.getUser(args);
+          case 'github_update_authenticated_user': return await this.updateAuthenticatedUser(args);
+          case 'github_list_user_repos': return await this.listUserRepos(args);
+          case 'github_list_user_followers': return await this.listUserFollowers(args);
+          case 'github_list_user_following': return await this.listUserFollowing(args);
+          case 'github_check_following': return await this.checkFollowing(args);
+          case 'github_list_user_gists': return await this.listUserGists(args);
 
           // GISTS
-          case 'list_gists': return await this.listGists(args);
-          case 'get_gist': return await this.getGist(args);
-          case 'create_gist': return await this.createGist(args);
-          case 'update_gist': return await this.updateGist(args);
-          case 'delete_gist': return await this.deleteGist(args);
-          case 'star_gist': return await this.starGist(args);
-          case 'unstar_gist': return await this.unstarGist(args);
-          case 'check_gist_star': return await this.checkGistStar(args);
-          case 'fork_gist': return await this.forkGist(args);
-          case 'list_gist_commits': return await this.listGistCommits(args);
+          case 'github_list_gists': return await this.listGists(args);
+          case 'github_get_gist': return await this.getGist(args);
+          case 'github_create_gist': return await this.createGist(args);
+          case 'github_update_gist': return await this.updateGist(args);
+          case 'github_delete_gist': return await this.deleteGist(args);
+          case 'github_star_gist': return await this.starGist(args);
+          case 'github_unstar_gist': return await this.unstarGist(args);
+          case 'github_check_gist_star': return await this.checkGistStar(args);
+          case 'github_fork_gist': return await this.forkGist(args);
+          case 'github_list_gist_commits': return await this.listGistCommits(args);
 
           // MILESTONES & PROJECTS
-          case 'list_milestones': return await this.listMilestones(args);
-          case 'get_milestone': return await this.getMilestone(args);
-          case 'create_milestone': return await this.createMilestone(args);
-          case 'update_milestone': return await this.updateMilestone(args);
-          case 'delete_milestone': return await this.deleteMilestone(args);
+          case 'github_list_milestones': return await this.listMilestones(args);
+          case 'github_get_milestone': return await this.getMilestone(args);
+          case 'github_create_milestone': return await this.createMilestone(args);
+          case 'github_update_milestone': return await this.updateMilestone(args);
+          case 'github_delete_milestone': return await this.deleteMilestone(args);
           case 'list_projects': return await this.listProjects(args);
           case 'get_project': return await this.getProject(args);
           case 'create_project': return await this.createProject(args);
 
           // Advanced Actions
-          case 'list_workflow_runs': return await this.listWorkflowRuns(args);
-          case 'get_workflow_run': return await this.getWorkflowRun(args);
-          case 'cancel_workflow_run': return await this.cancelWorkflowRun(args);
-          case 'rerun_workflow': return await this.rerunWorkflow(args);
-          case 'download_workflow_logs': return await this.downloadWorkflowRunLogs(args);
-          case 'list_workflow_jobs': return await this.listWorkflowRunJobs(args);
-          case 'get_workflow_job': return await this.getWorkflowRunJob(args);
-          case 'download_job_logs': return await this.downloadJobLogs(args);
-          case 'list_repo_secrets': return await this.listRepoSecrets(args);
-          case 'create_repo_secret': return await this.createRepoSecretHandler(args);
+          case 'github_list_workflow_runs': return await this.listWorkflowRuns(args);
+          case 'github_get_workflow_run': return await this.getWorkflowRun(args);
+          case 'github_cancel_workflow_run': return await this.cancelWorkflowRun(args);
+          case 'github_rerun_workflow': return await this.rerunWorkflow(args);
+          case 'github_download_workflow_logs': return await this.downloadWorkflowRunLogs(args);
+          case 'github_list_workflow_jobs': return await this.listWorkflowRunJobs(args);
+          case 'github_get_workflow_job': return await this.getWorkflowRunJob(args);
+          case 'github_download_job_logs': return await this.downloadJobLogs(args);
+          case 'github_list_repo_secrets': return await this.listRepoSecrets(args);
+          case 'github_create_repo_secret': return await this.createRepoSecretHandler(args);
 
           // Packages
-          case 'list_packages': return await this.listPackages(args);
-          case 'get_package': return await this.getPackage(args);
-          case 'delete_package': return await this.deletePackage(args);
-          case 'restore_package': return await this.restorePackage(args);
-          case 'list_package_versions': return await this.listPackageVersions(args);
-          case 'get_package_version': return await this.getPackageVersion(args);
-          case 'delete_package_version': return await this.deletePackageVersion(args);
-          case 'restore_package_version': return await this.restorePackageVersion(args);
+          case 'github_list_packages': return await this.listPackages(args);
+          case 'github_get_package': return await this.getPackage(args);
+          case 'github_delete_package': return await this.deletePackage(args);
+          case 'github_restore_package': return await this.restorePackage(args);
+          case 'github_list_package_versions': return await this.listPackageVersions(args);
+          case 'github_get_package_version': return await this.getPackageVersion(args);
+          case 'github_delete_package_version': return await this.deletePackageVersion(args);
+          case 'github_restore_package_version': return await this.restorePackageVersion(args);
 
           // Projects v2
-          case 'list_org_projects_v2': return await this.listOrgProjectsV2(args);
-          case 'get_project_v2': return await this.getProjectV2(args);
-          case 'create_project_v2': return await this.createProjectV2(args);
-          case 'update_project_v2': return await this.updateProjectV2(args);
-          case 'delete_project_v2': return await this.deleteProjectV2(args);
-          case 'list_project_items': return await this.listProjectItems(args);
-          case 'add_project_item': return await this.addProjectItem(args);
-          case 'remove_project_item': return await this.removeProjectItem(args);
+          case 'github_list_org_projects_v2': return await this.listOrgProjectsV2(args);
+          case 'github_get_project_v2': return await this.getProjectV2(args);
+          case 'github_create_project_v2': return await this.createProjectV2(args);
+          case 'github_update_project_v2': return await this.updateProjectV2(args);
+          case 'github_delete_project_v2': return await this.deleteProjectV2(args);
+          case 'github_list_project_items': return await this.listProjectItems(args);
+          case 'github_add_project_item': return await this.addProjectItem(args);
+          case 'github_remove_project_item': return await this.removeProjectItem(args);
 
           // Discussions
-          case 'list_discussions': return await this.listDiscussions(args);
-          case 'get_discussion': return await this.getDiscussion(args);
-          case 'create_discussion': return await this.createDiscussion(args);
-          case 'update_discussion': return await this.updateDiscussion(args);
-          case 'delete_discussion': return await this.deleteDiscussion(args);
-          case 'list_discussion_comments': return await this.listDiscussionComments(args);
-          case 'create_discussion_comment': return await this.createDiscussionComment(args);
-          case 'list_discussion_categories': return await this.listDiscussionCategories(args);
+          case 'github_list_discussions': return await this.listDiscussions(args);
+          case 'github_get_discussion': return await this.getDiscussion(args);
+          case 'github_create_discussion': return await this.createDiscussion(args);
+          case 'github_update_discussion': return await this.updateDiscussion(args);
+          case 'github_delete_discussion': return await this.deleteDiscussion(args);
+          case 'github_list_discussion_comments': return await this.listDiscussionComments(args);
+          case 'github_create_discussion_comment': return await this.createDiscussionComment(args);
+          case 'github_list_discussion_categories': return await this.listDiscussionCategories(args);
 
           // Codespaces
-          case 'list_codespaces': return await this.listCodespaces(args);
-          case 'get_codespace': return await this.getCodespace(args);
-          case 'create_codespace': return await this.createCodespace(args);
-          case 'start_codespace': return await this.startCodespace(args);
-          case 'stop_codespace': return await this.stopCodespace(args);
-          case 'delete_codespace': return await this.deleteCodespace(args);
-          case 'list_repo_codespaces': return await this.listRepoCodespaces(args);
+          case 'github_list_codespaces': return await this.listCodespaces(args);
+          case 'github_get_codespace': return await this.getCodespace(args);
+          case 'github_create_codespace': return await this.createCodespace(args);
+          case 'github_start_codespace': return await this.startCodespace(args);
+          case 'github_stop_codespace': return await this.stopCodespace(args);
+          case 'github_delete_codespace': return await this.deleteCodespace(args);
+          case 'github_list_repo_codespaces': return await this.listRepoCodespaces(args);
 
           // Copilot
-          case 'get_copilot_org_settings': return await this.getCopilotOrgSettings(args);
-          case 'list_copilot_seats': return await this.listCopilotSeats(args);
-          case 'add_copilot_seats': return await this.addCopilotSeats(args);
-          case 'remove_copilot_seats': return await this.removeCopilotSeats(args);
-          case 'get_copilot_usage': return await this.getCopilotUsage(args);
+          case 'github_get_copilot_org_settings': return await this.getCopilotOrgSettings(args);
+          case 'github_list_copilot_seats': return await this.listCopilotSeats(args);
+          case 'github_add_copilot_seats': return await this.addCopilotSeats(args);
+          case 'github_remove_copilot_seats': return await this.removeCopilotSeats(args);
+          case 'github_get_copilot_usage': return await this.getCopilotUsage(args);
 
           // Advanced Security
-          case 'list_code_scanning_alerts': return await this.listCodeScanningAlerts(args);
-          case 'get_code_scanning_alert': return await this.getCodeScanningAlert(args);
-          case 'update_code_scanning_alert': return await this.updateCodeScanningAlert(args);
-          case 'list_secret_scanning_alerts': return await this.listSecretScanningAlerts(args);
-          case 'update_secret_scanning_alert': return await this.updateSecretScanningAlert(args);
+          case 'github_list_code_scanning_alerts': return await this.listCodeScanningAlerts(args);
+          case 'github_get_code_scanning_alert': return await this.getCodeScanningAlert(args);
+          case 'github_update_code_scanning_alert': return await this.updateCodeScanningAlert(args);
+          case 'github_list_secret_scanning_alerts': return await this.listSecretScanningAlerts(args);
+          case 'github_update_secret_scanning_alert': return await this.updateSecretScanningAlert(args);
 
           default:
             throw new Error(`Unknown tool: ${request.params.name}`);

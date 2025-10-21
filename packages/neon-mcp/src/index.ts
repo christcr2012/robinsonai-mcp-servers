@@ -31,212 +31,212 @@ class NeonMCP {
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
         // PROJECT MANAGEMENT (13 tools)
-        { name: 'list_projects', description: 'Lists the first 10 Neon projects. Increase limit or use search to filter.', inputSchema: { type: 'object', properties: { limit: { type: 'number' }, search: { type: 'string' }, cursor: { type: 'string' }, org_id: { type: 'string' } } } },
-        { name: 'list_organizations', description: 'Lists all organizations the user has access to.', inputSchema: { type: 'object', properties: { search: { type: 'string' } } } },
-        { name: 'list_shared_projects', description: 'Lists projects shared with the current user.', inputSchema: { type: 'object', properties: { limit: { type: 'number' }, search: { type: 'string' }, cursor: { type: 'string' } } } },
-        { name: 'create_project', description: 'Create a new Neon project.', inputSchema: { type: 'object', properties: { name: { type: 'string' }, org_id: { type: 'string' }, region_id: { type: 'string' }, pg_version: { type: 'number' } } } },
-        { name: 'delete_project', description: 'Delete a Neon project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'describe_project', description: 'Get detailed project information.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'update_project', description: 'Update project settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, name: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId'] } },
-        { name: 'get_project_operations', description: 'List recent operations on a project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId'] } },
-        { name: 'get_project_consumption', description: 'Get consumption metrics (compute hours, storage).', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'set_project_settings', description: 'Configure project-level settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId', 'settings'] } },
-        { name: 'get_project_quotas', description: 'View current quotas and limits.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'clone_project', description: 'Clone entire project with all branches.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, name: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_project_permissions', description: 'List users/roles with access to project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_list_projects', description: 'Lists the first 10 Neon projects. Increase limit or use search to filter.', inputSchema: { type: 'object', properties: { limit: { type: 'number' }, search: { type: 'string' }, cursor: { type: 'string' }, org_id: { type: 'string' } } } },
+        { name: 'neon_list_organizations', description: 'Lists all organizations the user has access to.', inputSchema: { type: 'object', properties: { search: { type: 'string' } } } },
+        { name: 'neon_list_shared_projects', description: 'Lists projects shared with the current user.', inputSchema: { type: 'object', properties: { limit: { type: 'number' }, search: { type: 'string' }, cursor: { type: 'string' } } } },
+        { name: 'neon_create_project', description: 'Create a new Neon project.', inputSchema: { type: 'object', properties: { name: { type: 'string' }, org_id: { type: 'string' }, region_id: { type: 'string' }, pg_version: { type: 'number' } } } },
+        { name: 'neon_delete_project', description: 'Delete a Neon project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_describe_project', description: 'Get detailed project information.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_update_project', description: 'Update project settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, name: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId'] } },
+        { name: 'neon_get_project_operations', description: 'List recent operations on a project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId'] } },
+        { name: 'neon_get_project_consumption', description: 'Get consumption metrics (compute hours, storage).', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_set_project_settings', description: 'Configure project-level settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId', 'settings'] } },
+        { name: 'neon_get_project_quotas', description: 'View current quotas and limits.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_clone_project', description: 'Clone entire project with all branches.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, name: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_project_permissions', description: 'List users/roles with access to project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
 
         // BRANCH MANAGEMENT (20 tools)
-        { name: 'create_branch', description: 'Create a new branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchName: { type: 'string' }, parent_id: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'delete_branch', description: 'Delete a branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'describe_branch', description: 'Get tree view of all objects in a branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'reset_from_parent', description: 'Reset branch to parent state.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchIdOrName: { type: 'string' }, preserveUnderName: { type: 'string' } }, required: ['projectId', 'branchIdOrName'] } },
-        { name: 'update_branch', description: 'Update branch settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, name: { type: 'string' }, protected: { type: 'boolean' } }, required: ['projectId', 'branchId'] } },
-        { name: 'list_branches', description: 'List all branches with filtering.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, search: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_branch_details', description: 'Get detailed branch information.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'restore_branch', description: 'Restore deleted branch from backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, timestamp: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'set_branch_protection', description: 'Protect/unprotect branches.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, protected: { type: 'boolean' } }, required: ['projectId', 'branchId', 'protected'] } },
-        { name: 'get_branch_schema_diff', description: 'Compare schemas between branches.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, sourceBranchId: { type: 'string' }, targetBranchId: { type: 'string' } }, required: ['projectId', 'sourceBranchId', 'targetBranchId'] } },
-        { name: 'get_branch_data_diff', description: 'Compare data between branches.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, sourceBranchId: { type: 'string' }, targetBranchId: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'sourceBranchId', 'targetBranchId'] } },
-        { name: 'merge_branches', description: 'Merge one branch into another.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, sourceBranchId: { type: 'string' }, targetBranchId: { type: 'string' } }, required: ['projectId', 'sourceBranchId', 'targetBranchId'] } },
-        { name: 'promote_branch', description: 'Promote branch to primary.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'set_branch_retention', description: 'Configure branch retention policies.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, retentionDays: { type: 'number' } }, required: ['projectId', 'branchId', 'retentionDays'] } },
-        { name: 'get_branch_history', description: 'Get branch creation/modification history.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'restore_branch_to_timestamp', description: 'Point-in-time recovery for branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, timestamp: { type: 'string' } }, required: ['projectId', 'branchId', 'timestamp'] } },
-        { name: 'get_branch_size', description: 'Get storage size of branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'set_branch_compute_settings', description: 'Configure compute for specific branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId', 'branchId', 'settings'] } },
-        { name: 'get_branch_connections', description: 'List active connections to branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'list_branch_computes', description: 'List compute endpoints for branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_create_branch', description: 'Create a new branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchName: { type: 'string' }, parent_id: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_delete_branch', description: 'Delete a branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_describe_branch', description: 'Get tree view of all objects in a branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_reset_from_parent', description: 'Reset branch to parent state.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchIdOrName: { type: 'string' }, preserveUnderName: { type: 'string' } }, required: ['projectId', 'branchIdOrName'] } },
+        { name: 'neon_update_branch', description: 'Update branch settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, name: { type: 'string' }, protected: { type: 'boolean' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_list_branches', description: 'List all branches with filtering.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, search: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_branch_details', description: 'Get detailed branch information.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_restore_branch', description: 'Restore deleted branch from backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, timestamp: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_set_branch_protection', description: 'Protect/unprotect branches.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, protected: { type: 'boolean' } }, required: ['projectId', 'branchId', 'protected'] } },
+        { name: 'neon_get_branch_schema_diff', description: 'Compare schemas between branches.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, sourceBranchId: { type: 'string' }, targetBranchId: { type: 'string' } }, required: ['projectId', 'sourceBranchId', 'targetBranchId'] } },
+        { name: 'neon_get_branch_data_diff', description: 'Compare data between branches.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, sourceBranchId: { type: 'string' }, targetBranchId: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'sourceBranchId', 'targetBranchId'] } },
+        { name: 'neon_merge_branches', description: 'Merge one branch into another.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, sourceBranchId: { type: 'string' }, targetBranchId: { type: 'string' } }, required: ['projectId', 'sourceBranchId', 'targetBranchId'] } },
+        { name: 'neon_promote_branch', description: 'Promote branch to primary.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_set_branch_retention', description: 'Configure branch retention policies.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, retentionDays: { type: 'number' } }, required: ['projectId', 'branchId', 'retentionDays'] } },
+        { name: 'neon_get_branch_history', description: 'Get branch creation/modification history.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_restore_branch_to_timestamp', description: 'Point-in-time recovery for branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, timestamp: { type: 'string' } }, required: ['projectId', 'branchId', 'timestamp'] } },
+        { name: 'neon_get_branch_size', description: 'Get storage size of branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_set_branch_compute_settings', description: 'Configure compute for specific branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId', 'branchId', 'settings'] } },
+        { name: 'neon_get_branch_connections', description: 'List active connections to branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_list_branch_computes', description: 'List compute endpoints for branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
 
         // SQL EXECUTION (10 tools)
-        { name: 'run_sql', description: 'Execute a single SQL statement.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
-        { name: 'run_sql_transaction', description: 'Execute multiple SQL statements in a transaction.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sqlStatements: { type: 'array', items: { type: 'string' } } }, required: ['projectId', 'sqlStatements'] } },
-        { name: 'get_connection_string', description: 'Get PostgreSQL connection string.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' }, computeId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_database_tables', description: 'List all tables in database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'describe_table_schema', description: 'Get table schema definition.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'tableName'] } },
-        { name: 'explain_sql_statement', description: 'Get query execution plan.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' }, analyze: { type: 'boolean' } }, required: ['projectId', 'sql'] } },
-        { name: 'list_slow_queries', description: 'Find slow queries using pg_stat_statements.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, computeId: { type: 'string' }, limit: { type: 'number' }, minExecutionTime: { type: 'number' } }, required: ['projectId'] } },
-        { name: 'optimize_query', description: 'AI-powered query optimization.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
-        { name: 'suggest_indexes', description: 'Intelligent index suggestions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'analyze_query_plan', description: 'Deep query plan analysis.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
+        { name: 'neon_run_sql', description: 'Execute a single SQL statement.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
+        { name: 'neon_run_sql_transaction', description: 'Execute multiple SQL statements in a transaction.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sqlStatements: { type: 'array', items: { type: 'string' } } }, required: ['projectId', 'sqlStatements'] } },
+        { name: 'neon_get_connection_string', description: 'Get PostgreSQL connection string.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' }, computeId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_database_tables', description: 'List all tables in database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_describe_table_schema', description: 'Get table schema definition.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'tableName'] } },
+        { name: 'neon_explain_sql_statement', description: 'Get query execution plan.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' }, analyze: { type: 'boolean' } }, required: ['projectId', 'sql'] } },
+        { name: 'neon_list_slow_queries', description: 'Find slow queries using pg_stat_statements.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, computeId: { type: 'string' }, limit: { type: 'number' }, minExecutionTime: { type: 'number' } }, required: ['projectId'] } },
+        { name: 'neon_optimize_query', description: 'AI-powered query optimization.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
+        { name: 'neon_suggest_indexes', description: 'Intelligent index suggestions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_analyze_query_plan', description: 'Deep query plan analysis.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
 
         // DATABASE MANAGEMENT (12 tools)
-        { name: 'create_database', description: 'Create new database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, owner: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
-        { name: 'delete_database', description: 'Delete database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
-        { name: 'list_databases', description: 'List all databases.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_database_size', description: 'Get database storage size.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
-        { name: 'get_database_stats', description: 'Get database statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
-        { name: 'vacuum_database', description: 'Run VACUUM on database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, full: { type: 'boolean' }, analyze: { type: 'boolean' } }, required: ['projectId', 'databaseName'] } },
-        { name: 'analyze_database', description: 'Run ANALYZE on database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
-        { name: 'reindex_database', description: 'Reindex database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
-        { name: 'get_database_locks', description: 'View current locks.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
-        { name: 'kill_database_query', description: 'Terminate running query.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, pid: { type: 'number' } }, required: ['projectId', 'databaseName', 'pid'] } },
-        { name: 'get_database_activity', description: 'View current database activity.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
-        { name: 'backup_database', description: 'Create manual backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_create_database', description: 'Create new database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, owner: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_delete_database', description: 'Delete database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_list_databases', description: 'List all databases.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_database_size', description: 'Get database storage size.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_get_database_stats', description: 'Get database statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_vacuum_database', description: 'Run VACUUM on database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, full: { type: 'boolean' }, analyze: { type: 'boolean' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_analyze_database', description: 'Run ANALYZE on database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_reindex_database', description: 'Reindex database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_get_database_locks', description: 'View current locks.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_kill_database_query', description: 'Terminate running query.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, pid: { type: 'number' } }, required: ['projectId', 'databaseName', 'pid'] } },
+        { name: 'neon_get_database_activity', description: 'View current database activity.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
+        { name: 'neon_backup_database', description: 'Create manual backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId', 'databaseName'] } },
 
         // MIGRATIONS (2 tools)
-        { name: 'prepare_database_migration', description: 'Prepare database migration in temporary branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, databaseName: { type: 'string' }, migrationSql: { type: 'string' } }, required: ['projectId', 'migrationSql'] } },
-        { name: 'complete_database_migration', description: 'Complete and apply migration to main branch.', inputSchema: { type: 'object', properties: { migrationId: { type: 'string' } }, required: ['migrationId'] } },
+        { name: 'neon_prepare_database_migration', description: 'Prepare database migration in temporary branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, databaseName: { type: 'string' }, migrationSql: { type: 'string' } }, required: ['projectId', 'migrationSql'] } },
+        { name: 'neon_complete_database_migration', description: 'Complete and apply migration to main branch.', inputSchema: { type: 'object', properties: { migrationId: { type: 'string' } }, required: ['migrationId'] } },
 
         // QUERY TUNING (2 tools)
-        { name: 'prepare_query_tuning', description: 'Analyze and prepare query optimizations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'databaseName', 'sql'] } },
-        { name: 'complete_query_tuning', description: 'Apply or discard query optimizations.', inputSchema: { type: 'object', properties: { tuningId: { type: 'string' }, projectId: { type: 'string' }, databaseName: { type: 'string' }, temporaryBranchId: { type: 'string' }, suggestedSqlStatements: { type: 'array', items: { type: 'string' } }, applyChanges: { type: 'boolean' }, branchId: { type: 'string' }, roleName: { type: 'string' }, shouldDeleteTemporaryBranch: { type: 'boolean' } }, required: ['tuningId', 'projectId', 'databaseName', 'temporaryBranchId', 'suggestedSqlStatements'] } },
+        { name: 'neon_prepare_query_tuning', description: 'Analyze and prepare query optimizations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'databaseName', 'sql'] } },
+        { name: 'neon_complete_query_tuning', description: 'Apply or discard query optimizations.', inputSchema: { type: 'object', properties: { tuningId: { type: 'string' }, projectId: { type: 'string' }, databaseName: { type: 'string' }, temporaryBranchId: { type: 'string' }, suggestedSqlStatements: { type: 'array', items: { type: 'string' } }, applyChanges: { type: 'boolean' }, branchId: { type: 'string' }, roleName: { type: 'string' }, shouldDeleteTemporaryBranch: { type: 'boolean' } }, required: ['tuningId', 'projectId', 'databaseName', 'temporaryBranchId', 'suggestedSqlStatements'] } },
 
         // ROLE MANAGEMENT (8 tools)
-        { name: 'create_role', description: 'Create database role.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, password: { type: 'string' } }, required: ['projectId', 'roleName'] } },
-        { name: 'delete_role', description: 'Delete database role.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'roleName'] } },
-        { name: 'list_roles', description: 'List all roles.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'update_role', description: 'Update role permissions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, permissions: { type: 'object' } }, required: ['projectId', 'roleName'] } },
-        { name: 'grant_role_permissions', description: 'Grant specific permissions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, permissions: { type: 'array' } }, required: ['projectId', 'roleName', 'permissions'] } },
-        { name: 'revoke_role_permissions', description: 'Revoke permissions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, permissions: { type: 'array' } }, required: ['projectId', 'roleName', 'permissions'] } },
-        { name: 'get_role_permissions', description: 'List role permissions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'roleName'] } },
-        { name: 'reset_role_password', description: 'Reset role password.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, password: { type: 'string' } }, required: ['projectId', 'roleName', 'password'] } },
+        { name: 'neon_create_role', description: 'Create database role.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, password: { type: 'string' } }, required: ['projectId', 'roleName'] } },
+        { name: 'neon_delete_role', description: 'Delete database role.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'roleName'] } },
+        { name: 'neon_list_roles', description: 'List all roles.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_update_role', description: 'Update role permissions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, permissions: { type: 'object' } }, required: ['projectId', 'roleName'] } },
+        { name: 'neon_grant_role_permissions', description: 'Grant specific permissions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, permissions: { type: 'array' } }, required: ['projectId', 'roleName', 'permissions'] } },
+        { name: 'neon_revoke_role_permissions', description: 'Revoke permissions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, permissions: { type: 'array' } }, required: ['projectId', 'roleName', 'permissions'] } },
+        { name: 'neon_get_role_permissions', description: 'List role permissions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'roleName'] } },
+        { name: 'neon_reset_role_password', description: 'Reset role password.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' }, password: { type: 'string' } }, required: ['projectId', 'roleName', 'password'] } },
 
         // COMPUTE/ENDPOINT MANAGEMENT (10 tools)
-        { name: 'create_endpoint', description: 'Create compute endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, type: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId', 'branchId', 'type'] } },
-        { name: 'delete_endpoint', description: 'Delete endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
-        { name: 'update_endpoint', description: 'Update endpoint settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId', 'endpointId', 'settings'] } },
-        { name: 'start_endpoint', description: 'Start suspended endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
-        { name: 'suspend_endpoint', description: 'Suspend endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
-        { name: 'restart_endpoint', description: 'Restart endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
-        { name: 'get_endpoint_metrics', description: 'Get endpoint performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
-        { name: 'set_endpoint_autoscaling', description: 'Configure autoscaling.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, minCu: { type: 'number' }, maxCu: { type: 'number' } }, required: ['projectId', 'endpointId'] } },
-        { name: 'get_endpoint_logs', description: 'Retrieve endpoint logs.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId', 'endpointId'] } },
-        { name: 'set_endpoint_pooling', description: 'Configure connection pooling.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, poolMode: { type: 'string' }, poolSize: { type: 'number' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_create_endpoint', description: 'Create compute endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, type: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId', 'branchId', 'type'] } },
+        { name: 'neon_delete_endpoint', description: 'Delete endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_update_endpoint', description: 'Update endpoint settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, settings: { type: 'object' } }, required: ['projectId', 'endpointId', 'settings'] } },
+        { name: 'neon_start_endpoint', description: 'Start suspended endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_suspend_endpoint', description: 'Suspend endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_restart_endpoint', description: 'Restart endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_get_endpoint_metrics', description: 'Get endpoint performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_set_endpoint_autoscaling', description: 'Configure autoscaling.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, minCu: { type: 'number' }, maxCu: { type: 'number' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_get_endpoint_logs', description: 'Retrieve endpoint logs.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_set_endpoint_pooling', description: 'Configure connection pooling.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, poolMode: { type: 'string' }, poolSize: { type: 'number' } }, required: ['projectId', 'endpointId'] } },
 
         // MONITORING & ANALYTICS (15 tools)
-        { name: 'get_query_statistics', description: 'Get query performance stats.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId'] } },
-        { name: 'get_slow_query_log', description: 'Enhanced slow query analysis.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, minDuration: { type: 'number' } }, required: ['projectId'] } },
-        { name: 'get_connection_stats', description: 'Connection pool statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_storage_metrics', description: 'Storage usage over time.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_compute_metrics', description: 'Compute usage over time.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_io_metrics', description: 'I/O performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_cache_hit_ratio', description: 'Cache performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_index_usage', description: 'Index usage statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_table_bloat', description: 'Identify bloated tables.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_replication_lag', description: 'Check replication status.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_checkpoint_stats', description: 'Checkpoint statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_wal_stats', description: 'WAL statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'set_monitoring_alerts', description: 'Configure alerts.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, alertType: { type: 'string' }, threshold: { type: 'number' }, email: { type: 'string' } }, required: ['projectId', 'alertType', 'threshold'] } },
-        { name: 'get_alert_history', description: 'View alert history.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId'] } },
-        { name: 'get_performance_insights', description: 'AI-powered performance recommendations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_query_statistics', description: 'Get query performance stats.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId'] } },
+        { name: 'neon_get_slow_query_log', description: 'Enhanced slow query analysis.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, minDuration: { type: 'number' } }, required: ['projectId'] } },
+        { name: 'neon_get_connection_stats', description: 'Connection pool statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_storage_metrics', description: 'Storage usage over time.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_compute_metrics', description: 'Compute usage over time.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_io_metrics', description: 'I/O performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_cache_hit_ratio', description: 'Cache performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_index_usage', description: 'Index usage statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_table_bloat', description: 'Identify bloated tables.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_replication_lag', description: 'Check replication status.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_checkpoint_stats', description: 'Checkpoint statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_wal_stats', description: 'WAL statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_set_monitoring_alerts', description: 'Configure alerts.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, alertType: { type: 'string' }, threshold: { type: 'number' }, email: { type: 'string' } }, required: ['projectId', 'alertType', 'threshold'] } },
+        { name: 'neon_get_alert_history', description: 'View alert history.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId'] } },
+        { name: 'neon_get_performance_insights', description: 'AI-powered performance recommendations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
 
         // BACKUP & RECOVERY (8 tools)
-        { name: 'list_backups', description: 'List available backups.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'create_backup', description: 'Create manual backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, name: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'restore_backup', description: 'Restore from backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' }, targetBranchId: { type: 'string' } }, required: ['projectId', 'backupId'] } },
-        { name: 'delete_backup', description: 'Delete backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' } }, required: ['projectId', 'backupId'] } },
-        { name: 'get_backup_status', description: 'Check backup status.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' } }, required: ['projectId', 'backupId'] } },
-        { name: 'schedule_backup', description: 'Schedule automated backups.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, schedule: { type: 'string' } }, required: ['projectId', 'branchId', 'schedule'] } },
-        { name: 'export_backup', description: 'Export backup to external storage.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' }, destination: { type: 'string' } }, required: ['projectId', 'backupId', 'destination'] } },
-        { name: 'validate_backup', description: 'Verify backup integrity.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' } }, required: ['projectId', 'backupId'] } },
+        { name: 'neon_list_backups', description: 'List available backups.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_create_backup', description: 'Create manual backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, name: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_restore_backup', description: 'Restore from backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' }, targetBranchId: { type: 'string' } }, required: ['projectId', 'backupId'] } },
+        { name: 'neon_delete_backup', description: 'Delete backup.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' } }, required: ['projectId', 'backupId'] } },
+        { name: 'neon_get_backup_status', description: 'Check backup status.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' } }, required: ['projectId', 'backupId'] } },
+        { name: 'neon_schedule_backup', description: 'Schedule automated backups.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, schedule: { type: 'string' } }, required: ['projectId', 'branchId', 'schedule'] } },
+        { name: 'neon_export_backup', description: 'Export backup to external storage.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' }, destination: { type: 'string' } }, required: ['projectId', 'backupId', 'destination'] } },
+        { name: 'neon_validate_backup', description: 'Verify backup integrity.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, backupId: { type: 'string' } }, required: ['projectId', 'backupId'] } },
 
         // SECURITY & COMPLIANCE (10 tools)
-        { name: 'enable_ip_allowlist', description: 'Configure IP allowlist.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, ipAddresses: { type: 'array', items: { type: 'string' } } }, required: ['projectId', 'ipAddresses'] } },
-        { name: 'get_ip_allowlist', description: 'View IP allowlist.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'enable_ssl_enforcement', description: 'Enforce SSL connections.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, enforce: { type: 'boolean' } }, required: ['projectId', 'enforce'] } },
-        { name: 'rotate_credentials', description: 'Rotate database credentials.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'roleName'] } },
-        { name: 'get_audit_log', description: 'Retrieve audit logs.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId'] } },
-        { name: 'enable_encryption', description: 'Configure encryption settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, encryptionType: { type: 'string' } }, required: ['projectId', 'encryptionType'] } },
-        { name: 'get_security_scan', description: 'Run security vulnerability scan.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'set_password_policy', description: 'Configure password policies.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, policy: { type: 'object' } }, required: ['projectId', 'policy'] } },
-        { name: 'enable_2fa', description: 'Enable two-factor authentication.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, enabled: { type: 'boolean' } }, required: ['projectId', 'enabled'] } },
-        { name: 'get_compliance_report', description: 'Generate compliance reports.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, reportType: { type: 'string' } }, required: ['projectId', 'reportType'] } },
+        { name: 'neon_enable_ip_allowlist', description: 'Configure IP allowlist.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, ipAddresses: { type: 'array', items: { type: 'string' } } }, required: ['projectId', 'ipAddresses'] } },
+        { name: 'neon_get_ip_allowlist', description: 'View IP allowlist.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_enable_ssl_enforcement', description: 'Enforce SSL connections.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, enforce: { type: 'boolean' } }, required: ['projectId', 'enforce'] } },
+        { name: 'neon_rotate_credentials', description: 'Rotate database credentials.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'roleName'] } },
+        { name: 'neon_get_audit_log', description: 'Retrieve audit logs.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId'] } },
+        { name: 'neon_enable_encryption', description: 'Configure encryption settings.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, encryptionType: { type: 'string' } }, required: ['projectId', 'encryptionType'] } },
+        { name: 'neon_get_security_scan', description: 'Run security vulnerability scan.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_set_password_policy', description: 'Configure password policies.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, policy: { type: 'object' } }, required: ['projectId', 'policy'] } },
+        { name: 'neon_enable_2fa', description: 'Enable two-factor authentication.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, enabled: { type: 'boolean' } }, required: ['projectId', 'enabled'] } },
+        { name: 'neon_get_compliance_report', description: 'Generate compliance reports.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, reportType: { type: 'string' } }, required: ['projectId', 'reportType'] } },
 
         // COST MANAGEMENT (8 tools)
-        { name: 'get_cost_breakdown', description: 'Detailed cost analysis.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_cost_forecast', description: 'Predict future costs.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, days: { type: 'number' } }, required: ['projectId'] } },
-        { name: 'set_cost_alerts', description: 'Configure cost alerts.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, threshold: { type: 'number' }, email: { type: 'string' } }, required: ['projectId', 'threshold'] } },
-        { name: 'get_cost_optimization_tips', description: 'AI-powered cost optimization.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_billing_history', description: 'View billing history.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, months: { type: 'number' } }, required: ['projectId'] } },
-        { name: 'export_cost_report', description: 'Export cost reports.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, format: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId', 'format'] } },
-        { name: 'set_budget_limits', description: 'Configure budget limits.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, monthlyLimit: { type: 'number' } }, required: ['projectId', 'monthlyLimit'] } },
-        { name: 'get_resource_recommendations', description: 'Right-sizing recommendations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_cost_breakdown', description: 'Detailed cost analysis.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_cost_forecast', description: 'Predict future costs.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, days: { type: 'number' } }, required: ['projectId'] } },
+        { name: 'neon_set_cost_alerts', description: 'Configure cost alerts.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, threshold: { type: 'number' }, email: { type: 'string' } }, required: ['projectId', 'threshold'] } },
+        { name: 'neon_get_cost_optimization_tips', description: 'AI-powered cost optimization.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_billing_history', description: 'View billing history.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, months: { type: 'number' } }, required: ['projectId'] } },
+        { name: 'neon_export_cost_report', description: 'Export cost reports.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, format: { type: 'string' }, from: { type: 'string' }, to: { type: 'string' } }, required: ['projectId', 'format'] } },
+        { name: 'neon_set_budget_limits', description: 'Configure budget limits.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, monthlyLimit: { type: 'number' } }, required: ['projectId', 'monthlyLimit'] } },
+        { name: 'neon_get_resource_recommendations', description: 'Right-sizing recommendations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
 
         // INTEGRATION & WEBHOOKS (6 tools)
-        { name: 'create_webhook', description: 'Create webhook for events.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, url: { type: 'string' }, events: { type: 'array', items: { type: 'string' } } }, required: ['projectId', 'url', 'events'] } },
-        { name: 'list_webhooks', description: 'List configured webhooks.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'delete_webhook', description: 'Delete webhook.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, webhookId: { type: 'string' } }, required: ['projectId', 'webhookId'] } },
-        { name: 'test_webhook', description: 'Test webhook delivery.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, webhookId: { type: 'string' } }, required: ['projectId', 'webhookId'] } },
-        { name: 'get_webhook_logs', description: 'View webhook delivery logs.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, webhookId: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId', 'webhookId'] } },
-        { name: 'create_api_key', description: 'Generate API keys.', inputSchema: { type: 'object', properties: { name: { type: 'string' }, scopes: { type: 'array', items: { type: 'string' } } }, required: ['name'] } },
+        { name: 'neon_create_webhook', description: 'Create webhook for events.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, url: { type: 'string' }, events: { type: 'array', items: { type: 'string' } } }, required: ['projectId', 'url', 'events'] } },
+        { name: 'neon_list_webhooks', description: 'List configured webhooks.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_delete_webhook', description: 'Delete webhook.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, webhookId: { type: 'string' } }, required: ['projectId', 'webhookId'] } },
+        { name: 'neon_test_webhook', description: 'Test webhook delivery.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, webhookId: { type: 'string' } }, required: ['projectId', 'webhookId'] } },
+        { name: 'neon_get_webhook_logs', description: 'View webhook delivery logs.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, webhookId: { type: 'string' }, limit: { type: 'number' } }, required: ['projectId', 'webhookId'] } },
+        { name: 'neon_create_api_key', description: 'Generate API keys.', inputSchema: { type: 'object', properties: { name: { type: 'string' }, scopes: { type: 'array', items: { type: 'string' } } }, required: ['name'] } },
 
         // ADVANCED SQL TOOLS (10 tools)
-        { name: 'detect_n_plus_one', description: 'Detect N+1 query problems.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'suggest_partitioning', description: 'Table partitioning recommendations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'tableName'] } },
-        { name: 'analyze_table_statistics', description: 'Detailed table statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'tableName'] } },
-        { name: 'suggest_vacuum_strategy', description: 'VACUUM optimization.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'detect_missing_indexes', description: 'Find missing indexes.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'analyze_join_performance', description: 'Join optimization analysis.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
-        { name: 'suggest_materialized_views', description: 'Materialized view recommendations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_table_dependencies', description: 'Analyze table dependencies.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'tableName'] } },
-        { name: 'suggest_query_rewrite', description: 'Query rewrite suggestions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
-        { name: 'analyze_deadlocks', description: 'Deadlock analysis and prevention.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_detect_n_plus_one', description: 'Detect N+1 query problems.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_suggest_partitioning', description: 'Table partitioning recommendations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'tableName'] } },
+        { name: 'neon_analyze_table_statistics', description: 'Detailed table statistics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'tableName'] } },
+        { name: 'neon_suggest_vacuum_strategy', description: 'VACUUM optimization.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_detect_missing_indexes', description: 'Find missing indexes.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_analyze_join_performance', description: 'Join optimization analysis.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
+        { name: 'neon_suggest_materialized_views', description: 'Materialized view recommendations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_table_dependencies', description: 'Analyze table dependencies.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, tableName: { type: 'string' } }, required: ['projectId', 'tableName'] } },
+        { name: 'neon_suggest_query_rewrite', description: 'Query rewrite suggestions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'sql'] } },
+        { name: 'neon_analyze_deadlocks', description: 'Deadlock analysis and prevention.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
 
         // NEON AUTH (1 tool)
-        { name: 'provision_neon_auth', description: 'Provision Neon Auth with Stack Auth integration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, database: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_provision_neon_auth', description: 'Provision Neon Auth with Stack Auth integration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, database: { type: 'string' } }, required: ['projectId'] } },
 
         // API KEY MANAGEMENT (3 tools)
-        { name: 'list_api_keys', description: 'List all API keys for the account.', inputSchema: { type: 'object', properties: {} } },
-        { name: 'create_api_key_for_project', description: 'Create project-specific API key.', inputSchema: { type: 'object', properties: { keyName: { type: 'string' }, projectId: { type: 'string' } }, required: ['keyName'] } },
-        { name: 'revoke_api_key', description: 'Revoke/delete API key.', inputSchema: { type: 'object', properties: { keyId: { type: 'string' } }, required: ['keyId'] } },
+        { name: 'neon_list_api_keys', description: 'List all API keys for the account.', inputSchema: { type: 'object', properties: {} } },
+        { name: 'neon_create_api_key_for_project', description: 'Create project-specific API key.', inputSchema: { type: 'object', properties: { keyName: { type: 'string' }, projectId: { type: 'string' } }, required: ['keyName'] } },
+        { name: 'neon_revoke_api_key', description: 'Revoke/delete API key.', inputSchema: { type: 'object', properties: { keyId: { type: 'string' } }, required: ['keyId'] } },
 
         // CONNECTION POOLING (2 tools)
-        { name: 'get_connection_pooler_config', description: 'Get connection pooler configuration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
-        { name: 'update_connection_pooler_config', description: 'Update pooler settings (PgBouncer).', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, poolMode: { type: 'string' }, poolSize: { type: 'number' }, maxClientConn: { type: 'number' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_get_connection_pooler_config', description: 'Get connection pooler configuration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' } }, required: ['projectId', 'endpointId'] } },
+        { name: 'neon_update_connection_pooler_config', description: 'Update pooler settings (PgBouncer).', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, endpointId: { type: 'string' }, poolMode: { type: 'string' }, poolSize: { type: 'number' }, maxClientConn: { type: 'number' } }, required: ['projectId', 'endpointId'] } },
 
         // READ REPLICAS (2 tools)
-        { name: 'create_read_replica', description: 'Create read replica endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, region: { type: 'string' } }, required: ['projectId', 'branchId'] } },
-        { name: 'list_read_replicas', description: 'List all read replicas for a branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_create_read_replica', description: 'Create read replica endpoint.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, region: { type: 'string' } }, required: ['projectId', 'branchId'] } },
+        { name: 'neon_list_read_replicas', description: 'List all read replicas for a branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' } }, required: ['projectId', 'branchId'] } },
 
         // PROJECT SHARING & COLLABORATION (3 tools)
-        { name: 'share_project', description: 'Share project with another user.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, email: { type: 'string' }, role: { type: 'string' } }, required: ['projectId', 'email'] } },
-        { name: 'list_project_shares', description: 'List all project shares.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'revoke_project_share', description: 'Remove project access.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, shareId: { type: 'string' } }, required: ['projectId', 'shareId'] } },
+        { name: 'neon_share_project', description: 'Share project with another user.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, email: { type: 'string' }, role: { type: 'string' } }, required: ['projectId', 'email'] } },
+        { name: 'neon_list_project_shares', description: 'List all project shares.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_revoke_project_share', description: 'Remove project access.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, shareId: { type: 'string' } }, required: ['projectId', 'shareId'] } },
 
         // EXTENSION MANAGEMENT (5 tools)
-        { name: 'list_extensions', description: 'List available PostgreSQL extensions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'enable_extension', description: 'Enable a PostgreSQL extension.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' }, schema: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
-        { name: 'disable_extension', description: 'Disable a PostgreSQL extension.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
-        { name: 'get_extension_details', description: 'Get extension information and dependencies.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
-        { name: 'update_extension', description: 'Update extension to latest version.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' }, version: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
+        { name: 'neon_list_extensions', description: 'List available PostgreSQL extensions.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_enable_extension', description: 'Enable a PostgreSQL extension.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' }, schema: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
+        { name: 'neon_disable_extension', description: 'Disable a PostgreSQL extension.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
+        { name: 'neon_get_extension_details', description: 'Get extension information and dependencies.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
+        { name: 'neon_update_extension', description: 'Update extension to latest version.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, extensionName: { type: 'string' }, version: { type: 'string' } }, required: ['projectId', 'extensionName'] } },
 
         // SCHEMA MIGRATIONS (3 tools)
-        { name: 'create_migration', description: 'Create a new schema migration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, name: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'name', 'sql'] } },
-        { name: 'list_migrations', description: 'List all schema migrations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'rollback_migration', description: 'Rollback a schema migration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, migrationId: { type: 'string' } }, required: ['projectId', 'migrationId'] } },
+        { name: 'neon_create_migration', description: 'Create a new schema migration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, name: { type: 'string' }, sql: { type: 'string' } }, required: ['projectId', 'name', 'sql'] } },
+        { name: 'neon_list_migrations', description: 'List all schema migrations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_rollback_migration', description: 'Rollback a schema migration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, migrationId: { type: 'string' } }, required: ['projectId', 'migrationId'] } },
 
         // ADVANCED CONNECTION MANAGEMENT (3 tools)
-        { name: 'get_connection_uri', description: 'Get formatted connection URI for different clients.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' }, pooled: { type: 'boolean' }, format: { type: 'string', enum: ['psql', 'jdbc', 'node', 'python', 'go', 'rust'] } }, required: ['projectId'] } },
-        { name: 'test_connection', description: 'Test database connection and return latency.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId'] } },
-        { name: 'get_connection_examples', description: 'Get code examples for connecting to database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, language: { type: 'string', enum: ['javascript', 'typescript', 'python', 'go', 'rust', 'java', 'php', 'ruby'] } }, required: ['projectId'] } },
+        { name: 'neon_get_connection_uri', description: 'Get formatted connection URI for different clients.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' }, pooled: { type: 'boolean' }, format: { type: 'string', enum: ['psql', 'jdbc', 'node', 'python', 'go', 'rust'] } }, required: ['projectId'] } },
+        { name: 'neon_test_connection', description: 'Test database connection and return latency.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId'] } },
+        { name: 'neon_get_connection_examples', description: 'Get code examples for connecting to database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, language: { type: 'string', enum: ['javascript', 'typescript', 'python', 'go', 'rust', 'java', 'php', 'ruby'] } }, required: ['projectId'] } },
 
         // PROJECT TEMPLATES (2 tools)
-        { name: 'create_from_template', description: 'Create project from template.', inputSchema: { type: 'object', properties: { templateId: { type: 'string' }, name: { type: 'string' }, region: { type: 'string' } }, required: ['templateId', 'name'] } },
-        { name: 'list_templates', description: 'List available project templates.', inputSchema: { type: 'object', properties: { category: { type: 'string' } } } },
+        { name: 'neon_create_from_template', description: 'Create project from template.', inputSchema: { type: 'object', properties: { templateId: { type: 'string' }, name: { type: 'string' }, region: { type: 'string' } }, required: ['templateId', 'name'] } },
+        { name: 'neon_list_templates', description: 'List available project templates.', inputSchema: { type: 'object', properties: { category: { type: 'string' } } } },
 
         // ADVANCED MONITORING (2 tools)
-        { name: 'get_real_time_metrics', description: 'Get real-time performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, metrics: { type: 'array', items: { type: 'string' } } }, required: ['projectId'] } },
-        { name: 'export_metrics', description: 'Export metrics to external monitoring system.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, destination: { type: 'string', enum: ['prometheus', 'datadog', 'grafana', 'cloudwatch'] }, config: { type: 'object' } }, required: ['projectId', 'destination'] } }
+        { name: 'neon_get_real_time_metrics', description: 'Get real-time performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, metrics: { type: 'array', items: { type: 'string' } } }, required: ['projectId'] } },
+        { name: 'neon_export_metrics', description: 'Export metrics to external monitoring system.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, destination: { type: 'string', enum: ['prometheus', 'datadog', 'grafana', 'cloudwatch'] }, config: { type: 'object' } }, required: ['projectId', 'destination'] } }
       ]
     }));
 
@@ -246,212 +246,212 @@ class NeonMCP {
       try {
         switch (request.params.name) {
           // PROJECT MANAGEMENT
-          case 'list_projects': return await this.listProjects(args);
-          case 'list_organizations': return await this.listOrganizations(args);
-          case 'list_shared_projects': return await this.listSharedProjects(args);
-          case 'create_project': return await this.createProject(args);
-          case 'delete_project': return await this.deleteProject(args);
-          case 'describe_project': return await this.describeProject(args);
-          case 'update_project': return await this.updateProject(args);
-          case 'get_project_operations': return await this.getProjectOperations(args);
-          case 'get_project_consumption': return await this.getProjectConsumption(args);
-          case 'set_project_settings': return await this.setProjectSettings(args);
-          case 'get_project_quotas': return await this.getProjectQuotas(args);
-          case 'clone_project': return await this.cloneProject(args);
-          case 'get_project_permissions': return await this.getProjectPermissions(args);
+          case 'neon_list_projects': return await this.listProjects(args);
+          case 'neon_list_organizations': return await this.listOrganizations(args);
+          case 'neon_list_shared_projects': return await this.listSharedProjects(args);
+          case 'neon_create_project': return await this.createProject(args);
+          case 'neon_delete_project': return await this.deleteProject(args);
+          case 'neon_describe_project': return await this.describeProject(args);
+          case 'neon_update_project': return await this.updateProject(args);
+          case 'neon_get_project_operations': return await this.getProjectOperations(args);
+          case 'neon_get_project_consumption': return await this.getProjectConsumption(args);
+          case 'neon_set_project_settings': return await this.setProjectSettings(args);
+          case 'neon_get_project_quotas': return await this.getProjectQuotas(args);
+          case 'neon_clone_project': return await this.cloneProject(args);
+          case 'neon_get_project_permissions': return await this.getProjectPermissions(args);
 
           // BRANCH MANAGEMENT
-          case 'create_branch': return await this.createBranch(args);
-          case 'delete_branch': return await this.deleteBranch(args);
-          case 'describe_branch': return await this.describeBranch(args);
-          case 'reset_from_parent': return await this.resetFromParent(args);
-          case 'update_branch': return await this.updateBranch(args);
-          case 'list_branches': return await this.listBranches(args);
-          case 'get_branch_details': return await this.getBranchDetails(args);
-          case 'restore_branch': return await this.restoreBranch(args);
-          case 'set_branch_protection': return await this.setBranchProtection(args);
-          case 'get_branch_schema_diff': return await this.getBranchSchemaDiff(args);
-          case 'get_branch_data_diff': return await this.getBranchDataDiff(args);
-          case 'merge_branches': return await this.mergeBranches(args);
-          case 'promote_branch': return await this.promoteBranch(args);
-          case 'set_branch_retention': return await this.setBranchRetention(args);
-          case 'get_branch_history': return await this.getBranchHistory(args);
-          case 'restore_branch_to_timestamp': return await this.restoreBranchToTimestamp(args);
-          case 'get_branch_size': return await this.getBranchSize(args);
-          case 'set_branch_compute_settings': return await this.setBranchComputeSettings(args);
-          case 'get_branch_connections': return await this.getBranchConnections(args);
-          case 'list_branch_computes': return await this.listBranchComputes(args);
+          case 'neon_create_branch': return await this.createBranch(args);
+          case 'neon_delete_branch': return await this.deleteBranch(args);
+          case 'neon_describe_branch': return await this.describeBranch(args);
+          case 'neon_reset_from_parent': return await this.resetFromParent(args);
+          case 'neon_update_branch': return await this.updateBranch(args);
+          case 'neon_list_branches': return await this.listBranches(args);
+          case 'neon_get_branch_details': return await this.getBranchDetails(args);
+          case 'neon_restore_branch': return await this.restoreBranch(args);
+          case 'neon_set_branch_protection': return await this.setBranchProtection(args);
+          case 'neon_get_branch_schema_diff': return await this.getBranchSchemaDiff(args);
+          case 'neon_get_branch_data_diff': return await this.getBranchDataDiff(args);
+          case 'neon_merge_branches': return await this.mergeBranches(args);
+          case 'neon_promote_branch': return await this.promoteBranch(args);
+          case 'neon_set_branch_retention': return await this.setBranchRetention(args);
+          case 'neon_get_branch_history': return await this.getBranchHistory(args);
+          case 'neon_restore_branch_to_timestamp': return await this.restoreBranchToTimestamp(args);
+          case 'neon_get_branch_size': return await this.getBranchSize(args);
+          case 'neon_set_branch_compute_settings': return await this.setBranchComputeSettings(args);
+          case 'neon_get_branch_connections': return await this.getBranchConnections(args);
+          case 'neon_list_branch_computes': return await this.listBranchComputes(args);
 
           // SQL EXECUTION
-          case 'run_sql': return await this.runSql(args);
-          case 'run_sql_transaction': return await this.runSqlTransaction(args);
-          case 'get_connection_string': return await this.getConnectionString(args);
-          case 'get_database_tables': return await this.getDatabaseTables(args);
-          case 'describe_table_schema': return await this.describeTableSchema(args);
-          case 'explain_sql_statement': return await this.explainSqlStatement(args);
-          case 'list_slow_queries': return await this.listSlowQueries(args);
-          case 'optimize_query': return await this.optimizeQuery(args);
-          case 'suggest_indexes': return await this.suggestIndexes(args);
-          case 'analyze_query_plan': return await this.analyzeQueryPlan(args);
+          case 'neon_run_sql': return await this.runSql(args);
+          case 'neon_run_sql_transaction': return await this.runSqlTransaction(args);
+          case 'neon_get_connection_string': return await this.getConnectionString(args);
+          case 'neon_get_database_tables': return await this.getDatabaseTables(args);
+          case 'neon_describe_table_schema': return await this.describeTableSchema(args);
+          case 'neon_explain_sql_statement': return await this.explainSqlStatement(args);
+          case 'neon_list_slow_queries': return await this.listSlowQueries(args);
+          case 'neon_optimize_query': return await this.optimizeQuery(args);
+          case 'neon_suggest_indexes': return await this.suggestIndexes(args);
+          case 'neon_analyze_query_plan': return await this.analyzeQueryPlan(args);
 
           // DATABASE MANAGEMENT
-          case 'create_database': return await this.createDatabase(args);
-          case 'delete_database': return await this.deleteDatabase(args);
-          case 'list_databases': return await this.listDatabases(args);
-          case 'get_database_size': return await this.getDatabaseSize(args);
-          case 'get_database_stats': return await this.getDatabaseStats(args);
-          case 'vacuum_database': return await this.vacuumDatabase(args);
-          case 'analyze_database': return await this.analyzeDatabase(args);
-          case 'reindex_database': return await this.reindexDatabase(args);
-          case 'get_database_locks': return await this.getDatabaseLocks(args);
-          case 'kill_database_query': return await this.killDatabaseQuery(args);
-          case 'get_database_activity': return await this.getDatabaseActivity(args);
-          case 'backup_database': return await this.backupDatabase(args);
+          case 'neon_create_database': return await this.createDatabase(args);
+          case 'neon_delete_database': return await this.deleteDatabase(args);
+          case 'neon_list_databases': return await this.listDatabases(args);
+          case 'neon_get_database_size': return await this.getDatabaseSize(args);
+          case 'neon_get_database_stats': return await this.getDatabaseStats(args);
+          case 'neon_vacuum_database': return await this.vacuumDatabase(args);
+          case 'neon_analyze_database': return await this.analyzeDatabase(args);
+          case 'neon_reindex_database': return await this.reindexDatabase(args);
+          case 'neon_get_database_locks': return await this.getDatabaseLocks(args);
+          case 'neon_kill_database_query': return await this.killDatabaseQuery(args);
+          case 'neon_get_database_activity': return await this.getDatabaseActivity(args);
+          case 'neon_backup_database': return await this.backupDatabase(args);
 
           // MIGRATIONS
-          case 'prepare_database_migration': return await this.prepareDatabaseMigration(args);
-          case 'complete_database_migration': return await this.completeDatabaseMigration(args);
+          case 'neon_prepare_database_migration': return await this.prepareDatabaseMigration(args);
+          case 'neon_complete_database_migration': return await this.completeDatabaseMigration(args);
 
           // QUERY TUNING
-          case 'prepare_query_tuning': return await this.prepareQueryTuning(args);
-          case 'complete_query_tuning': return await this.completeQueryTuning(args);
+          case 'neon_prepare_query_tuning': return await this.prepareQueryTuning(args);
+          case 'neon_complete_query_tuning': return await this.completeQueryTuning(args);
 
           // ROLE MANAGEMENT
-          case 'create_role': return await this.createRole(args);
-          case 'delete_role': return await this.deleteRole(args);
-          case 'list_roles': return await this.listRoles(args);
-          case 'update_role': return await this.updateRole(args);
-          case 'grant_role_permissions': return await this.grantRolePermissions(args);
-          case 'revoke_role_permissions': return await this.revokeRolePermissions(args);
-          case 'get_role_permissions': return await this.getRolePermissions(args);
-          case 'reset_role_password': return await this.resetRolePassword(args);
+          case 'neon_create_role': return await this.createRole(args);
+          case 'neon_delete_role': return await this.deleteRole(args);
+          case 'neon_list_roles': return await this.listRoles(args);
+          case 'neon_update_role': return await this.updateRole(args);
+          case 'neon_grant_role_permissions': return await this.grantRolePermissions(args);
+          case 'neon_revoke_role_permissions': return await this.revokeRolePermissions(args);
+          case 'neon_get_role_permissions': return await this.getRolePermissions(args);
+          case 'neon_reset_role_password': return await this.resetRolePassword(args);
 
           // COMPUTE/ENDPOINT MANAGEMENT
-          case 'create_endpoint': return await this.createEndpoint(args);
-          case 'delete_endpoint': return await this.deleteEndpoint(args);
-          case 'update_endpoint': return await this.updateEndpoint(args);
-          case 'start_endpoint': return await this.startEndpoint(args);
-          case 'suspend_endpoint': return await this.suspendEndpoint(args);
-          case 'restart_endpoint': return await this.restartEndpoint(args);
-          case 'get_endpoint_metrics': return await this.getEndpointMetrics(args);
-          case 'set_endpoint_autoscaling': return await this.setEndpointAutoscaling(args);
-          case 'get_endpoint_logs': return await this.getEndpointLogs(args);
-          case 'set_endpoint_pooling': return await this.setEndpointPooling(args);
+          case 'neon_create_endpoint': return await this.createEndpoint(args);
+          case 'neon_delete_endpoint': return await this.deleteEndpoint(args);
+          case 'neon_update_endpoint': return await this.updateEndpoint(args);
+          case 'neon_start_endpoint': return await this.startEndpoint(args);
+          case 'neon_suspend_endpoint': return await this.suspendEndpoint(args);
+          case 'neon_restart_endpoint': return await this.restartEndpoint(args);
+          case 'neon_get_endpoint_metrics': return await this.getEndpointMetrics(args);
+          case 'neon_set_endpoint_autoscaling': return await this.setEndpointAutoscaling(args);
+          case 'neon_get_endpoint_logs': return await this.getEndpointLogs(args);
+          case 'neon_set_endpoint_pooling': return await this.setEndpointPooling(args);
 
           // MONITORING & ANALYTICS
-          case 'get_query_statistics': return await this.getQueryStatistics(args);
-          case 'get_slow_query_log': return await this.getSlowQueryLog(args);
-          case 'get_connection_stats': return await this.getConnectionStats(args);
-          case 'get_storage_metrics': return await this.getStorageMetrics(args);
-          case 'get_compute_metrics': return await this.getComputeMetrics(args);
-          case 'get_io_metrics': return await this.getIoMetrics(args);
-          case 'get_cache_hit_ratio': return await this.getCacheHitRatio(args);
-          case 'get_index_usage': return await this.getIndexUsage(args);
-          case 'get_table_bloat': return await this.getTableBloat(args);
-          case 'get_replication_lag': return await this.getReplicationLag(args);
-          case 'get_checkpoint_stats': return await this.getCheckpointStats(args);
-          case 'get_wal_stats': return await this.getWalStats(args);
-          case 'set_monitoring_alerts': return await this.setMonitoringAlerts(args);
-          case 'get_alert_history': return await this.getAlertHistory(args);
-          case 'get_performance_insights': return await this.getPerformanceInsights(args);
+          case 'neon_get_query_statistics': return await this.getQueryStatistics(args);
+          case 'neon_get_slow_query_log': return await this.getSlowQueryLog(args);
+          case 'neon_get_connection_stats': return await this.getConnectionStats(args);
+          case 'neon_get_storage_metrics': return await this.getStorageMetrics(args);
+          case 'neon_get_compute_metrics': return await this.getComputeMetrics(args);
+          case 'neon_get_io_metrics': return await this.getIoMetrics(args);
+          case 'neon_get_cache_hit_ratio': return await this.getCacheHitRatio(args);
+          case 'neon_get_index_usage': return await this.getIndexUsage(args);
+          case 'neon_get_table_bloat': return await this.getTableBloat(args);
+          case 'neon_get_replication_lag': return await this.getReplicationLag(args);
+          case 'neon_get_checkpoint_stats': return await this.getCheckpointStats(args);
+          case 'neon_get_wal_stats': return await this.getWalStats(args);
+          case 'neon_set_monitoring_alerts': return await this.setMonitoringAlerts(args);
+          case 'neon_get_alert_history': return await this.getAlertHistory(args);
+          case 'neon_get_performance_insights': return await this.getPerformanceInsights(args);
 
           // BACKUP & RECOVERY
-          case 'list_backups': return await this.listBackups(args);
-          case 'create_backup': return await this.createBackup(args);
-          case 'restore_backup': return await this.restoreBackup(args);
-          case 'delete_backup': return await this.deleteBackup(args);
-          case 'get_backup_status': return await this.getBackupStatus(args);
-          case 'schedule_backup': return await this.scheduleBackup(args);
-          case 'export_backup': return await this.exportBackup(args);
-          case 'validate_backup': return await this.validateBackup(args);
+          case 'neon_list_backups': return await this.listBackups(args);
+          case 'neon_create_backup': return await this.createBackup(args);
+          case 'neon_restore_backup': return await this.restoreBackup(args);
+          case 'neon_delete_backup': return await this.deleteBackup(args);
+          case 'neon_get_backup_status': return await this.getBackupStatus(args);
+          case 'neon_schedule_backup': return await this.scheduleBackup(args);
+          case 'neon_export_backup': return await this.exportBackup(args);
+          case 'neon_validate_backup': return await this.validateBackup(args);
 
           // SECURITY & COMPLIANCE
-          case 'enable_ip_allowlist': return await this.enableIpAllowlist(args);
-          case 'get_ip_allowlist': return await this.getIpAllowlist(args);
-          case 'enable_ssl_enforcement': return await this.enableSslEnforcement(args);
-          case 'rotate_credentials': return await this.rotateCredentials(args);
-          case 'get_audit_log': return await this.getAuditLog(args);
-          case 'enable_encryption': return await this.enableEncryption(args);
-          case 'get_security_scan': return await this.getSecurityScan(args);
-          case 'set_password_policy': return await this.setPasswordPolicy(args);
-          case 'enable_2fa': return await this.enable2fa(args);
-          case 'get_compliance_report': return await this.getComplianceReport(args);
+          case 'neon_enable_ip_allowlist': return await this.enableIpAllowlist(args);
+          case 'neon_get_ip_allowlist': return await this.getIpAllowlist(args);
+          case 'neon_enable_ssl_enforcement': return await this.enableSslEnforcement(args);
+          case 'neon_rotate_credentials': return await this.rotateCredentials(args);
+          case 'neon_get_audit_log': return await this.getAuditLog(args);
+          case 'neon_enable_encryption': return await this.enableEncryption(args);
+          case 'neon_get_security_scan': return await this.getSecurityScan(args);
+          case 'neon_set_password_policy': return await this.setPasswordPolicy(args);
+          case 'neon_enable_2fa': return await this.enable2fa(args);
+          case 'neon_get_compliance_report': return await this.getComplianceReport(args);
 
           // COST MANAGEMENT
-          case 'get_cost_breakdown': return await this.getCostBreakdown(args);
-          case 'get_cost_forecast': return await this.getCostForecast(args);
-          case 'set_cost_alerts': return await this.setCostAlerts(args);
-          case 'get_cost_optimization_tips': return await this.getCostOptimizationTips(args);
-          case 'get_billing_history': return await this.getBillingHistory(args);
-          case 'export_cost_report': return await this.exportCostReport(args);
-          case 'set_budget_limits': return await this.setBudgetLimits(args);
-          case 'get_resource_recommendations': return await this.getResourceRecommendations(args);
+          case 'neon_get_cost_breakdown': return await this.getCostBreakdown(args);
+          case 'neon_get_cost_forecast': return await this.getCostForecast(args);
+          case 'neon_set_cost_alerts': return await this.setCostAlerts(args);
+          case 'neon_get_cost_optimization_tips': return await this.getCostOptimizationTips(args);
+          case 'neon_get_billing_history': return await this.getBillingHistory(args);
+          case 'neon_export_cost_report': return await this.exportCostReport(args);
+          case 'neon_set_budget_limits': return await this.setBudgetLimits(args);
+          case 'neon_get_resource_recommendations': return await this.getResourceRecommendations(args);
 
           // INTEGRATION & WEBHOOKS
-          case 'create_webhook': return await this.createWebhook(args);
-          case 'list_webhooks': return await this.listWebhooks(args);
-          case 'delete_webhook': return await this.deleteWebhook(args);
-          case 'test_webhook': return await this.testWebhook(args);
-          case 'get_webhook_logs': return await this.getWebhookLogs(args);
-          case 'create_api_key': return await this.createApiKey(args);
+          case 'neon_create_webhook': return await this.createWebhook(args);
+          case 'neon_list_webhooks': return await this.listWebhooks(args);
+          case 'neon_delete_webhook': return await this.deleteWebhook(args);
+          case 'neon_test_webhook': return await this.testWebhook(args);
+          case 'neon_get_webhook_logs': return await this.getWebhookLogs(args);
+          case 'neon_create_api_key': return await this.createApiKey(args);
 
           // ADVANCED SQL TOOLS
-          case 'detect_n_plus_one': return await this.detectNPlusOne(args);
-          case 'suggest_partitioning': return await this.suggestPartitioning(args);
-          case 'analyze_table_statistics': return await this.analyzeTableStatistics(args);
-          case 'suggest_vacuum_strategy': return await this.suggestVacuumStrategy(args);
-          case 'detect_missing_indexes': return await this.detectMissingIndexes(args);
-          case 'analyze_join_performance': return await this.analyzeJoinPerformance(args);
-          case 'suggest_materialized_views': return await this.suggestMaterializedViews(args);
-          case 'get_table_dependencies': return await this.getTableDependencies(args);
-          case 'suggest_query_rewrite': return await this.suggestQueryRewrite(args);
-          case 'analyze_deadlocks': return await this.analyzeDeadlocks(args);
+          case 'neon_detect_n_plus_one': return await this.detectNPlusOne(args);
+          case 'neon_suggest_partitioning': return await this.suggestPartitioning(args);
+          case 'neon_analyze_table_statistics': return await this.analyzeTableStatistics(args);
+          case 'neon_suggest_vacuum_strategy': return await this.suggestVacuumStrategy(args);
+          case 'neon_detect_missing_indexes': return await this.detectMissingIndexes(args);
+          case 'neon_analyze_join_performance': return await this.analyzeJoinPerformance(args);
+          case 'neon_suggest_materialized_views': return await this.suggestMaterializedViews(args);
+          case 'neon_get_table_dependencies': return await this.getTableDependencies(args);
+          case 'neon_suggest_query_rewrite': return await this.suggestQueryRewrite(args);
+          case 'neon_analyze_deadlocks': return await this.analyzeDeadlocks(args);
 
           // NEON AUTH
-          case 'provision_neon_auth': return await this.provisionNeonAuth(args);
+          case 'neon_provision_neon_auth': return await this.provisionNeonAuth(args);
 
           // API KEY MANAGEMENT
-          case 'list_api_keys': return await this.listApiKeys(args);
-          case 'create_api_key_for_project': return await this.createApiKeyForProject(args);
-          case 'revoke_api_key': return await this.revokeApiKey(args);
+          case 'neon_list_api_keys': return await this.listApiKeys(args);
+          case 'neon_create_api_key_for_project': return await this.createApiKeyForProject(args);
+          case 'neon_revoke_api_key': return await this.revokeApiKey(args);
 
           // CONNECTION POOLING
-          case 'get_connection_pooler_config': return await this.getConnectionPoolerConfig(args);
-          case 'update_connection_pooler_config': return await this.updateConnectionPoolerConfig(args);
+          case 'neon_get_connection_pooler_config': return await this.getConnectionPoolerConfig(args);
+          case 'neon_update_connection_pooler_config': return await this.updateConnectionPoolerConfig(args);
 
           // READ REPLICAS
-          case 'create_read_replica': return await this.createReadReplica(args);
-          case 'list_read_replicas': return await this.listReadReplicas(args);
+          case 'neon_create_read_replica': return await this.createReadReplica(args);
+          case 'neon_list_read_replicas': return await this.listReadReplicas(args);
 
           // PROJECT SHARING & COLLABORATION
-          case 'share_project': return await this.shareProject(args);
-          case 'list_project_shares': return await this.listProjectShares(args);
-          case 'revoke_project_share': return await this.revokeProjectShare(args);
+          case 'neon_share_project': return await this.shareProject(args);
+          case 'neon_list_project_shares': return await this.listProjectShares(args);
+          case 'neon_revoke_project_share': return await this.revokeProjectShare(args);
 
           // EXTENSION MANAGEMENT
-          case 'list_extensions': return await this.listExtensions(args);
-          case 'enable_extension': return await this.enableExtension(args);
-          case 'disable_extension': return await this.disableExtension(args);
-          case 'get_extension_details': return await this.getExtensionDetails(args);
-          case 'update_extension': return await this.updateExtension(args);
+          case 'neon_list_extensions': return await this.listExtensions(args);
+          case 'neon_enable_extension': return await this.enableExtension(args);
+          case 'neon_disable_extension': return await this.disableExtension(args);
+          case 'neon_get_extension_details': return await this.getExtensionDetails(args);
+          case 'neon_update_extension': return await this.updateExtension(args);
 
           // SCHEMA MIGRATIONS
-          case 'create_migration': return await this.createMigration(args);
-          case 'list_migrations': return await this.listMigrations(args);
-          case 'rollback_migration': return await this.rollbackMigration(args);
+          case 'neon_create_migration': return await this.createMigration(args);
+          case 'neon_list_migrations': return await this.listMigrations(args);
+          case 'neon_rollback_migration': return await this.rollbackMigration(args);
 
           // ADVANCED CONNECTION MANAGEMENT
-          case 'get_connection_uri': return await this.getConnectionUri(args);
-          case 'test_connection': return await this.testConnection(args);
-          case 'get_connection_examples': return await this.getConnectionExamples(args);
+          case 'neon_get_connection_uri': return await this.getConnectionUri(args);
+          case 'neon_test_connection': return await this.testConnection(args);
+          case 'neon_get_connection_examples': return await this.getConnectionExamples(args);
 
           // PROJECT TEMPLATES
-          case 'create_from_template': return await this.createFromTemplate(args);
-          case 'list_templates': return await this.listTemplates(args);
+          case 'neon_create_from_template': return await this.createFromTemplate(args);
+          case 'neon_list_templates': return await this.listTemplates(args);
 
           // ADVANCED MONITORING
-          case 'get_real_time_metrics': return await this.getRealTimeMetrics(args);
-          case 'export_metrics': return await this.exportMetrics(args);
+          case 'neon_get_real_time_metrics': return await this.getRealTimeMetrics(args);
+          case 'neon_export_metrics': return await this.exportMetrics(args);
 
           default:
             throw new Error(`Unknown tool: ${request.params.name}`);
@@ -983,17 +983,17 @@ class NeonMCP {
 
   private formatConnectionString(uri: string, format: string): string {
     switch (format) {
-      case 'psql':
+      case 'neon_psql':
         return `psql "${uri}"`;
-      case 'jdbc':
+      case 'neon_jdbc':
         return uri.replace('postgres://', 'jdbc:postgresql://');
-      case 'node':
+      case 'neon_node':
         return `const { Pool } = require('pg');\nconst pool = new Pool({ connectionString: '${uri}' });`;
-      case 'python':
+      case 'neon_python':
         return `import psycopg2\nconn = psycopg2.connect('${uri}')`;
-      case 'go':
+      case 'neon_go':
         return `import "database/sql"\nimport _ "github.com/lib/pq"\ndb, err := sql.Open("postgres", "${uri}")`;
-      case 'rust':
+      case 'neon_rust':
         return `use postgres::{Client, NoTls};\nlet mut client = Client::connect("${uri}", NoTls)?;`;
       default:
         return uri;
