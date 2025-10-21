@@ -1,0 +1,34 @@
+{
+  "name": "@robinsonai/playwright-mcp",
+  "version": "1.0.0",
+  "description": "Enhanced Playwright MCP server with 42 browser automation tools (all capabilities enabled + extras)",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "playwright-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "playwright",
+    "browser",
+    "automation",
+    "testing",
+    "ai"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.1",
+    "playwright": "^1.49.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  }
+}
+

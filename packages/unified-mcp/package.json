@@ -1,7 +1,7 @@
 {
   "name": "@robinsonai/unified-mcp",
   "version": "1.0.0",
-  "description": "Unified MCP server combining all 9 Robinson AI MCP servers into one mega-server with 592 tools",
+  "description": "Unified MCP server combining all 12 services: 9 custom + Sequential Thinking + Context7 + Playwright = 645 tools",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -39,7 +39,8 @@
     "cloudflare": "^3.5.0",
     "redis": "^4.7.0",
     "openai": "^4.73.0",
-    "tiktoken": "^1.0.17"
+    "tiktoken": "^1.0.17",
+    "playwright": "^1.49.1"
   },
   "devDependencies": {
     "@types/node": "^22.18.11",

@@ -1,0 +1,31 @@
+{
+  "name": "@robinsonai/sequential-thinking-mcp",
+  "version": "1.0.0",
+  "description": "Enhanced Sequential Thinking MCP server with parallel and reflective thinking capabilities",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "sequential-thinking-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "sequential-thinking",
+    "reasoning",
+    "ai"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  }
+}
+
