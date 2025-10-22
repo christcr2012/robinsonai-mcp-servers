@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "architect-mcp": {
+      "command": "npx",
+      "args": ["architect-mcp"]
+    },
+    "credit-optimizer-mcp": {
+      "command": "npx",
+      "args": ["credit-optimizer-mcp"]
+    },
+    "autonomous-agent-mcp": {
+      "command": "npx",
+      "args": ["autonomous-agent-mcp"]
+    },
+    "robinsons-toolkit-mcp": {
+      "command": "npx",
+      "args": ["robinsons-toolkit-mcp"]
+    }
+  }
+}
+
