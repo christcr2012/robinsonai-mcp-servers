@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolRequestSchema, ListToolsRequestSchema, InitializeRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -121,6 +121,18 @@ class ArchitectMCP {
   }
 
   private setupHandlers() {
+    // Handle initialize request
+    this.server.setRequestHandler(InitializeRequestSchema, async (request) => ({
+      protocolVersion: "2024-11-05",
+      capabilities: {
+        tools: {},
+      },
+      serverInfo: {
+        name: "@robinsonai/architect-mcp",
+        version: "0.2.0",
+      },
+    }));
+
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
         { name: "plan_work", description: "Create a WorkPlan from a high-level goal", inputSchema: { type: "object", properties: { goal: { type: "string" }, constraints: { type: "object" }, budgets: { type: "object" }, depth: { type: "string" } }, required: ["goal"] } },

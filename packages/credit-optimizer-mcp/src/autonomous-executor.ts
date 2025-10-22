@@ -8,6 +8,8 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { glob } from 'glob';
+import Database from 'better-sqlite3';
+import crypto from 'crypto';
 
 export interface WorkflowStep {
   action: 'fix-imports' | 'fix-types' | 'refactor' | 'add-tests' | 'custom';
@@ -17,6 +19,7 @@ export interface WorkflowStep {
 }
 
 export interface WorkflowResult {
+  result_id?: string; // ID for large results (persisted to DB)
   filesModified: number;
   changes: Array<{
     file: string;
@@ -29,29 +32,88 @@ export interface WorkflowResult {
   timeMs: number;
 }
 
+// SQLite for persisting large results
+const DB_PATH = process.env.CREDIT_OPTIMIZER_DB || path.join(process.cwd(), 'credit-optimizer.db');
+const db = new Database(DB_PATH);
+(db as any).pragma('journal_mode = WAL');
+db.exec(`
+CREATE TABLE IF NOT EXISTS workflow_results (
+  result_id TEXT PRIMARY KEY,
+  workflow_name TEXT,
+  result_json TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_results_created ON workflow_results(created_at);
+`);
+
 export class AutonomousExecutor {
   /**
-   * Execute a multi-step workflow autonomously
+   * Execute a multi-step workflow autonomously with caps/budgets enforcement
    */
   async executeWorkflow(
-    workflow: WorkflowStep[],
-    options: { maxFiles?: number; dryRun?: boolean } = {}
+    workflow: WorkflowStep[] | any, // Accept WorkPlan or raw steps
+    options: { maxFiles?: number; dryRun?: boolean; caps?: any; budgets?: any } = {}
   ): Promise<WorkflowResult> {
     const startTime = Date.now();
     const changes: WorkflowResult['changes'] = [];
-    const maxFiles = options.maxFiles || 100;
-    const dryRun = options.dryRun || false;
+
+    // Extract caps/budgets from WorkPlan if provided
+    let steps: WorkflowStep[];
+    let caps = options.caps;
+    let budgets = options.budgets;
+
+    if (Array.isArray(workflow)) {
+      steps = workflow;
+    } else if (workflow.steps) {
+      // WorkPlan format from Architect
+      steps = workflow.steps;
+      caps = workflow.caps || caps;
+      budgets = workflow.budgets || budgets;
+    } else {
+      throw new Error('Invalid workflow format - expected array of steps or WorkPlan object');
+    }
+
+    // Apply caps/budgets (with defaults)
+    const maxFiles = caps?.maxFilesChanged || options.maxFiles || 100;
+    const maxTimeMs = caps?.maxRuntimeMs || budgets?.time_ms || 300000; // 5 min default
+    const maxSteps = budgets?.max_steps || steps.length;
+    const requireGreenTests = caps?.requireGreenTests ?? caps?.require_green_tests ?? false;
+    const dryRun = caps?.dryRunOnly || options.dryRun || false;
 
     let filesModified = 0;
+    let stepsExecuted = 0;
 
-    for (const step of workflow) {
+    for (const step of steps.slice(0, maxSteps)) {
+      // Check time budget
+      const elapsed = Date.now() - startTime;
+      if (elapsed > maxTimeMs) {
+        changes.push({
+          file: 'N/A',
+          action: 'budget_exceeded',
+          success: false,
+          error: `Time budget exceeded: ${elapsed}ms > ${maxTimeMs}ms`,
+        });
+        break;
+      }
+
+      // Check file budget
+      if (filesModified >= maxFiles) {
+        changes.push({
+          file: 'N/A',
+          action: 'budget_exceeded',
+          success: false,
+          error: `File budget exceeded: ${filesModified} >= ${maxFiles}`,
+        });
+        break;
+      }
+
       // Get files to process
-      const files = await this.resolveFiles(step.files || [], maxFiles);
+      const files = await this.resolveFiles(step.files || [], maxFiles - filesModified);
 
       for (const file of files) {
         try {
           const result = await this.executeStep(step, file, dryRun);
-          
+
           if (result.modified) {
             filesModified++;
             changes.push({
@@ -69,6 +131,8 @@ export class AutonomousExecutor {
           });
         }
       }
+
+      stepsExecuted++;
     }
 
     const timeMs = Date.now() - startTime;
@@ -79,13 +143,44 @@ export class AutonomousExecutor {
     const augmentCreditsUsed = 500; // Just for planning
     const creditsSaved = filesModified * 500;
 
-    return {
+    const result: WorkflowResult = {
       filesModified,
       changes,
       augmentCreditsUsed,
       creditsSaved,
       timeMs,
     };
+
+    // Persist large results (>100 changes) and return ID instead of full payload
+    if (changes.length > 100) {
+      const result_id = crypto.createHash('sha256')
+        .update(JSON.stringify(result) + Date.now())
+        .digest('hex')
+        .slice(0, 16);
+
+      db.prepare(`INSERT INTO workflow_results(result_id, workflow_name, result_json, created_at) VALUES (?,?,?,?)`)
+        .run(result_id, 'autonomous_workflow', JSON.stringify(result), Date.now());
+
+      return {
+        result_id,
+        filesModified,
+        changes: changes.slice(0, 10), // First 10 for preview
+        augmentCreditsUsed,
+        creditsSaved,
+        timeMs,
+      };
+    }
+
+    return result;
+  }
+
+  /**
+   * Retrieve workflow result by ID
+   */
+  getWorkflowResult(result_id: string): WorkflowResult | null {
+    const row = db.prepare(`SELECT result_json FROM workflow_results WHERE result_id=?`).get(result_id) as any;
+    if (!row) return null;
+    return JSON.parse(row.result_json);
   }
 
   /**

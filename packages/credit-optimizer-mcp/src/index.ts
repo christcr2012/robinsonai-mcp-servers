@@ -18,6 +18,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  InitializeRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
 
@@ -79,6 +80,18 @@ class CreditOptimizerServer {
   }
 
   private setupHandlers(): void {
+    // Handle initialize request
+    this.server.setRequestHandler(InitializeRequestSchema, async (request) => ({
+      protocolVersion: "2024-11-05",
+      capabilities: {
+        tools: {},
+      },
+      serverInfo: {
+        name: "credit-optimizer-mcp",
+        version: "0.1.1",
+      },
+    }));
+
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: this.getTools(),
@@ -145,8 +158,13 @@ class CreditOptimizerServer {
             params.rollbackOnError,
             params.verify
           );
+        } else if (name === 'get_workflow_result') {
+          result = this.executor.getWorkflowResult(params.result_id);
+          if (!result) {
+            result = { error: `Result not found: ${params.result_id}` };
+          }
         }
-        
+
         // Template Scaffolding
         else if (name === 'scaffold_feature') {
           result = await this.templates.scaffold('feature-complete', {
@@ -200,9 +218,18 @@ class CreditOptimizerServer {
           result = { cleared: true };
         }
 
-        // Statistics
+        // Statistics & Diagnostics
         else if (name === 'get_credit_stats') {
           result = this.db.getStats(params.period || 'all');
+        } else if (name === 'diagnose_credit_optimizer') {
+          const toolCount = this.toolIndexer.searchTools('', 1000).length;
+          result = {
+            ok: true,
+            tool_index: { total_tools: toolCount, db_path: process.env.TOOL_INDEX_DB || 'tool-index.db' },
+            templates: { available: ['feature-complete', 'react-component', 'api-endpoint', 'database-schema', 'test-suite'] },
+            caching: { enabled: true, db_path: process.env.CREDIT_OPTIMIZER_DB || 'credit-optimizer.db' },
+            skill_packs: { recipes: 5, blueprints: 2 },
+          };
         }
 
         // PR Creation - THE MISSING PIECE!
@@ -505,6 +532,17 @@ class CreditOptimizerServer {
           required: ['type', 'migration'],
         },
       },
+      {
+        name: 'get_workflow_result',
+        description: 'Retrieve full workflow result by ID (for large results that were persisted)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            result_id: { type: 'string', description: 'Result ID from execute_autonomous_workflow' },
+          },
+          required: ['result_id'],
+        },
+      },
       // Template Scaffolding (5 tools)
       {
         name: 'scaffold_feature',
@@ -630,7 +668,7 @@ class CreditOptimizerServer {
           },
         },
       },
-      // Statistics (1 tool)
+      // Statistics & Diagnostics (2 tools)
       {
         name: 'get_credit_stats',
         description: 'Get credit usage statistics - see how much you\'ve saved!',
@@ -639,6 +677,14 @@ class CreditOptimizerServer {
           properties: {
             period: { type: 'string', enum: ['today', 'week', 'month', 'all'] },
           },
+        },
+      },
+      {
+        name: 'diagnose_credit_optimizer',
+        description: 'Diagnose Credit Optimizer environment - check tool index, templates, caching status',
+        inputSchema: {
+          type: 'object',
+          properties: {},
         },
       },
       // PR Creation (1 tool) - THE MISSING PIECE!

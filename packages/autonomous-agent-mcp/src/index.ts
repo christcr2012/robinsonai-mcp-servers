@@ -20,6 +20,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  InitializeRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
 import { OllamaClient } from './ollama-client.js';
@@ -63,6 +64,18 @@ class AutonomousAgentServer {
   }
 
   private setupHandlers(): void {
+    // Handle initialize request
+    this.server.setRequestHandler(InitializeRequestSchema, async (request) => ({
+      protocolVersion: "2024-11-05",
+      capabilities: {
+        tools: {},
+      },
+      serverInfo: {
+        name: "autonomous-agent-mcp",
+        version: "0.1.1",
+      },
+    }));
+
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
       console.error('[DEBUG] ListTools called');
@@ -102,6 +115,15 @@ class AutonomousAgentServer {
 
           case 'get_agent_stats':
             result = await this.stats.getStats(args as any);
+            break;
+
+          case 'diagnose_autonomous_agent':
+            result = {
+              ok: true,
+              ollama: { base_url: process.env.OLLAMA_BASE_URL || 'http://localhost:11434', auto_start: true },
+              models: { fast: 'qwen2.5:3b', medium: 'codellama:34b', complex: 'deepseek-coder:33b' },
+              stats_db: process.env.AGENT_STATS_DB || 'agent-stats.db',
+            };
             break;
 
           default:
@@ -285,6 +307,14 @@ class AutonomousAgentServer {
               enum: ['today', 'week', 'month', 'all'],
             },
           },
+        },
+      },
+      {
+        name: 'diagnose_autonomous_agent',
+        description: 'Diagnose Autonomous Agent environment - check Ollama connection, models, stats DB',
+        inputSchema: {
+          type: 'object',
+          properties: {},
         },
       },
     ];

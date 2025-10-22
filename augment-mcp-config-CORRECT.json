@@ -1,0 +1,32 @@
+{
+  "augment.mcpServers": {
+    "architect-mcp": {
+      "command": "npx",
+      "args": ["-y", "@robinsonai/architect-mcp"],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "ARCHITECT_FAST_MODEL": "qwen2.5:3b",
+        "ARCHITECT_STD_MODEL": "deepseek-coder:33b",
+        "ARCHITECT_BIG_MODEL": "qwen2.5-coder:32b"
+      }
+    },
+    "autonomous-agent-mcp": {
+      "command": "npx",
+      "args": ["-y", "@robinsonai/autonomous-agent-mcp"],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434"
+      }
+    },
+    "credit-optimizer-mcp": {
+      "command": "npx",
+      "args": ["-y", "@robinsonai/credit-optimizer-mcp"],
+      "env": {}
+    },
+    "robinsons-toolkit-mcp": {
+      "command": "npx",
+      "args": ["-y", "@robinsonai/robinsons-toolkit-mcp"],
+      "env": {}
+    }
+  }
+}
+

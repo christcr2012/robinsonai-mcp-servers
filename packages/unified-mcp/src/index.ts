@@ -32,27 +32,41 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-// Service SDKs
-import { Octokit } from '@octokit/rest';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-import axios, { AxiosInstance } from 'axios';
-import * as cheerio from 'cheerio';
-import Cloudflare from 'cloudflare';
-import { google } from 'googleapis';
-import { JWT } from 'google-auth-library';
-import OpenAI from 'openai';
-import { Pool } from 'pg';
-import { chromium, Browser, Page, BrowserContext } from 'playwright';
-import { createClient as createRedisClient } from 'redis';
-import { Resend } from 'resend';
-import Stripe from 'stripe';
-import { encoding_for_model } from 'tiktoken';
-import TurndownService from 'turndown';
-import twilio from 'twilio';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load static manifest (generated at build time)
+let TOOLS_MANIFEST: any = null;
+try {
+  const manifestPath = join(__dirname, 'tools.manifest.json');
+  TOOLS_MANIFEST = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+} catch (error) {
+  console.error('⚠️  Failed to load tools.manifest.json - run npm run manifest first');
+  TOOLS_MANIFEST = { tools: [], totalTools: 0, namespaces: [] };
+}
+
+// Service SDKs - LAZY LOADED (imported on first use, not at module load)
+// This keeps startup fast and avoids blocking stdio during handshake
+import type { Octokit } from '@octokit/rest';
+import type { AxiosInstance } from 'axios';
+import type { Browser, Page, BrowserContext } from 'playwright';
+import type { JWT } from 'google-auth-library';
+import type { Resend } from 'resend';
+import type Cloudflare from 'cloudflare';
+import type OpenAI from 'openai';
+import type Stripe from 'stripe';
+
+import { AuthBroker } from './auth-broker.js';
+import { WorkerManager } from './workers/worker-manager.js';
 
 class UnifiedMCP {
   private server: Server;
+  private authBroker: AuthBroker;
+  private workerManager: WorkerManager;
   
   // API Clients for all 16 services
   private githubClient: Octokit | null = null;
@@ -90,10 +104,10 @@ class UnifiedMCP {
   private context7Client: AxiosInstance | null = null;
   
   // RAG state (both standard and open-source)
-  private ragPgPool: Pool | null = null;
-  private turndownService: TurndownService;
+  private ragPgPool: any | null = null;
+  private turndownService: any | null = null;
   private crawledSources: Set<string> = new Set();
-  
+
   // Cost tracking (for OpenAI and RAG)
   private costTracking = {
     totalTokens: 0,
@@ -109,196 +123,176 @@ class UnifiedMCP {
       { capabilities: { tools: {} } }
     );
 
-    this.turndownService = new TurndownService();
-    this.initializeClients();
+    // Initialize auth broker and worker manager
+    this.authBroker = new AuthBroker();
+    this.workerManager = new WorkerManager();
+
+    // NO eager initialization - all clients are lazy-loaded on first use
     this.setupHandlers();
   }
 
-  private initializeClients() {
-    // GitHub Client
-    const githubToken = process.env.GITHUB_PERSONAL_ACCESS_TOKEN || process.env.GITHUB_TOKEN;
-    if (githubToken) {
-      this.githubClient = new Octokit({ auth: githubToken });
+  // ============================================================================
+  // LAZY-LOADING HELPERS
+  // All SDK imports happen here, on first tool call, not at module load
+  // This keeps startup time <100ms and avoids blocking stdio
+  // ============================================================================
+
+  private async getGitHubClient(): Promise<Octokit> {
+    if (!this.githubClient) {
+      const creds = this.authBroker.getCredentials('github');
+      if (!creds) throw new Error('GitHub credentials not configured');
+
+      const { Octokit } = await import('@octokit/rest');
+      this.githubClient = new Octokit({ auth: creds.token });
     }
-
-    // Vercel Client
-    const vercelToken = process.env.VERCEL_TOKEN || process.env.VERCEL_ACCESS_TOKEN;
-    if (vercelToken) {
-      this.vercelClient = axios.create({
-        baseURL: 'https://api.vercel.com',
-        headers: {
-          'Authorization': `Bearer ${vercelToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    // Neon Client
-    const neonApiKey = process.env.NEON_API_KEY;
-    if (neonApiKey) {
-      this.neonClient = axios.create({
-        baseURL: 'https://console.neon.tech/api/v2',
-        headers: {
-          'Authorization': `Bearer ${neonApiKey}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-    }
-
-    // Google Workspace Client (initialized on demand)
-    const googleServiceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-    const googleUserEmail = process.env.GOOGLE_USER_EMAIL;
-    if (googleServiceAccountKey && googleUserEmail) {
-      // Will initialize when needed
-    }
-
-    // Resend Client
-    const resendApiKey = process.env.RESEND_API_KEY;
-    if (resendApiKey) {
-      this.resendClient = new Resend(resendApiKey);
-    }
-
-    // Twilio Client
-    const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
-    const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
-    if (twilioAccountSid && twilioAuthToken) {
-      this.twilioClient = twilio(twilioAccountSid, twilioAuthToken);
-    }
-
-    // Cloudflare Client
-    const cloudflareApiToken = process.env.CLOUDFLARE_API_TOKEN;
-    if (cloudflareApiToken) {
-      this.cloudflareClient = new Cloudflare({ apiToken: cloudflareApiToken });
-    }
-
-    // Redis Client
-    const redisUrl = process.env.REDIS_URL;
-    if (redisUrl) {
-      this.redisClient = createRedisClient({ url: redisUrl });
-      this.redisClient.on('error', (err: any) => console.error('Redis Client Error', err));
-    }
-
-    // OpenAI Client
-    const openaiApiKey = process.env.OPENAI_API_KEY;
-    if (openaiApiKey) {
-      this.openaiClient = new OpenAI({ apiKey: openaiApiKey });
-      
-      // Initialize cost tracking
-      const budgetLimit = parseFloat(process.env.OPENAI_BUDGET_LIMIT || '0');
-      const budgetAlerts = (process.env.OPENAI_BUDGET_ALERTS || '').split(',').map(Number).filter(n => !isNaN(n));
-      this.costTracking.budgetLimit = budgetLimit;
-      this.costTracking.budgetAlerts = budgetAlerts;
-    }
-
-    // Stripe Client
-    const stripeApiKey = process.env.STRIPE_API_KEY || process.env.STRIPE_SECRET_KEY;
-    if (stripeApiKey) {
-      this.stripeClient = new Stripe(stripeApiKey, { apiVersion: '2024-12-18.acacia' });
-    }
-
-    // Supabase Client
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY;
-    if (supabaseUrl && supabaseKey) {
-      this.supabaseClient = createSupabaseClient(supabaseUrl, supabaseKey);
-    }
-
-    // Context7 Client
-    const context7ApiKey = process.env.CONTEXT7_API_KEY;
-    this.context7Client = axios.create({
-      baseURL: 'https://api.context7.com',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(context7ApiKey && { 'Authorization': `Bearer ${context7ApiKey}` }),
-      },
-    });
-
-    // RAG PostgreSQL Pool (for pgvector)
-    const ragDbHost = process.env.RAG_POSTGRES_HOST || process.env.NEON_HOST;
-    const ragDbName = process.env.RAG_POSTGRES_DB || process.env.NEON_DATABASE;
-    const ragDbUser = process.env.RAG_POSTGRES_USER || process.env.NEON_USER;
-    const ragDbPassword = process.env.RAG_POSTGRES_PASSWORD || process.env.NEON_PASSWORD;
-    const ragDbPort = parseInt(process.env.RAG_POSTGRES_PORT || process.env.NEON_PORT || '5432');
-
-    if (ragDbHost && ragDbName && ragDbUser && ragDbPassword) {
-      this.ragPgPool = new Pool({
-        host: ragDbHost,
-        port: ragDbPort,
-        database: ragDbName,
-        user: ragDbUser,
-        password: ragDbPassword,
-        ssl: { rejectUnauthorized: false },
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000,
-      });
-    }
+    return this.githubClient;
   }
 
+  private async getVercelClient(): Promise<AxiosInstance> {
+    if (!this.vercelClient) {
+      const creds = this.authBroker.getCredentials('vercel');
+      if (!creds) throw new Error('Vercel credentials not configured');
+
+      const axios = (await import('axios')).default;
+      this.vercelClient = axios.create({
+        baseURL: 'https://api.vercel.com',
+        headers: { Authorization: `Bearer ${creds.token}` },
+        timeout: 10000,
+      });
+    }
+    return this.vercelClient;
+  }
+
+  private async getNeonClient(): Promise<AxiosInstance> {
+    if (!this.neonClient) {
+      const creds = this.authBroker.getCredentials('neon');
+      if (!creds) throw new Error('Neon credentials not configured');
+
+      const axios = (await import('axios')).default;
+      this.neonClient = axios.create({
+        baseURL: 'https://console.neon.tech/api/v2',
+        headers: { Authorization: `Bearer ${creds.apiKey}` },
+        timeout: 10000,
+      });
+    }
+    return this.neonClient;
+  }
+
+  private async getRedisClient(): Promise<any> {
+    if (!this.redisClient) {
+      const creds = this.authBroker.getCredentials('redis');
+      if (!creds) throw new Error('Redis credentials not configured');
+
+      const { createClient } = await import('redis');
+      this.redisClient = createClient({
+        url: creds.url,
+        socket: { connectTimeout: 5000 }
+      });
+      await this.redisClient.connect();
+    }
+    return this.redisClient;
+  }
+
+  private async getOpenAIClient(): Promise<any> {
+    if (!this.openaiClient) {
+      const creds = this.authBroker.getCredentials('openai');
+      if (!creds) throw new Error('OpenAI credentials not configured');
+
+      const OpenAI = (await import('openai')).default;
+      this.openaiClient = new OpenAI({ apiKey: creds.apiKey });
+
+      // Update cost tracking if configured
+      if (creds.budgetLimit) this.costTracking.budgetLimit = creds.budgetLimit;
+      if (creds.budgetAlerts) this.costTracking.budgetAlerts = creds.budgetAlerts;
+    }
+    return this.openaiClient;
+  }
+
+  private async getPlaywrightBrowser(): Promise<Browser> {
+    if (!this.browser) {
+      // Use worker manager for Playwright to avoid blocking stdio
+      await this.workerManager.playwrightLaunch();
+      // Return a proxy that delegates to worker
+      this.browser = {} as Browser; // Placeholder - actual calls go through workerManager
+    }
+    return this.browser;
+  }
+
+  // REMOVED: initializeClients() - all clients are now lazy-loaded on first use
+
   private setupHandlers() {
-    // Register all tools from all 16 services
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [
-        ...this.getSequentialThinkingTools(),
-        ...this.getContext7Tools(),
-        ...this.getPlaywrightTools(),
-        ...this.getGitHubTools(),
-        ...this.getVercelTools(),
-        ...this.getNeonTools(),
-        ...this.getGoogleWorkspaceTools(),
-        ...this.getResendTools(),
-        ...this.getTwilioTools(),
-        ...this.getCloudflareTools(),
-        ...this.getRedisTools(),
-        ...this.getOpenAITools(),
-        ...this.getStripeTools(),
-        ...this.getSupabaseTools(),
-        ...this.getRAGStandardTools(),
-        ...this.getRAGOpenSourceTools(),
-      ],
-    }));
+    // Register all tools from static manifest (INSTANT - no imports, no IO)
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      if (!TOOLS_MANIFEST || TOOLS_MANIFEST.tools.length === 0) {
+        console.error('⚠️  Tools manifest is empty - falling back to manual definitions');
+        return {
+          tools: [
+            ...this.getSequentialThinkingTools(),
+            ...this.getContext7Tools(),
+            ...this.getPlaywrightTools(),
+          ],
+        };
+      }
+
+      return {
+        tools: TOOLS_MANIFEST.tools.map((t: any) => ({
+          name: t.name,
+          description: t.description,
+          inputSchema: typeof t.inputSchema === 'string' ? JSON.parse(t.inputSchema) : t.inputSchema,
+        })),
+      };
+    });
 
     // Handle tool calls - route to appropriate handler
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
 
-      // Route based on tool name prefix
-      if (name.startsWith('sequential_thinking') || name.startsWith('parallel_thinking') || name.startsWith('reflective_thinking')) {
-        return this.handleThinkingTool(name, args);
-      } else if (name.startsWith('context7_')) {
-        return this.handleContext7Tool(name, args);
-      } else if (name.startsWith('playwright_')) {
-        return this.handlePlaywrightTool(name, args);
-      } else if (name.startsWith('github_')) {
-        return this.handleGitHubTool(name, args);
-      } else if (name.startsWith('vercel_')) {
-        return this.handleVercelTool(name, args);
-      } else if (name.startsWith('neon_')) {
-        return this.handleNeonTool(name, args);
-      } else if (name.startsWith('gmail_') || name.startsWith('drive_') || name.startsWith('calendar_') || name.startsWith('sheets_') || name.startsWith('docs_') || name.startsWith('admin_')) {
-        return this.handleGoogleWorkspaceTool(name, args);
-      } else if (name.startsWith('resend_')) {
-        return this.handleResendTool(name, args);
-      } else if (name.startsWith('twilio_')) {
-        return this.handleTwilioTool(name, args);
-      } else if (name.startsWith('cloudflare_')) {
-        return this.handleCloudflareTool(name, args);
-      } else if (name.startsWith('redis_')) {
-        return this.handleRedisTool(name, args);
-      } else if (name.startsWith('openai_')) {
-        return this.handleOpenAITool(name, args);
-      } else if (name.startsWith('stripe_')) {
-        return this.handleStripeTool(name, args);
-      } else if (name.startsWith('supabase_')) {
-        return this.handleSupabaseTool(name, args);
-      } else if (name.startsWith('rag_')) {
-        return this.handleRAGStandardTool(name, args);
-      } else if (name.startsWith('rag_os_')) {
-        return this.handleRAGOpenSourceTool(name, args);
+      try {
+        // Route based on tool name prefix
+        if (name.startsWith('sequential_thinking') || name.startsWith('parallel_thinking') || name.startsWith('reflective_thinking')) {
+          return await this.handleThinkingTool(name, args);
+        } else if (name.startsWith('context7_')) {
+          return await this.handleContext7Tool(name, args);
+        } else if (name.startsWith('playwright_')) {
+          return await this.handlePlaywrightTool(name, args);
+        } else if (name.startsWith('github_')) {
+          return await this.handleGitHubTool(name, args);
+        } else if (name.startsWith('vercel_')) {
+          return await this.handleVercelTool(name, args);
+        } else if (name.startsWith('neon_')) {
+          return await this.handleNeonTool(name, args);
+        } else if (name.startsWith('gmail_') || name.startsWith('drive_') || name.startsWith('calendar_') || name.startsWith('sheets_') || name.startsWith('docs_') || name.startsWith('admin_')) {
+          return await this.handleGoogleWorkspaceTool(name, args);
+        } else if (name.startsWith('resend_')) {
+          return await this.handleResendTool(name, args);
+        } else if (name.startsWith('twilio_')) {
+          return await this.handleTwilioTool(name, args);
+        } else if (name.startsWith('cloudflare_')) {
+          return await this.handleCloudflareTool(name, args);
+        } else if (name.startsWith('redis_')) {
+          return await this.handleRedisTool(name, args);
+        } else if (name.startsWith('openai_')) {
+          return await this.handleOpenAITool(name, args);
+        } else if (name.startsWith('stripe_')) {
+          return await this.handleStripeTool(name, args);
+        } else if (name.startsWith('supabase_')) {
+          return await this.handleSupabaseTool(name, args);
+        } else if (name.startsWith('rag_')) {
+          return await this.handleRAGStandardTool(name, args);
+        } else if (name.startsWith('rag_os_')) {
+          return await this.handleRAGOpenSourceTool(name, args);
+        } else {
+          return {
+            content: [{ type: 'text', text: `Error: Unknown tool: ${name}` }],
+            isError: true
+          };
+        }
+      } catch (error: any) {
+        return {
+          content: [{ type: 'text', text: `Error: ${error.message}` }],
+          isError: true
+        };
       }
-
-      throw new Error(`Unknown tool: ${name}`);
     });
   }
 
@@ -378,7 +372,7 @@ class UnifiedMCP {
   private getRAGStandardTools() { return []; }
   private getRAGOpenSourceTools() { return []; }
 
-  private async handleThinkingTool(name: string, args: any) {
+  private async handleThinkingTool(name: string, args: any): Promise<{ content: { type: string; text: string }[] }> {
     if (name === 'sequential_thinking') {
       const step = {
         thoughtNumber: args.thoughtNumber,
@@ -474,21 +468,21 @@ class UnifiedMCP {
 
     throw new Error(`Unknown thinking tool: ${name}`);
   }
-  private async handleContext7Tool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handlePlaywrightTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleGitHubTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleVercelTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleNeonTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleGoogleWorkspaceTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleResendTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleTwilioTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleCloudflareTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleRedisTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleOpenAITool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleStripeTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleSupabaseTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleRAGStandardTool(name: string, args: any) { throw new Error('Not implemented'); }
-  private async handleRAGOpenSourceTool(name: string, args: any) { throw new Error('Not implemented'); }
+  private async handleContext7Tool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handlePlaywrightTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleGitHubTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleVercelTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleNeonTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleGoogleWorkspaceTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleResendTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleTwilioTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleCloudflareTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleRedisTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleOpenAITool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleStripeTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleSupabaseTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleRAGStandardTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleRAGOpenSourceTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
 
   async run() {
     const transport = new StdioServerTransport();

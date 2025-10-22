@@ -14,6 +14,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  InitializeRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
 import { LazyLoader } from './lazy-loader.js';
@@ -156,6 +157,18 @@ class RobinsonsToolkitServer {
   }
 
   private setupHandlers(): void {
+    // Handle initialize request
+    this.server.setRequestHandler(InitializeRequestSchema, async (request) => ({
+      protocolVersion: "2024-11-05",
+      capabilities: {
+        tools: {},
+      },
+      serverInfo: {
+        name: "robinsons-toolkit-mcp",
+        version: "0.1.1",
+      },
+    }));
+
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: this.getTools(),

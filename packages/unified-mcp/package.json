@@ -8,9 +8,11 @@
     "unified-mcp": "./dist/index.js"
   },
   "scripts": {
+    "prebuild": "node scripts/generate-manifest.mjs",
     "build": "tsc",
     "watch": "tsc --watch",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "manifest": "node scripts/generate-manifest.mjs"
   },
   "keywords": [
     "mcp",
@@ -46,12 +48,13 @@
     "resend": "^4.0.1",
     "stripe": "^17.5.0",
     "tiktoken": "^1.0.17",
-    "twilio": "^5.3.5",
-    "turndown": "^7.2.0"
+    "turndown": "^7.2.0",
+    "twilio": "^5.3.5"
   },
   "devDependencies": {
     "@types/node": "^22.18.11",
+    "@types/pg": "^8.15.5",
+    "@types/turndown": "^5.0.5",
     "typescript": "^5.9.3"
   }
 }
-

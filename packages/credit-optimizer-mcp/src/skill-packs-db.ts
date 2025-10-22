@@ -9,7 +9,7 @@ import path from 'path';
 const DB_PATH = process.env.SKILL_PACKS_DB || path.join(process.cwd(), 'skill-packs.db');
 
 export class SkillPacksDB {
-  private db: ReturnType<typeof Database>;
+  private db: any;
 
   constructor() {
     this.db = new Database(DB_PATH);
