@@ -1,0 +1,43 @@
+{
+  "name": "@robinsonai/credit-optimizer-mcp",
+  "version": "0.1.1",
+  "description": "MCP server that optimizes Augment Code credit usage through tool discovery, templates, caching, and autonomous workflows",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "credit-optimizer-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "augment-code",
+    "credit-optimization",
+    "ai-tools"
+  ],
+  "author": "Robinson AI",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "better-sqlite3": "^11.7.0",
+    "handlebars": "^4.7.8",
+    "glob": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "optionalDependencies": {
+    "glob": "^11.0.0",
+    "better-sqlite3": "^11.7.0",
+    "handlebars": "^4.7.8"
+  }
+}
+

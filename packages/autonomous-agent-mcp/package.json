@@ -1,0 +1,48 @@
+{
+  "name": "@robinsonai/autonomous-agent-mcp",
+  "version": "0.1.1",
+  "description": "Autonomous AI Agent MCP server - Offload heavy AI work to FREE local LLMs",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "autonomous-agent-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Tests coming soon\"",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "llm",
+    "ollama",
+    "code-generation",
+    "autonomous-agent",
+    "credit-optimization"
+  ],
+  "author": "Robinson AI",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "ollama": "^0.5.9",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robinsonai/robinsonai-mcp-servers.git",
+    "directory": "packages/autonomous-agent-mcp"
+  }
+}
+

@@ -1,0 +1,38 @@
+# Docker Compose for Remote Ollama Server
+# 
+# Usage:
+#   docker-compose up -d
+#   docker-compose exec ollama ollama pull deepseek-coder:33b
+#   docker-compose exec ollama ollama pull qwen2.5-coder:32b
+#   docker-compose exec ollama ollama pull codellama:34b
+#   docker-compose exec ollama ollama pull qwen2.5:3b
+#
+# Then set: export OLLAMA_BASE_URL=http://localhost:11434
+
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-server
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    environment:
+      - OLLAMA_KEEP_ALIVE=5m
+      - OLLAMA_NUM_PARALLEL=2
+    # Uncomment for GPU support (NVIDIA)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_data:
+    driver: local
+
