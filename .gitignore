@@ -1,10 +1,14 @@
+# Node and build
 node_modules/
 dist/
 *.log
 .DS_Store
+*.tsbuildinfo
+
+# Environment files
 .env
 .env.local
-*.tsbuildinfo
+.env.*
 
 # Config files with secrets
 packages/unified-mcp/unified-mcp-config.json
@@ -12,3 +16,19 @@ packages/unified-mcp/unified-mcp-config.json
 !mcp-config-*.json
 mcp-config-enhanced.json
 
+# Secrets and runtime artifacts
+update-vscode-settings.ps1
+*.db
+*.db-shm
+*.db-wal
+
+# Keys and certificates
+secrets*
+*.key
+*.pem
+*.crt
+*.p12
+*.jks
+
+# Editor settings
+.vscode/

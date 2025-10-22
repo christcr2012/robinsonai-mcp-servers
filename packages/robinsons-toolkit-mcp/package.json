@@ -1,0 +1,37 @@
+{
+  "name": "@robinsonai/robinsons-toolkit-mcp",
+  "version": "0.1.1",
+  "description": "Unified MCP server with 912 tools across GitHub, Vercel, Neon, Stripe, Supabase, and more",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "robinsons-toolkit-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "github",
+    "vercel",
+    "neon",
+    "stripe",
+    "supabase",
+    "unified-toolkit"
+  ],
+  "author": "Robinson AI",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+
