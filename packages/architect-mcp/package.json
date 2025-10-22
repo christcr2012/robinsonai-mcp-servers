@@ -1,0 +1,52 @@
+{
+  "name": "@robinsonai/architect-mcp",
+  "version": "0.2.0",
+  "description": "Architect Agent MCP server - Strategic planning, critique, and insights using FREE local LLMs",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "architect-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Tests coming soon\"",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "llm",
+    "ollama",
+    "architecture",
+    "planning",
+    "critique",
+    "insights",
+    "autonomous-agent"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "homepage": "https://www.robinsonaisystems.com",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "ollama": "^0.5.9",
+    "better-sqlite3": "^11.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/better-sqlite3": "^7.6.12",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robinsonai/robinsonai-mcp-servers.git",
+    "directory": "packages/architect-mcp"
+  }
+}
+

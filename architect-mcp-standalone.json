@@ -1,0 +1,13 @@
+{
+  "architect-agent": {
+    "command": "npx",
+    "args": [
+      "architect-mcp"
+    ],
+    "env": {
+      "OLLAMA_BASE_URL": "http://localhost:11434",
+      "ARCHITECT_MODEL": "deepseek-coder:33b"
+    }
+  }
+}
+
