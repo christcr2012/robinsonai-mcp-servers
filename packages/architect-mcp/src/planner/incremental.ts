@@ -212,8 +212,7 @@ async function generateStepsFromSpec(specText: string, maxSteps: number): Promis
       specText
     ].join("\n");
 
-    const res = await ollamaGenerate({ model, prompt, format: 'json' });
-    const text = typeof res === 'string' ? res : (res?.response ?? res?.output ?? '');
+    const text = await ollamaGenerate({ model, prompt });
     const parsed = JSON.parse(text);
     if (Array.isArray(parsed) && parsed.length) {
       return parsed.slice(0, maxSteps);
