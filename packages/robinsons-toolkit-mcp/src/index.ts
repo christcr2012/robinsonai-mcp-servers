@@ -24,7 +24,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import 'dotenv/config';
 import pLimit from 'p-limit';
-import { providerCatalog, ensureProviders, routeProviderCall } from './providers/registry.js';
+import { providerCatalog, ensureProviders, routeProviderCall, whatWasRenamed } from './providers/registry.js';
 import { MCPBroker } from './broker.js';
 
 const LIMIT = pLimit(parseInt(process.env.RTK_MAX_ACTIVE || '12', 10));
@@ -85,10 +85,18 @@ class RobinsonsToolkitServer {
       },
     }));
 
-    // List ALL provider tools (always-on) + legacy broker meta-tools
+    // List ALL provider tools (always-on) + legacy broker meta-tools + diagnostics
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
         ...providerCatalog(), // All provider tools (github.*, vercel.*, etc.)
+        {
+          name: 'toolkit_provider_stats',
+          description: 'List providers, tool counts, and any renames applied for MCP safety',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
         {
           name: 'registry_list',
           description: 'List all available integration servers and their tool counts',
@@ -154,6 +162,20 @@ class RobinsonsToolkitServer {
             new Promise((_, r) => setTimeout(() => r(new Error(`timeout after ${TOOL_TIMEOUT_MS}ms`)), TOOL_TIMEOUT_MS))
           ]);
           return await LIMIT(() => withTimeout);
+        }
+
+        // Diagnostic tool
+        if (name === 'toolkit_provider_stats') {
+          const cats = providerCatalog();  // rebuild for a fresh snapshot
+          const counts: Record<string, number> = {};
+          for (const t of cats) {
+            const ns = t.name.split('.')[0];
+            counts[ns] = (counts[ns] || 0) + 1;
+          }
+          const renamed = whatWasRenamed();
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ counts, renamed }, null, 2) }]
+          };
         }
 
         // Legacy broker meta-tools
