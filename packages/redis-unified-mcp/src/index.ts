@@ -25,7 +25,7 @@ import { createClient, RedisClientType } from 'redis';
 interface RedisConnection {
   id: string;
   url: string;
-  client: RedisClientType;
+  client: ReturnType<typeof createClient>;
   isConnected: boolean;
   label?: string;
 }
