@@ -24,7 +24,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import 'dotenv/config';
 import pLimit from 'p-limit';
-import { providerCatalog, ensureProviders, routeProviderCall, whatWasRenamed } from './providers/registry.js';
+import { providerCatalog, ensureProviders, routeProviderCall, whatWasRenamed, whatWasRejected, getProviderStats } from './providers/registry.js';
 import { MCPBroker } from './broker.js';
 
 const LIMIT = pLimit(parseInt(process.env.RTK_MAX_ACTIVE || '12', 10));
@@ -91,7 +91,23 @@ class RobinsonsToolkitServer {
         ...providerCatalog(), // All provider tools (github.*, vercel.*, etc.)
         {
           name: 'toolkit_provider_stats',
-          description: 'List providers, tool counts, and any renames applied for MCP safety',
+          description: 'Get comprehensive provider statistics: counts, renames, rejects, and vendor status',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+        {
+          name: 'toolkit_renames',
+          description: 'List all tool names that were sanitized/renamed for MCP compliance',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+        {
+          name: 'toolkit_rejects',
+          description: 'List all tools that were rejected (invalid names, duplicates, errors)',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -164,17 +180,25 @@ class RobinsonsToolkitServer {
           return await LIMIT(() => withTimeout);
         }
 
-        // Diagnostic tool
+        // Diagnostic tools
         if (name === 'toolkit_provider_stats') {
-          const cats = providerCatalog();  // rebuild for a fresh snapshot
-          const counts: Record<string, number> = {};
-          for (const t of cats) {
-            const ns = t.name.split('.')[0];
-            counts[ns] = (counts[ns] || 0) + 1;
-          }
+          const stats = getProviderStats();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(stats, null, 2) }]
+          };
+        }
+
+        if (name === 'toolkit_renames') {
           const renamed = whatWasRenamed();
           return {
-            content: [{ type: 'text', text: JSON.stringify({ counts, renamed }, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify({ renamed, count: renamed.length }, null, 2) }]
+          };
+        }
+
+        if (name === 'toolkit_rejects') {
+          const rejected = whatWasRejected();
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ rejected, count: rejected.length }, null, 2) }]
           };
         }
 

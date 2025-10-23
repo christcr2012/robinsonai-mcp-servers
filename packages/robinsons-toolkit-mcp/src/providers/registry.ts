@@ -17,62 +17,117 @@ import * as flyio from './vendors/flyio.js';
 const VENDORS = [github, vercel, neon, stripe, supabase, twilio, resend, cloudflare, redis, gws, flyio];
 const limit = pLimit(parseInt(process.env.RTK_MAX_ACTIVE || '12', 10));
 
-// Allowed MCP tool name regex: ^[a-zA-Z0-9._:-]{1,64}$
-const SAFE = /[^a-zA-Z0-9._:-]/g;
+// -------- MCP constraints
+const NAME_MAX = 64;
+const SAFE_RX = /^[a-zA-Z0-9._:-]{1,64}$/;
+const REPLACE_RX = /[^a-zA-Z0-9._:-]/g;
 
 type Alias = { vendorId: string; original: string };
+
 const aliasMap = new Map<string, Alias>();      // canonical -> (vendor, original)
 const renameLog: Array<{ vendor: string; original: string; canonical: string; reason: string }> = [];
+const rejectLog: Array<{ vendor: string; original: string; reason: string }> = [];
+const seenNames = new Set<string>(); // de-duplication
 
 function shortHash(s: string, len = 6) {
   return createHash('sha1').update(s).digest('hex').slice(0, len);
 }
 
 /**
- * Canonicalize a tool name to meet MCP constraints and remain unique under 64 chars.
- * We also log any rename so we can surface it via diagnostics.
+ * Canonicalize a tool name to meet MCP constraints:
+ * - Replace invalid chars with underscores
+ * - Truncate if too long (with hash suffix)
+ * - Add vendor namespace prefix
+ * Returns null if the name is invalid/empty
  */
-function canonicalize(vendorId: string, rawName: string): { canonical: string; changed: boolean; reason?: string } {
-  const prefix = `${vendorId}.`;                         // namespacing is applied by the registry
-  let inner = rawName.replace(SAFE, '_');                // replace disallowed chars
+function canonicalize(vendorId: string, rawName: string): { canonical: string; changed: boolean; reason?: string } | null {
+  if (!rawName || typeof rawName !== 'string') {
+    return null; // reject empty/invalid names
+  }
+
+  const prefix = `${vendorId}.`;
+  let inner = rawName.replace(REPLACE_RX, '_');
   let changed = inner !== rawName;
   let reason = changed ? 'invalid characters' : undefined;
 
   // Enforce total length <= 64 (including "<vendor>."):
-  const maxInner = 64 - prefix.length;
+  const maxInner = NAME_MAX - prefix.length;
   if (inner.length > maxInner) {
-    const h = shortHash(inner);
+    const h = shortHash(inner, 6);
     inner = inner.slice(0, Math.max(0, maxInner - 1 - h.length)) + '-' + h;
     changed = true;
     reason = reason ? `${reason}; truncated` : 'truncated';
   }
 
-  return { canonical: `${vendorId}.${inner}`, changed, reason };
+  const canonical = `${prefix}${inner}`;
+
+  // Final validation
+  if (!SAFE_RX.test(canonical)) {
+    return null; // reject if still invalid
+  }
+
+  return { canonical, changed, reason };
 }
 
 /**
- * Get catalog of all provider tools with sanitized names
+ * Get catalog of all provider tools with sanitized names, de-duplication, and reject logging
  */
 export function providerCatalog(): Tool[] {
   aliasMap.clear();
   renameLog.length = 0;
+  rejectLog.length = 0;
+  seenNames.clear();
 
   const tools: Tool[] = [];
+
   for (const v of VENDORS) {
     const vendorId = v.id;
-    const cat = v.catalog();
+    let cat: Tool[] = [];
+
+    try {
+      cat = v.catalog();
+    } catch (err) {
+      console.error(`[registry] Error getting catalog for ${vendorId}:`, err);
+      rejectLog.push({ vendor: vendorId, original: '<catalog_error>', reason: String(err) });
+      continue;
+    }
 
     for (const t of cat) {
-      const { canonical, changed, reason } = canonicalize(vendorId, t.name);
-      if (changed) renameLog.push({ vendor: vendorId, original: t.name, canonical, reason: reason || 'changed' });
+      // Validate tool has required fields
+      if (!t || !t.name) {
+        rejectLog.push({ vendor: vendorId, original: '<missing_name>', reason: 'tool missing name field' });
+        continue;
+      }
 
-      // save alias for routing
+      // Canonicalize the name
+      const result = canonicalize(vendorId, t.name);
+      if (!result) {
+        rejectLog.push({ vendor: vendorId, original: t.name, reason: 'invalid name after sanitization' });
+        continue;
+      }
+
+      const { canonical, changed, reason } = result;
+
+      // De-duplicate
+      if (seenNames.has(canonical)) {
+        rejectLog.push({ vendor: vendorId, original: t.name, reason: `duplicate canonical name: ${canonical}` });
+        continue;
+      }
+      seenNames.add(canonical);
+
+      // Log renames
+      if (changed) {
+        renameLog.push({ vendor: vendorId, original: t.name, canonical, reason: reason || 'changed' });
+      }
+
+      // Save alias for routing
       aliasMap.set(canonical, { vendorId, original: t.name });
 
-      // publish sanitized tool (with same schema/description)
+      // Publish sanitized tool (with same schema/description)
       tools.push({ ...t, name: canonical });
     }
   }
+
   return tools;
 }
 
@@ -82,6 +137,32 @@ export async function ensureProviders(): Promise<void> {
 
 export function whatWasRenamed() {
   return renameLog.slice();
+}
+
+export function whatWasRejected() {
+  return rejectLog.slice();
+}
+
+export function getProviderStats() {
+  const cats = providerCatalog(); // rebuild for fresh snapshot
+  const counts: Record<string, number> = {};
+
+  for (const t of cats) {
+    const ns = t.name.split('.')[0];
+    counts[ns] = (counts[ns] || 0) + 1;
+  }
+
+  return {
+    counts,
+    total: cats.length,
+    renamed: renameLog.length,
+    rejected: rejectLog.length,
+    vendors: VENDORS.map(v => ({
+      id: v.id,
+      ready: v.isReady(),
+      missing: v.missingEnv()
+    }))
+  };
 }
 
 export async function routeProviderCall(name: string, args: unknown) {
