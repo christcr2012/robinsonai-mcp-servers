@@ -3,10 +3,12 @@
  *
  * Manages connections to local Ollama instance and model selection.
  * Now with auto-start capability to save Augment credits!
+ * Uses shared-llm for reliable connectivity with timeout/retry.
  */
 
 import { Ollama } from 'ollama';
 import { spawn } from 'child_process';
+import { ollamaGenerate as sharedGenerate, pingOllama } from '@robinsonai/shared-llm';
 
 export interface ModelConfig {
   name: string;
@@ -133,7 +135,7 @@ export class OllamaClient {
   }
 
   /**
-   * Generate text using Ollama (with auto-start!)
+   * Generate text using Ollama (with auto-start and shared client!)
    */
   async generate(prompt: string, options: GenerateOptions = {}): Promise<{
     text: string;
@@ -150,23 +152,27 @@ export class OllamaClient {
     const startTime = Date.now();
 
     try {
-      const response = await this.ollama.generate({
+      // Use shared client with timeout/retry for reliability
+      const text = await sharedGenerate({
         model,
         prompt,
-        options: {
-          temperature: options.temperature || 0.7,
-          num_predict: options.maxTokens || 4096,
-        },
+        format: 'text',
+        timeoutMs: 45000,
+        retries: 2
       });
 
       const timeMs = Date.now() - startTime;
 
+      // Estimate tokens (rough approximation: 1 token ≈ 4 chars)
+      const tokensInput = Math.ceil(prompt.length / 4);
+      const tokensGenerated = Math.ceil(text.length / 4);
+
       return {
-        text: response.response,
+        text,
         model,
-        tokensGenerated: response.eval_count || 0,
-        tokensInput: response.prompt_eval_count || 0,
-        tokensTotal: (response.prompt_eval_count || 0) + (response.eval_count || 0),
+        tokensGenerated,
+        tokensInput,
+        tokensTotal: tokensInput + tokensGenerated,
         timeMs,
       };
     } catch (error: any) {

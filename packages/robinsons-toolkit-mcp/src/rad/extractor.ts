@@ -39,13 +39,13 @@ export class ContentExtractor {
 
     // Extract h2 path for context
     const h2Path: string[] = [];
-    $('h2').each((_, el) => {
+    $('h2').each((_: any, el: any) => {
       h2Path.push($(el).text().trim());
     });
 
     // Extract anchors
     const anchors: string[] = [];
-    $('a[href]').each((_, el) => {
+    $('a[href]').each((_: any, el: any) => {
       const href = $(el).attr('href');
       if (href && !href.startsWith('#')) {
         anchors.push(href);
