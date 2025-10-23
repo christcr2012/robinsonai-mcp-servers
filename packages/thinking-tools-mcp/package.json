@@ -1,0 +1,35 @@
+{
+  "name": "@robinsonai/thinking-tools-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Thinking Tools MCP - 18 cognitive frameworks for enhanced AI reasoning",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "thinking-tools-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "thinking",
+    "reasoning",
+    "cognitive-frameworks",
+    "ai",
+    "devils-advocate",
+    "critical-thinking",
+    "first-principles"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  }
+}
+

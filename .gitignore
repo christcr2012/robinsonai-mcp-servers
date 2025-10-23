@@ -15,6 +15,9 @@ packages/unified-mcp/unified-mcp-config.json
 *-config.json
 !mcp-config-*.json
 mcp-config-enhanced.json
+WORKING_AUGMENT_CONFIG.json
+*_CONFIG_*.json
+WORK_COMPLETED_SUMMARY.md
 
 # Secrets and runtime artifacts
 update-vscode-settings.ps1

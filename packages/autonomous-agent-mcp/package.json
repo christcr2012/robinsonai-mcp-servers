@@ -29,8 +29,10 @@
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "ollama": "^0.5.9",
-    "handlebars": "^4.7.8"
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^11.10.0",
+    "handlebars": "^4.7.8",
+    "ollama": "^0.5.9"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
@@ -45,4 +47,3 @@
     "directory": "packages/autonomous-agent-mcp"
   }
 }
-

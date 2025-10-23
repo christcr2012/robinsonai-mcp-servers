@@ -7,6 +7,22 @@ import path from "node:path";
 import crypto from "node:crypto";
 import Database from "better-sqlite3";
 import { ollamaGenerate, warmModels } from "./ollama-client.js";
+import {
+  handleSubmitSpec,
+  handleGetSpecChunk,
+  handlePlanWork,
+  handleGetPlanStatus,
+  handleGetPlanChunk,
+  handleExportWorkplan,
+  handleRevisePlan,
+  handleListTemplates,
+  handleGetTemplate,
+  handleDecomposeSpec,
+  handleForecastRunCost,
+  handleListModels,
+  handleGetSpendStats,
+} from "./tools/plan.js";
+import { handleRunPlanSteps } from "./tools/run_workflow.js";
 
 type MCPReturn = Promise<{ content: Array<{ type: "text"; text: string }> }>;
 const DB_PATH = process.env.ARCHITECT_DB || path.join(process.cwd(), "architect.db");
@@ -135,11 +151,30 @@ class ArchitectMCP {
 
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
-        { name: "plan_work", description: "Create a WorkPlan from a high-level goal", inputSchema: { type: "object", properties: { goal: { type: "string" }, constraints: { type: "object" }, budgets: { type: "object" }, depth: { type: "string" } }, required: ["goal"] } },
-        { name: "get_plan", description: "Fetch full plan by id", inputSchema: { type: "object", properties: { plan_id: { type: "string" } }, required: ["plan_id"] } },
-        { name: "get_plan_chunk", description: "Fetch plan chunk", inputSchema: { type: "object", properties: { plan_id: { type: "string" }, offset: { type: "number" }, limit: { type: "number" } }, required: ["plan_id", "offset", "limit"] } },
-        { name: "revise_plan", description: "Critique & improve a plan", inputSchema: { type: "object", properties: { plan_id: { type: "string" }, critiqueFocus: { type: "string" } }, required: ["plan_id"] } },
-        { name: "export_workplan_to_optimizer", description: "Convert plan to Optimizer workflow JSON", inputSchema: { type: "object", properties: { plan_id: { type: "string" } }, required: ["plan_id"] } },
+        // Spec management
+        { name: "submit_spec", description: "Store large specification (max 200 KB)", inputSchema: { type: "object", properties: { title: { type: "string" }, text: { type: "string" } }, required: ["title", "text"] } },
+        { name: "get_spec_chunk", description: "Retrieve spec in chunks", inputSchema: { type: "object", properties: { spec_id: { type: "number" }, from: { type: "number" }, size: { type: "number" } }, required: ["spec_id"] } },
+        { name: "decompose_spec", description: "Break spec into work items", inputSchema: { type: "object", properties: { spec_id: { type: "number" }, max_item_size: { type: "number" } }, required: ["spec_id"] } },
+
+        // Planning (incremental)
+        { name: "plan_work", description: "Create WorkPlan (returns plan_id immediately)", inputSchema: { type: "object", properties: { goal: { type: "string" }, spec_id: { type: "number" }, mode: { type: "string" }, budgets: { type: "object" } } } },
+        { name: "get_plan_status", description: "Check planning progress", inputSchema: { type: "object", properties: { plan_id: { type: "number" } }, required: ["plan_id"] } },
+        { name: "get_plan_chunk", description: "Fetch plan steps in chunks", inputSchema: { type: "object", properties: { plan_id: { type: "number" }, from: { type: "number" }, size: { type: "number" } }, required: ["plan_id"] } },
+        { name: "revise_plan", description: "Revise plan based on validation errors", inputSchema: { type: "object", properties: { plan_id: { type: "number" }, critique_focus: { type: "string" } }, required: ["plan_id"] } },
+        { name: "export_workplan_to_optimizer", description: "Export validated plan to Optimizer", inputSchema: { type: "object", properties: { plan_id: { type: "number" } }, required: ["plan_id"] } },
+        { name: "run_plan_steps", description: "Execute validated plan steps locally", inputSchema: { type: "object", properties: { plan_id: { type: "number" } }, required: ["plan_id"] } },
+
+        // Templates
+        { name: "list_templates", description: "List available step templates", inputSchema: { type: "object", properties: {} } },
+        { name: "get_template", description: "Get template details", inputSchema: { type: "object", properties: { name: { type: "string" } }, required: ["name"] } },
+
+        // Cost forecasting
+        { name: "forecast_run_cost", description: "Estimate cost for a plan", inputSchema: { type: "object", properties: { plan_id: { type: "string" } }, required: ["plan_id"] } },
+        { name: "list_models", description: "List available models across all providers", inputSchema: { type: "object", properties: {} } },
+        { name: "get_spend_stats", description: "Get monthly spend statistics", inputSchema: { type: "object", properties: {} } },
+
+        // Legacy (keep for compatibility)
+        { name: "get_plan", description: "Fetch full plan by id (legacy)", inputSchema: { type: "object", properties: { plan_id: { type: "string" } }, required: ["plan_id"] } },
         { name: "diagnose_architect", description: "Health & env check", inputSchema: { type: "object", properties: {} } }
       ]
     }));
@@ -148,12 +183,38 @@ class ArchitectMCP {
       const { name, arguments: args } = req.params;
       try {
         switch (name) {
-          case "plan_work": return this.handlePlanWork(args as any);
+          // New tools
+          case "submit_spec": return handleSubmitSpec(args as any);
+          case "get_spec_chunk": return handleGetSpecChunk(args as any);
+          case "decompose_spec": return handleDecomposeSpec(args as any);
+          case "plan_work": return handlePlanWork(args as any);
+          case "get_plan_status": return handleGetPlanStatus(args as any);
+          case "get_plan_chunk": return handleGetPlanChunk(args as any);
+          case "revise_plan": return handleRevisePlan(args as any);
+          case "export_workplan_to_optimizer": return handleExportWorkplan(args as any);
+          case "run_plan_steps": return handleRunPlanSteps(args as any);
+          case "list_templates": return handleListTemplates();
+          case "get_template": return handleGetTemplate(args as any);
+          case "forecast_run_cost": return handleForecastRunCost(args as any);
+          case "list_models": return handleListModels();
+          case "get_spend_stats": return handleGetSpendStats();
+
+          // Legacy tools
           case "get_plan": return this.handleGetPlan(args as any);
-          case "get_plan_chunk": return this.handleGetPlanChunk(args as any);
-          case "revise_plan": return this.handleRevisePlan(args as any);
-          case "export_workplan_to_optimizer": return this.handleExport(args as any);
-          case "diagnose_architect": return toText({ ok: true, db: DB_PATH, wal: true, env: { OLLAMA_BASE_URL: !!process.env.OLLAMA_BASE_URL, TOOL_INDEX_DB: process.env.TOOL_INDEX_DB || null } });
+          case "diagnose_architect": return toText({
+            ok: true,
+            db: DB_PATH,
+            wal: true,
+            new_architecture: true,
+            env: {
+              OLLAMA_BASE_URL: !!process.env.OLLAMA_BASE_URL,
+              ARCHITECT_PLANNER_TIME_MS: process.env.ARCHITECT_PLANNER_TIME_MS || '90000',
+              ARCHITECT_PLANNER_SLICE_MS: process.env.ARCHITECT_PLANNER_SLICE_MS || '5000',
+              ARCHITECT_MAX_STEPS: process.env.ARCHITECT_MAX_STEPS || '12',
+              ARCHITECT_MAX_FILES_CHANGED: process.env.ARCHITECT_MAX_FILES_CHANGED || '40',
+            }
+          });
+
           default: throw new Error(`Unknown tool: ${name}`);
         }
       } catch (e: any) {

@@ -19,16 +19,17 @@
 - ❌ No access to GitHub, Vercel, Neon, Stripe, etc.
 
 **After Robinson AI Systems:**
-- ✅ 956+ tools across 4 MCP servers
+- ✅ 966+ tools across 5 MCP servers
 - ✅ 70-85% credit savings
 - ✅ Autonomous workflows (no stopping!)
 - ✅ FREE local LLMs for heavy work
 - ✅ Plan → Patch → PR workflows
 - ✅ 10x faster planning (5-10s vs 60+s)
+- ✅ Web crawling & semantic search (RAD Crawler)
 
 ---
 
-## 🏗️ **The 4-Server Architecture**
+## 🏗️ **The 5-Server Architecture**
 
 ### **1. Architect Agent MCP** 🧠
 **Purpose:** Strategic planning, critique, and architectural insights
@@ -116,6 +117,34 @@
 
 ---
 
+### **5. RAD Crawler MCP** 🕷️
+**Purpose:** Retrieval-Augmented Development - Web crawling & semantic search
+**Model:** Local Ollama (FREE embeddings & classification)
+**Tools:** 10 crawling & search tools
+
+**What it does:**
+- Crawls web documentation with governance (robots.txt, rate limits)
+- Ingests code repositories for semantic search
+- Hybrid search (FTS + pgvector semantic)
+- Smart deduplication and chunking
+- Local AI for embeddings (zero cloud credits!)
+
+**Key Features:**
+- ✅ **Search-first** - Check index before crawling
+- ✅ **Governed crawling** - Allow/deny lists, budgets, robots.txt
+- ✅ **Semantic search** - pgvector for concept-based retrieval
+- ✅ **Job queue** - Async processing with progress tracking
+- ✅ **Zero cloud credits** - All AI runs on local Ollama
+- ✅ **Neon storage** - Scalable Postgres with pgvector
+
+**Use Cases:**
+- Index documentation you frequently reference
+- Search your codebase semantically
+- Build knowledge base for your agents
+- Auto-gather context for planning
+
+---
+
 ## 💰 **Credit Savings Breakdown**
 
 | Task | Without Robinson AI | With Robinson AI | Savings |
@@ -151,6 +180,7 @@ cd packages/architect-mcp && npm link
 cd ../autonomous-agent-mcp && npm link
 cd ../credit-optimizer-mcp && npm link
 cd ../robinsons-toolkit-mcp && npm link
+cd ../rad-crawler-mcp && npm link
 ```
 
 ### **2. Configure Augment Code**

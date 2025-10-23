@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/search",
+      "dest": "/api/search.ts",
+      "methods": ["POST"]
+    },
+    {
+      "src": "/api/crawl",
+      "dest": "/api/crawl.ts",
+      "methods": ["POST"]
+    },
+    {
+      "src": "/api/status",
+      "dest": "/api/status.ts",
+      "methods": ["GET"]
+    },
+    {
+      "src": "/api/stats",
+      "dest": "/api/stats.ts",
+      "methods": ["GET"]
+    }
+  ],
+  "env": {
+    "NEON_DATABASE_URL": "@neon-database-url"
+  }
+}
+

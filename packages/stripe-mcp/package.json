@@ -1,0 +1,35 @@
+{
+  "name": "@robinsonai/stripe-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Stripe MCP server with 100+ tools - surpassing official Stripe API coverage",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "stripe-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "stripe",
+    "payments",
+    "subscriptions",
+    "model-context-protocol",
+    "billing",
+    "invoicing"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "stripe": "^17.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+

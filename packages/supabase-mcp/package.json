@@ -1,0 +1,35 @@
+{
+  "name": "@robinsonai/supabase-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Supabase MCP server with 80+ tools - auth, database, storage, realtime, functions",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "supabase-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "supabase",
+    "database",
+    "auth",
+    "storage",
+    "realtime",
+    "model-context-protocol"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@supabase/supabase-js": "^2.47.10"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+

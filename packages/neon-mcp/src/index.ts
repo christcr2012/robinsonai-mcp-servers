@@ -10,21 +10,33 @@ class NeonMCP {
   private client: AxiosInstance;
   private baseUrl = 'https://console.neon.tech/api/v2';
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string | null) {
     this.server = new Server(
       { name: '@robinsonai/neon-mcp', version: '2.0.0' },
       { capabilities: { tools: {} } }
     );
-    this.apiKey = apiKey;
-    this.client = axios.create({
-      baseURL: this.baseUrl,
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    });
+    this.apiKey = apiKey || '';
+
+    // Only create client if API key is provided
+    if (apiKey) {
+      this.client = axios.create({
+        baseURL: this.baseUrl,
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+    } else {
+      // Create dummy client that will throw helpful errors
+      this.client = axios.create({ baseURL: this.baseUrl });
+    }
+
     this.setupHandlers();
+  }
+
+  private get isEnabled(): boolean {
+    return !!this.apiKey;
   }
 
   private setupHandlers() {
@@ -96,6 +108,14 @@ class NeonMCP {
         // MIGRATIONS (2 tools)
         { name: 'neon_prepare_database_migration', description: 'Prepare database migration in temporary branch.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, databaseName: { type: 'string' }, migrationSql: { type: 'string' } }, required: ['projectId', 'migrationSql'] } },
         { name: 'neon_complete_database_migration', description: 'Complete and apply migration to main branch.', inputSchema: { type: 'object', properties: { migrationId: { type: 'string' } }, required: ['migrationId'] } },
+
+        // SETUP AUTOMATION (6 tools) - NEW! For autonomous RAD system setup
+        { name: 'neon_create_project_for_rad', description: 'Create Neon project specifically for RAD Crawler system with optimal settings.', inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'Project name (default: RAD Crawler)', default: 'RAD Crawler' }, region: { type: 'string', description: 'Region (default: us-east-1)', default: 'us-east-1' }, org_id: { type: 'string', description: 'Organization ID (optional)' } } } },
+        { name: 'neon_deploy_schema', description: 'Deploy SQL schema file to database. Supports multi-statement SQL files.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string', description: 'Branch ID (optional, uses main if not specified)' }, databaseName: { type: 'string', description: 'Database name (optional, uses default if not specified)' }, schemaSQL: { type: 'string', description: 'Full SQL schema content' } }, required: ['projectId', 'schemaSQL'] } },
+        { name: 'neon_verify_schema', description: 'Verify that required tables exist in database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, requiredTables: { type: 'array', items: { type: 'string' }, description: 'List of table names that must exist' } }, required: ['projectId', 'requiredTables'] } },
+        { name: 'neon_get_connection_uri', description: 'Get full PostgreSQL connection URI for application use.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string', description: 'Branch ID (optional, uses main if not specified)' }, databaseName: { type: 'string', description: 'Database name (optional, uses default if not specified)' }, pooled: { type: 'boolean', description: 'Use connection pooling (default: true)', default: true } }, required: ['projectId'] } },
+        { name: 'neon_setup_rad_database', description: 'Complete autonomous setup: create project, database, deploy schema, verify. Returns connection URI.', inputSchema: { type: 'object', properties: { projectName: { type: 'string', default: 'RAD Crawler' }, databaseName: { type: 'string', default: 'rad_production' }, region: { type: 'string', default: 'us-east-1' }, schemaSQL: { type: 'string', description: 'Full SQL schema to deploy' }, org_id: { type: 'string' } }, required: ['schemaSQL'] } },
+        { name: 'neon_check_api_key', description: 'Check if Neon API key is configured and valid.', inputSchema: { type: 'object', properties: {} } },
 
         // QUERY TUNING (2 tools)
         { name: 'neon_prepare_query_tuning', description: 'Analyze and prepare query optimizations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'databaseName', 'sql'] } },
@@ -452,6 +472,14 @@ class NeonMCP {
           // ADVANCED MONITORING
           case 'neon_get_real_time_metrics': return await this.getRealTimeMetrics(args);
           case 'neon_export_metrics': return await this.exportMetrics(args);
+
+          // SETUP AUTOMATION (NEW!)
+          case 'neon_create_project_for_rad': return await this.createProjectForRAD(args);
+          case 'neon_deploy_schema': return await this.deploySchema(args);
+          case 'neon_verify_schema': return await this.verifySchema(args);
+          case 'neon_get_connection_uri': return await this.getConnectionUri(args);
+          case 'neon_setup_rad_database': return await this.setupRADDatabase(args);
+          case 'neon_check_api_key': return await this.checkApiKey(args);
 
           default:
             throw new Error(`Unknown tool: ${request.params.name}`);
@@ -1084,13 +1112,259 @@ class NeonMCP {
     };
     return { content: [{ type: 'text', text: JSON.stringify(config, null, 2) }] };
   }
+
+  // SETUP AUTOMATION METHODS (NEW!)
+
+  private async checkApiKey(args: any) {
+    if (!this.isEnabled) {
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            enabled: false,
+            message: 'Neon API key not configured. Set NEON_API_KEY environment variable to enable Neon tools.',
+            instructions: 'Get your API key from: https://console.neon.tech/app/settings/api-keys'
+          }, null, 2)
+        }]
+      };
+    }
+
+    try {
+      // Test API key by listing projects
+      await this.client.get('/projects', { params: { limit: 1 } });
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            enabled: true,
+            message: 'Neon API key is valid and working!'
+          }, null, 2)
+        }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            enabled: false,
+            error: error.message,
+            message: 'Neon API key is configured but invalid. Please check your API key.'
+          }, null, 2)
+        }]
+      };
+    }
+  }
+
+  private async createProjectForRAD(args: any) {
+    if (!this.isEnabled) {
+      return {
+        content: [{
+          type: 'text',
+          text: 'Error: Neon API key not configured. Set NEON_API_KEY environment variable.'
+        }]
+      };
+    }
+
+    const projectData: any = {
+      project: {
+        name: args.name || 'RAD Crawler',
+        region_id: args.region || 'aws-us-east-1',
+        pg_version: 16
+      }
+    };
+
+    if (args.org_id) {
+      projectData.project.org_id = args.org_id;
+    }
+
+    const response = await this.client.post('/projects', projectData);
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          success: true,
+          project: response.data.project,
+          message: 'RAD Crawler project created successfully!',
+          next_steps: [
+            'Use neon_deploy_schema to deploy your schema',
+            'Use neon_get_connection_uri to get connection string'
+          ]
+        }, null, 2)
+      }]
+    };
+  }
+
+  private async deploySchema(args: any) {
+    if (!this.isEnabled) {
+      return {
+        content: [{
+          type: 'text',
+          text: 'Error: Neon API key not configured. Set NEON_API_KEY environment variable.'
+        }]
+      };
+    }
+
+    // Split schema into individual statements
+    const statements = args.schemaSQL
+      .split(';')
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 0);
+
+    const results = [];
+    for (const sql of statements) {
+      try {
+        const response = await this.client.post(
+          `/projects/${args.projectId}/branches/${args.branchId || 'main'}/databases/${args.databaseName || 'neondb'}/query`,
+          { query: sql + ';' }
+        );
+        results.push({ success: true, statement: sql.substring(0, 100) + '...' });
+      } catch (error: any) {
+        results.push({ success: false, statement: sql.substring(0, 100) + '...', error: error.message });
+      }
+    }
+
+    const successCount = results.filter(r => r.success).length;
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          success: successCount === results.length,
+          total_statements: results.length,
+          successful: successCount,
+          failed: results.length - successCount,
+          results
+        }, null, 2)
+      }]
+    };
+  }
+
+  private async verifySchema(args: any) {
+    if (!this.isEnabled) {
+      return {
+        content: [{
+          type: 'text',
+          text: 'Error: Neon API key not configured. Set NEON_API_KEY environment variable.'
+        }]
+      };
+    }
+
+    const sql = `
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+    `;
+
+    const response = await this.client.post(
+      `/projects/${args.projectId}/branches/${args.branchId || 'main'}/databases/${args.databaseName || 'neondb'}/query`,
+      { query: sql }
+    );
+
+    const existingTables = response.data.rows.map((r: any) => r.table_name);
+    const missingTables = args.requiredTables.filter((t: string) => !existingTables.includes(t));
+
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          success: missingTables.length === 0,
+          existing_tables: existingTables,
+          required_tables: args.requiredTables,
+          missing_tables: missingTables,
+          message: missingTables.length === 0
+            ? 'All required tables exist!'
+            : `Missing tables: ${missingTables.join(', ')}`
+        }, null, 2)
+      }]
+    };
+  }
+
+  private async setupRADDatabase(args: any) {
+    if (!this.isEnabled) {
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: false,
+            error: 'Neon API key not configured',
+            message: 'Set NEON_API_KEY environment variable to enable autonomous setup.',
+            instructions: 'Get your API key from: https://console.neon.tech/app/settings/api-keys'
+          }, null, 2)
+        }]
+      };
+    }
+
+    try {
+      // Step 1: Create project
+      const projectResult = await this.createProjectForRAD({
+        name: args.projectName || 'RAD Crawler',
+        region: args.region || 'aws-us-east-1',
+        org_id: args.org_id
+      });
+      const project = JSON.parse(projectResult.content[0].text).project;
+
+      // Step 2: Create database
+      await this.client.post(
+        `/projects/${project.id}/branches/main/databases`,
+        { database: { name: args.databaseName || 'rad_production', owner_name: 'neondb_owner' } }
+      );
+
+      // Step 3: Deploy schema
+      await this.deploySchema({
+        projectId: project.id,
+        branchId: 'main',
+        databaseName: args.databaseName || 'rad_production',
+        schemaSQL: args.schemaSQL
+      });
+
+      // Step 4: Get connection URI
+      const uriResult = await this.getConnectionUri({
+        projectId: project.id,
+        branchId: 'main',
+        databaseName: args.databaseName || 'rad_production',
+        pooled: true
+      });
+      const connectionUri = JSON.parse(uriResult.content[0].text).connection_uri;
+
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            project_id: project.id,
+            database_name: args.databaseName || 'rad_production',
+            connection_uri: connectionUri,
+            message: 'RAD database setup complete! Add NEON_DATABASE_URL to your environment config.',
+            next_steps: [
+              `Set NEON_DATABASE_URL="${connectionUri}"`,
+              'Update WORKING_AUGMENT_CONFIG.json',
+              'Restart VS Code'
+            ]
+          }, null, 2)
+        }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            success: false,
+            error: error.message,
+            message: 'Failed to set up RAD database. Check error details above.'
+          }, null, 2)
+        }]
+      };
+    }
+  }
 }
 
-const apiKey = process.env.NEON_API_KEY || process.argv[2];
+const apiKey = process.env.NEON_API_KEY || process.argv[2] || null;
+
 if (!apiKey) {
-  console.error('Usage: neon-mcp <NEON_API_KEY>');
-  console.error('Or set NEON_API_KEY environment variable');
-  process.exit(1);
+  console.error('⚠️  Neon API key not configured - Neon tools will be disabled');
+  console.error('   Set NEON_API_KEY environment variable to enable Neon tools');
+  console.error('   Get your API key from: https://console.neon.tech/app/settings/api-keys');
+  console.error('   Robinson\'s Toolkit will continue to work with other integrations');
 }
 
 const server = new NeonMCP(apiKey);

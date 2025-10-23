@@ -1,0 +1,35 @@
+{
+  "name": "@robinsonai/fly-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Fly.io MCP server with 80+ tools for complete deployment automation",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "fly-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "fly.io",
+    "deployment",
+    "hosting",
+    "model-context-protocol",
+    "devops",
+    "automation"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+

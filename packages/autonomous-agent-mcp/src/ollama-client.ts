@@ -139,6 +139,8 @@ export class OllamaClient {
     text: string;
     model: string;
     tokensGenerated: number;
+    tokensInput: number;
+    tokensTotal: number;
     timeMs: number;
   }> {
     // Auto-start Ollama if needed (saves Augment credits!)
@@ -163,6 +165,8 @@ export class OllamaClient {
         text: response.response,
         model,
         tokensGenerated: response.eval_count || 0,
+        tokensInput: response.prompt_eval_count || 0,
+        tokensTotal: (response.prompt_eval_count || 0) + (response.eval_count || 0),
         timeMs,
       };
     } catch (error: any) {

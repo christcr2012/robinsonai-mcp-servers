@@ -156,6 +156,58 @@ export class LazyLoader {
   }
 
   /**
+   * Load tools from an integration package
+   * This dynamically imports the integration's MCP server and extracts its tools
+   */
+  async loadIntegrationTools(integrationName: string): Promise<any[]> {
+    // Map integration names to package names
+    const packageMap: { [key: string]: string } = {
+      'github': '@robinsonai/github-mcp',
+      'vercel': '@robinsonai/vercel-mcp',
+      'neon': '@robinsonai/neon-mcp',
+      'resend': '@robinsonai/resend-mcp',
+      'twilio': '@robinsonai/twilio-mcp',
+      'redis': '@robinsonai/redis-mcp',
+      'openai': '@robinsonai/openai-mcp',
+      'playwright': '@robinsonai/playwright-mcp',
+      'context7': '@robinsonai/context7-mcp',
+      'sequential-thinking': '@robinsonai/sequential-thinking-mcp',
+      'cloudflare': '@robinsonai/cloudflare-mcp',
+      'google-workspace': '@robinsonai/google-workspace-mcp'
+    };
+
+    const packageName = packageMap[integrationName];
+    if (!packageName) {
+      throw new Error(`Unknown integration: ${integrationName}`);
+    }
+
+    try {
+      // Try to dynamically import the package
+      // Note: This requires the package to be installed/linked
+      const module = await import(packageName);
+
+      // If the package exports a getTools() function, use it
+      if (module.getTools && typeof module.getTools === 'function') {
+        return module.getTools();
+      }
+
+      // If the package exports tools directly, use them
+      if (module.tools && Array.isArray(module.tools)) {
+        return module.tools;
+      }
+
+      // Package doesn't export tools in expected format
+      console.error(`[LazyLoader] Package ${packageName} doesn't export tools in expected format`);
+      return [];
+
+    } catch (error: any) {
+      // Package not installed or import failed
+      console.error(`[LazyLoader] Failed to load ${packageName}:`, error.message);
+      return [];
+    }
+  }
+
+  /**
    * Get diagnostic report
    */
   diagnoseEnvironment(): {

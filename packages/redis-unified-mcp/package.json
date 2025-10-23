@@ -1,0 +1,34 @@
+{
+  "name": "@robinsonai/redis-unified-mcp",
+  "version": "1.0.0",
+  "description": "Unified Redis MCP: 53 Cloud API tools + 80 data operation tools with multi-URL support",
+  "type": "module",
+  "bin": {
+    "redis-unified-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "redis",
+    "redis-cloud",
+    "database",
+    "cache",
+    "robinsonai"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "0.6.0",
+    "axios": "^1.7.9",
+    "redis": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+

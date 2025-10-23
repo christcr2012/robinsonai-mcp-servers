@@ -1,0 +1,60 @@
+{
+  "name": "@robinsonai/rad-crawler-mcp",
+  "version": "0.1.0",
+  "description": "RAD (Retrieval-Augmented Development) Crawler MCP server - Web crawling, repo ingestion, and semantic search with local Ollama",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "rad-crawler-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "worker": "node dist/worker.js",
+    "test": "echo \"Tests coming soon\"",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "crawler",
+    "web-scraping",
+    "semantic-search",
+    "pgvector",
+    "ollama",
+    "rag",
+    "retrieval-augmented-development",
+    "code-analysis"
+  ],
+  "author": "Robinson AI",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "ollama": "^0.5.9",
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "robots-parser": "^3.0.1",
+    "pg": "^8.13.1",
+    "bottleneck": "^2.19.5",
+    "crypto": "^1.0.1",
+    "turndown": "^7.2.0",
+    "tiktoken": "^1.0.17"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "@types/turndown": "^5.0.5",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robinsonai/robinsonai-mcp-servers.git",
+    "directory": "packages/rad-crawler-mcp"
+  }
+}
+

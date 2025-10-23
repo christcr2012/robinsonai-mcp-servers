@@ -25,7 +25,16 @@ export interface GenerateResult {
   augmentCreditsUsed: number;
   creditsSaved: number;
   model: string;
-  tokensGenerated: number;
+  tokens: {
+    input: number;
+    output: number;
+    total: number;
+  };
+  cost: {
+    total: number;
+    currency: string;
+    note: string;
+  };
   timeMs: number;
 }
 
@@ -68,7 +77,16 @@ export class CodeGenerator {
       augmentCreditsUsed,
       creditsSaved,
       model: result.model,
-      tokensGenerated: result.tokensGenerated,
+      tokens: {
+        input: result.tokensInput || 0,
+        output: result.tokensGenerated || 0,
+        total: result.tokensTotal || 0,
+      },
+      cost: {
+        total: 0,
+        currency: 'USD',
+        note: 'FREE - Local Ollama model',
+      },
       timeMs: result.timeMs,
     };
   }
@@ -101,7 +119,16 @@ export class CodeGenerator {
       augmentCreditsUsed: 400,
       creditsSaved: 8000,
       model: result.model,
-      tokensGenerated: result.tokensGenerated,
+      tokens: {
+        input: result.tokensInput || 0,
+        output: result.tokensGenerated || 0,
+        total: result.tokensTotal || 0,
+      },
+      cost: {
+        total: 0,
+        currency: 'USD',
+        note: 'FREE - Local Ollama model',
+      },
       timeMs: result.timeMs,
     };
   }
@@ -130,7 +157,16 @@ export class CodeGenerator {
       augmentCreditsUsed: 200,
       creditsSaved: 3000,
       model: result.model,
-      tokensGenerated: result.tokensGenerated,
+      tokens: {
+        input: result.tokensInput || 0,
+        output: result.tokensGenerated || 0,
+        total: result.tokensTotal || 0,
+      },
+      cost: {
+        total: 0,
+        currency: 'USD',
+        note: 'FREE - Local Ollama model',
+      },
       timeMs: result.timeMs,
     };
   }

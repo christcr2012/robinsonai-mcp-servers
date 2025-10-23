@@ -1,0 +1,22 @@
+{
+  "name": "@robinsonai/rad-vercel-api",
+  "version": "1.0.0",
+  "description": "Vercel serverless API for RAD Crawler",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "tsc",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "node-cache": "^5.1.2",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/pg": "^8.10.9",
+    "@vercel/node": "^3.2.29",
+    "typescript": "^5.3.3",
+    "vercel": "^33.0.1"
+  }
+}

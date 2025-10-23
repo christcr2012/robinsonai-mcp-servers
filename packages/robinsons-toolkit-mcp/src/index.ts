@@ -83,20 +83,20 @@ class RobinsonsToolkitServer {
       status: 'available',
     });
 
-    // Stripe integration (100 tools) - TO BE BUILT
+    // Stripe integration (105 tools)
     this.integrations.set('stripe', {
       name: 'stripe-mcp',
-      toolCount: 100,
-      categories: ['customers', 'subscriptions', 'payments', 'products', 'webhooks', 'disputes', 'payouts'],
-      status: 'pending',
+      toolCount: 105,
+      categories: ['customers', 'subscriptions', 'payments', 'products', 'prices', 'invoices', 'payment-methods', 'refunds', 'disputes', 'payouts', 'webhooks', 'balance', 'coupons', 'promotion-codes', 'tax-rates'],
+      status: 'available',
     });
 
-    // Supabase integration (80 tools) - TO BE BUILT
+    // Supabase integration (80 tools)
     this.integrations.set('supabase', {
       name: 'supabase-mcp',
       toolCount: 80,
       categories: ['auth', 'database', 'storage', 'realtime', 'functions'],
-      status: 'pending',
+      status: 'available',
     });
 
     // Resend integration (60 tools)
@@ -123,12 +123,28 @@ class RobinsonsToolkitServer {
       status: 'available',
     });
 
-    // Redis integration (40 tools) - TO BE BUILT
+    // Redis integration (80 tools)
     this.integrations.set('redis', {
       name: 'redis-mcp',
-      toolCount: 40,
-      categories: ['cache', 'pubsub', 'streams', 'keys'],
-      status: 'pending',
+      toolCount: 80,
+      categories: ['strings', 'hashes', 'lists', 'sets', 'sorted-sets', 'streams', 'pubsub', 'keys', 'transactions', 'scripting'],
+      status: 'available',
+    });
+
+    // Redis Cloud integration (53 tools)
+    this.integrations.set('redis-cloud', {
+      name: 'redis-cloud-mcp',
+      toolCount: 53,
+      categories: ['subscriptions', 'databases', 'cloud-accounts', 'payment-methods', 'monitoring'],
+      status: 'available',
+    });
+
+    // Fly.io integration (83 tools)
+    this.integrations.set('fly', {
+      name: 'fly-mcp',
+      toolCount: 83,
+      categories: ['apps', 'deployments', 'secrets', 'volumes', 'machines', 'networking', 'monitoring', 'org-billing', 'setup'],
+      status: 'available',
     });
 
     // OpenAI integration (30 tools)

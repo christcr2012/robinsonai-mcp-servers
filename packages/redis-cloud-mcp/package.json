@@ -1,0 +1,35 @@
+{
+  "name": "@robinsonai/redis-cloud-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Redis Cloud MCP server with full API coverage for autonomous database provisioning",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "redis-cloud-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "redis",
+    "redis-cloud",
+    "database",
+    "model-context-protocol",
+    "provisioning",
+    "automation"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
+
