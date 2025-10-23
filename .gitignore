@@ -18,6 +18,7 @@ mcp-config-enhanced.json
 WORKING_AUGMENT_CONFIG.json
 *_CONFIG_*.json
 WORK_COMPLETED_SUMMARY.md
+COPY_PASTE_THIS_INTO_AUGMENT.json
 
 # Secrets and runtime artifacts
 update-vscode-settings.ps1
