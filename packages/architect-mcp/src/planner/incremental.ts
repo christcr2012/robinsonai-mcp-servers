@@ -8,7 +8,7 @@
 import { mkdirSync, existsSync } from 'fs';
 import Database from 'better-sqlite3';
 import { join } from 'path';
-import { ollamaGenerate } from '../ollama-client.js';
+import { ollamaGenerate, pingOllama } from '@robinsonai/shared-llm';
 import { getSpecById } from '../specs/store.js';
 // Node 18+ has global fetch; AbortSignal.timeout is available in Node 18+
 
@@ -102,13 +102,6 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
     p,
     new Promise<T>((_, rej) => setTimeout(() => rej(new Error(`timeout after ${ms}ms`)), ms))
   ]) as Promise<T>;
-}
-
-async function ollamaReachable(base: string): Promise<boolean> {
-  try {
-    const r = await fetch(`${base.replace(/\/+$/,'')}/api/tags`, { method: 'GET', signal: AbortSignal.timeout(1000) });
-    return r.ok;
-  } catch { return false; }
 }
 
 function getEnvNumber(key: string, defaultValue: number): number {
@@ -215,8 +208,7 @@ export function getPlanChunk(planId: number, from: number, size: number = 10): {
  * Generate steps from spec using LLM or fallback
  */
 async function generateStepsFromSpec(specText: string, maxSteps: number, sliceMs: number): Promise<any[]> {
-  const base = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
-  const reachable = await ollamaReachable(base);
+  const reachable = await pingOllama(1000);
 
   if (reachable) {
     const model = process.env.ARCHITECT_STD_MODEL || 'deepseek-coder:33b';

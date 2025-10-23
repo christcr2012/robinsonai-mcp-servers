@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * Robinson's Toolkit MCP Server - BROKER ARCHITECTURE
+ * Robinson's Toolkit MCP Server - ALWAYS-ON PROVIDER HUB
  *
- * Spawns integration MCP servers on demand instead of loading all at startup.
+ * Eagerly exposes all provider tools from a single server.
  *
  * Benefits:
- * - Faster startup (no 23-server initialization)
- * - Lower memory (only active workers loaded)
- * - Connection pooling (max 6 active workers)
- * - Idle eviction (kill workers after 5 min)
- * - Timeout protection (60s per tool call)
+ * - All tools visible immediately (no spawning workers)
+ * - Fast failure without credentials (helpful error messages)
+ * - Dotenv support (RTK_DOTENV_PATH)
+ * - Concurrency limiting (RTK_MAX_ACTIVE)
+ * - Timeout protection (RTK_TOOL_TIMEOUT_MS)
  *
  * This gives Augment Code HANDS to DO things, not just explain them!
  */
@@ -22,12 +22,20 @@ import {
   ListToolsRequestSchema,
   InitializeRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import 'dotenv/config';
+import pLimit from 'p-limit';
+import { providerCatalog, ensureProviders, routeProviderCall, whatWasRenamed, whatWasRejected, getProviderStats } from './providers/registry.js';
 import { MCPBroker } from './broker.js';
+
+const LIMIT = pLimit(parseInt(process.env.RTK_MAX_ACTIVE || '12', 10));
+const TOOL_TIMEOUT_MS = parseInt(process.env.RTK_TOOL_TIMEOUT_MS || '60000', 10);
+const EAGER = (process.env.RTK_EAGER_LOAD || '1') !== '0';
+const DOTENV_PATH = process.env.RTK_DOTENV_PATH;
 
 /**
  * Main Robinson's Toolkit MCP Server
  *
- * This server acts as a broker that spawns integration workers on demand.
+ * This server exposes all provider tools immediately (always-on).
  */
 class RobinsonsToolkitServer {
   private server: Server;
@@ -51,7 +59,20 @@ class RobinsonsToolkitServer {
   }
 
 
-  private setupHandlers(): void {
+  private async setupHandlers(): Promise<void> {
+    // Load dotenv if path specified
+    if (DOTENV_PATH) {
+      try {
+        const dotenv = await import('dotenv');
+        dotenv.config({ path: DOTENV_PATH });
+      } catch {}
+    }
+
+    // Eagerly initialize providers if enabled
+    if (EAGER) {
+      await ensureProviders();
+    }
+
     // Handle initialize request
     this.server.setRequestHandler(InitializeRequestSchema, async (request) => ({
       protocolVersion: "2024-11-05",
@@ -64,9 +85,34 @@ class RobinsonsToolkitServer {
       },
     }));
 
-    // List available tools (meta-tools only - integration tools loaded on demand)
+    // List ALL provider tools (always-on) + legacy broker meta-tools + diagnostics
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
+        ...providerCatalog(), // All provider tools (github.*, vercel.*, etc.)
+        {
+          name: 'toolkit_provider_stats',
+          description: 'Get comprehensive provider statistics: counts, renames, rejects, and vendor status',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+        {
+          name: 'toolkit_renames',
+          description: 'List all tool names that were sanitized/renamed for MCP compliance',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+        {
+          name: 'toolkit_rejects',
+          description: 'List all tools that were rejected (invalid names, duplicates, errors)',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
         {
           name: 'registry_list',
           description: 'List all available integration servers and their tool counts',
@@ -124,6 +170,39 @@ class RobinsonsToolkitServer {
       try {
         const params = args as any || {};
 
+        // Check if this is a provider tool (contains dot)
+        if (name.includes('.')) {
+          const work = routeProviderCall(name, params);
+          const withTimeout = Promise.race([
+            work,
+            new Promise((_, r) => setTimeout(() => r(new Error(`timeout after ${TOOL_TIMEOUT_MS}ms`)), TOOL_TIMEOUT_MS))
+          ]);
+          return await LIMIT(() => withTimeout);
+        }
+
+        // Diagnostic tools
+        if (name === 'toolkit_provider_stats') {
+          const stats = getProviderStats();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(stats, null, 2) }]
+          };
+        }
+
+        if (name === 'toolkit_renames') {
+          const renamed = whatWasRenamed();
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ renamed, count: renamed.length }, null, 2) }]
+          };
+        }
+
+        if (name === 'toolkit_rejects') {
+          const rejected = whatWasRejected();
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ rejected, count: rejected.length }, null, 2) }]
+          };
+        }
+
+        // Legacy broker meta-tools
         switch (name) {
           case 'registry_list':
             return this.registryList();
@@ -148,7 +227,7 @@ class RobinsonsToolkitServer {
           content: [
             {
               type: 'text',
-              text: `Error: ${error.message}`,
+              text: `Error calling ${name}: ${error.message || String(error)}`,
             },
           ],
           isError: true,
