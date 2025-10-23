@@ -1,0 +1,275 @@
+{
+  "validation_date": "2025-10-23",
+  "branch": "fix/6-server-ready",
+  "commit": "5849df0",
+  "status": "PASS",
+  "overall_health": "HEALTHY",
+  "servers": {
+    "architect-mcp": {
+      "status": "HEALTHY",
+      "tools_count": 13,
+      "last_test": {
+        "spec_id": 6,
+        "plan_id": 18,
+        "state": "done",
+        "progress": 100,
+        "steps_count": 5,
+        "error": null
+      },
+      "features": {
+        "general_purpose_planning": true,
+        "timeout_protection": true,
+        "deterministic_fallback": true,
+        "non_blocking": true
+      },
+      "config": {
+        "OLLAMA_BASE_URL": "http://127.0.0.1:11434",
+        "ARCHITECT_FAST_MODEL": "qwen2.5:3b",
+        "ARCHITECT_STD_MODEL": "deepseek-coder:33b",
+        "ARCHITECT_BIG_MODEL": "qwen2.5-coder:32b",
+        "ARCHITECT_MAX_STEPS": 8,
+        "ARCHITECT_PLANNER_TIME_MS": 45000,
+        "ARCHITECT_PLANNER_SLICE_MS": 2000
+      }
+    },
+    "autonomous-agent-mcp": {
+      "status": "HEALTHY",
+      "tools_count": 8,
+      "stats": {
+        "totalRequests": 17,
+        "augmentCreditsSaved": 62500,
+        "averageTimeMs": 13166,
+        "taskBreakdown": {
+          "generation": 5,
+          "other": 12
+        }
+      },
+      "cost": {
+        "total": 0,
+        "currency": "USD",
+        "note": "FREE - Uses local Ollama"
+      },
+      "config": {
+        "OLLAMA_BASE_URL": "http://127.0.0.1:11434",
+        "MAX_OLLAMA_CONCURRENCY": 2
+      }
+    },
+    "openai-worker-mcp": {
+      "status": "HEALTHY",
+      "tools_count": 8,
+      "budget": {
+        "current_month": 0.0021516,
+        "total_budget": 25,
+        "remaining": 24.9978484,
+        "percentage_used": 0.0086,
+        "currency": "USD"
+      },
+      "config": {
+        "MONTHLY_BUDGET": 25,
+        "MAX_OPENAI_CONCURRENCY": 1,
+        "PER_JOB_TOKEN_LIMIT": 6000
+      }
+    },
+    "thinking-tools-mcp": {
+      "status": "HEALTHY",
+      "tools_count": 15,
+      "frameworks": [
+        "devils_advocate",
+        "first_principles",
+        "root_cause",
+        "swot_analysis",
+        "premortem_analysis",
+        "critical_thinking",
+        "lateral_thinking",
+        "red_team",
+        "blue_team",
+        "decision_matrix",
+        "socratic_questioning",
+        "systems_thinking",
+        "scenario_planning",
+        "brainstorming",
+        "mind_mapping"
+      ],
+      "last_test": {
+        "tool": "decision_matrix",
+        "options": ["DeepSeek", "Qwen", "Llama"],
+        "criteria": ["speed", "accuracy", "VRAM"],
+        "recommendation": "DeepSeek",
+        "confidence": 50
+      }
+    },
+    "credit-optimizer-mcp": {
+      "status": "HEALTHY",
+      "tools_count": 30,
+      "stats": {
+        "totalRequests": 3,
+        "totalCreditsSaved": 0,
+        "toolBreakdown": [
+          {
+            "tool_name": "execute_autonomous_workflow",
+            "count": 3,
+            "total_requests": 3,
+            "total_credits_saved": 0,
+            "avg_time_ms": 9.33
+          }
+        ]
+      },
+      "features": {
+        "autonomous_workflows": true,
+        "bulk_fixes": true,
+        "refactor_patterns": true,
+        "test_generation": true,
+        "scaffolding": true,
+        "caching": true
+      }
+    },
+    "robinsons-toolkit-mcp": {
+      "status": "HEALTHY",
+      "tools_count": 1197,
+      "integrations": 13,
+      "broker_stats": {
+        "maxActive": 6,
+        "activeCount": 0,
+        "idleTimeout": 300,
+        "toolTimeout": 60000,
+        "activeWorkers": [],
+        "totalServers": 13
+      },
+      "config": {
+        "RTK_MAX_ACTIVE": 6,
+        "RTK_IDLE_SECS": 300,
+        "RTK_TOOL_TIMEOUT_MS": 60000,
+        "RTK_PREWARM": ""
+      }
+    }
+  },
+  "ollama": {
+    "status": "HEALTHY",
+    "base_url": "http://127.0.0.1:11434",
+    "models": [
+      {
+        "name": "qwen2.5:3b",
+        "size_gb": 1.8,
+        "parameter_size": "3.1B",
+        "quantization": "Q4_K_M",
+        "role": "fast"
+      },
+      {
+        "name": "deepseek-coder:33b",
+        "size_gb": 17.5,
+        "parameter_size": "33B",
+        "quantization": "Q4_0",
+        "role": "standard"
+      },
+      {
+        "name": "qwen2.5-coder:32b",
+        "size_gb": 18.5,
+        "parameter_size": "32.8B",
+        "quantization": "Q4_K_M",
+        "role": "big"
+      },
+      {
+        "name": "codellama:34b",
+        "size_gb": 17.7,
+        "parameter_size": "34B",
+        "quantization": "Q4_0",
+        "role": "medium"
+      }
+    ]
+  },
+  "metrics": {
+    "total_tools": 1197,
+    "total_servers": 6,
+    "total_integrations": 13,
+    "augment_credits_saved": 62500,
+    "openai_spend_usd": 0.0022,
+    "openai_budget_usd": 25,
+    "budget_remaining_pct": 99.99,
+    "ollama_cost_usd": 0,
+    "total_cost_usd": 0.0022
+  },
+  "guardrails": {
+    "architect": {
+      "max_steps": 8,
+      "planner_time_ms": 45000,
+      "planner_slice_ms": 2000,
+      "timeout_protection": true,
+      "deterministic_fallback": true
+    },
+    "openai_worker": {
+      "monthly_budget": 25,
+      "max_concurrency": 1,
+      "per_job_token_limit": 6000,
+      "budget_tracking": true
+    },
+    "autonomous_agent": {
+      "max_concurrency": 2,
+      "cost": 0,
+      "unlimited_usage": true
+    },
+    "toolkit": {
+      "max_active_workers": 6,
+      "idle_timeout_secs": 300,
+      "tool_timeout_ms": 60000,
+      "on_demand_spawning": true
+    }
+  },
+  "phase_6_tests": {
+    "test_1_architect_planner": {
+      "name": "Non-blocking planner operation",
+      "status": "PASS",
+      "spec_id": 6,
+      "plan_id": 18,
+      "steps_generated": 5,
+      "completion_time": "instant",
+      "pass_criteria": "steps_count >= 5"
+    },
+    "test_2_all_servers": {
+      "name": "All 6 servers responding",
+      "status": "PASS",
+      "servers_tested": 6,
+      "servers_passed": 6,
+      "pass_rate": 100
+    }
+  },
+  "critical_fixes": [
+    {
+      "issue": "Architect planner hanging on Ollama",
+      "fix": "Added timeout+fallback, preflight check, deterministic skeleton",
+      "files": ["packages/architect-mcp/src/planner/incremental.ts"],
+      "status": "RESOLVED"
+    },
+    {
+      "issue": "Missing dependencies for 3 servers",
+      "fix": "Targeted workspace installs",
+      "packages": ["openai-worker-mcp", "thinking-tools-mcp", "credit-optimizer-mcp"],
+      "status": "RESOLVED"
+    },
+    {
+      "issue": "OpenAI API key missing",
+      "fix": "Updated config with actual key",
+      "files": ["COPY_PASTE_THIS_INTO_AUGMENT.json"],
+      "status": "RESOLVED"
+    },
+    {
+      "issue": "DNS resolver flakiness with localhost",
+      "fix": "Changed to 127.0.0.1",
+      "files": ["COPY_PASTE_THIS_INTO_AUGMENT.json", "packages/architect-mcp/src/planner/incremental.ts"],
+      "status": "RESOLVED"
+    }
+  ],
+  "deliverables": {
+    "fixed_architect_planner": true,
+    "updated_6_server_config": true,
+    "repeatable_stress_test": true,
+    "commits_on_branch": true,
+    "validation_artifacts": true
+  },
+  "next_steps": [
+    "Merge fix/6-server-ready to main",
+    "Clean up source control",
+    "Start RAD Master Plan"
+  ],
+  "conclusion": "All 6 servers healthy. Architect planner advances without blocking on Ollama (timeout+fallback). System READY."
+}
+
