@@ -49,6 +49,36 @@ const openai = new OpenAI({
 initDatabase();
 initializePricing(); // Non-blocking, starts with fallback
 
+// Concurrency control
+let activeJobs = 0;
+const jobQueue: Array<{ resolve: Function; reject: Function }> = [];
+
+async function acquireJobSlot(): Promise<void> {
+  const policy = getPolicy();
+  if (activeJobs < policy.MAX_CONCURRENCY) {
+    activeJobs++;
+    return Promise.resolve();
+  }
+
+  // Queue the job
+  return new Promise((resolve, reject) => {
+    jobQueue.push({ resolve, reject });
+  });
+}
+
+function releaseJobSlot(): void {
+  activeJobs--;
+
+  // Process next job in queue
+  if (jobQueue.length > 0) {
+    const next = jobQueue.shift();
+    if (next) {
+      activeJobs++;
+      next.resolve();
+    }
+  }
+}
+
 /**
  * Agent configurations (pricing loaded dynamically from pricing.ts)
  */
@@ -282,8 +312,8 @@ async function handleRunJob(args: any) {
     throw new Error(`Monthly budget exceeded: $${monthlySpend.toFixed(2)} / $${policy.MONTHLY_BUDGET}`);
   }
 
-  // Check concurrency
-  // TODO: Implement concurrency check
+  // Acquire job slot (queues if at max concurrency)
+  await acquireJobSlot();
 
   // Create job record
   const jobStartTime = Date.now();
@@ -297,7 +327,7 @@ async function handleRunJob(args: any) {
   try {
     // Execute with OpenAI
     const maxTokens = caps.max_tokens || agentConfig.max_tokens;
-    
+
     const completion = await openai.chat.completions.create({
       model: agentConfig.model,
       messages: [
@@ -383,6 +413,9 @@ async function handleRunJob(args: any) {
       completed_at: new Date().toISOString(),
     });
     throw error;
+  } finally {
+    // Always release the job slot
+    releaseJobSlot();
   }
 }
 

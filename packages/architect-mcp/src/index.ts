@@ -269,12 +269,12 @@ class ArchitectMCP {
   }
 
   async run(): Promise<void> {
-    // Warm models before accepting requests
-    await warmModels();
-
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error("@robinsonai/architect-mcp running on stdio");
+
+    // Warm models in background (don't block server startup)
+    warmModels().catch(err => console.error('[Architect] Model warming failed:', err.message));
   }
 }
 

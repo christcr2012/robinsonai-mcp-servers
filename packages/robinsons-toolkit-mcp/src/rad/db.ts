@@ -243,6 +243,24 @@ export class Database {
 
   // ===== STATS =====
 
+  async calculateStorageMB(): Promise<number> {
+    try {
+      const result = await this.query(`
+        SELECT
+          ROUND(
+            (pg_total_relation_size('documents') +
+             pg_total_relation_size('sources') +
+             pg_total_relation_size('chunks') +
+             pg_total_relation_size('pages')) / 1024.0 / 1024.0, 2
+          ) as storage_mb
+      `);
+      return parseFloat(result.rows[0]?.storage_mb || '0');
+    } catch (error) {
+      console.error('[RAD DB] Failed to calculate storage:', error);
+      return 0;
+    }
+  }
+
   async getIndexStats(): Promise<IndexStats> {
     const [pagesResult, reposResult, chunksResult, lastCrawlResult, sourcesByKindResult] = await Promise.all([
       this.query(`SELECT COUNT(*) as count FROM documents WHERE is_active = TRUE`),
@@ -257,13 +275,15 @@ export class Database {
       sourcesByKind[row.kind] = parseInt(row.count, 10);
     });
 
+    const storageMB = await this.calculateStorageMB();
+
     return {
       pages: parseInt(pagesResult.rows[0]?.count || '0', 10),
       repos: parseInt(reposResult.rows[0]?.count || '0', 10),
       chunks: parseInt(chunksResult.rows[0]?.count || '0', 10),
       tokens: parseInt(chunksResult.rows[0]?.tokens || '0', 10),
       last_crawl: lastCrawlResult.rows[0]?.max_fetched,
-      storage_mb: 0, // TODO: calculate from pg_total_relation_size
+      storage_mb: storageMB,
       sources_by_kind: sourcesByKind,
     };
   }

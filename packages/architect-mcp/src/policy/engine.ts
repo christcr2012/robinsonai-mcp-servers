@@ -80,9 +80,10 @@ let currentPolicy: PolicyConfig = { ...DEFAULT_POLICY };
  * Load policy from environment or config file
  */
 export function loadPolicy(): PolicyConfig {
-  // TODO: Load from JSON/YAML file if exists
-  // For now, use environment variables
+  // Use default policy (file loading would require async imports in ES modules)
+  // Future: implement async loadPolicyAsync() if config file support is needed
   currentPolicy = { ...DEFAULT_POLICY };
+  console.error('[Policy] Using default policy');
   return currentPolicy;
 }
 

@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * Robinson's Toolkit MCP Server
+ * Robinson's Toolkit MCP Server - BROKER ARCHITECTURE
  *
- * Unified MCP server consolidating 912+ tools from 12 integrations.
- * Dynamically loads and proxies calls to individual MCP servers.
+ * Spawns integration MCP servers on demand instead of loading all at startup.
+ *
+ * Benefits:
+ * - Faster startup (no 23-server initialization)
+ * - Lower memory (only active workers loaded)
+ * - Connection pooling (max 6 active workers)
+ * - Idle eviction (kill workers after 5 min)
+ * - Timeout protection (60s per tool call)
  *
  * This gives Augment Code HANDS to DO things, not just explain them!
  */
@@ -15,28 +21,23 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   InitializeRequestSchema,
-  Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-import { LazyLoader } from './lazy-loader.js';
-import { spawn } from 'child_process';
-import { createInterface } from 'readline';
+import { MCPBroker } from './broker.js';
 
 /**
  * Main Robinson's Toolkit MCP Server
- * 
- * This server consolidates all existing MCP servers into one unified toolkit.
- * Each integration is imported from its respective package.
+ *
+ * This server acts as a broker that spawns integration workers on demand.
  */
 class RobinsonsToolkitServer {
   private server: Server;
-  private integrations: Map<string, any>;
-  private lazyLoader: LazyLoader;
+  private broker: MCPBroker;
 
   constructor() {
     this.server = new Server(
       {
         name: 'robinsons-toolkit-mcp',
-        version: '0.1.0',
+        version: '1.0.0',
       },
       {
         capabilities: {
@@ -45,132 +46,10 @@ class RobinsonsToolkitServer {
       }
     );
 
-    this.integrations = new Map();
-    this.lazyLoader = new LazyLoader();
-    this.loadIntegrations();
+    this.broker = new MCPBroker();
     this.setupHandlers();
   }
 
-  /**
-   * Load all integrations
-   * 
-   * NOTE: This is a placeholder structure. In the real implementation,
-   * we would import the actual MCP servers from their packages.
-   * For now, we're creating a unified structure that can be filled in.
-   */
-  private loadIntegrations(): void {
-    // GitHub integration (199 tools)
-    this.integrations.set('github', {
-      name: 'github-mcp',
-      toolCount: 199,
-      categories: ['repositories', 'branches', 'commits', 'issues', 'pull-requests', 'workflows', 'releases'],
-      status: 'available',
-    });
-
-    // Vercel integration (150 tools)
-    this.integrations.set('vercel', {
-      name: 'vercel-mcp',
-      toolCount: 150,
-      categories: ['projects', 'deployments', 'domains', 'env-vars', 'logs', 'analytics', 'storage', 'security'],
-      status: 'available',
-    });
-
-    // Neon integration (145 tools)
-    this.integrations.set('neon', {
-      name: 'neon-mcp',
-      toolCount: 145,
-      categories: ['projects', 'branches', 'sql', 'databases', 'roles', 'endpoints', 'monitoring', 'backups'],
-      status: 'available',
-    });
-
-    // Stripe integration (105 tools)
-    this.integrations.set('stripe', {
-      name: 'stripe-mcp',
-      toolCount: 105,
-      categories: ['customers', 'subscriptions', 'payments', 'products', 'prices', 'invoices', 'payment-methods', 'refunds', 'disputes', 'payouts', 'webhooks', 'balance', 'coupons', 'promotion-codes', 'tax-rates'],
-      status: 'available',
-    });
-
-    // Supabase integration (80 tools)
-    this.integrations.set('supabase', {
-      name: 'supabase-mcp',
-      toolCount: 80,
-      categories: ['auth', 'database', 'storage', 'realtime', 'functions'],
-      status: 'available',
-    });
-
-    // Resend integration (60 tools)
-    this.integrations.set('resend', {
-      name: 'resend-mcp',
-      toolCount: 60,
-      categories: ['emails', 'templates', 'domains', 'api-keys'],
-      status: 'available',
-    });
-
-    // Twilio integration (70 tools)
-    this.integrations.set('twilio', {
-      name: 'twilio-mcp',
-      toolCount: 70,
-      categories: ['messaging', 'voice', 'verify', 'lookup'],
-      status: 'available',
-    });
-
-    // Cloudflare integration (50 tools)
-    this.integrations.set('cloudflare', {
-      name: 'cloudflare-mcp',
-      toolCount: 50,
-      categories: ['dns', 'domains', 'zones', 'workers'],
-      status: 'available',
-    });
-
-    // Redis integration (80 tools)
-    this.integrations.set('redis', {
-      name: 'redis-mcp',
-      toolCount: 80,
-      categories: ['strings', 'hashes', 'lists', 'sets', 'sorted-sets', 'streams', 'pubsub', 'keys', 'transactions', 'scripting'],
-      status: 'available',
-    });
-
-    // Redis Cloud integration (53 tools)
-    this.integrations.set('redis-cloud', {
-      name: 'redis-cloud-mcp',
-      toolCount: 53,
-      categories: ['subscriptions', 'databases', 'cloud-accounts', 'payment-methods', 'monitoring'],
-      status: 'available',
-    });
-
-    // Fly.io integration (83 tools)
-    this.integrations.set('fly', {
-      name: 'fly-mcp',
-      toolCount: 83,
-      categories: ['apps', 'deployments', 'secrets', 'volumes', 'machines', 'networking', 'monitoring', 'org-billing', 'setup'],
-      status: 'available',
-    });
-
-    // OpenAI integration (30 tools)
-    this.integrations.set('openai', {
-      name: 'openai-mcp',
-      toolCount: 30,
-      categories: ['completions', 'chat', 'embeddings', 'models'],
-      status: 'available',
-    });
-
-    // Playwright integration (78 tools)
-    this.integrations.set('playwright', {
-      name: 'playwright-mcp',
-      toolCount: 78,
-      categories: ['navigation', 'interaction', 'extraction', 'automation'],
-      status: 'available',
-    });
-
-    // Context7 integration (3 tools)
-    this.integrations.set('context7', {
-      name: 'context7-mcp',
-      toolCount: 3,
-      categories: ['documentation'],
-      status: 'available',
-    });
-  }
 
   private setupHandlers(): void {
     // Handle initialize request
@@ -181,13 +60,61 @@ class RobinsonsToolkitServer {
       },
       serverInfo: {
         name: "robinsons-toolkit-mcp",
-        version: "0.1.1",
+        version: "1.0.0",
       },
     }));
 
-    // List available tools
+    // List available tools (meta-tools only - integration tools loaded on demand)
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: this.getTools(),
+      tools: [
+        {
+          name: 'registry_list',
+          description: 'List all available integration servers and their tool counts',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+        {
+          name: 'discover_tools',
+          description: 'Get virtual catalog of all integration tools without spawning workers',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              server: { type: 'string', description: 'Optional: filter by server name' },
+            },
+          },
+        },
+        {
+          name: 'broker_call',
+          description: 'Call a tool from an integration server (spawns worker on demand)',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              server: { type: 'string', description: 'Server name (e.g., "github-mcp")' },
+              tool: { type: 'string', description: 'Tool name' },
+              args: { type: 'object', description: 'Tool arguments' },
+            },
+            required: ['server', 'tool', 'args'],
+          },
+        },
+        {
+          name: 'broker_stats',
+          description: 'Get broker statistics (active workers, idle times, etc.)',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+        {
+          name: 'diagnose_environment',
+          description: 'Check which integration servers have credentials configured',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+      ],
     }));
 
     // Handle tool calls
@@ -195,31 +122,27 @@ class RobinsonsToolkitServer {
       const { name, arguments: args } = request.params;
 
       try {
-        // Meta-tools
         const params = args as any || {};
 
-        if (name === 'diagnose_environment') {
-          return this.diagnoseEnvironment();
-        } else if (name === 'list_integrations') {
-          return this.listIntegrations();
-        } else if (name === 'get_integration_status') {
-          return this.getIntegrationStatus(params.integration);
-        } else if (name === 'list_tools_by_integration') {
-          return this.listToolsByIntegration(params.integration);
-        } else if (name === 'execute_workflow') {
-          return this.executeWorkflow(params.workflow);
-        }
+        switch (name) {
+          case 'registry_list':
+            return this.registryList();
 
-        // For actual tool calls, we would route to the appropriate integration
-        // This is a placeholder - real implementation would import and call the actual tools
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Tool ${name} would be executed here. This is a placeholder structure.`,
-            },
-          ],
-        };
+          case 'discover_tools':
+            return this.discoverTools(params.server);
+
+          case 'broker_call':
+            return this.brokerCall(params);
+
+          case 'broker_stats':
+            return this.brokerStats();
+
+          case 'diagnose_environment':
+            return this.diagnoseEnvironment();
+
+          default:
+            throw new Error(`Unknown tool: ${name}`);
+        }
       } catch (error: any) {
         return {
           content: [
@@ -234,8 +157,76 @@ class RobinsonsToolkitServer {
     });
   }
 
+  private registryList(): any {
+    const diagnosis = this.broker.diagnoseEnvironment();
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            totalServers: diagnosis.available.length + diagnosis.missing.length,
+            availableServers: diagnosis.available.length,
+            availableTools: diagnosis.availableTools,
+            totalTools: diagnosis.totalTools,
+            available: diagnosis.available,
+            missing: diagnosis.missing,
+          }, null, 2),
+        },
+      ],
+    };
+  }
+
+  private discoverTools(serverFilter?: string): any {
+    const catalog = this.broker.getVirtualCatalog();
+
+    const filtered = serverFilter
+      ? catalog.filter(tool => tool.server === serverFilter)
+      : catalog;
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            totalTools: filtered.length,
+            serverFilter: serverFilter || 'all',
+            tools: filtered.slice(0, 50), // Limit to first 50 for readability
+            note: filtered.length > 50 ? `Showing first 50 of ${filtered.length} tools` : undefined,
+          }, null, 2),
+        },
+      ],
+    };
+  }
+
+  private async brokerCall(params: { server: string; tool: string; args: any }): Promise<any> {
+    const result = await this.broker.brokerCall(params);
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result, null, 2),
+        },
+      ],
+    };
+  }
+
+  private brokerStats(): any {
+    const stats = this.broker.getBrokerStats();
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(stats, null, 2),
+        },
+      ],
+    };
+  }
+
   private diagnoseEnvironment(): any {
-    const diagnosis = this.lazyLoader.diagnoseEnvironment();
+    const diagnosis = this.broker.diagnoseEnvironment();
 
     let report = '🔍 Environment Diagnosis\n\n';
 
@@ -247,15 +238,16 @@ class RobinsonsToolkitServer {
 
     if (diagnosis.available.length > 0) {
       report += `✅ Available Integrations:\n`;
-      diagnosis.available.forEach(integration => {
+      diagnosis.available.forEach((integration: any) => {
         report += `  • ${integration.name} (${integration.toolCount} tools)\n`;
+        report += `    Categories: ${integration.categories.join(', ')}\n`;
       });
       report += '\n';
     }
 
     if (diagnosis.missing.length > 0) {
       report += `❌ Missing Credentials:\n`;
-      diagnosis.missing.forEach(integration => {
+      diagnosis.missing.forEach((integration: any) => {
         report += `  • ${integration.name} (${integration.toolCount} tools)\n`;
         report += `    Missing: ${integration.missingVars?.join(', ')}\n`;
       });
@@ -263,8 +255,8 @@ class RobinsonsToolkitServer {
     }
 
     report += `💡 To enable missing integrations, set these environment variables:\n`;
-    diagnosis.missing.forEach(integration => {
-      integration.missingVars?.forEach(varName => {
+    diagnosis.missing.forEach((integration: any) => {
+      integration.missingVars?.forEach((varName: string) => {
         report += `  export ${varName}=your_${varName.toLowerCase()}_here\n`;
       });
     });
@@ -279,169 +271,21 @@ class RobinsonsToolkitServer {
     };
   }
 
-  private listIntegrations(): any {
-    const integrations = Array.from(this.integrations.entries()).map(([key, value]) => ({
-      name: key,
-      server: value.name,
-      toolCount: value.toolCount,
-      categories: value.categories,
-      status: value.status,
-    }));
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            totalIntegrations: integrations.length,
-            totalTools: integrations.reduce((sum, i) => sum + i.toolCount, 0),
-            integrations,
-          }, null, 2),
-        },
-      ],
-    };
-  }
-
-  private getIntegrationStatus(integration: string): any {
-    const info = this.integrations.get(integration);
-    
-    if (!info) {
-      throw new Error(`Integration not found: ${integration}`);
-    }
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(info, null, 2),
-        },
-      ],
-    };
-  }
-
-  private listToolsByIntegration(integration: string): any {
-    const info = this.integrations.get(integration);
-    
-    if (!info) {
-      throw new Error(`Integration not found: ${integration}`);
-    }
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            integration,
-            toolCount: info.toolCount,
-            categories: info.categories,
-            status: info.status,
-            note: 'Use Credit Optimizer\'s discover_tools to find specific tools',
-          }, null, 2),
-        },
-      ],
-    };
-  }
-
-  private executeWorkflow(workflow: any): any {
-    // Placeholder for workflow execution
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            message: 'Workflow execution is a placeholder. Use Credit Optimizer\'s execute_autonomous_workflow instead.',
-            workflow,
-          }, null, 2),
-        },
-      ],
-    };
-  }
-
-  private getTools(): Tool[] {
-    // Only return meta-tools by default (lazy loading!)
-    // Full 912 tools are available via list_tools_by_integration
-    return [
-      {
-        name: 'diagnose_environment',
-        description: 'Diagnose which integrations are available based on environment variables',
-        inputSchema: {
-          type: 'object',
-          properties: {},
-        },
-      },
-      {
-        name: 'list_integrations',
-        description: 'List all available integrations and their tool counts',
-        inputSchema: {
-          type: 'object',
-          properties: {},
-        },
-      },
-      {
-        name: 'get_integration_status',
-        description: 'Get status and details of a specific integration',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            integration: {
-              type: 'string',
-              description: 'Integration name (github, vercel, neon, etc.)',
-            },
-          },
-          required: ['integration'],
-        },
-      },
-      {
-        name: 'list_tools_by_integration',
-        description: 'List all tools available in a specific integration',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            integration: {
-              type: 'string',
-              description: 'Integration name',
-            },
-          },
-          required: ['integration'],
-        },
-      },
-      {
-        name: 'execute_workflow',
-        description: 'Execute a multi-step workflow across integrations',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            workflow: {
-              type: 'array',
-              description: 'Workflow steps',
-              items: {
-                type: 'object',
-                properties: {
-                  integration: { type: 'string' },
-                  tool: { type: 'string' },
-                  args: { type: 'object' },
-                },
-              },
-            },
-          },
-          required: ['workflow'],
-        },
-      },
-    ];
-  }
-
-  async run(): Promise<void> {
+  async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('Robinson\'s Toolkit MCP server running on stdio');
-    console.error('912 tools available across 12 integrations!');
+    console.error('Robinson\'s Toolkit MCP (Broker) running on stdio');
+    console.error(`Broker config: max ${this.broker.getBrokerStats().maxActive} active workers, ${this.broker.getBrokerStats().idleTimeout}s idle timeout`);
+    console.error(`Total integration servers: ${this.broker.getBrokerStats().totalServers}`);
+
+    // Cleanup on exit
+    process.on('SIGINT', () => {
+      console.error('Shutting down broker...');
+      this.broker.shutdown();
+      process.exit(0);
+    });
   }
 }
 
-// Start the server
 const server = new RobinsonsToolkitServer();
-server.run().catch((error) => {
-  console.error('Fatal error:', error);
-  process.exit(1);
-});
-
+server.run().catch(console.error);

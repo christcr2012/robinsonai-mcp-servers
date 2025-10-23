@@ -12,6 +12,8 @@ import { forecastRunCost, formatCostForecast } from '../cost/forecaster.js';
 import { getAvailableModels, getCatalogStats } from '../models/catalog.js';
 import { getSpendStats } from '../policy/engine.js';
 import { handleRunPlanSteps } from './run_workflow.js';
+import Database from 'better-sqlite3';
+import { join } from 'path';
 
 type MCPReturn = Promise<{ content: Array<{ type: "text"; text: string }> }>;
 
@@ -153,13 +155,99 @@ export async function handleExportWorkplan(args: { plan_id: number }): MCPReturn
  */
 export async function handleRevisePlan(args: { plan_id: number; critique_focus?: string }): MCPReturn {
   try {
-    // TODO: Implement plan revision with LLM
-    // For now, just return current status
     const status = getPlanStatus(args.plan_id);
+
+    if (status.state !== 'done') {
+      return toText({
+        plan_id: args.plan_id,
+        message: 'Plan is not complete yet. Wait for planning to finish before revising.',
+        status,
+      });
+    }
+
+    // Get the plan steps
+    const plan = getFullPlan(args.plan_id);
+    const steps = plan.steps_json ? JSON.parse(plan.steps_json) : [];
+
+    if (steps.length === 0) {
+      return toText({
+        plan_id: args.plan_id,
+        message: 'No plan steps found to revise.',
+        status,
+      });
+    }
+
+    // Validate the plan and collect errors
+    const validation = validateWorkPlan(steps);
+
+    if (validation.valid) {
+      return toText({
+        plan_id: args.plan_id,
+        message: 'Plan is already valid. No revision needed.',
+        status,
+        validation,
+      });
+    }
+
+    // Apply automatic fixes for common validation errors
+    let revisedSteps = [...steps];
+    let fixesApplied = 0;
+
+    for (let i = 0; i < revisedSteps.length; i++) {
+      const step = revisedSteps[i];
+
+      // Fix 1: Remove glob patterns from file lists
+      if (step.files && step.files.some((f: string) => f.includes('*') || f.includes('[') || f.includes('TODO'))) {
+        revisedSteps[i] = {
+          ...step,
+          files: step.files.filter((f: string) => !f.includes('*') && !f.includes('[') && !f.includes('TODO')),
+        };
+        fixesApplied++;
+      }
+
+      // Fix 2: Remove placeholder tests
+      if (step.tests && step.tests.some((t: string) => t.includes('TODO') || t.includes('...'))) {
+        revisedSteps[i] = {
+          ...step,
+          tests: step.tests.filter((t: string) => !t.includes('TODO') && !t.includes('...')),
+        };
+        fixesApplied++;
+      }
+
+      // Fix 3: Ensure diff_policy is set
+      if (!step.diff_policy) {
+        revisedSteps[i] = {
+          ...step,
+          diff_policy: 'patch-only',
+        };
+        fixesApplied++;
+      }
+    }
+
+    // Update the stored plan with revised steps (using the same DB as incremental planner)
+    const DATA_DIR = join(process.cwd(), 'packages', 'architect-mcp', 'data');
+    const DB_PATH = join(DATA_DIR, 'architect.db');
+    const db = new Database(DB_PATH);
+
+    db.prepare(`
+      UPDATE plans
+      SET steps_json = ?, summary = ?
+      WHERE plan_id = ?
+    `).run(
+      JSON.stringify(revisedSteps),
+      `Revised: ${revisedSteps.length} steps (${fixesApplied} fixes applied)`,
+      args.plan_id
+    );
+
+    // Re-validate
+    const newValidation = validateWorkPlan(revisedSteps);
+
     return toText({
       plan_id: args.plan_id,
-      message: 'Plan revision not yet implemented. Check validation errors and manually fix.',
-      status,
+      message: `Plan revised. Applied ${fixesApplied} automatic fixes.`,
+      fixesApplied,
+      validation: newValidation,
+      status: getPlanStatus(args.plan_id),
     });
   } catch (error: any) {
     return ok(`Error: ${error.message}`);

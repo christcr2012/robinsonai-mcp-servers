@@ -31,6 +31,17 @@ import { systemsThinking } from './tools/systems-thinking.js';
 import { scenarioPlanning } from './tools/scenario-planning.js';
 import { brainstorming } from './tools/brainstorming.js';
 import { mindMapping } from './tools/mind-mapping.js';
+import { sequentialThinking } from './tools/sequential-thinking.js';
+import { parallelThinking } from './tools/parallel-thinking.js';
+import { reflectiveThinking } from './tools/reflective-thinking.js';
+import {
+  context7ResolveLibraryId,
+  context7GetLibraryDocs,
+  context7SearchLibraries,
+  context7CompareVersions,
+  context7GetExamples,
+  context7GetMigrationGuide,
+} from './tools/context7.js';
 
 class ThinkingToolsMCP {
   private server: Server;
@@ -250,6 +261,130 @@ class ThinkingToolsMCP {
             required: ['centralIdea'],
           },
         },
+        {
+          name: 'sequential_thinking',
+          description: 'Break down complex problems into sequential thought steps. Supports revisions, branching, and dynamic thought adjustment.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              thought: { type: 'string', description: 'Your current thinking step' },
+              nextThoughtNeeded: { type: 'boolean', description: 'Whether another thought step is needed' },
+              thoughtNumber: { type: 'integer', description: 'Current thought number', minimum: 1 },
+              totalThoughts: { type: 'integer', description: 'Estimated total thoughts needed (can be adjusted)', minimum: 1 },
+              isRevision: { type: 'boolean', description: 'Whether this revises previous thinking' },
+              revisesThought: { type: 'integer', description: 'Which thought is being reconsidered', minimum: 1 },
+              branchFromThought: { type: 'integer', description: 'Branching point thought number', minimum: 1 },
+              branchId: { type: 'string', description: 'Branch identifier' },
+              needsMoreThoughts: { type: 'boolean', description: 'If more thoughts are needed' },
+            },
+            required: ['thought', 'nextThoughtNeeded', 'thoughtNumber', 'totalThoughts'],
+          },
+        },
+        {
+          name: 'parallel_thinking',
+          description: 'Explore multiple solution paths simultaneously. Create branches to evaluate different approaches in parallel.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              branchId: { type: 'string', description: 'Unique identifier for this branch' },
+              description: { type: 'string', description: 'Description of this solution path' },
+              thought: { type: 'string', description: 'Current thought in this branch' },
+              thoughtNumber: { type: 'integer', description: 'Thought number within this branch', minimum: 1 },
+              nextThoughtNeeded: { type: 'boolean', description: 'Whether more thoughts needed in this branch' },
+              conclusion: { type: 'string', description: 'Final conclusion for this branch (if complete)' },
+            },
+            required: ['branchId', 'description', 'thought', 'thoughtNumber', 'nextThoughtNeeded'],
+          },
+        },
+        {
+          name: 'reflective_thinking',
+          description: 'Review and critique previous thoughts and decisions. Identify improvements and assess confidence.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              thoughtNumber: { type: 'integer', description: 'Which thought to reflect on', minimum: 1 },
+              reflection: { type: 'string', description: 'Your reflection on this thought' },
+              improvements: { type: 'array', items: { type: 'string' }, description: 'Suggested improvements' },
+              confidence: { type: 'number', description: 'Confidence level (0-1)', minimum: 0, maximum: 1 },
+            },
+            required: ['thoughtNumber', 'reflection', 'improvements', 'confidence'],
+          },
+        },
+        {
+          name: 'context7_resolve_library_id',
+          description: 'Resolve a package/library name to find documentation. Returns library ID and metadata.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              libraryName: { type: 'string', description: 'Library name to search for (e.g., "react", "next.js", "mongodb")' },
+            },
+            required: ['libraryName'],
+          },
+        },
+        {
+          name: 'context7_get_library_docs',
+          description: 'Get documentation for a specific library. Use library ID from resolve_library_id.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              context7CompatibleLibraryID: { type: 'string', description: 'Library ID (e.g., "/vercel/next.js")' },
+              topic: { type: 'string', description: 'Optional: specific topic to focus on' },
+              tokens: { type: 'number', description: 'Optional: max tokens to retrieve (default: 5000)' },
+            },
+            required: ['context7CompatibleLibraryID'],
+          },
+        },
+        {
+          name: 'context7_search_libraries',
+          description: 'Search across all available libraries by name or description.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Search query' },
+              limit: { type: 'number', description: 'Max results (default: 10)' },
+            },
+            required: ['query'],
+          },
+        },
+        {
+          name: 'context7_compare_versions',
+          description: 'Compare different versions of a library to see what changed.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              libraryId: { type: 'string', description: 'Library ID' },
+              fromVersion: { type: 'string', description: 'Starting version' },
+              toVersion: { type: 'string', description: 'Target version' },
+            },
+            required: ['libraryId', 'fromVersion', 'toVersion'],
+          },
+        },
+        {
+          name: 'context7_get_examples',
+          description: 'Get code examples for specific use cases from library documentation.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              libraryId: { type: 'string', description: 'Library ID' },
+              useCase: { type: 'string', description: 'Specific use case or feature' },
+              language: { type: 'string', description: 'Programming language (default: "javascript")' },
+            },
+            required: ['libraryId', 'useCase'],
+          },
+        },
+        {
+          name: 'context7_get_migration_guide',
+          description: 'Get migration guide for upgrading between library versions.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              libraryId: { type: 'string', description: 'Library ID' },
+              fromVersion: { type: 'string', description: 'Current version' },
+              toVersion: { type: 'string', description: 'Target version' },
+            },
+            required: ['libraryId', 'fromVersion', 'toVersion'],
+          },
+        },
       ],
     }));
 
@@ -306,6 +441,33 @@ class ThinkingToolsMCP {
           case 'mind_mapping':
             result = mindMapping(args as any);
             break;
+          case 'sequential_thinking':
+            result = await sequentialThinking(args as any);
+            break;
+          case 'parallel_thinking':
+            result = await parallelThinking(args as any);
+            break;
+          case 'reflective_thinking':
+            result = await reflectiveThinking(args as any);
+            break;
+          case 'context7_resolve_library_id':
+            result = await context7ResolveLibraryId(args as any);
+            break;
+          case 'context7_get_library_docs':
+            result = await context7GetLibraryDocs(args as any);
+            break;
+          case 'context7_search_libraries':
+            result = await context7SearchLibraries(args as any);
+            break;
+          case 'context7_compare_versions':
+            result = await context7CompareVersions(args as any);
+            break;
+          case 'context7_get_examples':
+            result = await context7GetExamples(args as any);
+            break;
+          case 'context7_get_migration_guide':
+            result = await context7GetMigrationGuide(args as any);
+            break;
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -336,6 +498,8 @@ class ThinkingToolsMCP {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Thinking Tools MCP server running on stdio');
+    console.error('24 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools');
+    console.error(`Context7 API: ${process.env.CONTEXT7_API_KEY ? 'Authenticated' : 'Public access (no API key)'}`);
   }
 }
 

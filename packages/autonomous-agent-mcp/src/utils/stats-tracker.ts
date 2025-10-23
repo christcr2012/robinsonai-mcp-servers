@@ -14,6 +14,7 @@ const __dirname = path.dirname(__filename);
 interface UsageRecord {
   timestamp: number;
   toolName: string;
+  modelName?: string;
   augmentCreditsUsed: number;
   creditsSaved: number;
   timeMs: number;
@@ -46,11 +47,13 @@ export class StatsTracker {
     toolName: string,
     augmentCreditsUsed: number,
     creditsSaved: number,
-    timeMs: number
+    timeMs: number,
+    modelName?: string
   ): Promise<void> {
     const record: UsageRecord = {
       timestamp: Date.now(),
       toolName,
+      modelName,
       augmentCreditsUsed,
       creditsSaved,
       timeMs,
@@ -102,11 +105,19 @@ export class StatsTracker {
       taskBreakdown[task] = (taskBreakdown[task] || 0) + 1;
     }
 
+    // Model usage breakdown
+    const modelUsage: Record<string, number> = {};
+    for (const record of filteredRecords) {
+      if (record.modelName) {
+        modelUsage[record.modelName] = (modelUsage[record.modelName] || 0) + 1;
+      }
+    }
+
     return {
       totalRequests,
       augmentCreditsSaved,
       averageTimeMs,
-      modelUsage: {}, // TODO: Track model usage
+      modelUsage,
       taskBreakdown,
     };
   }
