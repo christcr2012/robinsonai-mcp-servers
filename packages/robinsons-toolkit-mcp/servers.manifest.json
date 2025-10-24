@@ -1,0 +1,103 @@
+[
+  {
+    "name": "github-mcp",
+    "command": "node",
+    "args": ["packages/github-mcp/dist/index.js"],
+    "env": {
+      "GITHUB_TOKEN": "ghp_your-github-token-here"
+    }
+  },
+  {
+    "name": "vercel-mcp",
+    "command": "node",
+    "args": ["packages/vercel-mcp/dist/index.js"],
+    "env": {
+      "VERCEL_TOKEN": "your-vercel-token-here"
+    }
+  },
+  {
+    "name": "neon-mcp",
+    "command": "node",
+    "args": ["packages/neon-mcp/dist/index.js"],
+    "env": {
+      "NEON_API_KEY": "your-neon-api-key-here"
+    }
+  },
+  {
+    "name": "stripe-mcp",
+    "command": "node",
+    "args": ["packages/stripe-mcp/dist/index.js"],
+    "env": {
+      "STRIPE_SECRET_KEY": "sk_test_your-stripe-key-here"
+    }
+  },
+  {
+    "name": "supabase-mcp",
+    "command": "node",
+    "args": ["packages/supabase-mcp/dist/index.js"],
+    "env": {
+      "SUPABASE_URL": "https://your-project.supabase.co",
+      "SUPABASE_SERVICE_KEY": "your-supabase-service-key-here"
+    }
+  },
+  {
+    "name": "twilio-mcp",
+    "command": "node",
+    "args": ["packages/twilio-mcp/dist/index.js"],
+    "env": {
+      "TWILIO_ACCOUNT_SID": "ACyour-twilio-account-sid-here",
+      "TWILIO_AUTH_TOKEN": "your-twilio-auth-token-here",
+      "TWILIO_FROM": "+1234567890"
+    }
+  },
+  {
+    "name": "resend-mcp",
+    "command": "node",
+    "args": ["packages/resend-mcp/dist/index.js"],
+    "env": {
+      "RESEND_API_KEY": "re_your-resend-api-key-here",
+      "RESEND_FROM": "your-email@yourdomain.com"
+    }
+  },
+  {
+    "name": "cloudflare-mcp",
+    "command": "node",
+    "args": ["packages/cloudflare-mcp/dist/index.js"],
+    "env": {
+      "CLOUDFLARE_API_TOKEN": "your-cloudflare-api-token-here",
+      "CF_ACCOUNT_ID": "your_cf_account_id_here"
+    }
+  },
+  {
+    "name": "redis-mcp",
+    "command": "node",
+    "args": ["packages/redis-mcp/dist/index.js"],
+    "env": {
+      "REDIS_URL": "redis://default:password@host:port"
+    }
+  },
+  {
+    "name": "google-workspace-mcp",
+    "command": "node",
+    "args": ["packages/google-workspace-mcp/dist/index.js"],
+    "env": {
+      "GOOGLE_CREDENTIALS_JSON": "path/to/your/service-account.json",
+      "GOOGLE_IMPERSONATE_EMAIL": "your-email@yourdomain.com"
+    }
+  },
+  {
+    "name": "fly-mcp",
+    "command": "node",
+    "args": ["packages/fly-mcp/dist/index.js"],
+    "env": {
+      "FLY_API_TOKEN": "your-fly-api-token-here"
+    }
+  },
+  {
+    "name": "playwright-mcp",
+    "command": "node",
+    "args": ["packages/playwright-mcp/dist/index.js"],
+    "env": {}
+  }
+]
+
