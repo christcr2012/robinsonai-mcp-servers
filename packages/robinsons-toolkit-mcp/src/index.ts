@@ -362,6 +362,7 @@ class UnifiedToolkit {
         { name: 'github_create_blob', description: 'Create a blob', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, content: { type: 'string' }, encoding: { type: 'string' } }, required: ['owner', 'repo', 'content'] } },
         { name: 'github_create_commit', description: 'Create a commit', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, message: { type: 'string' }, tree: { type: 'string' }, parents: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'message', 'tree'] } },
         { name: 'github_get_ref', description: 'Get a reference', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'ref'] } },
+        { name: 'github_update_ref', description: 'Update a reference', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, ref: { type: 'string' }, sha: { type: 'string' }, force: { type: 'boolean' } }, required: ['owner', 'repo', 'ref', 'sha'] } },
 
         // COLLABORATORS & PERMISSIONS (10 tools)
         { name: 'github_list_collaborators', description: 'List repository collaborators', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, affiliation: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
@@ -2784,6 +2785,7 @@ class UnifiedToolkit {
           case 'github_create_blob': return await this.createBlob(args);
           case 'github_create_commit': return await this.createCommit(args);
           case 'github_get_ref': return await this.getRef(args);
+          case 'github_update_ref': return await this.updateRef(args);
 
           // COLLABORATORS & PERMISSIONS
           case 'github_list_collaborators': return await this.listCollaborators(args);
@@ -4550,6 +4552,13 @@ class UnifiedToolkit {
 
   private async getRef(args: any) {
     const response = await this.client.get(`/repos/${args.owner}/${args.repo}/git/ref/${args.ref}`);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async updateRef(args: any) {
+    const body: any = { sha: args.sha };
+    if (args.force !== undefined) body.force = args.force;
+    const response = await this.client.patch(`/repos/${args.owner}/${args.repo}/git/refs/${args.ref}`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
