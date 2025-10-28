@@ -1,7 +1,7 @@
 {
   "name": "@robinsonai/robinsons-toolkit-mcp",
   "version": "0.1.1",
-  "description": "Unified MCP server with 912 tools across GitHub, Vercel, Neon, Stripe, Supabase, and more",
+  "description": "Unified MCP server with 556 tools across GitHub (240), Vercel (150), and Neon (166). More integrations coming soon!",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
