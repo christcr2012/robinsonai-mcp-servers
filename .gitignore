@@ -37,3 +37,12 @@ secrets*
 
 # Editor settings
 .vscode/
+
+# Robinson Orchestrator runtime stuff
+.robinson/inbox/
+.robinson/outbox/
+.robinson/symbols.json
+.robinson/tmp-*
+
+# Local secrets for crawlers / services
+.env

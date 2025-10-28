@@ -1,14 +1,17 @@
 #!/usr/bin/env node
+
 /**
- * Robinson's Toolkit - Unified MCP Server  
- * Currently: 240 GitHub tools
- * TODO: Add Vercel (150), Neon (173), Google (193), Redis (80)
- * TODO: Build 8 more integrations from scratch
+ * @robinsonai/github-mcp
+ * Comprehensive GitHub MCP Server with 200+ tools
+ * By Robinson AI Systems
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
 
 interface GitHubClient {
   get(path: string, params?: any): Promise<any>;
@@ -2334,26 +2337,5 @@ if (!token) {
   process.exit(1);
 }
 
-
-
-class UnifiedToolkit {
-  private githubServer?: GitHubMCP;
-  
-  constructor() {
-    const githubToken = process.env.GITHUB_TOKEN;
-    if (githubToken) this.githubServer = new GitHubMCP(githubToken);
-  }
-  
-  async run() {
-    if (this.githubServer) {
-      console.error('Robinson Toolkit v3.0: 240 GitHub tools');
-      await this.githubServer.run();
-    } else {
-      console.error('No GitHub token');
-      process.exit(1);
-    }
-  }
-}
-
-const toolkit = new UnifiedToolkit();
-toolkit.run().catch(console.error);
+const server = new GitHubMCP(token);
+server.run().catch(console.error);
