@@ -532,8 +532,8 @@ Location: `%APPDATA%\Code\User\globalStorage\augment.vscode-augment\augment-glob
 {
   "type": "stdio",
   "name": "robinsons-toolkit",
-  "command": "node",
-  "arguments": ["C:\\Users\\YOUR_USERNAME\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-toolkit-mcp\\dist\\index.js"],
+  "command": "npx",
+  "arguments": ["@robinsonai/robinsons-toolkit-mcp"],
   "env": {
     "GITHUB_TOKEN": "ghp_YOUR_GITHUB_TOKEN_HERE",
     "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE",
@@ -543,7 +543,8 @@ Location: `%APPDATA%\Code\User\globalStorage\augment.vscode-augment\augment-glob
 ```
 
 **Important Notes:**
-- Replace `YOUR_USERNAME` with your actual Windows username
+- ALWAYS use `npx` - NEVER use `node` (node does NOT work)
+- The package must be linked globally with `npm link` before use
 - Replace placeholder tokens with your actual API keys
 - This configuration has been tested and verified to work with 556 tools
 - The server must be built (`npm run build`) before use

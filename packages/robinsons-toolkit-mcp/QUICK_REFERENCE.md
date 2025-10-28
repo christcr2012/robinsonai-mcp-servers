@@ -93,10 +93,8 @@ This is the actual tested configuration from the development environment (with s
 {
   "type": "stdio",
   "name": "robinsons-toolkit",
-  "command": "node",
-  "arguments": [
-    "C:\\Users\\YOUR_USERNAME\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-toolkit-mcp\\dist\\index.js"
-  ],
+  "command": "npx",
+  "arguments": ["@robinsonai/robinsons-toolkit-mcp"],
   "env": {
     "GITHUB_TOKEN": "ghp_YOUR_GITHUB_TOKEN_HERE",
     "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE",
@@ -106,9 +104,9 @@ This is the actual tested configuration from the development environment (with s
 ```
 
 **Setup Steps:**
-1. Replace `YOUR_USERNAME` with your Windows username
-2. Replace placeholder tokens with your actual API keys
-3. Ensure the path to `dist/index.js` is correct
+1. CRITICAL: Run `npm link` in the package directory to make it available globally
+2. ALWAYS use `npx` - NEVER use `node` (node does NOT work)
+3. Replace placeholder tokens with your actual API keys
 4. Save the file
 5. Reload VS Code window
 6. Verify 556 tools appear in VS Code status bar
