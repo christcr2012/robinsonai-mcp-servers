@@ -1,0 +1,15 @@
+
+> @robinsonai/robinsons-toolkit-mcp@0.1.1 build
+> tsc
+
+src/index.ts(7021,3): error TS1005: ',' expected.
+src/index.ts(7021,12): error TS1005: ',' expected.
+src/index.ts(7021,15): error TS1005: '=>' expected.
+src/index.ts(7027,1): error TS1128: Declaration or statement expected.
+npm error Lifecycle script `build` failed with error:
+npm error code 2
+npm error path C:\Users\chris\Git Local\robinsonai-mcp-servers\packages\robinsons-toolkit-mcp
+npm error workspace @robinsonai/robinsons-toolkit-mcp@0.1.1
+npm error location C:\Users\chris\Git Local\robinsonai-mcp-servers\packages\robinsons-toolkit-mcp
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc
