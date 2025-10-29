@@ -111,13 +111,16 @@
 ## 📁 **What Remains** (Clean, Up-to-Date Documentation)
 
 ### **Primary Planning Documents:**
-1. ✅ **PHASE_0.5_AGENT_COORDINATION.md** - Comprehensive agent coordination plan
-2. ✅ **HANDOFF_TO_NEW_AGENT.md** - Handoff document for next agent
+1. ✅ **PHASE_0.5_AGENT_COORDINATION.md** - Comprehensive agent coordination plan (UPDATED)
+2. ✅ **HANDOFF_TO_NEW_AGENT.md** - Handoff document for next agent (UPDATED)
 3. ✅ **RAD_CRAWLER_MASTER_PLAN_V2.md** - RAD Crawler architecture (Phase 8+)
-4. ✅ **OPENAI_MCP_COMPREHENSIVE_SPEC.md** - OpenAI MCP expansion spec
-5. ✅ **AUGMENT_MCP_CONFIGURATION_SOURCE_OF_TRUTH.md** - Current config guide
-6. ✅ **ROBINSON_AI_6_SERVER_ARCHITECTURE.md** - 6-server architecture overview
-7. ✅ **ROADMAP.md** - Overall project roadmap
+4. ✅ **OPENAI_MCP_COMPREHENSIVE_SPEC.md** - OpenAI MCP expansion spec (Phase 0)
+5. ✅ **COMPREHENSIVE_TOOLKIT_EXPANSION_SPEC.md** - Robinson's Toolkit expansion spec (Phase 1-7) **RESTORED**
+6. ✅ **OPENAI_AGENT_BUILDER_INTEGRATION.md** - Agents SDK vs Responses API analysis **RESTORED**
+7. ✅ **RAD_DOCUMENTATION_SUMMARY.md** - Consolidated RAD documentation **RESTORED**
+8. ✅ **AUGMENT_MCP_CONFIGURATION_SOURCE_OF_TRUTH.md** - Current config guide
+9. ✅ **ROBINSON_AI_6_SERVER_ARCHITECTURE.md** - 6-server architecture overview
+10. ✅ **ROADMAP.md** - Overall project roadmap
 
 ### **.augment/ Folder (Updated):**
 1. ✅ **.augment/workflows/coordination-templates.md** - Workflow patterns
@@ -163,7 +166,19 @@
 
 ---
 
-**Total Files Removed:** 95+  
-**Total Files Updated:** 4  
-**Total Files Remaining:** ~15 core documents
+**Total Files Removed:** 92 (initially 95, then restored 3 critical planning docs)
+**Total Files Updated:** 4
+**Total Files Restored:** 3 (COMPREHENSIVE_TOOLKIT_EXPANSION_SPEC.md, OPENAI_AGENT_BUILDER_INTEGRATION.md, RAD_DOCUMENTATION_SUMMARY.md)
+**Total Files Remaining:** ~18 core documents
+
+---
+
+## ⚠️ **CORRECTION: Files Restored**
+
+After initial cleanup, discovered that HANDOFF_TO_NEW_AGENT.md references these critical planning documents:
+- ✅ **COMPREHENSIVE_TOOLKIT_EXPANSION_SPEC.md** - Phase 1-7 detailed breakdown (RESTORED)
+- ✅ **OPENAI_AGENT_BUILDER_INTEGRATION.md** - Agents SDK analysis (RESTORED)
+- ✅ **RAD_DOCUMENTATION_SUMMARY.md** - RAD documentation summary (RESTORED)
+
+These files contain detailed specifications needed for Phase 1-7 and Phase 8+ execution.
 
