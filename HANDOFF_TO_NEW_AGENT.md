@@ -66,30 +66,39 @@
 
 ---
 
-### **PHASE 0.5: Agent Coordination (2-3 hours) 🔥 CRITICAL**
+### **PHASE 0.5: Agent Coordination (3-4 hours) 🔥 CRITICAL**
 
 **Why Second:** You just built 259 tools, but they're useless if agents don't coordinate!
 
-**Goal:** Configure your 6-server system to actually USE the new OpenAI tools
+**Goal:** Make all agents VERSATILE and enable parallel execution
+
+**CRITICAL UNDERSTANDING:**
+- ✅ **Robinson's Toolkit = Shared Tool Library** (NOT an agent!)
+- ✅ **ALL agents are VERSATILE** (can code, set up DBs, deploy, manage accounts)
+- ✅ **Architect decides WHAT**, Credit Optimizer decides WHO (based on availability)
+- ✅ **Parallel execution** - Multiple agents working simultaneously
+- ✅ **FREE Ollama by default**, PAID OpenAI only when needed
 
 **What to Build:**
-1. **Fix Credit Optimizer** (1h) - Update for direct tool access (not broker pattern)
-2. **Create Agent Network** (1h) - Configure 4 agents with Agents SDK
-3. **Create Workflows** (30min) - Build coordinated workflows
-4. **Add Guardrails** (30min) - Cost protection, quality checks
+1. **Enhance Autonomous Agent MCP** (30min) - Add Robinson's Toolkit access for versatility
+2. **Enhance OpenAI Worker MCP** (60min) - Add Ollama support + Robinson's Toolkit access + cost controls
+3. **Update Architect MCP** (30min) - Return plans with `assignTo: "any_available_agent"`
+4. **Build Parallel Execution Engine** (60min) - Dependency-based topological sort in Credit Optimizer
 
-**Agent Network:**
-- **Architect Agent** → Plans work, decomposes specs
-- **Autonomous Agent** → Generates code (FREE via Ollama)
-- **Credit Optimizer Agent** → Discovers tools, scaffolds
-- **Thinking Agent** → Critical analysis, devil's advocate
+**Agent Architecture:**
+- **Architect MCP** → Creates plans with parallel execution groups
+- **Credit Optimizer MCP** → Distributes work to available agents (parallel execution)
+- **Autonomous Agent MCP** → VERSATILE worker (FREE Ollama) - can do EVERYTHING
+- **OpenAI Worker MCP** → VERSATILE worker (FREE Ollama OR PAID OpenAI) - can do EVERYTHING
+- **Robinson's Toolkit MCP** → Shared tool library (906 tools) accessible by all agents
+- **Thinking Tools MCP** → Shared tool library (24 frameworks) accessible by all agents
 
 **Expected Benefit:**
-- **Before:** Augment does all work (expensive)
-- **After:** 90% work done by FREE Ollama agents
-- **Savings:** ~$50-100 per phase
+- **Before:** Augment does all work (expensive, sequential)
+- **After:** 90% work done by FREE Ollama agents (parallel execution)
+- **Savings:** ~$50-100 per phase + 2-3x faster (parallel execution)
 
-**Deliverable:** Coordinated 6-server system that can build Phase 1-7 autonomously
+**Deliverable:** Coordinated 6-server system with versatile agents and parallel execution
 
 **See:** `PHASE_0.5_AGENT_COORDINATION.md` for detailed breakdown
 

@@ -248,76 +248,74 @@ CREATE INDEX idx_workflow_patterns_name ON workflow_patterns(pattern_name);
 
 ### **Task 2: Create Agent Coordination Network (1 hour)**
 
-**Goal:** Use OpenAI Agents SDK to create coordinated agent network
+**Goal:** Make all agents VERSATILE and enable parallel execution with shared tool access
+
+**CRITICAL UNDERSTANDING:**
+- ✅ **Robinson's Toolkit = Shared Tool Library** (NOT an agent!)
+- ✅ **ALL agents are VERSATILE** (can code, set up DBs, deploy, manage accounts)
+- ✅ **Architect decides WHAT**, Credit Optimizer decides WHO (based on availability)
+- ✅ **Parallel execution** - Multiple agents working simultaneously
+- ✅ **FREE Ollama by default**, PAID OpenAI only when needed
 
 **Agent Network Design:**
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│           AUGMENT CODE (Primary Orchestrator)           │
-│  - Takes user request                                   │
-│  - Decides what to do itself vs delegate to 6-server    │
-│  - Has access to ALL 6 servers                          │
-└─────────────────────────────────────────────────────────┘
-         │
-         │ (Delegates complex/large tasks)
-         ▼
-┌─────────────────────────────────────────────────────────┐
-│              ARCHITECT AGENT (Planner)                  │
-│  - Creates execution plan                               │
-│  - Uses Thinking Tools for plan validation              │
-│  - Delegates work to maximize parallel execution        │
-│  - Avoids tool conflicts between workers                │
-└─────────────────────────────────────────────────────────┘
-         │
-         │ (Sends plan + cost estimate)
-         ▼
-┌─────────────────────────────────────────────────────────┐
-│         CREDIT OPTIMIZER AGENT (Cost Controller)        │
-│  - Estimates costs for plan                             │
-│  - Enforces cost control barriers                       │
-│  - Requests user approval if over budget                │
-│  - Routes work to cheapest capable worker               │
-└─────────────────────────────────────────────────────────┘
-         │
-         │ (After approval, delegates to workers)
-         ├──────────────────────┬──────────────────────┐
-         ▼                      ▼                      ▼
-┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│ AUTONOMOUS AGENT │  │ AUTONOMOUS AGENT │  │  OPENAI WORKER   │
-│   (Worker #1)    │  │   (Worker #2)    │  │  (Paid Worker)   │
-│                  │  │                  │  │                  │
-│ - FREE (Ollama)  │  │ - FREE (Ollama)  │  │ - PAID (OpenAI)  │
-│ - Code gen       │  │ - Code gen       │  │ - Specialized    │
-│ - Analysis       │  │ - Analysis       │  │ - Massive tasks  │
-│ - Refactoring    │  │ - Refactoring    │  │ - Premium models │
-└──────────────────┘  └──────────────────┘  └──────────────────┘
-         │                      │                      │
-         │ (All workers can access these tool servers) │
-         ├──────────────────────┴──────────────────────┤
-         │                                             │
-         ▼                                             ▼
-┌──────────────────┐                        ┌──────────────────┐
-│ THINKING TOOLS   │                        │ ROBINSON'S       │
-│ (Tool Server)    │                        │ TOOLKIT          │
-│                  │                        │ (Tool Server)    │
-│ - Devil's Adv.   │                        │                  │
-│ - SWOT           │                        │ - GitHub (100+)  │
-│ - Premortem      │                        │ - Vercel (100+)  │
-│ - Critical Think │                        │ - Neon (200+)    │
-│ - 15+ frameworks │                        │ - Upstash (140+) │
-│                  │                        │ - Google (100+)  │
-└──────────────────┘                        └──────────────────┘
+User Request
+    ↓
+Augment Code (orchestrator)
+    ↓
+Architect MCP (planning) ← uses Thinking Tools MCP
+    ↓
+    Creates plan with assignTo: "any_available_agent"
+    ↓
+Credit Optimizer MCP (validation/tracking/distribution)
+    ↓
+    Distributes work to available agents (parallel execution)
+    ↓
+    ├─────────────────┬─────────────────┬─────────────────┐
+    ▼                 ▼                 ▼                 ▼
+┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
+│Autonomous│     │Autonomous│     │ OpenAI  │     │ OpenAI  │
+│Agent #1  │     │Agent #2  │     │Worker #1│     │Worker #2│
+│          │     │          │     │         │     │         │
+│FREE      │     │FREE      │     │PAID     │     │PAID     │
+│(Ollama)  │     │(Ollama)  │     │(OpenAI) │     │(OpenAI) │
+└─────────┘     └─────────┘     └─────────┘     └─────────┘
+    │                 │                 │                 │
+    │                 │                 │                 │
+    │  ALL AGENTS ARE VERSATILE - CAN DO EVERYTHING:     │
+    │  - Code generation (delegate_code_generation)      │
+    │  - Code analysis (delegate_code_analysis)          │
+    │  - Refactoring (delegate_code_refactoring)         │
+    │  - Test generation (delegate_test_generation)      │
+    │  - DB setup (toolkit_call → neon tools)            │
+    │  - Deployment (toolkit_call → vercel tools)        │
+    │  - Account mgmt (toolkit_call → github tools)      │
+    │  - Redis setup (toolkit_call → upstash tools)      │
+    │                 │                 │                 │
+    └─────────────────┴─────────────────┴─────────────────┘
+                      │
+                      ▼
+    ┌─────────────────────────────────────────────────────┐
+    │         SHARED TOOL LIBRARIES (NOT AGENTS!)         │
+    ├─────────────────────────────────────────────────────┤
+    │  Robinson's Toolkit MCP    │  Thinking Tools MCP    │
+    │  - 906 integration tools   │  - 24 frameworks       │
+    │  - GitHub, Vercel, Neon    │  - Devil's advocate    │
+    │  - Upstash, Google, etc.   │  - SWOT, Premortem     │
+    └─────────────────────────────────────────────────────┘
 ```
 
 **Key Architecture Principles:**
 
-1. **Augment Code** decides what to do itself vs delegate
-2. **Architect** creates plan and maximizes parallel execution
-3. **Credit Optimizer** enforces cost controls and routes to cheapest worker
-4. **Multiple Autonomous Agents** work in parallel (FREE via Ollama)
-5. **OpenAI Worker** only for specialized/massive tasks (PAID, optional)
-6. **Thinking Tools** and **Robinson's Toolkit** are TOOL SERVERS (not agents)
+1. **Augment Code** orchestrates and decides when to delegate
+2. **Architect MCP** creates plans with `assignTo: "any_available_agent"` (NOT specific agent types!)
+3. **Credit Optimizer MCP** distributes work based on AVAILABILITY (not specialization)
+4. **ALL agents are VERSATILE** - Can perform ANY task type
+5. **Parallel execution** - Multiple agents work simultaneously on different tasks
+6. **Robinson's Toolkit** is a SHARED TOOL LIBRARY accessible by all agents
+7. **Thinking Tools** is a SHARED TOOL LIBRARY accessible by all agents
+8. **FREE Ollama by default**, PAID OpenAI only when quality/complexity requires it
 
 ---
 
@@ -326,78 +324,338 @@ CREATE INDEX idx_workflow_patterns_name ON workflow_patterns(pattern_name);
 ### **1. Augment Code (Primary Orchestrator)**
 - **Receives:** User request
 - **Decides:** Do it myself vs delegate to 6-server system
-- **Delegates to:** Architect Agent (for complex/large tasks)
+- **Delegates to:** Architect MCP (for complex/large tasks)
 - **Does itself:** Quick edits, simple tasks, immediate responses
 - **Uses:** All 6 servers as needed
 - **Autonomy:** Full autonomy to override delegation when appropriate
 
-### **2. Architect Agent (Planner)**
+### **2. Architect MCP (Planner)**
 - **Receives:** Complex task from Augment
-- **Creates:** Execution plan with work breakdown
+- **Creates:** Execution plan with `assignTo: "any_available_agent"` (NOT specific agent types!)
 - **Uses:** Thinking Tools (premortem, SWOT) to validate plan
-- **Optimizes:** Parallel execution by avoiding tool conflicts
-  - Example: Assigns GitHub work to Worker #1, Vercel work to Worker #2 simultaneously
-- **Delegates to:** Credit Optimizer (with plan + cost estimate)
+- **Optimizes:** Parallel execution via dependency analysis
+  - Example: Code generation, DB setup, Redis setup can all run in parallel (no dependencies)
+  - Example: Deployment depends on code generation (must wait)
+- **Returns:** Structured JSON plan to Credit Optimizer
 - **Guardrails:** Max plan size, complexity limits
 
-### **3. Credit Optimizer Agent (Cost Controller)**
+### **3. Credit Optimizer MCP (Cost Controller + Work Distributor)**
 - **Receives:** Plan from Architect
 - **Estimates:** Cost for entire plan
 - **Checks:** Against cost control barriers
 - **Requests:** User approval if over budget (e.g., >$10)
-- **Routes:** Work to cheapest capable worker
-  - Autonomous Agent (FREE) for standard tasks
-  - OpenAI Worker (PAID) only when necessary
-- **Delegates to:** Multiple workers in parallel
+- **Distributes:** Work to available agents based on AVAILABILITY (not specialization)
+  - Finds available agent (not busy)
+  - Assigns task to that agent
+  - Tracks which agents are busy
+- **Executes:** Parallel execution groups (dependency-based topological sort)
 - **Guardrails:** Monthly budget limits, per-task cost limits
 
-### **4. Autonomous Agent (FREE Worker)**
-- **Receives:** Work from Credit Optimizer
-- **Executes:** Code generation, analysis, refactoring
+### **4. Autonomous Agent MCP (VERSATILE FREE Worker)**
+- **Receives:** ANY task type from Credit Optimizer
+- **Can execute:**
+  - ✅ Code generation (delegate_code_generation)
+  - ✅ Code analysis (delegate_code_analysis)
+  - ✅ Refactoring (delegate_code_refactoring)
+  - ✅ Test generation (delegate_test_generation)
+  - ✅ DB setup (toolkit_call → neon tools)
+  - ✅ Deployment (toolkit_call → vercel tools)
+  - ✅ Account management (toolkit_call → github tools)
+  - ✅ Redis setup (toolkit_call → upstash tools)
 - **Uses:** Ollama (FREE local LLM)
-- **Can access:** Thinking Tools, Robinson's Toolkit
-- **Multiple instances:** Can run 2-3+ in parallel
-- **Returns:** Results to Credit Optimizer → Architect → Augment
+- **Can access:** Robinson's Toolkit (906 tools), Thinking Tools (24 frameworks)
+- **Multiple instances:** Can run 2-4+ in parallel
+- **Returns:** Results to Credit Optimizer
 
-### **5. OpenAI Worker (PAID Worker - Optional)**
-- **Receives:** Specialized/massive tasks from Credit Optimizer
-- **Executes:** Tasks requiring premium models
-- **Uses:** OpenAI API (GPT-4, o1, etc.)
-- **Can access:** Thinking Tools, Robinson's Toolkit
+### **5. OpenAI Worker MCP (VERSATILE PAID Worker - Optional)**
+- **Receives:** ANY task type from Credit Optimizer (when FREE agents unavailable or quality needed)
+- **Can execute:** SAME as Autonomous Agent (fully versatile!)
+  - ✅ Code generation, analysis, refactoring, tests
+  - ✅ DB setup, deployment, account management, Redis setup
+- **Uses:** OpenAI API (GPT-4o, GPT-4o-mini) OR Ollama (via baseURL override!)
+- **Smart model selection:**
+  - FREE Ollama for basic/standard quality
+  - PAID OpenAI only for premium/best quality
+- **Can access:** Robinson's Toolkit (906 tools), Thinking Tools (24 frameworks)
 - **Use cases:**
-  - Massive tasks (1000+ lines of code)
-  - Specialized tasks (complex algorithms, advanced reasoning)
-  - When quality > cost
-- **Returns:** Results to Credit Optimizer → Architect → Augment
+  - When all FREE agents are busy (parallel execution)
+  - When premium quality required (complex algorithms, advanced reasoning)
+  - When user approves cost (>$10 requires approval)
+- **Returns:** Results to Credit Optimizer
 
 **Implementation:**
-```typescript
-// 1. Create Architect Agent (Planner)
-const architectAgent = await openai_agent_create({
-  name: "Architect",
-  instructions: `You are a planning expert.
-    - Break down tasks into parallel work units
-    - Maximize parallel execution by avoiding tool conflicts
-    - Use thinking tools to validate plans
-    - Estimate costs and delegate to Credit Optimizer`,
-  tools: [
-    "plan_work",
-    "decompose_spec",
-    "get_plan_status",
-    // Thinking Tools access
-    "premortem_analysis",
-    "swot_analysis",
-    "devils_advocate"
-  ],
-  handoffs: [
-    { to: "CreditOptimizer", when: "plan_ready", with: "plan + cost_estimate" }
-  ]
-});
 
-// 2. Create Credit Optimizer Agent (Cost Controller)
-const creditOptimizerAgent = await openai_agent_create({
-  name: "CreditOptimizer",
-  instructions: `You control costs and route work efficiently.
+**Step 1: Enhance Autonomous Agent MCP** (30 min)
+```typescript
+// packages/autonomous-agent-mcp/src/index.ts
+
+// Add new tool: execute_versatile_task
+{
+  name: 'execute_versatile_task_autonomous-agent-mcp',
+  description: 'Execute ANY task - coding, DB setup, deployment, account management, etc.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      task: { type: 'string', description: 'What to do' },
+      taskType: {
+        type: 'string',
+        enum: ['code_generation', 'code_analysis', 'refactoring', 'test_generation', 'toolkit_call'],
+        description: 'Type of task'
+      },
+      params: { type: 'object', description: 'Task-specific parameters' },
+    },
+  },
+}
+
+// Implementation
+async executeVersatileTask(args: any) {
+  const { task, taskType, params } = args;
+
+  switch (taskType) {
+    case 'code_generation':
+      return await this.delegateCodeGeneration(params);
+    case 'code_analysis':
+      return await this.delegateCodeAnalysis(params);
+    case 'refactoring':
+      return await this.delegateRefactoring(params);
+    case 'test_generation':
+      return await this.delegateTestGeneration(params);
+    case 'toolkit_call':
+      // Call Robinson's Toolkit for DB setup, deployment, etc.
+      return await this.callToolkit(params);
+  }
+}
+
+// Add Robinson's Toolkit client
+private toolkitClient: Client | null = null;
+
+async connectToToolkit() {
+  const transport = new StdioClientTransport({
+    command: 'npx',
+    args: ['robinsons-toolkit-mcp'],
+  });
+
+  this.toolkitClient = new Client({
+    name: 'autonomous-agent-toolkit-client',
+    version: '1.0.0',
+  }, { capabilities: {} });
+
+  await this.toolkitClient.connect(transport);
+}
+
+async callToolkit(params: any) {
+  if (!this.toolkitClient) await this.connectToToolkit();
+
+  return await this.toolkitClient!.callTool({
+    name: 'toolkit_call_robinsons-toolkit-mcp',
+    arguments: params,
+  });
+}
+```
+
+**Step 2: Enhance OpenAI Worker MCP** (60 min)
+```typescript
+// packages/openai-worker-mcp/src/index.ts
+
+// Model catalog with FREE Ollama + PAID OpenAI
+const MODEL_CATALOG: Record<string, ModelConfig> = {
+  // FREE Ollama models
+  'ollama/deepseek-coder:33b': {
+    provider: 'ollama',
+    model: 'deepseek-coder:33b',
+    baseURL: 'http://localhost:11434/v1',
+    costPerInputToken: 0,
+    costPerOutputToken: 0,
+    quality: 'premium',
+  },
+  'ollama/qwen2.5-coder:32b': {
+    provider: 'ollama',
+    model: 'qwen2.5-coder:32b',
+    baseURL: 'http://localhost:11434/v1',
+    costPerInputToken: 0,
+    costPerOutputToken: 0,
+    quality: 'standard',
+  },
+
+  // PAID OpenAI models
+  'openai/gpt-4o-mini': {
+    provider: 'openai',
+    model: 'gpt-4o-mini',
+    costPerInputToken: 0.00015,
+    costPerOutputToken: 0.0006,
+    quality: 'premium',
+  },
+  'openai/gpt-4o': {
+    provider: 'openai',
+    model: 'gpt-4o',
+    costPerInputToken: 0.0025,
+    costPerOutputToken: 0.01,
+    quality: 'best',
+  },
+};
+
+// Cost controls
+const COST_POLICY = {
+  HUMAN_APPROVAL_REQUIRED_OVER: 10.00, // $10
+  MONTHLY_BUDGET: 25.00, // $25
+  DEFAULT_MAX_COST: 1.00, // $1 per task
+};
+
+// New tool: execute_versatile_task (same as Autonomous Agent!)
+{
+  name: 'execute_versatile_task_openai-worker-mcp',
+  description: 'Execute ANY task using best model (FREE Ollama or PAID OpenAI) with cost controls',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      task: { type: 'string' },
+      taskType: {
+        type: 'string',
+        enum: ['code_generation', 'code_analysis', 'refactoring', 'test_generation', 'toolkit_call'],
+      },
+      params: { type: 'object' },
+      maxCost: { type: 'number', default: 1.0 },
+      minQuality: { type: 'string', enum: ['basic', 'standard', 'premium', 'best'], default: 'standard' },
+    },
+  },
+}
+
+async executeVersatileTask(args: any) {
+  const { task, taskType, params, maxCost = 1.0, minQuality = 'standard' } = args;
+
+  // 1. Select best model based on cost/quality requirements
+  const model = await this.selectBestModel(task, maxCost, minQuality);
+
+  // 2. Estimate cost
+  const estimatedCost = await this.estimateCost(task, model);
+
+  // 3. Check if approval needed
+  if (estimatedCost > COST_POLICY.HUMAN_APPROVAL_REQUIRED_OVER) {
+    return { error: 'APPROVAL_REQUIRED', estimatedCost, model };
+  }
+
+  // 4. Execute task
+  if (taskType === 'toolkit_call') {
+    return await this.callToolkit(params);
+  } else {
+    return await this.executeWithModel(model, taskType, params);
+  }
+}
+
+async selectBestModel(task: string, maxCost: number, minQuality: string): Promise<string> {
+  // Always try FREE Ollama first
+  if (minQuality === 'basic' || minQuality === 'standard') {
+    return 'ollama/qwen2.5-coder:32b'; // FREE, fast
+  }
+
+  if (minQuality === 'premium') {
+    if (maxCost === 0) {
+      return 'ollama/deepseek-coder:33b'; // FREE, best quality
+    } else {
+      return 'openai/gpt-4o-mini'; // Paid, but cheap
+    }
+  }
+
+  if (minQuality === 'best') {
+    if (maxCost > 1.0) {
+      return 'openai/gpt-4o'; // Best quality, expensive
+    } else {
+      return 'ollama/deepseek-coder:33b'; // FREE fallback
+    }
+  }
+
+  return 'ollama/qwen2.5-coder:32b'; // Default: FREE
+}
+```
+
+**Step 3: Update Architect MCP** (30 min)
+```typescript
+// packages/architect-mcp/src/index.ts
+
+const SYSTEM_PROMPT = `You are the Architect Planner. Create parallel execution plans.
+
+CRITICAL RULES:
+1. Do NOT assign specific agents to tasks
+2. Use "any_available_agent" for ALL tasks
+3. The Credit Optimizer will distribute work based on availability
+4. Be SPECIFIC and CONCRETE with file paths and parameters
+5. Return ONLY valid JSON (no markdown, no explanations)
+
+Output JSON format:
+{
+  "name": "Workflow Name",
+  "estimatedTime": "5 minutes",
+  "estimatedCost": "$0.50",
+  "steps": [
+    {
+      "id": "unique_id",
+      "assignTo": "any_available_agent",  // ← ALWAYS use this
+      "tool": "execute_versatile_task_autonomous-agent-mcp OR execute_versatile_task_openai-worker-mcp",
+      "dependencies": ["step_id"],
+      "params": {
+        "task": "Specific task description",
+        "taskType": "code_generation|code_analysis|refactoring|test_generation|toolkit_call",
+        "params": {
+          // Task-specific parameters
+        }
+      }
+    }
+  ]
+}`;
+```
+
+**Step 4: Build Parallel Execution Engine in Credit Optimizer** (60 min)
+```typescript
+// packages/credit-optimizer-mcp/src/parallel-executor.ts
+
+export class ParallelExecutionEngine {
+  private availableAgents = [
+    { name: 'autonomous-1', busy: false, tool: 'execute_versatile_task_autonomous-agent-mcp', cost: 0 },
+    { name: 'autonomous-2', busy: false, tool: 'execute_versatile_task_autonomous-agent-mcp', cost: 0 },
+    { name: 'openai-worker-1', busy: false, tool: 'execute_versatile_task_openai-worker-mcp', cost: 'variable' },
+    { name: 'openai-worker-2', busy: false, tool: 'execute_versatile_task_openai-worker-mcp', cost: 'variable' },
+  ];
+
+  async executeWorkflow(plan: WorkPlan): Promise<WorkflowResult> {
+    // Build dependency graph and identify parallel execution groups
+    const groups = this.buildDependencyGroups(plan.steps);
+
+    const results: StepResult[] = [];
+
+    // Execute each group in parallel
+    for (const group of groups) {
+      console.log(`Executing ${group.length} tasks in parallel...`);
+
+      const promises = group.map(step => this.executeStep(step));
+      const groupResults = await Promise.all(promises);
+
+      results.push(...groupResults);
+    }
+
+    return { success: true, results };
+  }
+
+  private buildDependencyGroups(steps: WorkStep[]): WorkStep[][] {
+    // Topological sort to identify parallel execution groups
+    // ... (implementation details)
+  }
+
+  private async executeStep(step: WorkStep): Promise<StepResult> {
+    // Find available agent
+    const agent = this.availableAgents.find(a => !a.busy);
+    if (!agent) throw new Error('No agents available');
+
+    agent.busy = true;
+
+    try {
+      // Execute task on agent
+      const result = await this.callAgent(agent.tool, step.params);
+      return { stepId: step.id, agent: agent.name, success: true, result };
+    } finally {
+      agent.busy = false;
+    }
+  }
+}
     - Estimate costs for plans
     - Check against cost control barriers ($10 limit, $25 monthly budget)
     - Request user approval if over budget

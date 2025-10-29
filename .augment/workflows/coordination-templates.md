@@ -4,6 +4,12 @@ This file defines common workflow patterns for the 6-server agent coordination n
 
 ## Architecture Overview
 
+**CRITICAL UNDERSTANDING:**
+- ✅ **Robinson's Toolkit = Shared Tool Library** (NOT an agent!)
+- ✅ **ALL agents are VERSATILE** (can code, set up DBs, deploy, manage accounts)
+- ✅ **Architect decides WHAT**, Credit Optimizer decides WHO (based on availability)
+- ✅ **Parallel execution** - Multiple agents working simultaneously
+
 ```
 User Request
     ↓
@@ -11,13 +17,36 @@ Augment Code (orchestrator)
     ↓
 Architect MCP (planning) ← uses Thinking Tools MCP
     ↓
-Credit Optimizer (validation/tracking)
+    Creates plan with assignTo: "any_available_agent"
     ↓
-Autonomous Agent (execution via FREE Ollama)
+Credit Optimizer MCP (validation/tracking/distribution)
     ↓
-Robinson's Toolkit (integration tools via broker)
+    Distributes work to available agents (parallel execution)
     ↓
-OpenAI Worker (paid execution when needed)
+    ├─────────────────┬─────────────────┬─────────────────┐
+    ▼                 ▼                 ▼                 ▼
+┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
+│Autonomous│     │Autonomous│     │ OpenAI  │     │ OpenAI  │
+│Agent #1  │     │Agent #2  │     │Worker #1│     │Worker #2│
+│          │     │          │     │         │     │         │
+│FREE      │     │FREE      │     │PAID     │     │PAID     │
+│(Ollama)  │     │(Ollama)  │     │(OpenAI) │     │(OpenAI) │
+│          │     │          │     │         │     │         │
+│VERSATILE │     │VERSATILE │     │VERSATILE│     │VERSATILE│
+│All tasks │     │All tasks │     │All tasks│     │All tasks│
+└─────────┘     └─────────┘     └─────────┘     └─────────┘
+    │                 │                 │                 │
+    └─────────────────┴─────────────────┴─────────────────┘
+                      │
+                      ▼
+    ┌─────────────────────────────────────────────────────┐
+    │         SHARED TOOL LIBRARIES (NOT AGENTS!)         │
+    ├─────────────────────────────────────────────────────┤
+    │  Robinson's Toolkit MCP    │  Thinking Tools MCP    │
+    │  - 906 integration tools   │  - 24 frameworks       │
+    │  - GitHub, Vercel, Neon    │  - Devil's advocate    │
+    │  - Upstash, Google, etc.   │  - SWOT, Premortem     │
+    └─────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -30,20 +59,22 @@ OpenAI Worker (paid execution when needed)
 1. **Plan** (Architect MCP)
    - Tool: `plan_work`
    - Input: Goal, budgets, constraints
-   - Output: Concrete plan with delegation steps
+   - Output: Concrete plan with `assignTo: "any_available_agent"`
 
 2. **Validate** (Credit Optimizer)
    - Tool: `estimate_task_cost`
    - Check: Cost < budget, files < limit
    - Output: Approval or rejection
 
-3. **Execute** (Autonomous Agent)
-   - Tool: `delegate_code_generation_autonomous-agent-mcp`
-   - Uses: FREE Ollama (deepseek-coder:33b)
+3. **Execute** (Any Available Agent - Autonomous or OpenAI Worker)
+   - Tool: `execute_versatile_task_autonomous-agent-mcp` OR `execute_versatile_task_openai-worker-mcp`
+   - Params: `{ taskType: "code_generation", params: { task, context, complexity } }`
+   - Uses: FREE Ollama (deepseek-coder:33b) by default
    - Output: Generated code
 
-4. **Integrate** (Robinson's Toolkit)
-   - Tool: `toolkit_call` (if GitHub/Vercel/etc needed)
+4. **Integrate** (Any Available Agent via Robinson's Toolkit)
+   - Tool: `execute_versatile_task_*` with `taskType: "toolkit_call"`
+   - Params: `{ category: "github", tool_name: "github_create_pr", arguments: {...} }`
    - Output: Committed/deployed code
 
 **Cost**: ~500 credits (orchestration only, Ollama is FREE!)
@@ -247,35 +278,76 @@ OpenAI Worker (paid execution when needed)
 
 ---
 
-## Example: Full Workflow Execution
+## Example: Full Workflow Execution (RAD Crawler Setup)
 
 ```javascript
 // 1. User request
-"Add 10 new Upstash Redis tools to Robinson's Toolkit"
+"Set up RAD Crawler with Neon DB, Redis cache, and Vercel deployment"
 
 // 2. Augment Code calls Architect MCP
 const plan = await plan_work({
-  goal: "Add 10 new Upstash Redis tools",
-  budgets: { max_steps: 15, time_ms: 600000, max_files_changed: 5 }
+  goal: "Set up RAD Crawler infrastructure",
+  budgets: { max_steps: 10, time_ms: 600000, max_files_changed: 5 }
 });
 
-// 3. Architect creates concrete plan with delegation
+// 3. Architect creates concrete plan with parallel execution
 {
+  name: "RAD Crawler Complete Setup",
   steps: [
-    { tool: "delegate_code_generation_autonomous-agent-mcp", params: {...} },
-    { tool: "delegate_test_generation_autonomous-agent-mcp", params: {...} },
-    { tool: "toolkit_call", params: { category: "github", toolName: "github_create_pr" } }
+    {
+      id: "code",
+      assignTo: "any_available_agent",  // ← NOT specific agent type!
+      tool: "execute_versatile_task_autonomous-agent-mcp",
+      dependencies: [],
+      params: {
+        taskType: "code_generation",
+        params: { task: "Create RAD Crawler code", context: "TypeScript, Neon, Redis", complexity: "complex" }
+      }
+    },
+    {
+      id: "db",
+      assignTo: "any_available_agent",
+      tool: "execute_versatile_task_autonomous-agent-mcp",
+      dependencies: [],  // ← Can run in parallel with "code"!
+      params: {
+        taskType: "toolkit_call",
+        params: { category: "neon", tool_name: "neon_create_project", arguments: { name: "rad-db" } }
+      }
+    },
+    {
+      id: "redis",
+      assignTo: "any_available_agent",
+      tool: "execute_versatile_task_autonomous-agent-mcp",
+      dependencies: [],  // ← Can run in parallel with "code" and "db"!
+      params: {
+        taskType: "toolkit_call",
+        params: { category: "upstash", tool_name: "upstash_create_database", arguments: { name: "rad-cache" } }
+      }
+    },
+    {
+      id: "deploy",
+      assignTo: "any_available_agent",
+      tool: "execute_versatile_task_openai-worker-mcp",
+      dependencies: ["code"],  // ← Must wait for code to be generated
+      params: {
+        taskType: "toolkit_call",
+        params: { category: "vercel", tool_name: "vercel_deploy", arguments: { project: "rad-crawler" } }
+      }
+    }
   ]
 }
 
-// 4. Augment Code executes plan (delegates to Autonomous Agent)
-for (const step of plan.steps) {
-  await callTool(step.tool, step.params);
-}
+// 4. Credit Optimizer distributes work to available agents
+// Parallel Group 1: code, db, redis (all run simultaneously!)
+//   - Autonomous Agent #1 → code generation (FREE Ollama)
+//   - Autonomous Agent #2 → Neon DB setup (FREE Ollama + toolkit_call)
+//   - OpenAI Worker #1 → Redis setup (FREE Ollama + toolkit_call)
+// Parallel Group 2: deploy (waits for code)
+//   - OpenAI Worker #2 → Vercel deployment (FREE Ollama + toolkit_call)
 
-// 5. Result: 10 tools added, tests passing, PR created
-// Cost: ~5,000 credits (vs 130,000 if Augment did it itself!)
-// Savings: 96%
+// 5. Result: RAD Crawler fully set up in ~2 minutes (parallel execution!)
+// Cost: ~1,000 credits (orchestration only, Ollama is FREE!)
+// Savings: 95% vs doing it sequentially with Augment
 ```
 
 ---

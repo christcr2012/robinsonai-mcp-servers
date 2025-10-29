@@ -1,20 +1,36 @@
-# Phase 0.5 Enhancement - Implementation Plan
+# Phase 0.5 Enhancement - Implementation Plan (REVISED)
 
-**Based on:** Deep Audit findings (`.augment/audits/PHASE_0.5_DEEP_AUDIT.md`)  
-**Goal:** Fix 5 critical gaps and reach 100% completion  
-**Estimated Time:** 6-10 hours  
+**Based on:** Deep Audit findings + Corrected understanding of agent architecture
+**Goal:** Make all agents versatile + enable parallel execution
+**Estimated Time:** 3-4 hours
 **Current Progress:** 85% → Target: 100%
+
+---
+
+## 🎯 **CRITICAL UNDERSTANDING (CORRECTED)**
+
+**Previous Misunderstanding:**
+- ❌ Thought we needed specialized agents (Coding Agent, DB Agent, Deploy Agent)
+- ❌ Thought we needed to create new OpenAI Assistants (cloud-based, can't access local tools)
+- ❌ Thought Robinson's Toolkit was an agent
+
+**Corrected Understanding:**
+- ✅ **Robinson's Toolkit = Shared Tool Library** (NOT an agent!)
+- ✅ **ALL agents are VERSATILE** (can code, set up DBs, deploy, manage accounts)
+- ✅ **Architect decides WHAT**, Credit Optimizer decides WHO (based on availability)
+- ✅ **Parallel execution** - Multiple agents working simultaneously
+- ✅ **FREE Ollama by default**, PAID OpenAI only when needed
 
 ---
 
 ## Quick Reference: What Needs to Be Built
 
-### Critical Gaps (Must Fix)
-1. ❌ Tool concurrency problem → Multi-instance MCP servers
-2. ❌ OpenAI Agents can't execute → Hybrid architecture
-3. ❌ Missing infrastructure workflows → 20+ new workflows
-4. ❌ No parallel execution → Parallel execution engine
-5. ❌ No agent-specific tooling → Session-based state management
+### Core Tasks
+1. ✅ Make Autonomous Agent MCP versatile (add Robinson's Toolkit access)
+2. ✅ Make OpenAI Worker MCP versatile (add Ollama support + Robinson's Toolkit access)
+3. ✅ Update Architect MCP to return `assignTo: "any_available_agent"`
+4. ✅ Build parallel execution engine in Credit Optimizer MCP
+5. ✅ Add cost controls and approval workflow
 
 ---
 
