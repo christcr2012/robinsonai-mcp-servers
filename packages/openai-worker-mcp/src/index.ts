@@ -27,6 +27,9 @@ import { initDatabase, createJob, getJob, updateJob, getMonthlySpend, recordSpen
 import { getPolicy } from './policy.js';
 import { initializePricing, getModelPricing, getPricingInfo, refreshPricing } from './pricing.js';
 import { getTokenTracker } from './token-tracker.js';
+import { selectBestModel, estimateTaskCost, getModelConfig, COST_POLICY, requiresApproval, withinBudget } from './model-catalog.js';
+import { getSharedOllamaClient } from './ollama-client.js';
+import { getSharedToolkitClient, type ToolkitCallParams } from '@robinsonai/shared-llm';
 
 const server = new Server(
   {
@@ -249,6 +252,43 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
         },
       },
+      {
+        name: 'execute_versatile_task_openai-worker-mcp',
+        description: 'Execute ANY task - coding, DB setup, deployment, account management, etc. This worker is VERSATILE and can handle all types of work. Uses smart model selection: FREE Ollama first, PAID OpenAI only when needed.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            task: {
+              type: 'string',
+              description: 'What to do (e.g., "Generate user profile component", "Set up Neon database", "Deploy to Vercel")',
+            },
+            taskType: {
+              type: 'string',
+              enum: ['code_generation', 'code_analysis', 'refactoring', 'test_generation', 'documentation', 'toolkit_call'],
+              description: 'Type of task to execute',
+            },
+            params: {
+              type: 'object',
+              description: 'Task-specific parameters (varies by taskType)',
+            },
+            minQuality: {
+              type: 'string',
+              enum: ['basic', 'standard', 'premium', 'best'],
+              description: 'Minimum quality requirement (default: standard)',
+            },
+            maxCost: {
+              type: 'number',
+              description: 'Maximum cost allowed in USD (default: $1.00, set to 0 for FREE Ollama only)',
+            },
+            taskComplexity: {
+              type: 'string',
+              enum: ['simple', 'medium', 'complex', 'expert'],
+              description: 'Task complexity (affects model selection, default: medium)',
+            },
+          },
+          required: ['task', 'taskType'],
+        },
+      },
     ],
   };
 });
@@ -277,6 +317,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await handleRefreshPricing();
       case 'openai_worker_get_token_analytics':
         return await handleGetTokenAnalytics(args);
+      case 'execute_versatile_task_openai-worker-mcp':
+        return await handleExecuteVersatileTask(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -660,6 +702,241 @@ async function handleGetTokenAnalytics(args: any) {
       },
     ],
   };
+}
+
+/**
+ * Execute versatile task with smart model selection
+ */
+async function handleExecuteVersatileTask(args: any) {
+  const {
+    task,
+    taskType,
+    params = {},
+    minQuality = 'standard',
+    maxCost = COST_POLICY.DEFAULT_MAX_COST,
+    taskComplexity = 'medium',
+  } = args;
+
+  console.error(`[OpenAIWorker] Executing versatile task: ${taskType} - ${task}`);
+
+  // Select best model (FREE Ollama first, PAID OpenAI when needed)
+  const modelId = selectBestModel({
+    minQuality,
+    maxCost,
+    taskComplexity,
+    preferFree: true,
+  });
+
+  const modelConfig = getModelConfig(modelId);
+  console.error(`[OpenAIWorker] Selected model: ${modelId} (${modelConfig.provider})`);
+
+  // Estimate cost
+  const estimatedInputTokens = params.estimatedInputTokens || 1000;
+  const estimatedOutputTokens = params.estimatedOutputTokens || 1000;
+  const estimatedCost = estimateTaskCost({
+    modelId,
+    estimatedInputTokens,
+    estimatedOutputTokens,
+  });
+
+  console.error(`[OpenAIWorker] Estimated cost: $${estimatedCost.toFixed(4)}`);
+
+  // Check if approval required
+  if (requiresApproval(estimatedCost)) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            error: 'APPROVAL_REQUIRED',
+            message: `Task estimated to cost $${estimatedCost.toFixed(2)}, which exceeds approval threshold of $${COST_POLICY.HUMAN_APPROVAL_REQUIRED_OVER}`,
+            estimatedCost,
+            model: modelId,
+            suggestion: 'Set maxCost=0 to use FREE Ollama only, or increase approval threshold',
+          }, null, 2),
+        },
+      ],
+    };
+  }
+
+  // Check monthly budget
+  const monthlySpend = getMonthlySpend();
+  if (!withinBudget(monthlySpend, estimatedCost)) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            error: 'BUDGET_EXCEEDED',
+            message: `Monthly budget of $${COST_POLICY.MONTHLY_BUDGET} would be exceeded`,
+            currentSpend: monthlySpend,
+            estimatedCost,
+            remaining: COST_POLICY.MONTHLY_BUDGET - monthlySpend,
+            suggestion: 'Use FREE Ollama (set maxCost=0) or wait until next month',
+          }, null, 2),
+        },
+      ],
+    };
+  }
+
+  // Execute task based on taskType
+  try {
+    let result: any;
+
+    switch (taskType) {
+      case 'toolkit_call':
+        // Call Robinson's Toolkit for DB setup, deployment, account management, etc.
+        const toolkitClient = getSharedToolkitClient();
+
+        const toolkitParams: ToolkitCallParams = {
+          category: params.category || '',
+          tool_name: params.tool_name || '',
+          arguments: params.arguments || {},
+        };
+
+        const toolkitResult = await toolkitClient.callTool(toolkitParams);
+
+        if (!toolkitResult.success) {
+          throw new Error(`Toolkit call failed: ${toolkitResult.error}`);
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                result: toolkitResult.result,
+                cost: {
+                  total: 0,
+                  currency: 'USD',
+                  note: 'FREE - Robinson\'s Toolkit call',
+                },
+              }, null, 2),
+            },
+          ],
+        };
+
+      case 'code_generation':
+      case 'code_analysis':
+      case 'refactoring':
+      case 'test_generation':
+      case 'documentation':
+        // Use selected model (Ollama or OpenAI)
+        if (modelConfig.provider === 'ollama') {
+          // Use FREE Ollama
+          const ollamaClient = getSharedOllamaClient();
+
+          const messages = [
+            {
+              role: 'system' as const,
+              content: `You are a ${taskType.replace('_', ' ')} expert. ${params.context || ''}`,
+            },
+            {
+              role: 'user' as const,
+              content: task,
+            },
+          ];
+
+          result = await ollamaClient.chatCompletion({
+            model: modelId,
+            messages,
+            temperature: params.temperature || 0.7,
+            maxTokens: params.maxTokens,
+          });
+
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: true,
+                  result: result.content,
+                  usage: result.usage,
+                  cost: {
+                    total: 0,
+                    currency: 'USD',
+                    note: 'FREE - Ollama execution',
+                  },
+                  model: modelId,
+                }, null, 2),
+              },
+            ],
+          };
+        } else {
+          // Use PAID OpenAI
+          const messages = [
+            {
+              role: 'system' as const,
+              content: `You are a ${taskType.replace('_', ' ')} expert. ${params.context || ''}`,
+            },
+            {
+              role: 'user' as const,
+              content: task,
+            },
+          ];
+
+          const response = await openai.chat.completions.create({
+            model: modelConfig.model,
+            messages,
+            temperature: params.temperature || 0.7,
+            max_tokens: params.maxTokens,
+          });
+
+          const choice = response.choices[0];
+          const usage = response.usage;
+
+          // Calculate actual cost
+          const actualCost = estimateTaskCost({
+            modelId,
+            estimatedInputTokens: usage?.prompt_tokens || 0,
+            estimatedOutputTokens: usage?.completion_tokens || 0,
+          });
+
+          // Record spend
+          recordSpend(actualCost, `versatile_task_${modelConfig.model}`);
+
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: true,
+                  result: choice.message.content,
+                  usage: {
+                    promptTokens: usage?.prompt_tokens || 0,
+                    completionTokens: usage?.completion_tokens || 0,
+                    totalTokens: usage?.total_tokens || 0,
+                  },
+                  cost: {
+                    total: actualCost,
+                    currency: 'USD',
+                    note: 'PAID - OpenAI execution',
+                  },
+                  model: modelId,
+                }, null, 2),
+              },
+            ],
+          };
+        }
+
+      default:
+        throw new Error(`Unknown task type: ${taskType}`);
+    }
+  } catch (error: any) {
+    console.error(`[OpenAIWorker] Error:`, error.message);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            error: error.message,
+            model: modelId,
+          }, null, 2),
+        },
+      ],
+    };
+  }
 }
 
 /**
