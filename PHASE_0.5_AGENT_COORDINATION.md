@@ -79,114 +79,212 @@
 ```
 ┌─────────────────────────────────────────────────────────┐
 │           AUGMENT CODE (Primary Orchestrator)           │
-│  - Manages overall workflow                             │
-│  - Decides when to delegate vs do work itself           │
+│  - Takes user request                                   │
+│  - Decides what to do itself vs delegate to 6-server    │
 │  - Has access to ALL 6 servers                          │
 └─────────────────────────────────────────────────────────┘
          │
-         ├──────────────────────────────────────────┐
-         │                                          │
-         ▼                                          ▼
-┌──────────────────┐                    ┌──────────────────┐
-│  OpenAI Worker   │                    │ Thinking Tools   │
-│  (Paid, Premium) │                    │ (Cognitive Tools)│
-│                  │                    │                  │
-│ - Agents SDK     │                    │ - Devil's Advocate│
-│ - Responses API  │                    │ - SWOT Analysis  │
-│ - Coordination   │                    │ - Premortem      │
-└──────────────────┘                    │ - Critical Think │
-         │                              │ - 15+ frameworks │
-         │                              └──────────────────┘
-         │                                     ▲
-         ▼                                     │
-┌─────────────────────────────────────────────┼──────────┐
-│         OpenAI Agent Coordinator            │          │
-│  (Uses Agents SDK for handoffs)             │          │
-└─────────────────────────────────────────────┼──────────┘
-         │           │           │            │
-         ▼           ▼           ▼            │
-    ┌────────┐  ┌────────┐  ┌────────┐       │
-    │Architect│  │Autonomous│ │Credit  │       │
-    │  Agent  │  │  Agent   │ │Optimizer│      │
-    │        │  │          │ │  Agent  │       │
-    │ (Uses  │  │ (Uses    │ │ (Uses   │       │
-    │Thinking│  │Thinking  │ │Thinking │       │
-    │ Tools) │  │ Tools)   │ │ Tools)  │───────┘
-    └────────┘  └────────┘  └────────┘
-         │           │           │
-         └───────────┴───────────┘
-                     │
-                     ▼
-           ┌──────────────────┐
-           │ Robinson's Toolkit│
-           │   (714 tools)     │
-           │                   │
-           │ - GitHub          │
-           │ - Vercel          │
-           │ - Neon            │
-           │ - Upstash         │
-           │ - Google          │
-           └──────────────────┘
+         │ (Delegates complex/large tasks)
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│              ARCHITECT AGENT (Planner)                  │
+│  - Creates execution plan                               │
+│  - Uses Thinking Tools for plan validation              │
+│  - Delegates work to maximize parallel execution        │
+│  - Avoids tool conflicts between workers                │
+└─────────────────────────────────────────────────────────┘
+         │
+         │ (Sends plan + cost estimate)
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│         CREDIT OPTIMIZER AGENT (Cost Controller)        │
+│  - Estimates costs for plan                             │
+│  - Enforces cost control barriers                       │
+│  - Requests user approval if over budget                │
+│  - Routes work to cheapest capable worker               │
+└─────────────────────────────────────────────────────────┘
+         │
+         │ (After approval, delegates to workers)
+         ├──────────────────────┬──────────────────────┐
+         ▼                      ▼                      ▼
+┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
+│ AUTONOMOUS AGENT │  │ AUTONOMOUS AGENT │  │  OPENAI WORKER   │
+│   (Worker #1)    │  │   (Worker #2)    │  │  (Paid Worker)   │
+│                  │  │                  │  │                  │
+│ - FREE (Ollama)  │  │ - FREE (Ollama)  │  │ - PAID (OpenAI)  │
+│ - Code gen       │  │ - Code gen       │  │ - Specialized    │
+│ - Analysis       │  │ - Analysis       │  │ - Massive tasks  │
+│ - Refactoring    │  │ - Refactoring    │  │ - Premium models │
+└──────────────────┘  └──────────────────┘  └──────────────────┘
+         │                      │                      │
+         │ (All workers can access these tool servers) │
+         ├──────────────────────┴──────────────────────┤
+         │                                             │
+         ▼                                             ▼
+┌──────────────────┐                        ┌──────────────────┐
+│ THINKING TOOLS   │                        │ ROBINSON'S       │
+│ (Tool Server)    │                        │ TOOLKIT          │
+│                  │                        │ (Tool Server)    │
+│ - Devil's Adv.   │                        │                  │
+│ - SWOT           │                        │ - GitHub (100+)  │
+│ - Premortem      │                        │ - Vercel (100+)  │
+│ - Critical Think │                        │ - Neon (200+)    │
+│ - 15+ frameworks │                        │ - Upstash (140+) │
+│                  │                        │ - Google (100+)  │
+└──────────────────┘                        └──────────────────┘
 ```
 
-**Key Clarification:**
-- **Thinking Tools MCP** is NOT an agent - it's a TOOL SERVER
-- All agents (Augment, Architect, Autonomous, Credit Optimizer) can USE thinking tools
-- Agents can strategically use thinking tools to collaborate (e.g., two agents using devil's advocate to debate)
+**Key Architecture Principles:**
+
+1. **Augment Code** decides what to do itself vs delegate
+2. **Architect** creates plan and maximizes parallel execution
+3. **Credit Optimizer** enforces cost controls and routes to cheapest worker
+4. **Multiple Autonomous Agents** work in parallel (FREE via Ollama)
+5. **OpenAI Worker** only for specialized/massive tasks (PAID, optional)
+6. **Thinking Tools** and **Robinson's Toolkit** are TOOL SERVERS (not agents)
+
+---
 
 **Agent Roles:**
 
-1. **Augment Code** (Primary Orchestrator)
-   - **Specialty:** Overall workflow management, user interaction
-   - **Delegates to:** Architect (planning), Autonomous (code gen), Credit Optimizer (tool discovery)
-   - **Uses:** Thinking Tools for critical decisions, OpenAI Worker for premium tasks
-   - **Autonomy:** Decides when delegation costs more than doing work itself
+### **1. Augment Code (Primary Orchestrator)**
+- **Receives:** User request
+- **Decides:** Do it myself vs delegate to 6-server system
+- **Delegates to:** Architect Agent (for complex/large tasks)
+- **Does itself:** Quick edits, simple tasks, immediate responses
+- **Uses:** All 6 servers as needed
+- **Autonomy:** Full autonomy to override delegation when appropriate
 
-2. **Architect Agent** (architect-mcp)
-   - **Specialty:** Planning, decomposition, work plans
-   - **Handoff to:** Autonomous Agent (for free execution), Credit Optimizer (for tool discovery)
-   - **Uses:** Thinking Tools (premortem, SWOT) for plan validation
-   - **Guardrails:** Max plan size, budget limits
+### **2. Architect Agent (Planner)**
+- **Receives:** Complex task from Augment
+- **Creates:** Execution plan with work breakdown
+- **Uses:** Thinking Tools (premortem, SWOT) to validate plan
+- **Optimizes:** Parallel execution by avoiding tool conflicts
+  - Example: Assigns GitHub work to Worker #1, Vercel work to Worker #2 simultaneously
+- **Delegates to:** Credit Optimizer (with plan + cost estimate)
+- **Guardrails:** Max plan size, complexity limits
 
-3. **Autonomous Agent** (autonomous-agent-mcp)
-   - **Specialty:** Code generation, analysis, refactoring (FREE via Ollama)
-   - **Handoff to:** Architect (for replanning), Credit Optimizer (for scaffolding)
-   - **Uses:** Thinking Tools (critical thinking) for code quality
-   - **Guardrails:** Code quality checks, security scans
+### **3. Credit Optimizer Agent (Cost Controller)**
+- **Receives:** Plan from Architect
+- **Estimates:** Cost for entire plan
+- **Checks:** Against cost control barriers
+- **Requests:** User approval if over budget (e.g., >$10)
+- **Routes:** Work to cheapest capable worker
+  - Autonomous Agent (FREE) for standard tasks
+  - OpenAI Worker (PAID) only when necessary
+- **Delegates to:** Multiple workers in parallel
+- **Guardrails:** Monthly budget limits, per-task cost limits
 
-4. **Credit Optimizer Agent** (credit-optimizer-mcp)
-   - **Specialty:** Tool discovery, workflow execution, scaffolding
-   - **Handoff to:** Autonomous Agent (for code gen), Architect (for complex workflows)
-   - **Uses:** Thinking Tools (decision matrix) for tool selection
-   - **Guardrails:** Cost limits, tool availability checks
+### **4. Autonomous Agent (FREE Worker)**
+- **Receives:** Work from Credit Optimizer
+- **Executes:** Code generation, analysis, refactoring
+- **Uses:** Ollama (FREE local LLM)
+- **Can access:** Thinking Tools, Robinson's Toolkit
+- **Multiple instances:** Can run 2-3+ in parallel
+- **Returns:** Results to Credit Optimizer → Architect → Augment
+
+### **5. OpenAI Worker (PAID Worker - Optional)**
+- **Receives:** Specialized/massive tasks from Credit Optimizer
+- **Executes:** Tasks requiring premium models
+- **Uses:** OpenAI API (GPT-4, o1, etc.)
+- **Can access:** Thinking Tools, Robinson's Toolkit
+- **Use cases:**
+  - Massive tasks (1000+ lines of code)
+  - Specialized tasks (complex algorithms, advanced reasoning)
+  - When quality > cost
+- **Returns:** Results to Credit Optimizer → Architect → Augment
 
 **Implementation:**
 ```typescript
-// Create agent network using OpenAI Agents SDK
+// 1. Create Architect Agent (Planner)
 const architectAgent = await openai_agent_create({
   name: "Architect",
-  instructions: "You are a planning and decomposition expert...",
-  tools: ["plan_work", "decompose_spec", "get_plan_status"],
+  instructions: `You are a planning expert.
+    - Break down tasks into parallel work units
+    - Maximize parallel execution by avoiding tool conflicts
+    - Use thinking tools to validate plans
+    - Estimate costs and delegate to Credit Optimizer`,
+  tools: [
+    "plan_work",
+    "decompose_spec",
+    "get_plan_status",
+    // Thinking Tools access
+    "premortem_analysis",
+    "swot_analysis",
+    "devils_advocate"
+  ],
   handoffs: [
-    { to: "Autonomous", when: "need_code_generation" },
-    { to: "CreditOptimizer", when: "need_tool_discovery" }
+    { to: "CreditOptimizer", when: "plan_ready", with: "plan + cost_estimate" }
   ]
 });
 
-const autonomousAgent = await openai_agent_create({
-  name: "Autonomous",
-  instructions: "You are a code generation expert using FREE Ollama models...",
-  tools: ["delegate_code_generation", "delegate_code_analysis"],
+// 2. Create Credit Optimizer Agent (Cost Controller)
+const creditOptimizerAgent = await openai_agent_create({
+  name: "CreditOptimizer",
+  instructions: `You control costs and route work efficiently.
+    - Estimate costs for plans
+    - Check against cost control barriers ($10 limit, $25 monthly budget)
+    - Request user approval if over budget
+    - Route work to cheapest capable worker (prefer FREE Autonomous)
+    - Only use OpenAI Worker when necessary`,
+  tools: [
+    "estimate_cost",
+    "check_budget",
+    "request_approval",
+    "discover_tools",
+    "execute_autonomous_workflow",
+    // Thinking Tools access
+    "decision_matrix"
+  ],
   handoffs: [
-    { to: "Architect", when: "need_replanning" },
-    { to: "CreditOptimizer", when: "need_scaffolding" }
+    { to: "AutonomousWorker", when: "standard_task", with: "work_unit" },
+    { to: "OpenAIWorker", when: "specialized_task", with: "work_unit" }
   ]
 });
 
-// ... create other agents
+// 3. Create Autonomous Agent Workers (FREE via Ollama)
+// Can create multiple instances for parallel execution
+const autonomousWorker = await openai_agent_create({
+  name: "AutonomousWorker",
+  instructions: `You execute code generation tasks using FREE Ollama.
+    - Generate code, analyze, refactor
+    - Use thinking tools for quality checks
+    - Access Robinson's Toolkit as needed`,
+  tools: [
+    "delegate_code_generation",
+    "delegate_code_analysis",
+    "delegate_code_refactoring",
+    // Thinking Tools access
+    "critical_thinking",
+    // Robinson's Toolkit access (all 714 tools available)
+    "github_*", "vercel_*", "neon_*", "upstash_*"
+  ],
+  handoffs: [
+    { to: "CreditOptimizer", when: "task_complete", with: "results" }
+  ]
+});
+
+// 4. Create OpenAI Worker (PAID - Optional)
+const openaiWorker = await openai_agent_create({
+  name: "OpenAIWorker",
+  instructions: `You handle specialized/massive tasks using premium OpenAI models.
+    - Only used when Autonomous Agents can't handle it
+    - Use GPT-4, o1, or other premium models as needed`,
+  tools: [
+    "run_job", // OpenAI Worker MCP tool
+    // Thinking Tools access
+    "critical_thinking",
+    "devils_advocate",
+    // Robinson's Toolkit access
+    "github_*", "vercel_*", "neon_*", "upstash_*"
+  ],
+  handoffs: [
+    { to: "CreditOptimizer", when: "task_complete", with: "results" }
+  ]
+});
 ```
 
-**Deliverable:** 4 coordinated agents with handoffs configured
+**Deliverable:** 3 coordinated agents + 1 optional paid worker configured
 
 ---
 
@@ -194,69 +292,99 @@ const autonomousAgent = await openai_agent_create({
 
 **Workflow 1: Build Feature (Coordinated)**
 ```
-User Request → Augment → Architect Agent
-                              ↓
-                    Create work plan
-                              ↓
-                    Handoff to Thinking Agent
-                              ↓
-                    Devil's advocate analysis
-                              ↓
-                    Handoff back to Architect
-                              ↓
-                    Revised plan
-                              ↓
-                    Handoff to Credit Optimizer
-                              ↓
-                    Discover tools, scaffold structure
-                              ↓
-                    Handoff to Autonomous Agent
-                              ↓
-                    Generate code (FREE via Ollama)
-                              ↓
-                    Return to Augment
+User: "Build authentication system"
+         ↓
+    Augment Code (decides to delegate)
+         ↓
+    Architect Agent
+         ├─ Creates execution plan
+         ├─ Uses premortem_analysis (Thinking Tools)
+         ├─ Optimizes for parallel execution
+         └─ Estimates costs ($15)
+         ↓
+    Credit Optimizer Agent
+         ├─ Checks cost estimate ($15)
+         ├─ Requests user approval (over $10 limit)
+         ├─ User approves
+         └─ Routes work to workers
+         ↓
+    ┌────────────────┬────────────────┐
+    ↓                ↓                ↓
+Autonomous Worker 1  Autonomous Worker 2  (OpenAI Worker - not needed)
+├─ Auth component   ├─ API endpoints
+├─ Uses critical_thinking (Thinking Tools)
+├─ Uses github_* (Robinson's Toolkit)
+└─ FREE (Ollama)    └─ FREE (Ollama)
+    ↓                ↓
+    └────────────────┴────────────────┘
+                     ↓
+            Credit Optimizer (collects results)
+                     ↓
+            Architect (validates)
+                     ↓
+            Augment Code (reviews & tests)
 ```
 
 **Workflow 2: Fix Errors (Coordinated)**
 ```
 User: "Fix these 50 type errors"
          ↓
-    Augment → Credit Optimizer Agent
-                   ↓
-         Execute bulk fix workflow
-                   ↓
-         Handoff to Autonomous Agent
-                   ↓
-         Generate fixes (FREE)
-                   ↓
-         Handoff to Thinking Agent
-                   ↓
-         Critical analysis of fixes
-                   ↓
-         Return to Augment
+    Augment Code (decides to delegate)
+         ↓
+    Architect Agent
+         ├─ Analyzes errors
+         ├─ Groups by file/pattern
+         └─ Creates fix plan
+         ↓
+    Credit Optimizer Agent
+         ├─ Estimates cost ($0 - bulk fix is FREE)
+         ├─ No approval needed
+         └─ Routes to Autonomous Worker
+         ↓
+    Autonomous Worker
+         ├─ Executes execute_bulk_fix (Credit Optimizer tool)
+         └─ FREE (Ollama)
+         ↓
+    Credit Optimizer (collects results)
+         ↓
+    Augment Code (reviews & commits)
 ```
 
 **Workflow 3: Build Phase 1-7 (Coordinated)**
 ```
-User: "Build comprehensive toolkit expansion"
+User: "Build 300+ toolkit tools"
          ↓
-    Augment → Architect Agent
-                   ↓
-         Decompose into 300+ tool specs
-                   ↓
-         Handoff to Thinking Agent
-                   ↓
-         Premortem analysis (what could go wrong?)
-                   ↓
-         Handoff to Credit Optimizer
-                   ↓
-         Scaffold tool structures
-                   ↓
-         Handoff to Autonomous Agent
-                   ↓
-         Generate 300+ tools (FREE via Ollama)
-                   ↓
-         Return to Augment for review
+    Augment Code (delegates large task)
+         ↓
+    Architect Agent
+         ├─ Creates 7-phase plan
+         ├─ Uses premortem_analysis (Thinking Tools)
+         ├─ Breaks into 50+ parallel work units
+         ├─ Avoids tool conflicts (GitHub vs Vercel vs Neon)
+         └─ Estimates costs ($45)
+         ↓
+    Credit Optimizer Agent
+         ├─ Checks cost estimate ($45)
+         ├─ Requests user approval (over $10, under $25 monthly)
+         ├─ User approves
+         └─ Routes work to multiple workers
+         ↓
+    ┌────────────────┬────────────────┬────────────────┐
+    ↓                ↓                ↓                ↓
+Autonomous Worker 1  Autonomous Worker 2  Autonomous Worker 3  (OpenAI Worker - not needed)
+├─ Upstash tools    ├─ Fly.io tools     ├─ Docker tools
+├─ FREE (Ollama)    ├─ FREE (Ollama)    ├─ FREE (Ollama)
+└─ 110 tools        └─ 60 tools         └─ 100 tools
+    ↓                ↓                ↓
+    └────────────────┴────────────────┴────────────────┘
+                     ↓
+            Credit Optimizer (collects results)
+                     ↓
+            Architect (validates)
+                     ↓
+            Augment Code (reviews & tests)
+
+Result: 270 tools built, 90% FREE via Ollama, ~$5 actual cost
 ```
 
 **Deliverable:** 3 coordination workflows configured
