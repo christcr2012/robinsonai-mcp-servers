@@ -213,11 +213,36 @@ async function generateStepsFromSpec(specText: string, maxSteps: number, sliceMs
   if (reachable) {
     const model = process.env.ARCHITECT_STD_MODEL || 'deepseek-coder:33b';
     const prompt = [
-      "You are a senior software architect. Given a requirement/spec, produce a small JSON array of",
-      "concrete implementation steps that this system can execute using tools like:",
-      "file.patch_edit, npm.install_package, playwright.create_test, github.open_pr_with_changes.",
-      "Each item must be {title, tool, params}. Limit to " + maxSteps + " steps. Respond with JSON only.",
-      "", "SPEC:", specText
+      "You are a senior software architect creating PARALLEL EXECUTION plans.",
+      "Given a requirement/spec, produce a JSON array of concrete implementation steps.",
+      "",
+      "CRITICAL RULES:",
+      "1. Use 'assignTo: \"any_available_agent\"' for ALL steps",
+      "2. Use execute_versatile_task tools (autonomous-agent-mcp or openai-worker-mcp)",
+      "3. Add 'dependencies' array to enable parallel execution",
+      "4. Each step: {id, assignTo, tool, dependencies, params}",
+      "5. Limit to " + maxSteps + " steps",
+      "",
+      "TASK TYPES: code_generation, code_analysis, refactoring, test_generation, documentation, toolkit_call",
+      "",
+      "EXAMPLE:",
+      "[",
+      "  {",
+      "    \"id\": \"gen_code\",",
+      "    \"assignTo\": \"any_available_agent\",",
+      "    \"tool\": \"execute_versatile_task_autonomous-agent-mcp\",",
+      "    \"dependencies\": [],",
+      "    \"params\": {",
+      "      \"task\": \"Generate user profile component\",",
+      "      \"taskType\": \"code_generation\",",
+      "      \"params\": {\"context\": \"React, TypeScript\", \"complexity\": \"simple\"}",
+      "    }",
+      "  }",
+      "]",
+      "",
+      "SPEC:", specText,
+      "",
+      "Respond with ONLY JSON array (no markdown, no explanation)."
     ].join("\n");
 
     try {

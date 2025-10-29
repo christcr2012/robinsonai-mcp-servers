@@ -122,54 +122,93 @@ function pickPlannerModel(depth: string, repoSize: number): string {
 
 async function llmPlan(params: { goal: string; repoDigest: string; tools: string[]; model: string }): Promise<any> {
   const prompt = [
-    "You are a principal software architect creating CONCRETE, EXECUTABLE work plans.",
+    "You are a principal software architect creating CONCRETE, EXECUTABLE work plans for PARALLEL EXECUTION.",
     "",
     "CRITICAL REQUIREMENTS:",
     "1. Use ONLY tools from the provided tool list (no fake tools!)",
     "2. Be SPECIFIC: Include exact file paths, function names, parameter values",
-    "3. FORCE DELEGATION: Use delegate_code_generation_autonomous-agent-mcp for ALL code generation",
-    "4. Include concrete success criteria (specific test files, not 'run tests')",
+    "3. Use 'assignTo: \"any_available_agent\"' for ALL steps (Credit Optimizer distributes work)",
+    "4. Use 'execute_versatile_task' tools (NOT old delegate_* tools)",
+    "5. Add 'dependencies' array to enable parallel execution",
+    "6. Include concrete success criteria",
     "",
-    "DELEGATION RULES:",
-    "- Code generation → delegate_code_generation_autonomous-agent-mcp",
-    "- Code analysis → delegate_code_analysis_autonomous-agent-mcp",
-    "- Refactoring → delegate_code_refactoring_autonomous-agent-mcp",
-    "- Tests → delegate_test_generation_autonomous-agent-mcp",
+    "VERSATILE TASK EXECUTION:",
+    "- ALL agents can do EVERYTHING (code, DB setup, deploy, account mgmt)",
+    "- Use execute_versatile_task_autonomous-agent-mcp (FREE Ollama)",
+    "- Use execute_versatile_task_openai-worker-mcp (PAID OpenAI, only when needed)",
+    "- Credit Optimizer decides WHO based on availability (not specialization)",
+    "",
+    "TASK TYPES:",
+    "- code_generation: Generate new code",
+    "- code_analysis: Analyze existing code",
+    "- refactoring: Refactor code",
+    "- test_generation: Generate tests",
+    "- documentation: Generate docs",
+    "- toolkit_call: DB setup, deployment, account mgmt (via Robinson's Toolkit)",
     "",
     `Goal: ${params.goal}`,
     `RepoDigest: ${params.repoDigest}`,
     `Available Tools: ${params.tools.join(", ")}`,
     "",
-    "EXAMPLE (CONCRETE PLAN):",
+    "EXAMPLE (PARALLEL EXECUTION PLAN):",
     `{
   "name": "Add 10 Upstash Redis Tools",
+  "estimatedTime": "15 minutes",
+  "estimatedCost": "$0.00 (FREE Ollama)",
   "caps": {"max_files_changed": 20, "require_green_tests": true},
-  "budgets": {"time_ms": 600000, "max_steps": 15},
+  "budgets": {"time_ms": 900000, "max_steps": 15},
   "successSignals": ["npm test passes", "all 10 tools registered"],
   "steps": [
     {
       "id": "gen_hset",
-      "tool": "delegate_code_generation_autonomous-agent-mcp",
+      "assignTo": "any_available_agent",
+      "tool": "execute_versatile_task_autonomous-agent-mcp",
+      "dependencies": [],
       "params": {
         "task": "Create HSET tool handler in packages/robinsons-toolkit-mcp/src/integrations/upstash/redis-tools.ts",
-        "context": "TypeScript, Upstash Redis client, MCP tool pattern",
-        "complexity": "simple"
+        "taskType": "code_generation",
+        "params": {
+          "context": "TypeScript, Upstash Redis client, MCP tool pattern",
+          "complexity": "simple"
+        }
       }
     },
     {
       "id": "gen_hget",
-      "tool": "delegate_code_generation_autonomous-agent-mcp",
+      "assignTo": "any_available_agent",
+      "tool": "execute_versatile_task_autonomous-agent-mcp",
+      "dependencies": [],
       "params": {
         "task": "Create HGET tool handler in packages/robinsons-toolkit-mcp/src/integrations/upstash/redis-tools.ts",
-        "context": "TypeScript, Upstash Redis client, MCP tool pattern",
-        "complexity": "simple"
-      },
-      "requires": ["gen_hset"]
+        "taskType": "code_generation",
+        "params": {
+          "context": "TypeScript, Upstash Redis client, MCP tool pattern",
+          "complexity": "simple"
+        }
+      }
+    },
+    {
+      "id": "test_redis_tools",
+      "assignTo": "any_available_agent",
+      "tool": "execute_versatile_task_autonomous-agent-mcp",
+      "dependencies": ["gen_hset", "gen_hget"],
+      "params": {
+        "task": "Generate tests for HSET and HGET tools",
+        "taskType": "test_generation",
+        "params": {
+          "code": "packages/robinsons-toolkit-mcp/src/integrations/upstash/redis-tools.ts",
+          "framework": "jest",
+          "coverage": "comprehensive"
+        }
+      }
     }
   ]
 }`,
     "",
-    "Now create a CONCRETE plan for the goal above. Use ONLY tools from the Available Tools list.",
+    "Now create a CONCRETE plan for the goal above.",
+    "Use 'assignTo: \"any_available_agent\"' for ALL steps.",
+    "Use execute_versatile_task tools (autonomous-agent-mcp or openai-worker-mcp).",
+    "Add dependencies array to enable parallel execution.",
     "Respond with ONLY JSON (no markdown, no explanation)."
   ].join("\n");
 
