@@ -18,8 +18,18 @@
       "args": ["autonomous-agent-mcp"],
       "env": {
         "OLLAMA_BASE_URL": "http://127.0.0.1:11434",
-        "MAX_OLLAMA_CONCURRENCY": "2"
+        "MAX_OLLAMA_CONCURRENCY": "12"
       }
+    },
+    "credit-optimizer-mcp": {
+      "command": "npx",
+      "args": ["credit-optimizer-mcp"],
+      "env": {}
+    },
+    "thinking-tools-mcp": {
+      "command": "npx",
+      "args": ["thinking-tools-mcp"],
+      "env": {}
     },
     "openai-worker-mcp": {
       "command": "npx",
@@ -27,28 +37,21 @@
       "env": {
         "OPENAI_API_KEY": "<YOUR_OPENAI_API_KEY_HERE>",
         "MONTHLY_BUDGET": "25",
-        "MAX_OPENAI_CONCURRENCY": "1",
+        "MAX_OPENAI_CONCURRENCY": "15",
         "PER_JOB_TOKEN_LIMIT": "6000"
       }
-    },
-    "thinking-tools-mcp": {
-      "command": "npx",
-      "args": ["thinking-tools-mcp"],
-      "env": {}
-    },
-    "credit-optimizer-mcp": {
-      "command": "npx",
-      "args": ["credit-optimizer-mcp"],
-      "env": {}
     },
     "robinsons-toolkit-mcp": {
       "command": "npx",
       "args": ["robinsons-toolkit-mcp"],
       "env": {
-        "RTK_MAX_ACTIVE": "6",
-        "RTK_IDLE_SECS": "300",
-        "RTK_TOOL_TIMEOUT_MS": "60000",
-        "RTK_PREWARM": ""
+        "GITHUB_TOKEN": "<YOUR_GITHUB_TOKEN_HERE>",
+        "VERCEL_TOKEN": "<YOUR_VERCEL_TOKEN_HERE>",
+        "NEON_API_KEY": "<YOUR_NEON_API_KEY_HERE>",
+        "UPSTASH_API_KEY": "<YOUR_UPSTASH_API_KEY_HERE>",
+        "UPSTASH_EMAIL": "<YOUR_UPSTASH_EMAIL_HERE>",
+        "UPSTASH_REDIS_REST_URL": "<YOUR_UPSTASH_REDIS_REST_URL_HERE>",
+        "UPSTASH_REDIS_REST_TOKEN": "<YOUR_UPSTASH_REDIS_REST_TOKEN_HERE>"
       }
     }
   }

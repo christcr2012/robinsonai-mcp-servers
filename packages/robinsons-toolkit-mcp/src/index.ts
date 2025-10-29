@@ -1,20 +1,36 @@
 #!/usr/bin/env node
 /**
  * Robinson's Toolkit - Unified MCP Server
- * 1,594+ tools: GitHub (240) + Vercel (150) + Neon (166) + Redis (160) + OpenAI (240) +
- * Google Workspace (192) + Playwright (33) + Context7 (8) + Stripe (105) + Supabase (80) +
- * Resend (60) + Twilio (70) + Cloudflare (90)
+ *
+ * ACTIVE INTEGRATIONS (714 tools):
+ * - GitHub: 240 tools
+ * - Vercel: 150 tools
+ * - Neon: 173 tools
+ * - Upstash Redis: 140 tools
+ * - Google Workspace: 11 tools (initialized, not fully integrated)
+ *
+ * PLANNED INTEGRATIONS (not yet active):
+ * - OpenAI (240) + Playwright (33) + Context7 (8) + Stripe (105) + Supabase (80)
+ * - Resend (60) + Twilio (70) + Cloudflare (90)
  */
 
+import { config } from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import axios, { AxiosInstance } from 'axios';
-import { createClient, RedisClientType } from 'redis';
 import OpenAI from 'openai';
 import { google } from 'googleapis';
 import { chromium, Browser, Page, BrowserContext } from 'playwright';
 import Stripe from 'stripe';
+
+// Load environment variables from .env.local (in repo root)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const envPath = join(__dirname, '..', '..', '..', '.env.local');
+config({ path: envPath });
 
 // ============================================================
 // GITHUB (240 tools)
@@ -27,8 +43,6 @@ interface GitHubClient {
   put(path: string, body?: any): Promise<any>;
   delete(path: string): Promise<any>;
 }
-
-import { Octokit } from '@octokit/rest';
 
 // API constants
 const VERCEL_BASE_URL = 'https://api.vercel.com';
@@ -43,7 +57,10 @@ class UnifiedToolkit {
   private githubToken: string;
   private vercelToken: string;
   private neonApiKey: string;
-  private redisUrl: string;
+  private upstashApiKey: string;
+  private upstashEmail: string;
+  private upstashRedisUrl: string;
+  private upstashRedisToken: string;
   private openaiApiKey: string;
   private googleServiceAccountKey: string;
   private googleUserEmail: string;
@@ -58,9 +75,9 @@ class UnifiedToolkit {
   private context7ApiKey: string;
 
   // Service clients
-  private client: any; // GitHub Octokit client
+  private client: GitHubClient; // GitHub client
   private baseUrl: string = VERCEL_BASE_URL; // Vercel base URL
-  private redisClient: RedisClientType | null = null;
+  private githubBaseUrl: string = 'https://api.github.com'; // GitHub base URL
   private openaiClient: OpenAI | null = null;
   private googleAuth: any = null;
   private gmail: any = null;
@@ -84,11 +101,15 @@ class UnifiedToolkit {
   private context7Client: AxiosInstance | null = null;
 
   constructor() {
+    console.error("[Robinson Toolkit] Constructor starting...");
     // Load all environment variables
     this.githubToken = process.env.GITHUB_TOKEN || '';
     this.vercelToken = process.env.VERCEL_TOKEN || '';
     this.neonApiKey = process.env.NEON_API_KEY || '';
-    this.redisUrl = process.env.REDIS_URL || '';
+    this.upstashApiKey = process.env.UPSTASH_API_KEY || '';
+    this.upstashEmail = process.env.UPSTASH_EMAIL || '';
+    this.upstashRedisUrl = process.env.UPSTASH_REDIS_REST_URL || '';
+    this.upstashRedisToken = process.env.UPSTASH_REDIS_REST_TOKEN || '';
     this.openaiApiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_ADMIN_KEY || '';
     this.googleServiceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY || '';
     this.googleUserEmail = process.env.GOOGLE_USER_EMAIL || 'me';
@@ -101,71 +122,97 @@ class UnifiedToolkit {
     this.cloudflareApiToken = process.env.CLOUDFLARE_API_TOKEN || '';
     this.cloudflareAccountId = process.env.CLOUDFLARE_ACCOUNT_ID || '';
     this.context7ApiKey = process.env.CONTEXT7_API_KEY || '';
+    console.error("[Robinson Toolkit] Environment variables loaded");
 
-    // Initialize GitHub Octokit client
-    this.client = new Octokit({ auth: this.githubToken });
+    // Initialize GitHub client (using custom interface like Vercel/Neon)
+    this.client = {
+      get: (path: string, params?: any) => {
+        const query = params ? '?' + new URLSearchParams(params).toString() : '';
+        return this.githubFetch(`${path}${query}`, { method: 'GET' });
+      },
+      post: (path: string, body?: any) =>
+        this.githubFetch(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
+      patch: (path: string, body?: any) =>
+        this.githubFetch(path, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
+      put: (path: string, body?: any) =>
+        this.githubFetch(path, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
+      delete: (path: string) =>
+        this.githubFetch(path, { method: 'DELETE' }),
+    };
 
     // Initialize OpenAI client
     if (this.openaiApiKey) {
-      this.openaiClient = new OpenAI({ apiKey: this.openaiApiKey });
+      try {
+        this.openaiClient = new OpenAI({ apiKey: this.openaiApiKey });
+      } catch (error) {
+        console.error('[Robinson Toolkit] Failed to initialize OpenAI client:', error);
+      }
     }
 
     // Initialize Google Workspace clients
     if (this.googleServiceAccountKey) {
-      this.googleAuth = new google.auth.GoogleAuth({
-        keyFile: this.googleServiceAccountKey,
-        scopes: [
-          'https://www.googleapis.com/auth/gmail.modify',
-          'https://www.googleapis.com/auth/drive',
-          'https://www.googleapis.com/auth/calendar',
-          'https://www.googleapis.com/auth/spreadsheets',
-          'https://www.googleapis.com/auth/documents',
-          'https://www.googleapis.com/auth/presentations',
-          'https://www.googleapis.com/auth/admin.directory.user',
-          'https://www.googleapis.com/auth/admin.directory.group',
-          'https://www.googleapis.com/auth/admin.directory.orgunit',
-          'https://www.googleapis.com/auth/admin.directory.domain',
-          'https://www.googleapis.com/auth/admin.directory.rolemanagement',
-          'https://www.googleapis.com/auth/admin.directory.device.mobile',
-          'https://www.googleapis.com/auth/admin.directory.device.chromeos',
-          'https://www.googleapis.com/auth/admin.directory.resource.calendar',
-          'https://www.googleapis.com/auth/tasks',
-          'https://www.googleapis.com/auth/contacts',
-          'https://www.googleapis.com/auth/forms.body',
-          'https://www.googleapis.com/auth/forms.responses.readonly',
-          'https://www.googleapis.com/auth/classroom.courses',
-          'https://www.googleapis.com/auth/classroom.rosters',
-          'https://www.googleapis.com/auth/classroom.coursework.students',
-          'https://www.googleapis.com/auth/chat.spaces',
-          'https://www.googleapis.com/auth/chat.messages',
-          'https://www.googleapis.com/auth/admin.reports.usage.readonly',
-          'https://www.googleapis.com/auth/admin.reports.audit.readonly',
-          'https://www.googleapis.com/auth/apps.licensing'
-        ],
-        clientOptions: { subject: this.googleUserEmail !== 'me' ? this.googleUserEmail : undefined }
-      });
-      this.gmail = google.gmail({ version: 'v1', auth: this.googleAuth });
-      this.drive = google.drive({ version: 'v3', auth: this.googleAuth });
-      this.calendar = google.calendar({ version: 'v3', auth: this.googleAuth });
-      this.sheets = google.sheets({ version: 'v4', auth: this.googleAuth });
-      this.docs = google.docs({ version: 'v1', auth: this.googleAuth });
-      this.admin = google.admin({ version: 'directory_v1', auth: this.googleAuth });
-      this.slides = google.slides({ version: 'v1', auth: this.googleAuth });
-      this.tasks = google.tasks({ version: 'v1', auth: this.googleAuth });
-      this.people = google.people({ version: 'v1', auth: this.googleAuth });
-      this.forms = google.forms({ version: 'v1', auth: this.googleAuth });
-      this.classroom = google.classroom({ version: 'v1', auth: this.googleAuth });
-      this.chat = google.chat({ version: 'v1', auth: this.googleAuth });
-      this.reports = google.admin({ version: 'reports_v1', auth: this.googleAuth });
-      this.licensing = google.licensing({ version: 'v1', auth: this.googleAuth });
+      try {
+        this.googleAuth = new google.auth.GoogleAuth({
+          keyFile: this.googleServiceAccountKey,
+          scopes: [
+            'https://www.googleapis.com/auth/gmail.modify',
+            'https://www.googleapis.com/auth/drive',
+            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/documents',
+            'https://www.googleapis.com/auth/presentations',
+            'https://www.googleapis.com/auth/admin.directory.user',
+            'https://www.googleapis.com/auth/admin.directory.group',
+            'https://www.googleapis.com/auth/admin.directory.orgunit',
+            'https://www.googleapis.com/auth/admin.directory.domain',
+            'https://www.googleapis.com/auth/admin.directory.rolemanagement',
+            'https://www.googleapis.com/auth/admin.directory.device.mobile',
+            'https://www.googleapis.com/auth/admin.directory.device.chromeos',
+            'https://www.googleapis.com/auth/admin.directory.resource.calendar',
+            'https://www.googleapis.com/auth/tasks',
+            'https://www.googleapis.com/auth/contacts',
+            'https://www.googleapis.com/auth/forms.body',
+            'https://www.googleapis.com/auth/forms.responses.readonly',
+            'https://www.googleapis.com/auth/classroom.courses',
+            'https://www.googleapis.com/auth/classroom.rosters',
+            'https://www.googleapis.com/auth/classroom.coursework.students',
+            'https://www.googleapis.com/auth/chat.spaces',
+            'https://www.googleapis.com/auth/chat.messages',
+            'https://www.googleapis.com/auth/admin.reports.usage.readonly',
+            'https://www.googleapis.com/auth/admin.reports.audit.readonly',
+            'https://www.googleapis.com/auth/apps.licensing'
+          ],
+          clientOptions: { subject: this.googleUserEmail !== 'me' ? this.googleUserEmail : undefined }
+        });
+        this.gmail = google.gmail({ version: 'v1', auth: this.googleAuth });
+        this.drive = google.drive({ version: 'v3', auth: this.googleAuth });
+        this.calendar = google.calendar({ version: 'v3', auth: this.googleAuth });
+        this.sheets = google.sheets({ version: 'v4', auth: this.googleAuth });
+        this.docs = google.docs({ version: 'v1', auth: this.googleAuth });
+        this.admin = google.admin({ version: 'directory_v1', auth: this.googleAuth });
+        this.slides = google.slides({ version: 'v1', auth: this.googleAuth });
+        this.tasks = google.tasks({ version: 'v1', auth: this.googleAuth });
+        this.people = google.people({ version: 'v1', auth: this.googleAuth });
+        this.forms = google.forms({ version: 'v1', auth: this.googleAuth });
+        this.classroom = google.classroom({ version: 'v1', auth: this.googleAuth });
+        this.chat = google.chat({ version: 'v1', auth: this.googleAuth });
+        this.reports = google.admin({ version: 'reports_v1', auth: this.googleAuth });
+        this.licensing = google.licensing({ version: 'v1', auth: this.googleAuth });
+      } catch (error) {
+        console.error('[Robinson Toolkit] Failed to initialize Google Workspace clients:', error);
+      }
     }
 
     // Initialize Stripe client
     if (this.stripeSecretKey) {
-      this.stripeClient = new Stripe(this.stripeSecretKey, {
-        apiVersion: '2025-02-24.acacia',
-        typescript: true,
-      });
+      try {
+        this.stripeClient = new Stripe(this.stripeSecretKey, {
+          apiVersion: '2025-02-24.acacia',
+          typescript: true,
+        });
+      } catch (error) {
+        console.error('[Robinson Toolkit] Failed to initialize Stripe client:', error);
+      }
     }
 
     // Initialize Context7 client
@@ -179,6 +226,7 @@ class UnifiedToolkit {
       });
     }
 
+    console.error("[Robinson Toolkit] Creating MCP server...");
     this.server = new Server(
       {
         name: "robinsons-toolkit",
@@ -190,9 +238,15 @@ class UnifiedToolkit {
         },
       }
     );
+    console.error("[Robinson Toolkit] MCP server created");
 
+    console.error("[Robinson Toolkit] Setting up handlers...");
     this.setupHandlers();
+    console.error("[Robinson Toolkit] Handlers set up");
+
+    console.error("[Robinson Toolkit] Setting up error handling...");
     this.setupErrorHandling();
+    console.error("[Robinson Toolkit] Constructor complete");
   }
 
   private setupErrorHandling() {
@@ -493,7 +547,7 @@ class UnifiedToolkit {
         { name: 'github_get_code_scanning_alert', description: 'Get code scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' } }, required: ['owner', 'repo', 'alert_number'] } },
         { name: 'github_update_code_scanning_alert', description: 'Update code scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['dismissed', 'open'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
         { name: 'github_list_secret_scanning_alerts', description: 'List secret scanning alerts', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo'] } },
-        { name: 'github_update_secret_scanning_alert', description: 'Update secret scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },,
+        { name: 'github_update_secret_scanning_alert', description: 'Update secret scanning alert', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
 // ==================== PROJECT MANAGEMENT ====================
         {
           name: "vercel_list_projects",
@@ -2407,7 +2461,7 @@ class UnifiedToolkit {
             },
             required: ["projectId", "headers"],
           },
-        },,
+        },
 // PROJECT MANAGEMENT (13 tools)
         { name: 'neon_list_projects', description: 'Lists the first 10 Neon projects. Increase limit or use search to filter.', inputSchema: { type: 'object', properties: { limit: { type: 'number' }, search: { type: 'string' }, cursor: { type: 'string' }, org_id: { type: 'string' } } } },
         { name: 'neon_list_organizations', description: 'Lists all organizations the user has access to.', inputSchema: { type: 'object', properties: { search: { type: 'string' } } } },
@@ -2612,7 +2666,7 @@ class UnifiedToolkit {
         { name: 'neon_rollback_migration', description: 'Rollback a schema migration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, migrationId: { type: 'string' } }, required: ['projectId', 'migrationId'] } },
 
         // ADVANCED CONNECTION MANAGEMENT (3 tools)
-        { name: 'neon_get_connection_uri', description: 'Get formatted connection URI for different clients.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' }, pooled: { type: 'boolean' }, format: { type: 'string', enum: ['psql', 'jdbc', 'node', 'python', 'go', 'rust'] } }, required: ['projectId'] } },
+        { name: 'neon_get_connection_uri_formatted', description: 'Get formatted connection URI for different clients.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' }, pooled: { type: 'boolean' }, format: { type: 'string', enum: ['psql', 'jdbc', 'node', 'python', 'go', 'rust'] } }, required: ['projectId'] } },
         { name: 'neon_test_connection', description: 'Test database connection and return latency.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId'] } },
         { name: 'neon_get_connection_examples', description: 'Get code examples for connecting to database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, language: { type: 'string', enum: ['javascript', 'typescript', 'python', 'go', 'rust', 'java', 'php', 'ruby'] } }, required: ['projectId'] } },
 
@@ -2622,7 +2676,229 @@ class UnifiedToolkit {
 
         // ADVANCED MONITORING (2 tools)
         { name: 'neon_get_real_time_metrics', description: 'Get real-time performance metrics.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, metrics: { type: 'array', items: { type: 'string' } } }, required: ['projectId'] } },
-        { name: 'neon_export_metrics', description: 'Export metrics to external monitoring system.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, destination: { type: 'string', enum: ['prometheus', 'datadog', 'grafana', 'cloudwatch'] }, config: { type: 'object' } }, required: ['projectId', 'destination'] } }
+        { name: 'neon_export_metrics', description: 'Export metrics to external monitoring system.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, destination: { type: 'string', enum: ['prometheus', 'datadog', 'grafana', 'cloudwatch'] }, config: { type: 'object' } }, required: ['projectId', 'destination'] } },
+
+        // ============================================================
+        // UPSTASH (140 tools)
+        // Layer 1: Management API (50 tools) + Layer 2: Redis REST API (90 tools)
+        // ============================================================
+
+        // ============================================================
+        // UPSTASH MANAGEMENT API - REDIS DATABASE MANAGEMENT (15 tools)
+        // ============================================================
+        { name: 'upstash_list_redis_databases', description: 'List all Redis databases in your Upstash account', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_get_redis_database', description: 'Get details of a specific Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+        { name: 'upstash_create_redis_database', description: 'Create a new Global Redis database (regional databases are deprecated)', inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'Database name' }, primary_region: { type: 'string', description: 'Primary region (e.g., us-east-1, eu-west-1, ap-southeast-1)' }, read_regions: { type: 'array', items: { type: 'string' }, description: 'Optional: Array of read replica regions for global distribution' }, tls: { type: 'boolean', description: 'Enable TLS (default: true)' }, eviction: { type: 'boolean', description: 'Enable eviction (default: false)' } }, required: ['name', 'primary_region'] } },
+        { name: 'upstash_delete_redis_database', description: 'Delete a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+        { name: 'upstash_rename_redis_database', description: 'Rename a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' }, name: { type: 'string', description: 'New database name' } }, required: ['databaseId', 'name'] } },
+        { name: 'upstash_reset_redis_password', description: 'Reset password for a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+        { name: 'upstash_enable_redis_eviction', description: 'Enable eviction for a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+        { name: 'upstash_disable_redis_eviction', description: 'Disable eviction for a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+        { name: 'upstash_enable_redis_tls', description: 'Enable TLS for a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+        { name: 'upstash_disable_redis_tls', description: 'Disable TLS for a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+        { name: 'upstash_get_redis_stats', description: 'Get statistics for a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+        { name: 'upstash_backup_redis_database', description: 'Create a backup of a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+        { name: 'upstash_restore_redis_database', description: 'Restore a Redis database from backup', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' }, backupId: { type: 'string', description: 'Backup ID' } }, required: ['databaseId', 'backupId'] } },
+        { name: 'upstash_update_redis_database', description: 'Update Redis database settings', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' }, settings: { type: 'object', description: 'Settings to update' } }, required: ['databaseId', 'settings'] } },
+        { name: 'upstash_get_redis_usage', description: 'Get usage metrics for a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
+
+        // ============================================================
+        // UPSTASH MANAGEMENT API - TEAM MANAGEMENT (6 tools)
+        // ============================================================
+        { name: 'upstash_list_teams', description: 'List all teams in your Upstash account', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_get_team', description: 'Get details of a specific team', inputSchema: { type: 'object', properties: { teamId: { type: 'string', description: 'Team ID' } }, required: ['teamId'] } },
+        { name: 'upstash_create_team', description: 'Create a new team', inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'Team name' } }, required: ['name'] } },
+        { name: 'upstash_delete_team', description: 'Delete a team', inputSchema: { type: 'object', properties: { teamId: { type: 'string', description: 'Team ID' } }, required: ['teamId'] } },
+        { name: 'upstash_add_team_member', description: 'Add a member to a team', inputSchema: { type: 'object', properties: { teamId: { type: 'string', description: 'Team ID' }, email: { type: 'string', description: 'Member email' }, role: { type: 'string', description: 'Member role (admin, member)' } }, required: ['teamId', 'email'] } },
+        { name: 'upstash_remove_team_member', description: 'Remove a member from a team', inputSchema: { type: 'object', properties: { teamId: { type: 'string', description: 'Team ID' }, memberId: { type: 'string', description: 'Member ID' } }, required: ['teamId', 'memberId'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - STRING OPERATIONS (17 tools)
+        // ============================================================
+        { name: 'upstash_redis_get', description: 'Get value by key from Redis', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' } }, required: ['key'] } },
+        { name: 'upstash_redis_set', description: 'Set a Redis key-value pair with optional TTL', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, value: { type: 'string', description: 'Value to store' }, ex: { type: 'number', description: 'TTL in seconds (optional)' }, px: { type: 'number', description: 'TTL in milliseconds (optional)' }, nx: { type: 'boolean', description: 'Only set if key does not exist' }, xx: { type: 'boolean', description: 'Only set if key exists' } }, required: ['key', 'value'] } },
+        { name: 'upstash_redis_mget', description: 'Get multiple values by keys', inputSchema: { type: 'object', properties: { keys: { type: 'array', items: { type: 'string' }, description: 'Array of keys to retrieve' } }, required: ['keys'] } },
+        { name: 'upstash_redis_mset', description: 'Set multiple key-value pairs', inputSchema: { type: 'object', properties: { pairs: { type: 'object', description: 'Object with key-value pairs' } }, required: ['pairs'] } },
+        { name: 'upstash_redis_incr', description: 'Increment the integer value of a key by 1', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' } }, required: ['key'] } },
+        { name: 'upstash_redis_decr', description: 'Decrement the integer value of a key by 1', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' } }, required: ['key'] } },
+        { name: 'upstash_redis_incrby', description: 'Increment the integer value of a key by a specific amount', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, increment: { type: 'number', description: 'Amount to increment by' } }, required: ['key', 'increment'] } },
+        { name: 'upstash_redis_decrby', description: 'Decrement the integer value of a key by a specific amount', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, decrement: { type: 'number', description: 'Amount to decrement by' } }, required: ['key', 'decrement'] } },
+        { name: 'upstash_redis_incrbyfloat', description: 'Increment the float value of a key', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, increment: { type: 'number', description: 'Float amount to increment by' } }, required: ['key', 'increment'] } },
+        { name: 'upstash_redis_append', description: 'Append a value to a key', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, value: { type: 'string', description: 'Value to append' } }, required: ['key', 'value'] } },
+        { name: 'upstash_redis_getrange', description: 'Get substring of string value', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Key' }, start: { type: 'number', description: 'Start offset' }, end: { type: 'number', description: 'End offset' } }, required: ['key', 'start', 'end'] } },
+        { name: 'upstash_redis_setrange', description: 'Overwrite part of string at offset', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Key' }, offset: { type: 'number', description: 'Offset' }, value: { type: 'string', description: 'Value' } }, required: ['key', 'offset', 'value'] } },
+        { name: 'upstash_redis_strlen', description: 'Get the length of the value stored in a key', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' } }, required: ['key'] } },
+        { name: 'upstash_redis_getset', description: 'Set key to value and return old value', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, value: { type: 'string', description: 'New value' } }, required: ['key', 'value'] } },
+        { name: 'upstash_redis_setnx', description: 'Set key to value only if key does not exist', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, value: { type: 'string', description: 'Value' } }, required: ['key', 'value'] } },
+        { name: 'upstash_redis_setex', description: 'Set key to value with expiration in seconds', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, seconds: { type: 'number', description: 'Expiration in seconds' }, value: { type: 'string', description: 'Value' } }, required: ['key', 'seconds', 'value'] } },
+        { name: 'upstash_redis_psetex', description: 'Set key to value with expiration in milliseconds', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, milliseconds: { type: 'number', description: 'Expiration in milliseconds' }, value: { type: 'string', description: 'Value' } }, required: ['key', 'milliseconds', 'value'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - GENERIC KEY OPERATIONS (10 tools)
+        // ============================================================
+        { name: 'upstash_redis_del', description: 'Delete one or more keys', inputSchema: { type: 'object', properties: { keys: { type: 'array', items: { type: 'string' }, description: 'Keys to delete' } }, required: ['keys'] } },
+        { name: 'upstash_redis_exists', description: 'Check if key(s) exist', inputSchema: { type: 'object', properties: { keys: { type: 'array', items: { type: 'string' }, description: 'Keys to check' } }, required: ['keys'] } },
+        { name: 'upstash_redis_expire', description: 'Set expiration time for a key in seconds', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, seconds: { type: 'number', description: 'Expiration time in seconds' } }, required: ['key', 'seconds'] } },
+        { name: 'upstash_redis_expireat', description: 'Set expiration time for a key as Unix timestamp', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' }, timestamp: { type: 'number', description: 'Unix timestamp' } }, required: ['key', 'timestamp'] } },
+        { name: 'upstash_redis_ttl', description: 'Get TTL (time to live) for a key in seconds', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' } }, required: ['key'] } },
+        { name: 'upstash_redis_pttl', description: 'Get TTL for a key in milliseconds', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' } }, required: ['key'] } },
+        { name: 'upstash_redis_persist', description: 'Remove the expiration from a key', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' } }, required: ['key'] } },
+        { name: 'upstash_redis_keys', description: 'Find all keys matching a pattern', inputSchema: { type: 'object', properties: { pattern: { type: 'string', description: 'Pattern to match (e.g., user:*)' } }, required: ['pattern'] } },
+        { name: 'upstash_redis_scan', description: 'Incrementally iterate keys', inputSchema: { type: 'object', properties: { cursor: { type: 'string', description: 'Cursor (0 to start)' }, match: { type: 'string', description: 'Pattern to match' }, count: { type: 'number', description: 'Hint for count' } }, required: ['cursor'] } },
+        { name: 'upstash_redis_rename', description: 'Rename a key', inputSchema: { type: 'object', properties: { oldKey: { type: 'string', description: 'Current key name' }, newKey: { type: 'string', description: 'New key name' } }, required: ['oldKey', 'newKey'] } },
+        { name: 'upstash_redis_type', description: 'Get the type of a key', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Redis key' } }, required: ['key'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - SERVER OPERATIONS (10 tools)
+        // ============================================================
+        { name: 'upstash_redis_ping', description: 'Ping the Redis server', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_redis_echo', description: 'Echo a message', inputSchema: { type: 'object', properties: { message: { type: 'string', description: 'Message to echo' } }, required: ['message'] } },
+        { name: 'upstash_redis_dbsize', description: 'Get total number of keys in database', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_redis_flushdb', description: 'Clear all keys in current database (DANGEROUS)', inputSchema: { type: 'object', properties: { confirm: { type: 'boolean', description: 'Must be true to confirm' } }, required: ['confirm'] } },
+        { name: 'upstash_redis_flushall', description: 'Clear all keys in all databases (DANGEROUS)', inputSchema: { type: 'object', properties: { confirm: { type: 'boolean', description: 'Must be true to confirm' } }, required: ['confirm'] } },
+        { name: 'upstash_redis_info', description: 'Get Redis server information and statistics', inputSchema: { type: 'object', properties: { section: { type: 'string', description: 'Info section (server, memory, stats, etc.)' } } } },
+        { name: 'upstash_redis_time', description: 'Get current server time', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_redis_lastsave', description: 'Get Unix timestamp of last successful save', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_redis_save', description: 'Synchronously save dataset to disk', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_redis_bgsave', description: 'Asynchronously save dataset to disk', inputSchema: { type: 'object', properties: {} } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - PUB/SUB OPERATIONS (2 tools)
+        // ============================================================
+        { name: 'upstash_redis_publish', description: 'Publish a message to a channel', inputSchema: { type: 'object', properties: { channel: { type: 'string', description: 'Channel name' }, message: { type: 'string', description: 'Message to publish' } }, required: ['channel', 'message'] } },
+        { name: 'upstash_redis_pubsub_channels', description: 'List active pub/sub channels', inputSchema: { type: 'object', properties: { pattern: { type: 'string', description: 'Pattern to match (optional)' } } } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - PIPELINE & TRANSACTION (2 tools)
+        // ============================================================
+        { name: 'upstash_redis_pipeline', description: 'Execute multiple commands in a single HTTP request (batch)', inputSchema: { type: 'object', properties: { commands: { type: 'array', items: { type: 'array', items: { type: 'string' } }, description: 'Array of Redis commands' } }, required: ['commands'] } },
+        { name: 'upstash_redis_transaction', description: 'Execute multiple commands atomically (MULTI/EXEC)', inputSchema: { type: 'object', properties: { commands: { type: 'array', items: { type: 'array', items: { type: 'string' } }, description: 'Array of Redis commands' } }, required: ['commands'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - HASH OPERATIONS (15 tools)
+        // ============================================================
+        { name: 'upstash_redis_hset', description: 'Set field in a hash', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, field: { type: 'string', description: 'Field name' }, value: { type: 'string', description: 'Field value' } }, required: ['key', 'field', 'value'] } },
+        { name: 'upstash_redis_hget', description: 'Get field value from a hash', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, field: { type: 'string', description: 'Field name' } }, required: ['key', 'field'] } },
+        { name: 'upstash_redis_hgetall', description: 'Get all fields and values from a hash', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' } }, required: ['key'] } },
+        { name: 'upstash_redis_hdel', description: 'Delete one or more hash fields', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, fields: { type: 'array', items: { type: 'string' }, description: 'Field names to delete' } }, required: ['key', 'fields'] } },
+        { name: 'upstash_redis_hexists', description: 'Check if a hash field exists', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, field: { type: 'string', description: 'Field name' } }, required: ['key', 'field'] } },
+        { name: 'upstash_redis_hkeys', description: 'Get all field names in a hash', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' } }, required: ['key'] } },
+        { name: 'upstash_redis_hvals', description: 'Get all values in a hash', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' } }, required: ['key'] } },
+        { name: 'upstash_redis_hlen', description: 'Get the number of fields in a hash', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' } }, required: ['key'] } },
+        { name: 'upstash_redis_hincrby', description: 'Increment hash field by integer', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, field: { type: 'string', description: 'Field name' }, increment: { type: 'number', description: 'Increment amount' } }, required: ['key', 'field', 'increment'] } },
+        { name: 'upstash_redis_hincrbyfloat', description: 'Increment hash field by float', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, field: { type: 'string', description: 'Field name' }, increment: { type: 'number', description: 'Float increment' } }, required: ['key', 'field', 'increment'] } },
+        { name: 'upstash_redis_hmget', description: 'Get multiple hash field values', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, fields: { type: 'array', items: { type: 'string' }, description: 'Field names' } }, required: ['key', 'fields'] } },
+        { name: 'upstash_redis_hmset', description: 'Set multiple hash fields', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, fields: { type: 'object', description: 'Field-value pairs' } }, required: ['key', 'fields'] } },
+        { name: 'upstash_redis_hsetnx', description: 'Set hash field only if it does not exist', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, field: { type: 'string', description: 'Field name' }, value: { type: 'string', description: 'Value' } }, required: ['key', 'field', 'value'] } },
+        { name: 'upstash_redis_hstrlen', description: 'Get length of hash field value', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, field: { type: 'string', description: 'Field name' } }, required: ['key', 'field'] } },
+        { name: 'upstash_redis_hscan', description: 'Incrementally iterate hash fields', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Hash key' }, cursor: { type: 'string', description: 'Cursor' }, match: { type: 'string', description: 'Pattern' }, count: { type: 'number', description: 'Count hint' } }, required: ['key', 'cursor'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - LIST OPERATIONS (14 tools)
+        // ============================================================
+        { name: 'upstash_redis_lpush', description: 'Prepend one or multiple values to a list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, values: { type: 'array', items: { type: 'string' }, description: 'Values to prepend' } }, required: ['key', 'values'] } },
+        { name: 'upstash_redis_rpush', description: 'Append one or multiple values to a list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, values: { type: 'array', items: { type: 'string' }, description: 'Values to append' } }, required: ['key', 'values'] } },
+        { name: 'upstash_redis_lpop', description: 'Remove and get the first element in a list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, count: { type: 'number', description: 'Number of elements to pop (optional)' } }, required: ['key'] } },
+        { name: 'upstash_redis_rpop', description: 'Remove and get the last element in a list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, count: { type: 'number', description: 'Number of elements to pop (optional)' } }, required: ['key'] } },
+        { name: 'upstash_redis_lrange', description: 'Get a range of elements from a list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, start: { type: 'number', description: 'Start index' }, stop: { type: 'number', description: 'Stop index' } }, required: ['key', 'start', 'stop'] } },
+        { name: 'upstash_redis_llen', description: 'Get the length of a list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' } }, required: ['key'] } },
+        { name: 'upstash_redis_lindex', description: 'Get element at index in list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, index: { type: 'number', description: 'Index' } }, required: ['key', 'index'] } },
+        { name: 'upstash_redis_lset', description: 'Set element at index in list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, index: { type: 'number', description: 'Index' }, value: { type: 'string', description: 'Value' } }, required: ['key', 'index', 'value'] } },
+        { name: 'upstash_redis_lrem', description: 'Remove elements from list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, count: { type: 'number', description: 'Count' }, value: { type: 'string', description: 'Value to remove' } }, required: ['key', 'count', 'value'] } },
+        { name: 'upstash_redis_ltrim', description: 'Trim list to specified range', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, start: { type: 'number', description: 'Start index' }, stop: { type: 'number', description: 'Stop index' } }, required: ['key', 'start', 'stop'] } },
+        { name: 'upstash_redis_linsert', description: 'Insert element before or after pivot in list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, position: { type: 'string', description: 'BEFORE or AFTER' }, pivot: { type: 'string', description: 'Pivot element' }, element: { type: 'string', description: 'Element to insert' } }, required: ['key', 'position', 'pivot', 'element'] } },
+        { name: 'upstash_redis_rpoplpush', description: 'Remove last element from list and push to another list', inputSchema: { type: 'object', properties: { source: { type: 'string', description: 'Source list' }, destination: { type: 'string', description: 'Destination list' } }, required: ['source', 'destination'] } },
+        { name: 'upstash_redis_lpos', description: 'Get position of element in list', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'List key' }, element: { type: 'string', description: 'Element to find' }, rank: { type: 'number', description: 'Rank (optional)' }, count: { type: 'number', description: 'Count (optional)' }, maxlen: { type: 'number', description: 'Max length (optional)' } }, required: ['key', 'element'] } },
+        { name: 'upstash_redis_lmove', description: 'Move element from one list to another', inputSchema: { type: 'object', properties: { source: { type: 'string', description: 'Source list' }, destination: { type: 'string', description: 'Destination list' }, from: { type: 'string', description: 'LEFT or RIGHT' }, to: { type: 'string', description: 'LEFT or RIGHT' } }, required: ['source', 'destination', 'from', 'to'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - SET OPERATIONS (15 tools)
+        // ============================================================
+        { name: 'upstash_redis_sadd', description: 'Add one or more members to a set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Set key' }, members: { type: 'array', items: { type: 'string' }, description: 'Members to add' } }, required: ['key', 'members'] } },
+        { name: 'upstash_redis_smembers', description: 'Get all members of a set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Set key' } }, required: ['key'] } },
+        { name: 'upstash_redis_srem', description: 'Remove one or more members from a set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Set key' }, members: { type: 'array', items: { type: 'string' }, description: 'Members to remove' } }, required: ['key', 'members'] } },
+        { name: 'upstash_redis_sismember', description: 'Check if a value is a member of a set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Set key' }, member: { type: 'string', description: 'Member to check' } }, required: ['key', 'member'] } },
+        { name: 'upstash_redis_scard', description: 'Get the number of members in a set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Set key' } }, required: ['key'] } },
+        { name: 'upstash_redis_spop', description: 'Remove and return random member from set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Set key' }, count: { type: 'number', description: 'Number of members (optional)' } }, required: ['key'] } },
+        { name: 'upstash_redis_srandmember', description: 'Get random member from set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Set key' }, count: { type: 'number', description: 'Number of members (optional)' } }, required: ['key'] } },
+        { name: 'upstash_redis_smove', description: 'Move member from one set to another', inputSchema: { type: 'object', properties: { source: { type: 'string', description: 'Source set' }, destination: { type: 'string', description: 'Destination set' }, member: { type: 'string', description: 'Member to move' } }, required: ['source', 'destination', 'member'] } },
+        { name: 'upstash_redis_sunion', description: 'Union multiple sets', inputSchema: { type: 'object', properties: { keys: { type: 'array', items: { type: 'string' }, description: 'Set keys' } }, required: ['keys'] } },
+        { name: 'upstash_redis_sinter', description: 'Intersect multiple sets', inputSchema: { type: 'object', properties: { keys: { type: 'array', items: { type: 'string' }, description: 'Set keys' } }, required: ['keys'] } },
+        { name: 'upstash_redis_sdiff', description: 'Difference of sets', inputSchema: { type: 'object', properties: { keys: { type: 'array', items: { type: 'string' }, description: 'Set keys' } }, required: ['keys'] } },
+        { name: 'upstash_redis_sunionstore', description: 'Union sets and store result', inputSchema: { type: 'object', properties: { destination: { type: 'string', description: 'Destination key' }, keys: { type: 'array', items: { type: 'string' }, description: 'Source keys' } }, required: ['destination', 'keys'] } },
+        { name: 'upstash_redis_sinterstore', description: 'Intersect sets and store result', inputSchema: { type: 'object', properties: { destination: { type: 'string', description: 'Destination key' }, keys: { type: 'array', items: { type: 'string' }, description: 'Source keys' } }, required: ['destination', 'keys'] } },
+        { name: 'upstash_redis_sdiffstore', description: 'Difference of sets and store result', inputSchema: { type: 'object', properties: { destination: { type: 'string', description: 'Destination key' }, keys: { type: 'array', items: { type: 'string' }, description: 'Source keys' } }, required: ['destination', 'keys'] } },
+        { name: 'upstash_redis_sscan', description: 'Incrementally iterate set members', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Set key' }, cursor: { type: 'string', description: 'Cursor' }, match: { type: 'string', description: 'Pattern' }, count: { type: 'number', description: 'Count hint' } }, required: ['key', 'cursor'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - SORTED SET OPERATIONS (23 tools)
+        // ============================================================
+        { name: 'upstash_redis_zadd', description: 'Add one or more members to a sorted set with scores', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, members: { type: 'array', items: { type: 'object', properties: { score: { type: 'number' }, value: { type: 'string' } } }, description: 'Array of {score, value} objects' } }, required: ['key', 'members'] } },
+        { name: 'upstash_redis_zrange', description: 'Get a range of members from a sorted set by index', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, start: { type: 'number', description: 'Start index' }, stop: { type: 'number', description: 'Stop index' }, withScores: { type: 'boolean', description: 'Include scores in result' } }, required: ['key', 'start', 'stop'] } },
+        { name: 'upstash_redis_zrem', description: 'Remove one or more members from a sorted set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, members: { type: 'array', items: { type: 'string' }, description: 'Members to remove' } }, required: ['key', 'members'] } },
+        { name: 'upstash_redis_zscore', description: 'Get the score of a member in a sorted set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, member: { type: 'string', description: 'Member to get score for' } }, required: ['key', 'member'] } },
+        { name: 'upstash_redis_zcard', description: 'Get the number of members in a sorted set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' } }, required: ['key'] } },
+        { name: 'upstash_redis_zrank', description: 'Get the rank of a member in a sorted set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, member: { type: 'string', description: 'Member to get rank for' } }, required: ['key', 'member'] } },
+        { name: 'upstash_redis_zrevrank', description: 'Get the reverse rank of a member in a sorted set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, member: { type: 'string', description: 'Member' } }, required: ['key', 'member'] } },
+        { name: 'upstash_redis_zrangebyscore', description: 'Get members in sorted set by score range', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, min: { type: 'string', description: 'Min score' }, max: { type: 'string', description: 'Max score' }, withscores: { type: 'boolean', description: 'Include scores' } }, required: ['key', 'min', 'max'] } },
+        { name: 'upstash_redis_zrevrangebyscore', description: 'Get members in sorted set by score range (reverse order)', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, max: { type: 'string', description: 'Max score' }, min: { type: 'string', description: 'Min score' }, withscores: { type: 'boolean', description: 'Include scores' } }, required: ['key', 'max', 'min'] } },
+        { name: 'upstash_redis_zremrangebyrank', description: 'Remove members by rank range', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, start: { type: 'number', description: 'Start rank' }, stop: { type: 'number', description: 'Stop rank' } }, required: ['key', 'start', 'stop'] } },
+        { name: 'upstash_redis_zremrangebyscore', description: 'Remove members by score range', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, min: { type: 'string', description: 'Min score' }, max: { type: 'string', description: 'Max score' } }, required: ['key', 'min', 'max'] } },
+        { name: 'upstash_redis_zpopmin', description: 'Remove and return members with lowest scores', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, count: { type: 'number', description: 'Number of members (optional)' } }, required: ['key'] } },
+        { name: 'upstash_redis_zpopmax', description: 'Remove and return members with highest scores', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, count: { type: 'number', description: 'Number of members (optional)' } }, required: ['key'] } },
+        { name: 'upstash_redis_zincrby', description: 'Increment score of member in sorted set', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, increment: { type: 'number', description: 'Increment amount' }, member: { type: 'string', description: 'Member' } }, required: ['key', 'increment', 'member'] } },
+        { name: 'upstash_redis_zcount', description: 'Count members in score range', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, min: { type: 'string', description: 'Min score' }, max: { type: 'string', description: 'Max score' } }, required: ['key', 'min', 'max'] } },
+        { name: 'upstash_redis_zunionstore', description: 'Union sorted sets and store result', inputSchema: { type: 'object', properties: { destination: { type: 'string', description: 'Destination key' }, keys: { type: 'array', items: { type: 'string' }, description: 'Source keys' }, weights: { type: 'array', items: { type: 'number' }, description: 'Weights (optional)' } }, required: ['destination', 'keys'] } },
+        { name: 'upstash_redis_zinterstore', description: 'Intersect sorted sets and store result', inputSchema: { type: 'object', properties: { destination: { type: 'string', description: 'Destination key' }, keys: { type: 'array', items: { type: 'string' }, description: 'Source keys' }, weights: { type: 'array', items: { type: 'number' }, description: 'Weights (optional)' } }, required: ['destination', 'keys'] } },
+        { name: 'upstash_redis_zscan', description: 'Incrementally iterate sorted set members', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, cursor: { type: 'string', description: 'Cursor' }, match: { type: 'string', description: 'Pattern' }, count: { type: 'number', description: 'Count hint' } }, required: ['key', 'cursor'] } },
+        { name: 'upstash_redis_zrangebylex', description: 'Get members by lexicographical range', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, min: { type: 'string', description: 'Min value' }, max: { type: 'string', description: 'Max value' } }, required: ['key', 'min', 'max'] } },
+        { name: 'upstash_redis_zrevrangebylex', description: 'Get members by lexicographical range (reverse)', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, max: { type: 'string', description: 'Max value' }, min: { type: 'string', description: 'Min value' } }, required: ['key', 'max', 'min'] } },
+        { name: 'upstash_redis_zremrangebylex', description: 'Remove members by lexicographical range', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, min: { type: 'string', description: 'Min value' }, max: { type: 'string', description: 'Max value' } }, required: ['key', 'min', 'max'] } },
+        { name: 'upstash_redis_zlexcount', description: 'Count members in lexicographical range', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, min: { type: 'string', description: 'Min value' }, max: { type: 'string', description: 'Max value' } }, required: ['key', 'min', 'max'] } },
+        { name: 'upstash_redis_zmscore', description: 'Get scores of multiple members', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Sorted set key' }, members: { type: 'array', items: { type: 'string' }, description: 'Members' } }, required: ['key', 'members'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - GEOSPATIAL OPERATIONS (7 tools)
+        // ============================================================
+        { name: 'upstash_redis_geoadd', description: 'Add geospatial items (longitude, latitude, member)', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Geo key' }, members: { type: 'array', items: { type: 'object', properties: { longitude: { type: 'number' }, latitude: { type: 'number' }, member: { type: 'string' } } }, description: 'Array of geo members' } }, required: ['key', 'members'] } },
+        { name: 'upstash_redis_geodist', description: 'Get distance between two members', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Geo key' }, member1: { type: 'string', description: 'First member' }, member2: { type: 'string', description: 'Second member' }, unit: { type: 'string', description: 'Unit (m, km, mi, ft)' } }, required: ['key', 'member1', 'member2'] } },
+        { name: 'upstash_redis_geohash', description: 'Get geohash of members', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Geo key' }, members: { type: 'array', items: { type: 'string' }, description: 'Members' } }, required: ['key', 'members'] } },
+        { name: 'upstash_redis_geopos', description: 'Get positions of members', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Geo key' }, members: { type: 'array', items: { type: 'string' }, description: 'Members' } }, required: ['key', 'members'] } },
+        { name: 'upstash_redis_georadius', description: 'Query members within radius', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Geo key' }, longitude: { type: 'number', description: 'Center longitude' }, latitude: { type: 'number', description: 'Center latitude' }, radius: { type: 'number', description: 'Radius' }, unit: { type: 'string', description: 'Unit (m, km, mi, ft)' } }, required: ['key', 'longitude', 'latitude', 'radius', 'unit'] } },
+        { name: 'upstash_redis_georadiusbymember', description: 'Query members within radius of a member', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Geo key' }, member: { type: 'string', description: 'Center member' }, radius: { type: 'number', description: 'Radius' }, unit: { type: 'string', description: 'Unit (m, km, mi, ft)' } }, required: ['key', 'member', 'radius', 'unit'] } },
+        { name: 'upstash_redis_geosearch', description: 'Search for members in geospatial index', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Geo key' }, from: { type: 'object', description: 'Search origin (member or coordinates)' }, by: { type: 'object', description: 'Search criteria (radius or box)' } }, required: ['key', 'from', 'by'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - HYPERLOGLOG OPERATIONS (3 tools)
+        // ============================================================
+        { name: 'upstash_redis_pfadd', description: 'Add elements to HyperLogLog', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'HyperLogLog key' }, elements: { type: 'array', items: { type: 'string' }, description: 'Elements to add' } }, required: ['key', 'elements'] } },
+        { name: 'upstash_redis_pfcount', description: 'Get cardinality of HyperLogLog', inputSchema: { type: 'object', properties: { keys: { type: 'array', items: { type: 'string' }, description: 'HyperLogLog keys' } }, required: ['keys'] } },
+        { name: 'upstash_redis_pfmerge', description: 'Merge HyperLogLogs', inputSchema: { type: 'object', properties: { destination: { type: 'string', description: 'Destination key' }, sources: { type: 'array', items: { type: 'string' }, description: 'Source keys' } }, required: ['destination', 'sources'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - BITMAP OPERATIONS (5 tools)
+        // ============================================================
+        { name: 'upstash_redis_setbit', description: 'Set or clear bit at offset', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Key' }, offset: { type: 'number', description: 'Bit offset' }, value: { type: 'number', description: '0 or 1' } }, required: ['key', 'offset', 'value'] } },
+        { name: 'upstash_redis_getbit', description: 'Get bit value at offset', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Key' }, offset: { type: 'number', description: 'Bit offset' } }, required: ['key', 'offset'] } },
+        { name: 'upstash_redis_bitcount', description: 'Count set bits in a string', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Key' }, start: { type: 'number', description: 'Start byte (optional)' }, end: { type: 'number', description: 'End byte (optional)' } }, required: ['key'] } },
+        { name: 'upstash_redis_bitpos', description: 'Find first bit set to 0 or 1', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Key' }, bit: { type: 'number', description: '0 or 1' }, start: { type: 'number', description: 'Start byte (optional)' }, end: { type: 'number', description: 'End byte (optional)' } }, required: ['key', 'bit'] } },
+        { name: 'upstash_redis_bitop', description: 'Perform bitwise operations', inputSchema: { type: 'object', properties: { operation: { type: 'string', description: 'AND, OR, XOR, NOT' }, destkey: { type: 'string', description: 'Destination key' }, keys: { type: 'array', items: { type: 'string' }, description: 'Source keys' } }, required: ['operation', 'destkey', 'keys'] } },
+
+        // ============================================================
+        // UPSTASH REDIS REST API - STREAM OPERATIONS (12 tools)
+        // ============================================================
+        { name: 'upstash_redis_xadd', description: 'Add entry to a stream', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, id: { type: 'string', description: 'Entry ID (* for auto-generate)' }, fields: { type: 'object', description: 'Field-value pairs' } }, required: ['key', 'id', 'fields'] } },
+        { name: 'upstash_redis_xread', description: 'Read entries from one or more streams', inputSchema: { type: 'object', properties: { streams: { type: 'object', description: 'Stream keys and IDs' }, count: { type: 'number', description: 'Max entries to return' }, block: { type: 'number', description: 'Block for milliseconds' } }, required: ['streams'] } },
+        { name: 'upstash_redis_xrange', description: 'Get range of entries from a stream', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, start: { type: 'string', description: 'Start ID (- for min)' }, end: { type: 'string', description: 'End ID (+ for max)' }, count: { type: 'number', description: 'Max entries' } }, required: ['key', 'start', 'end'] } },
+        { name: 'upstash_redis_xrevrange', description: 'Get range of entries from a stream (reverse order)', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, end: { type: 'string', description: 'End ID (+ for max)' }, start: { type: 'string', description: 'Start ID (- for min)' }, count: { type: 'number', description: 'Max entries' } }, required: ['key', 'end', 'start'] } },
+        { name: 'upstash_redis_xlen', description: 'Get the length of a stream', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' } }, required: ['key'] } },
+        { name: 'upstash_redis_xdel', description: 'Delete entries from a stream', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, ids: { type: 'array', items: { type: 'string' }, description: 'Entry IDs to delete' } }, required: ['key', 'ids'] } },
+        { name: 'upstash_redis_xtrim', description: 'Trim stream to specified length', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, strategy: { type: 'string', description: 'MAXLEN or MINID' }, threshold: { type: 'string', description: 'Threshold value' }, approximate: { type: 'boolean', description: 'Use approximate trimming' } }, required: ['key', 'strategy', 'threshold'] } },
+        { name: 'upstash_redis_xack', description: 'Acknowledge stream messages', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Consumer group' }, ids: { type: 'array', items: { type: 'string' }, description: 'Message IDs' } }, required: ['key', 'group', 'ids'] } },
+        { name: 'upstash_redis_xpending', description: 'Get pending messages info', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Consumer group' }, start: { type: 'string', description: 'Start ID (optional)' }, end: { type: 'string', description: 'End ID (optional)' }, count: { type: 'number', description: 'Count (optional)' } }, required: ['key', 'group'] } },
+        { name: 'upstash_redis_xclaim', description: 'Claim pending messages', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Consumer group' }, consumer: { type: 'string', description: 'Consumer name' }, minIdleTime: { type: 'number', description: 'Min idle time in ms' }, ids: { type: 'array', items: { type: 'string' }, description: 'Message IDs' } }, required: ['key', 'group', 'consumer', 'minIdleTime', 'ids'] } },
+        { name: 'upstash_redis_xinfo', description: 'Get stream information', inputSchema: { type: 'object', properties: { subcommand: { type: 'string', description: 'STREAM, GROUPS, or CONSUMERS' }, key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Group name (for CONSUMERS)' } }, required: ['subcommand', 'key'] } },
+        { name: 'upstash_redis_xgroup', description: 'Manage consumer groups', inputSchema: { type: 'object', properties: { subcommand: { type: 'string', description: 'CREATE, DESTROY, SETID, DELCONSUMER' }, key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Group name' }, id: { type: 'string', description: 'ID (for CREATE/SETID)' }, consumer: { type: 'string', description: 'Consumer name (for DELCONSUMER)' } }, required: ['subcommand', 'key', 'group'] } }
       ]
     }));
 
@@ -3484,7 +3760,7 @@ class UnifiedToolkit {
           case 'neon_rollback_migration': return await this.rollbackMigration(args);
 
           // ADVANCED CONNECTION MANAGEMENT
-          case 'neon_get_connection_uri': return await this.getConnectionUri(args);
+          case 'neon_get_connection_uri_formatted': return await this.getConnectionUri(args);
           case 'neon_test_connection': return await this.testConnection(args);
           case 'neon_get_connection_examples': return await this.getConnectionExamples(args);
 
@@ -3503,7 +3779,228 @@ class UnifiedToolkit {
           case 'neon_get_connection_uri': return await this.getConnectionUri(args);
           case 'neon_setup_rad_database': return await this.setupRADDatabase(args);
           case 'neon_check_api_key': return await this.checkApiKey(args);
-// Projects
+
+          // ============================================================
+          // REDIS (80 tools)
+          // ============================================================
+
+          // ============================================================
+          // UPSTASH MANAGEMENT API - REDIS DATABASE MANAGEMENT
+          // ============================================================
+          case 'upstash_list_redis_databases': return await this.upstashListRedisDatabases(args);
+          case 'upstash_get_redis_database': return await this.upstashGetRedisDatabase(args);
+          case 'upstash_create_redis_database': return await this.upstashCreateRedisDatabase(args);
+          case 'upstash_delete_redis_database': return await this.upstashDeleteRedisDatabase(args);
+          case 'upstash_update_redis_database': return await this.upstashUpdateRedisDatabase(args);
+          case 'upstash_reset_redis_password': return await this.upstashResetRedisPassword(args);
+          case 'upstash_enable_redis_eviction': return await this.upstashEnableRedisEviction(args);
+          case 'upstash_enable_redis_tls': return await this.upstashEnableRedisTls(args);
+          case 'upstash_get_redis_stats': return await this.upstashGetRedisStats(args);
+          case 'upstash_rename_redis_database': return await this.upstashRenameRedisDatabase(args);
+          case 'upstash_get_redis_backup_config': return await this.upstashGetRedisBackupConfig(args);
+          case 'upstash_create_redis_backup': return await this.upstashCreateRedisBackup(args);
+          case 'upstash_restore_redis_backup': return await this.upstashRestoreRedisBackup(args);
+          case 'upstash_list_redis_regions': return await this.upstashListRedisRegions(args);
+          case 'upstash_get_redis_database_details': return await this.upstashGetRedisDatabaseDetails(args);
+
+          // ============================================================
+          // UPSTASH MANAGEMENT API - TEAM MANAGEMENT
+          // ============================================================
+          case 'upstash_list_teams': return await this.upstashListTeams(args);
+          case 'upstash_get_team': return await this.upstashGetTeam(args);
+          case 'upstash_create_team': return await this.upstashCreateTeam(args);
+          case 'upstash_delete_team': return await this.upstashDeleteTeam(args);
+          case 'upstash_update_team': return await this.upstashUpdateTeam(args);
+          case 'upstash_list_team_members': return await this.upstashListTeamMembers(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - STRING OPERATIONS
+          // ============================================================
+          case 'upstash_redis_get': return await this.upstashRedisGet(args);
+          case 'upstash_redis_set': return await this.upstashRedisSet(args);
+          case 'upstash_redis_setnx': return await this.upstashRedisSetnx(args);
+          case 'upstash_redis_setex': return await this.upstashRedisSetex(args);
+          case 'upstash_redis_psetex': return await this.upstashRedisPsetex(args);
+          case 'upstash_redis_getset': return await this.upstashRedisGetset(args);
+          case 'upstash_redis_getdel': return await this.upstashRedisGetdel(args);
+          case 'upstash_redis_getex': return await this.upstashRedisGetex(args);
+          case 'upstash_redis_mget': return await this.upstashRedisMget(args);
+          case 'upstash_redis_mset': return await this.upstashRedisMset(args);
+          case 'upstash_redis_msetnx': return await this.upstashRedisMsetnx(args);
+          case 'upstash_redis_incr': return await this.upstashRedisIncr(args);
+          case 'upstash_redis_incrby': return await this.upstashRedisIncrby(args);
+          case 'upstash_redis_incrbyfloat': return await this.upstashRedisIncrbyfloat(args);
+          case 'upstash_redis_decr': return await this.upstashRedisDecr(args);
+          case 'upstash_redis_decrby': return await this.upstashRedisDecrby(args);
+          case 'upstash_redis_append': return await this.upstashRedisAppend(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - GENERIC KEY OPERATIONS
+          // ============================================================
+          case 'upstash_redis_del': return await this.upstashRedisDel(args);
+          case 'upstash_redis_exists': return await this.upstashRedisExists(args);
+          case 'upstash_redis_expire': return await this.upstashRedisExpire(args);
+          case 'upstash_redis_expireat': return await this.upstashRedisExpireat(args);
+          case 'upstash_redis_ttl': return await this.upstashRedisTtl(args);
+          case 'upstash_redis_persist': return await this.upstashRedisPersist(args);
+          case 'upstash_redis_keys': return await this.upstashRedisKeys(args);
+          case 'upstash_redis_scan': return await this.upstashRedisScan(args);
+          case 'upstash_redis_randomkey': return await this.upstashRedisRandomkey(args);
+          case 'upstash_redis_rename': return await this.upstashRedisRename(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - SERVER OPERATIONS
+          // ============================================================
+          case 'upstash_redis_ping': return await this.upstashRedisPing(args);
+          case 'upstash_redis_echo': return await this.upstashRedisEcho(args);
+          case 'upstash_redis_dbsize': return await this.upstashRedisDbsize(args);
+          case 'upstash_redis_flushdb': return await this.upstashRedisFlushdb(args);
+          case 'upstash_redis_flushall': return await this.upstashRedisFlushall(args);
+          case 'upstash_redis_time': return await this.upstashRedisTime(args);
+          case 'upstash_redis_info': return await this.upstashRedisInfo(args);
+          case 'upstash_redis_config_get': return await this.upstashRedisConfigGet(args);
+          case 'upstash_redis_config_set': return await this.upstashRedisConfigSet(args);
+          case 'upstash_redis_command_count': return await this.upstashRedisCommandCount(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - PUB/SUB OPERATIONS
+          // ============================================================
+          case 'upstash_redis_publish': return await this.upstashRedisPublish(args);
+          case 'upstash_redis_pubsub_channels': return await this.upstashRedisPubsubChannels(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - PIPELINE & TRANSACTION
+          // ============================================================
+          case 'upstash_redis_pipeline': return await this.upstashRedisPipelineExecute(args);
+          case 'upstash_redis_transaction': return await this.upstashRedisTransactionExecute(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - HASH OPERATIONS
+          // ============================================================
+          case 'upstash_redis_hset': return await this.upstashRedisHset(args);
+          case 'upstash_redis_hget': return await this.upstashRedisHget(args);
+          case 'upstash_redis_hgetall': return await this.upstashRedisHgetall(args);
+          case 'upstash_redis_hdel': return await this.upstashRedisHdel(args);
+          case 'upstash_redis_hexists': return await this.upstashRedisHexists(args);
+          case 'upstash_redis_hkeys': return await this.upstashRedisHkeys(args);
+          case 'upstash_redis_hvals': return await this.upstashRedisHvals(args);
+          case 'upstash_redis_hlen': return await this.upstashRedisHlen(args);
+          case 'upstash_redis_hincrby': return await this.upstashRedisHincrby(args);
+          case 'upstash_redis_hincrbyfloat': return await this.upstashRedisHincrbyfloat(args);
+          case 'upstash_redis_hmget': return await this.upstashRedisHmget(args);
+          case 'upstash_redis_hmset': return await this.upstashRedisHmset(args);
+          case 'upstash_redis_hsetnx': return await this.upstashRedisHsetnx(args);
+          case 'upstash_redis_hstrlen': return await this.upstashRedisHstrlen(args);
+          case 'upstash_redis_hscan': return await this.upstashRedisHscan(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - LIST OPERATIONS
+          // ============================================================
+          case 'upstash_redis_lpush': return await this.upstashRedisLpush(args);
+          case 'upstash_redis_rpush': return await this.upstashRedisRpush(args);
+          case 'upstash_redis_lpop': return await this.upstashRedisLpop(args);
+          case 'upstash_redis_rpop': return await this.upstashRedisRpop(args);
+          case 'upstash_redis_lrange': return await this.upstashRedisLrange(args);
+          case 'upstash_redis_llen': return await this.upstashRedisLlen(args);
+          case 'upstash_redis_lindex': return await this.upstashRedisLindex(args);
+          case 'upstash_redis_lset': return await this.upstashRedisLset(args);
+          case 'upstash_redis_lrem': return await this.upstashRedisLrem(args);
+          case 'upstash_redis_ltrim': return await this.upstashRedisLtrim(args);
+          case 'upstash_redis_linsert': return await this.upstashRedisLinsert(args);
+          case 'upstash_redis_rpoplpush': return await this.upstashRedisRpoplpush(args);
+          case 'upstash_redis_lpos': return await this.upstashRedisLpos(args);
+          case 'upstash_redis_lmove': return await this.upstashRedisLmove(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - SET OPERATIONS
+          // ============================================================
+          case 'upstash_redis_sadd': return await this.upstashRedisSadd(args);
+          case 'upstash_redis_smembers': return await this.upstashRedisSmembers(args);
+          case 'upstash_redis_srem': return await this.upstashRedisSrem(args);
+          case 'upstash_redis_sismember': return await this.upstashRedisSismember(args);
+          case 'upstash_redis_scard': return await this.upstashRedisScard(args);
+          case 'upstash_redis_spop': return await this.upstashRedisSpop(args);
+          case 'upstash_redis_srandmember': return await this.upstashRedisSrandmember(args);
+          case 'upstash_redis_smove': return await this.upstashRedisSmove(args);
+          case 'upstash_redis_sunion': return await this.upstashRedisSunion(args);
+          case 'upstash_redis_sinter': return await this.upstashRedisSinter(args);
+          case 'upstash_redis_sdiff': return await this.upstashRedisSdiff(args);
+          case 'upstash_redis_sunionstore': return await this.upstashRedisSunionstore(args);
+          case 'upstash_redis_sinterstore': return await this.upstashRedisSinterstore(args);
+          case 'upstash_redis_sdiffstore': return await this.upstashRedisSdiffstore(args);
+          case 'upstash_redis_sscan': return await this.upstashRedisSscan(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - SORTED SET OPERATIONS
+          // ============================================================
+          case 'upstash_redis_zadd': return await this.upstashRedisZadd(args);
+          case 'upstash_redis_zrange': return await this.upstashRedisZrange(args);
+          case 'upstash_redis_zrem': return await this.upstashRedisZrem(args);
+          case 'upstash_redis_zscore': return await this.upstashRedisZscore(args);
+          case 'upstash_redis_zcard': return await this.upstashRedisZcard(args);
+          case 'upstash_redis_zrank': return await this.upstashRedisZrank(args);
+          case 'upstash_redis_zrevrank': return await this.upstashRedisZrevrank(args);
+          case 'upstash_redis_zrangebyscore': return await this.upstashRedisZrangebyscore(args);
+          case 'upstash_redis_zrevrangebyscore': return await this.upstashRedisZrevrangebyscore(args);
+          case 'upstash_redis_zremrangebyrank': return await this.upstashRedisZremrangebyrank(args);
+          case 'upstash_redis_zremrangebyscore': return await this.upstashRedisZremrangebyscore(args);
+          case 'upstash_redis_zpopmin': return await this.upstashRedisZpopmin(args);
+          case 'upstash_redis_zpopmax': return await this.upstashRedisZpopmax(args);
+          case 'upstash_redis_zincrby': return await this.upstashRedisZincrby(args);
+          case 'upstash_redis_zcount': return await this.upstashRedisZcount(args);
+          case 'upstash_redis_zunionstore': return await this.upstashRedisZunionstore(args);
+          case 'upstash_redis_zinterstore': return await this.upstashRedisZinterstore(args);
+          case 'upstash_redis_zscan': return await this.upstashRedisZscan(args);
+          case 'upstash_redis_zrangebylex': return await this.upstashRedisZrangebylex(args);
+          case 'upstash_redis_zrevrangebylex': return await this.upstashRedisZrevrangebylex(args);
+          case 'upstash_redis_zremrangebylex': return await this.upstashRedisZremrangebylex(args);
+          case 'upstash_redis_zlexcount': return await this.upstashRedisZlexcount(args);
+          case 'upstash_redis_zmscore': return await this.upstashRedisZmscore(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - GEOSPATIAL OPERATIONS
+          // ============================================================
+          case 'upstash_redis_geoadd': return await this.upstashRedisGeoadd(args);
+          case 'upstash_redis_geodist': return await this.upstashRedisGeodist(args);
+          case 'upstash_redis_geohash': return await this.upstashRedisGeohash(args);
+          case 'upstash_redis_geopos': return await this.upstashRedisGeopos(args);
+          case 'upstash_redis_georadius': return await this.upstashRedisGeoradius(args);
+          case 'upstash_redis_georadiusbymember': return await this.upstashRedisGeoradiusbymember(args);
+          case 'upstash_redis_geosearch': return await this.upstashRedisGeosearch(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - HYPERLOGLOG OPERATIONS
+          // ============================================================
+          case 'upstash_redis_pfadd': return await this.upstashRedisPfadd(args);
+          case 'upstash_redis_pfcount': return await this.upstashRedisPfcount(args);
+          case 'upstash_redis_pfmerge': return await this.upstashRedisPfmerge(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - BITMAP OPERATIONS
+          // ============================================================
+          case 'upstash_redis_setbit': return await this.upstashRedisSetbit(args);
+          case 'upstash_redis_getbit': return await this.upstashRedisGetbit(args);
+          case 'upstash_redis_bitcount': return await this.upstashRedisBitcount(args);
+          case 'upstash_redis_bitpos': return await this.upstashRedisBitpos(args);
+          case 'upstash_redis_bitop': return await this.upstashRedisBitop(args);
+
+          // ============================================================
+          // UPSTASH REDIS REST API - STREAM OPERATIONS
+          // ============================================================
+          case 'upstash_redis_xadd': return await this.upstashRedisXadd(args);
+          case 'upstash_redis_xread': return await this.upstashRedisXread(args);
+          case 'upstash_redis_xrange': return await this.upstashRedisXrange(args);
+          case 'upstash_redis_xrevrange': return await this.upstashRedisXrevrange(args);
+          case 'upstash_redis_xlen': return await this.upstashRedisXlen(args);
+          case 'upstash_redis_xdel': return await this.upstashRedisXdel(args);
+          case 'upstash_redis_xtrim': return await this.upstashRedisXtrim(args);
+          case 'upstash_redis_xack': return await this.upstashRedisXack(args);
+          case 'upstash_redis_xpending': return await this.upstashRedisXpending(args);
+          case 'upstash_redis_xclaim': return await this.upstashRedisXclaim(args);
+          case 'upstash_redis_xinfo': return await this.upstashRedisXinfo(args);
+          case 'upstash_redis_xgroup': return await this.upstashRedisXgroup(args);
+
+          default:
             return {
               content: [{ type: "text", text: `Unknown tool: ${name}` }],
             };
@@ -3554,25 +4051,2099 @@ class UnifiedToolkit {
     return await response.json();
   }
 
+  private async githubFetch(path: string, options: any = {}) {
+    const url = path.startsWith('http') ? path : `${this.githubBaseUrl}${path}`;
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Authorization': `token ${this.githubToken}`,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`GitHub API error (${response.status}): ${error}`);
+    }
+
+    return await response.json();
+  }
+
+  // ============================================================
+  // UPSTASH HTTP CLIENT HELPERS
+  // ============================================================
+
+  /**
+   * Upstash Management API HTTP client
+   * Used for managing databases, teams, billing, etc.
+   */
+  private async upstashManagementFetch(endpoint: string, options: RequestInit = {}): Promise<any> {
+    if (!this.upstashApiKey || !this.upstashEmail) {
+      throw new Error('Upstash Management API credentials not configured. Set UPSTASH_API_KEY and UPSTASH_EMAIL in .env.local');
+    }
+
+    const url = `https://api.upstash.com${endpoint}`;
+    // Upstash Management API uses HTTP Basic Auth with EMAIL:API_KEY
+    const credentials = Buffer.from(`${this.upstashEmail}:${this.upstashApiKey}`).toString('base64');
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Upstash Management API error (${response.status}): ${error}`);
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Upstash Redis REST API HTTP client
+   * Used for all Redis operations via HTTP
+   */
+  private async upstashRedisFetch(command: string[], encoding?: 'base64'): Promise<any> {
+    if (!this.upstashRedisUrl || !this.upstashRedisToken) {
+      throw new Error('Upstash Redis credentials not configured. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in .env.local');
+    }
+
+    const url = `${this.upstashRedisUrl}`;
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${this.upstashRedisToken}`,
+      'Content-Type': 'application/json',
+    };
+
+    if (encoding === 'base64') {
+      headers['Upstash-Encoding'] = 'base64';
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(command),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Upstash Redis API error (${response.status}): ${error}`);
+    }
+
+    const data = await response.json() as any;
+    return data.result;
+  }
+
+  /**
+   * Upstash Redis Pipeline - Execute multiple commands in a single HTTP request
+   */
+  private async upstashRedisPipeline(commands: string[][]): Promise<any[]> {
+    if (!this.upstashRedisUrl || !this.upstashRedisToken) {
+      throw new Error('Upstash Redis credentials not configured');
+    }
+
+    const url = `${this.upstashRedisUrl}/pipeline`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.upstashRedisToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(commands),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Upstash Redis Pipeline error (${response.status}): ${error}`);
+    }
+
+    const data = await response.json() as any;
+    return data.map((item: any) => item.result);
+  }
+
+  /**
+   * Upstash Redis Transaction - Execute multiple commands atomically
+   */
+  private async upstashRedisTransaction(commands: string[][]): Promise<any[]> {
+    if (!this.upstashRedisUrl || !this.upstashRedisToken) {
+      throw new Error('Upstash Redis credentials not configured');
+    }
+
+    const url = `${this.upstashRedisUrl}/multi-exec`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.upstashRedisToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(commands),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Upstash Redis Transaction error (${response.status}): ${error}`);
+    }
+
+    const data = await response.json() as any;
+    return data.map((item: any) => item.result);
+  }
+
+  // ============================================================
+  // UPSTASH METHOD IMPLEMENTATIONS
+  // ============================================================
+
+  // ============================================================
+  // UPSTASH MANAGEMENT API - REDIS DATABASE MANAGEMENT (15 methods)
+  // ============================================================
+
+  private async upstashListRedisDatabases(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const databases = await this.upstashManagementFetch('/v2/redis/databases');
+      return { content: [{ type: 'text', text: JSON.stringify(databases, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list Redis databases: ${error.message}`);
+    }
+  }
+
+  private async upstashGetRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId } = args;
+      const database = await this.upstashManagementFetch(`/v2/redis/database/${databaseId}`);
+      return { content: [{ type: 'text', text: JSON.stringify(database, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get Redis database: ${error.message}`);
+    }
+  }
+
+  private async upstashCreateRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      // Upstash now uses Global Database model (regional databases are deprecated)
+      // Required: name, primary_region
+      // Optional: read_regions (array), tls, eviction
+      // Note: API still requires 'region' field set to 'global' for global databases
+      const { name, primary_region, read_regions, tls = true, eviction = false } = args;
+
+      if (!primary_region) {
+        throw new Error('primary_region is required. Upstash has deprecated regional databases in favor of Global Databases.');
+      }
+
+      const body: any = {
+        name,
+        region: 'global', // Required for global databases
+        primary_region,
+        tls,
+        eviction
+      };
+
+      // Add read_regions if provided (optional)
+      if (read_regions && Array.isArray(read_regions) && read_regions.length > 0) {
+        body.read_regions = read_regions;
+      }
+
+      const database = await this.upstashManagementFetch('/v2/redis/database', {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(database, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create Redis database: ${error.message}`);
+    }
+  }
+
+  private async upstashDeleteRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId } = args;
+      await this.upstashManagementFetch(`/v2/redis/database/${databaseId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: `Database ${databaseId} deleted successfully` }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete Redis database: ${error.message}`);
+    }
+  }
+
+  private async upstashUpdateRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId, name } = args;
+      const database = await this.upstashManagementFetch(`/v2/redis/database/${databaseId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ name })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(database, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to update Redis database: ${error.message}`);
+    }
+  }
+
+  private async upstashResetRedisPassword(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId } = args;
+      const result = await this.upstashManagementFetch(`/v2/redis/database/${databaseId}/reset-password`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to reset Redis password: ${error.message}`);
+    }
+  }
+
+  private async upstashEnableRedisEviction(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId, eviction } = args;
+      const result = await this.upstashManagementFetch(`/v2/redis/database/${databaseId}/eviction`, {
+        method: 'POST',
+        body: JSON.stringify({ eviction })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to enable Redis eviction: ${error.message}`);
+    }
+  }
+
+  private async upstashEnableRedisTls(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId, tls } = args;
+      const result = await this.upstashManagementFetch(`/v2/redis/database/${databaseId}/tls`, {
+        method: 'POST',
+        body: JSON.stringify({ tls })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to enable Redis TLS: ${error.message}`);
+    }
+  }
+
+  private async upstashGetRedisStats(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId } = args;
+      const stats = await this.upstashManagementFetch(`/v2/redis/stats/${databaseId}`);
+      return { content: [{ type: 'text', text: JSON.stringify(stats, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get Redis stats: ${error.message}`);
+    }
+  }
+
+  private async upstashRenameRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId, name } = args;
+      const result = await this.upstashManagementFetch(`/v2/redis/database/${databaseId}/rename`, {
+        method: 'POST',
+        body: JSON.stringify({ name })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to rename Redis database: ${error.message}`);
+    }
+  }
+
+  private async upstashGetRedisBackupConfig(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId } = args;
+      const config = await this.upstashManagementFetch(`/v2/redis/backup/${databaseId}`);
+      return { content: [{ type: 'text', text: JSON.stringify(config, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get backup config: ${error.message}`);
+    }
+  }
+
+  private async upstashCreateRedisBackup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId } = args;
+      const backup = await this.upstashManagementFetch(`/v2/redis/backup/${databaseId}`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(backup, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create backup: ${error.message}`);
+    }
+  }
+
+  private async upstashRestoreRedisBackup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId, backupId } = args;
+      const result = await this.upstashManagementFetch(`/v2/redis/backup/${databaseId}/restore`, {
+        method: 'POST',
+        body: JSON.stringify({ backupId })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to restore backup: ${error.message}`);
+    }
+  }
+
+  private async upstashListRedisRegions(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const regions = await this.upstashManagementFetch('/v2/redis/regions');
+      return { content: [{ type: 'text', text: JSON.stringify(regions, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list regions: ${error.message}`);
+    }
+  }
+
+  private async upstashGetRedisDatabaseDetails(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { databaseId } = args;
+      const details = await this.upstashManagementFetch(`/v2/redis/database/${databaseId}/details`);
+      return { content: [{ type: 'text', text: JSON.stringify(details, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get database details: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH MANAGEMENT API - TEAM MANAGEMENT (6 methods)
+  // ============================================================
+
+  private async upstashListTeams(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const teams = await this.upstashManagementFetch('/v2/teams');
+      return { content: [{ type: 'text', text: JSON.stringify(teams, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list teams: ${error.message}`);
+    }
+  }
+
+  private async upstashGetTeam(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { teamId } = args;
+      const team = await this.upstashManagementFetch(`/v2/teams/${teamId}`);
+      return { content: [{ type: 'text', text: JSON.stringify(team, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get team: ${error.message}`);
+    }
+  }
+
+  private async upstashCreateTeam(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { name } = args;
+      const team = await this.upstashManagementFetch('/v2/teams', {
+        method: 'POST',
+        body: JSON.stringify({ name })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(team, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create team: ${error.message}`);
+    }
+  }
+
+  private async upstashDeleteTeam(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { teamId } = args;
+      await this.upstashManagementFetch(`/v2/teams/${teamId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: `Team ${teamId} deleted successfully` }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete team: ${error.message}`);
+    }
+  }
+
+  private async upstashUpdateTeam(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { teamId, name } = args;
+      const team = await this.upstashManagementFetch(`/v2/teams/${teamId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ name })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(team, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to update team: ${error.message}`);
+    }
+  }
+
+  private async upstashListTeamMembers(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { teamId } = args;
+      const members = await this.upstashManagementFetch(`/v2/teams/${teamId}/members`);
+      return { content: [{ type: 'text', text: JSON.stringify(members, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list team members: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - STRING OPERATIONS (17 methods)
+  // ============================================================
+
+  private async upstashRedisGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['GET', key]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GET key: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, value, ex, px, exat, pxat, nx, xx, get } = args;
+      const command = ['SET', key, value];
+      if (ex) command.push('EX', String(ex));
+      if (px) command.push('PX', String(px));
+      if (exat) command.push('EXAT', String(exat));
+      if (pxat) command.push('PXAT', String(pxat));
+      if (nx) command.push('NX');
+      if (xx) command.push('XX');
+      if (get) command.push('GET');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SET key: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSetnx(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, value } = args;
+      const result = await this.upstashRedisFetch(['SETNX', key, value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SETNX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSetex(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, seconds, value } = args;
+      const result = await this.upstashRedisFetch(['SETEX', key, String(seconds), value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SETEX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisPsetex(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, milliseconds, value } = args;
+      const result = await this.upstashRedisFetch(['PSETEX', key, String(milliseconds), value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to PSETEX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGetset(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, value } = args;
+      const result = await this.upstashRedisFetch(['GETSET', key, value]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GETSET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGetdel(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['GETDEL', key]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GETDEL: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGetex(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, ex, px, exat, pxat, persist } = args;
+      const command = ['GETEX', key];
+      if (ex) command.push('EX', String(ex));
+      if (px) command.push('PX', String(px));
+      if (exat) command.push('EXAT', String(exat));
+      if (pxat) command.push('PXAT', String(pxat));
+      if (persist) command.push('PERSIST');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GETEX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisMget(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys } = args;
+      const result = await this.upstashRedisFetch(['MGET', ...keys]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to MGET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisMset(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { pairs } = args;
+      const command = ['MSET'];
+      for (const [key, value] of Object.entries(pairs)) {
+        command.push(key, String(value));
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to MSET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisMsetnx(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { pairs } = args;
+      const command = ['MSETNX'];
+      for (const [key, value] of Object.entries(pairs)) {
+        command.push(key, String(value));
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to MSETNX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisIncr(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['INCR', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to INCR: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisIncrby(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, increment } = args;
+      const result = await this.upstashRedisFetch(['INCRBY', key, String(increment)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to INCRBY: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisIncrbyfloat(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, increment } = args;
+      const result = await this.upstashRedisFetch(['INCRBYFLOAT', key, String(increment)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to INCRBYFLOAT: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisDecr(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['DECR', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to DECR: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisDecrby(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, decrement } = args;
+      const result = await this.upstashRedisFetch(['DECRBY', key, String(decrement)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to DECRBY: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisAppend(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, value } = args;
+      const result = await this.upstashRedisFetch(['APPEND', key, value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to APPEND: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - GENERIC KEY OPERATIONS (10 methods)
+  // ============================================================
+
+  private async upstashRedisDel(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys } = args;
+      const result = await this.upstashRedisFetch(['DEL', ...keys]);
+      return { content: [{ type: 'text', text: `Deleted ${result} key(s)` }] };
+    } catch (error: any) {
+      throw new Error(`Failed to DEL: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisExists(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys } = args;
+      const result = await this.upstashRedisFetch(['EXISTS', ...keys]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to EXISTS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisExpire(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, seconds } = args;
+      const result = await this.upstashRedisFetch(['EXPIRE', key, String(seconds)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to EXPIRE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisExpireat(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, timestamp } = args;
+      const result = await this.upstashRedisFetch(['EXPIREAT', key, String(timestamp)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to EXPIREAT: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisTtl(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['TTL', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to TTL: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisPersist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['PERSIST', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to PERSIST: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisKeys(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { pattern } = args;
+      const result = await this.upstashRedisFetch(['KEYS', pattern]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to KEYS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisScan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { cursor, match, count } = args;
+      const command = ['SCAN', cursor];
+      if (match) command.push('MATCH', match);
+      if (count) command.push('COUNT', String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SCAN: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisRandomkey(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.upstashRedisFetch(['RANDOMKEY']);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to RANDOMKEY: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisRename(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, newKey } = args;
+      const result = await this.upstashRedisFetch(['RENAME', key, newKey]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to RENAME: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - SERVER OPERATIONS (10 methods)
+  // ============================================================
+
+  private async upstashRedisPing(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.upstashRedisFetch(['PING']);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to PING: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisEcho(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { message } = args;
+      const result = await this.upstashRedisFetch(['ECHO', message]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ECHO: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisDbsize(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.upstashRedisFetch(['DBSIZE']);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to DBSIZE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisFlushdb(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { async } = args;
+      const command = ['FLUSHDB'];
+      if (async) command.push('ASYNC');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to FLUSHDB: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisFlushall(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { async } = args;
+      const command = ['FLUSHALL'];
+      if (async) command.push('ASYNC');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to FLUSHALL: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisTime(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.upstashRedisFetch(['TIME']);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to TIME: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisInfo(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { section } = args;
+      const command = ['INFO'];
+      if (section) command.push(section);
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to INFO: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisConfigGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { parameter } = args;
+      const result = await this.upstashRedisFetch(['CONFIG', 'GET', parameter]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to CONFIG GET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisConfigSet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { parameter, value } = args;
+      const result = await this.upstashRedisFetch(['CONFIG', 'SET', parameter, value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to CONFIG SET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisCommandCount(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.upstashRedisFetch(['COMMAND', 'COUNT']);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to COMMAND COUNT: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - PUB/SUB OPERATIONS (2 methods)
+  // ============================================================
+
+  private async upstashRedisPublish(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { channel, message } = args;
+      const result = await this.upstashRedisFetch(['PUBLISH', channel, message]);
+      return { content: [{ type: 'text', text: `Published to ${result} subscriber(s)` }] };
+    } catch (error: any) {
+      throw new Error(`Failed to PUBLISH: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisPubsubChannels(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { pattern } = args;
+      const command = ['PUBSUB', 'CHANNELS'];
+      if (pattern) command.push(pattern);
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to PUBSUB CHANNELS: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - PIPELINE & TRANSACTION (2 methods)
+  // ============================================================
+
+  private async upstashRedisPipelineExecute(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { commands } = args;
+      const results = await this.upstashRedisPipeline(commands);
+      return { content: [{ type: 'text', text: JSON.stringify(results, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to execute pipeline: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisTransactionExecute(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { commands } = args;
+      const results = await this.upstashRedisTransaction(commands);
+      return { content: [{ type: 'text', text: JSON.stringify(results, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to execute transaction: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - HASH OPERATIONS (15 methods)
+  // ============================================================
+
+  private async upstashRedisHset(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, field, value } = args;
+      const result = await this.upstashRedisFetch(['HSET', key, field, value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HSET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHget(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, field } = args;
+      const result = await this.upstashRedisFetch(['HGET', key, field]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HGET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHgetall(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['HGETALL', key]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HGETALL: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHdel(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, fields } = args;
+      const result = await this.upstashRedisFetch(['HDEL', key, ...fields]);
+      return { content: [{ type: 'text', text: `Deleted ${result} field(s)` }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HDEL: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHexists(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, field } = args;
+      const result = await this.upstashRedisFetch(['HEXISTS', key, field]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HEXISTS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHkeys(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['HKEYS', key]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HKEYS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHvals(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['HVALS', key]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HVALS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHlen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['HLEN', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HLEN: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHincrby(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, field, increment } = args;
+      const result = await this.upstashRedisFetch(['HINCRBY', key, field, String(increment)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HINCRBY: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHincrbyfloat(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, field, increment } = args;
+      const result = await this.upstashRedisFetch(['HINCRBYFLOAT', key, field, String(increment)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HINCRBYFLOAT: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHmget(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, fields } = args;
+      const result = await this.upstashRedisFetch(['HMGET', key, ...fields]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HMGET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHmset(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, fields } = args;
+      const command = ['HMSET', key];
+      for (const [field, value] of Object.entries(fields)) {
+        command.push(field, String(value));
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HMSET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHsetnx(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, field, value } = args;
+      const result = await this.upstashRedisFetch(['HSETNX', key, field, value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HSETNX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHstrlen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, field } = args;
+      const result = await this.upstashRedisFetch(['HSTRLEN', key, field]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HSTRLEN: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisHscan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, cursor, match, count } = args;
+      const command = ['HSCAN', key, cursor];
+      if (match) command.push('MATCH', match);
+      if (count) command.push('COUNT', String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to HSCAN: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - LIST OPERATIONS (14 methods)
+  // ============================================================
+
+  private async upstashRedisLpush(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, values } = args;
+      const result = await this.upstashRedisFetch(['LPUSH', key, ...values]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LPUSH: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisRpush(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, values } = args;
+      const result = await this.upstashRedisFetch(['RPUSH', key, ...values]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to RPUSH: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLpop(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, count } = args;
+      const command = ['LPOP', key];
+      if (count) command.push(String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: result !== null ? JSON.stringify(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LPOP: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisRpop(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, count } = args;
+      const command = ['RPOP', key];
+      if (count) command.push(String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: result !== null ? JSON.stringify(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to RPOP: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLrange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, start, stop } = args;
+      const result = await this.upstashRedisFetch(['LRANGE', key, String(start), String(stop)]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LRANGE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLlen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['LLEN', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LLEN: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLindex(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, index } = args;
+      const result = await this.upstashRedisFetch(['LINDEX', key, String(index)]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LINDEX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLset(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, index, value } = args;
+      const result = await this.upstashRedisFetch(['LSET', key, String(index), value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LSET: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLrem(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, count, value } = args;
+      const result = await this.upstashRedisFetch(['LREM', key, String(count), value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LREM: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLtrim(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, start, stop } = args;
+      const result = await this.upstashRedisFetch(['LTRIM', key, String(start), String(stop)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LTRIM: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLinsert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, position, pivot, element } = args;
+      const result = await this.upstashRedisFetch(['LINSERT', key, position, pivot, element]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LINSERT: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisRpoplpush(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { source, destination } = args;
+      const result = await this.upstashRedisFetch(['RPOPLPUSH', source, destination]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to RPOPLPUSH: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLpos(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, element, rank, count, maxlen } = args;
+      const command = ['LPOS', key, element];
+      if (rank) command.push('RANK', String(rank));
+      if (count) command.push('COUNT', String(count));
+      if (maxlen) command.push('MAXLEN', String(maxlen));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: result !== null ? JSON.stringify(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LPOS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisLmove(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { source, destination, from, to } = args;
+      const result = await this.upstashRedisFetch(['LMOVE', source, destination, from, to]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LMOVE: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - SET OPERATIONS (15 methods)
+  // ============================================================
+
+  private async upstashRedisSadd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, members } = args;
+      const result = await this.upstashRedisFetch(['SADD', key, ...members]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SADD: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSmembers(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['SMEMBERS', key]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SMEMBERS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSrem(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, members } = args;
+      const result = await this.upstashRedisFetch(['SREM', key, ...members]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SREM: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSismember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, member } = args;
+      const result = await this.upstashRedisFetch(['SISMEMBER', key, member]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SISMEMBER: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisScard(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['SCARD', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SCARD: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSpop(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, count } = args;
+      const command = ['SPOP', key];
+      if (count) command.push(String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: result !== null ? JSON.stringify(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SPOP: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSrandmember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, count } = args;
+      const command = ['SRANDMEMBER', key];
+      if (count) command.push(String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: result !== null ? JSON.stringify(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SRANDMEMBER: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSmove(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { source, destination, member } = args;
+      const result = await this.upstashRedisFetch(['SMOVE', source, destination, member]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SMOVE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSunion(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys } = args;
+      const result = await this.upstashRedisFetch(['SUNION', ...keys]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SUNION: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSinter(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys } = args;
+      const result = await this.upstashRedisFetch(['SINTER', ...keys]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SINTER: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSdiff(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys } = args;
+      const result = await this.upstashRedisFetch(['SDIFF', ...keys]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SDIFF: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSunionstore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { destination, keys } = args;
+      const result = await this.upstashRedisFetch(['SUNIONSTORE', destination, ...keys]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SUNIONSTORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSinterstore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { destination, keys } = args;
+      const result = await this.upstashRedisFetch(['SINTERSTORE', destination, ...keys]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SINTERSTORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSdiffstore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { destination, keys } = args;
+      const result = await this.upstashRedisFetch(['SDIFFSTORE', destination, ...keys]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SDIFFSTORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisSscan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, cursor, match, count } = args;
+      const command = ['SSCAN', key, cursor];
+      if (match) command.push('MATCH', match);
+      if (count) command.push('COUNT', String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SSCAN: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - SORTED SET OPERATIONS (23 methods)
+  // ============================================================
+
+  private async upstashRedisZadd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, members } = args;
+      const command = ['ZADD', key];
+      for (const { score, value } of members) {
+        command.push(String(score), value);
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZADD: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZrange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, start, stop, withScores } = args;
+      const command = ['ZRANGE', key, String(start), String(stop)];
+      if (withScores) command.push('WITHSCORES');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZRANGE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZrem(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, members } = args;
+      const result = await this.upstashRedisFetch(['ZREM', key, ...members]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZREM: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZscore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, member } = args;
+      const result = await this.upstashRedisFetch(['ZSCORE', key, member]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZSCORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZcard(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['ZCARD', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZCARD: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZrank(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, member } = args;
+      const result = await this.upstashRedisFetch(['ZRANK', key, member]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZRANK: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZrevrank(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, member } = args;
+      const result = await this.upstashRedisFetch(['ZREVRANK', key, member]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZREVRANK: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZrangebyscore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, min, max, withscores } = args;
+      const command = ['ZRANGEBYSCORE', key, min, max];
+      if (withscores) command.push('WITHSCORES');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZRANGEBYSCORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZrevrangebyscore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, max, min, withscores } = args;
+      const command = ['ZREVRANGEBYSCORE', key, max, min];
+      if (withscores) command.push('WITHSCORES');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZREVRANGEBYSCORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZremrangebyrank(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, start, stop } = args;
+      const result = await this.upstashRedisFetch(['ZREMRANGEBYRANK', key, String(start), String(stop)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZREMRANGEBYRANK: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZremrangebyscore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, min, max } = args;
+      const result = await this.upstashRedisFetch(['ZREMRANGEBYSCORE', key, min, max]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZREMRANGEBYSCORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZpopmin(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, count } = args;
+      const command = ['ZPOPMIN', key];
+      if (count) command.push(String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZPOPMIN: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZpopmax(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, count } = args;
+      const command = ['ZPOPMAX', key];
+      if (count) command.push(String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZPOPMAX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZincrby(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, increment, member } = args;
+      const result = await this.upstashRedisFetch(['ZINCRBY', key, String(increment), member]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZINCRBY: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZcount(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, min, max } = args;
+      const result = await this.upstashRedisFetch(['ZCOUNT', key, min, max]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZCOUNT: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZunionstore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { destination, keys, weights, aggregate } = args;
+      const command = ['ZUNIONSTORE', destination, String(keys.length), ...keys];
+      if (weights) {
+        command.push('WEIGHTS', ...weights.map(String));
+      }
+      if (aggregate) {
+        command.push('AGGREGATE', aggregate);
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZUNIONSTORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZinterstore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { destination, keys, weights, aggregate } = args;
+      const command = ['ZINTERSTORE', destination, String(keys.length), ...keys];
+      if (weights) {
+        command.push('WEIGHTS', ...weights.map(String));
+      }
+      if (aggregate) {
+        command.push('AGGREGATE', aggregate);
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZINTERSTORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZdiffstore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { destination, keys } = args;
+      const result = await this.upstashRedisFetch(['ZDIFFSTORE', destination, String(keys.length), ...keys]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZDIFFSTORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZmscore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, members } = args;
+      const result = await this.upstashRedisFetch(['ZMSCORE', key, ...members]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZMSCORE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZrandmember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, count, withscores } = args;
+      const command = ['ZRANDMEMBER', key];
+      if (count) command.push(String(count));
+      if (withscores) command.push('WITHSCORES');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: result !== null ? JSON.stringify(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZRANDMEMBER: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZdiff(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys, withscores } = args;
+      const command = ['ZDIFF', String(keys.length), ...keys];
+      if (withscores) command.push('WITHSCORES');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZDIFF: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZinter(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys, weights, aggregate, withscores } = args;
+      const command = ['ZINTER', String(keys.length), ...keys];
+      if (weights) {
+        command.push('WEIGHTS', ...weights.map(String));
+      }
+      if (aggregate) {
+        command.push('AGGREGATE', aggregate);
+      }
+      if (withscores) {
+        command.push('WITHSCORES');
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZINTER: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZunion(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys, weights, aggregate, withscores } = args;
+      const command = ['ZUNION', String(keys.length), ...keys];
+      if (weights) {
+        command.push('WEIGHTS', ...weights.map(String));
+      }
+      if (aggregate) {
+        command.push('AGGREGATE', aggregate);
+      }
+      if (withscores) {
+        command.push('WITHSCORES');
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZUNION: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZscan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, cursor, match, count } = args;
+      const command = ['ZSCAN', key, cursor];
+      if (match) command.push('MATCH', match);
+      if (count) command.push('COUNT', String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZSCAN: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZrangebylex(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, min, max, limit } = args;
+      const command = ['ZRANGEBYLEX', key, min, max];
+      if (limit) command.push('LIMIT', String(limit.offset), String(limit.count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZRANGEBYLEX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZrevrangebylex(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, max, min, limit } = args;
+      const command = ['ZREVRANGEBYLEX', key, max, min];
+      if (limit) command.push('LIMIT', String(limit.offset), String(limit.count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZREVRANGEBYLEX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZremrangebylex(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, min, max } = args;
+      const result = await this.upstashRedisFetch(['ZREMRANGEBYLEX', key, min, max]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZREMRANGEBYLEX: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisZlexcount(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, min, max } = args;
+      const result = await this.upstashRedisFetch(['ZLEXCOUNT', key, min, max]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to ZLEXCOUNT: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - GEOSPATIAL OPERATIONS (7 methods)
+  // ============================================================
+
+  private async upstashRedisGeoadd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, members } = args;
+      const command = ['GEOADD', key];
+      for (const { longitude, latitude, member } of members) {
+        command.push(String(longitude), String(latitude), member);
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GEOADD: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGeopos(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, members } = args;
+      const result = await this.upstashRedisFetch(['GEOPOS', key, ...members]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GEOPOS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGeodist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, member1, member2, unit } = args;
+      const command = ['GEODIST', key, member1, member2];
+      if (unit) command.push(unit);
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GEODIST: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGeoradius(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, longitude, latitude, radius, unit, withcoord, withdist, withhash, count } = args;
+      const command = ['GEORADIUS', key, String(longitude), String(latitude), String(radius), unit];
+      if (withcoord) command.push('WITHCOORD');
+      if (withdist) command.push('WITHDIST');
+      if (withhash) command.push('WITHHASH');
+      if (count) command.push('COUNT', String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GEORADIUS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGeoradiusbymember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, member, radius, unit, withcoord, withdist, withhash, count } = args;
+      const command = ['GEORADIUSBYMEMBER', key, member, String(radius), unit];
+      if (withcoord) command.push('WITHCOORD');
+      if (withdist) command.push('WITHDIST');
+      if (withhash) command.push('WITHHASH');
+      if (count) command.push('COUNT', String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GEORADIUSBYMEMBER: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGeosearch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, from, by, shape, unit, count, withcoord, withdist, withhash } = args;
+      const command = ['GEOSEARCH', key];
+      if (from.member) {
+        command.push('FROMMEMBER', from.member);
+      } else {
+        command.push('FROMLONLAT', String(from.longitude), String(from.latitude));
+      }
+      if (by.radius) {
+        command.push('BYRADIUS', String(by.radius), unit);
+      } else {
+        command.push('BYBOX', String(by.width), String(by.height), unit);
+      }
+      if (count) command.push('COUNT', String(count));
+      if (withcoord) command.push('WITHCOORD');
+      if (withdist) command.push('WITHDIST');
+      if (withhash) command.push('WITHHASH');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GEOSEARCH: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGeohash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, members } = args;
+      const result = await this.upstashRedisFetch(['GEOHASH', key, ...members]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GEOHASH: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - HYPERLOGLOG OPERATIONS (3 methods)
+  // ============================================================
+
+  private async upstashRedisPfadd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, elements } = args;
+      const result = await this.upstashRedisFetch(['PFADD', key, ...elements]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to PFADD: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisPfcount(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { keys } = args;
+      const result = await this.upstashRedisFetch(['PFCOUNT', ...keys]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to PFCOUNT: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisPfmerge(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { destkey, sourcekeys } = args;
+      const result = await this.upstashRedisFetch(['PFMERGE', destkey, ...sourcekeys]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to PFMERGE: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - BITMAP OPERATIONS (5 methods)
+  // ============================================================
+
+  private async upstashRedisSetbit(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, offset, value } = args;
+      const result = await this.upstashRedisFetch(['SETBIT', key, String(offset), String(value)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SETBIT: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisGetbit(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, offset } = args;
+      const result = await this.upstashRedisFetch(['GETBIT', key, String(offset)]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GETBIT: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisBitcount(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, start, end } = args;
+      const command = ['BITCOUNT', key];
+      if (start !== undefined && end !== undefined) {
+        command.push(String(start), String(end));
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to BITCOUNT: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisBitpos(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, bit, start, end } = args;
+      const command = ['BITPOS', key, String(bit)];
+      if (start !== undefined) {
+        command.push(String(start));
+        if (end !== undefined) {
+          command.push(String(end));
+        }
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to BITPOS: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisBitop(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { operation, destkey, keys } = args;
+      const result = await this.upstashRedisFetch(['BITOP', operation, destkey, ...keys]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to BITOP: ${error.message}`);
+    }
+  }
+
+  // ============================================================
+  // UPSTASH REDIS REST API - STREAM OPERATIONS (12 methods)
+  // ============================================================
+
+  private async upstashRedisXadd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, id, fields } = args;
+      const command = ['XADD', key, id || '*'];
+      for (const [field, value] of Object.entries(fields)) {
+        command.push(field, String(value));
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XADD: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXread(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { count, block, streams } = args;
+      const command = ['XREAD'];
+      if (count) command.push('COUNT', String(count));
+      if (block !== undefined) command.push('BLOCK', String(block));
+      command.push('STREAMS');
+      for (const { key, id } of streams) {
+        command.push(key);
+      }
+      for (const { id } of streams) {
+        command.push(id);
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XREAD: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXrange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, start, end, count } = args;
+      const command = ['XRANGE', key, start, end];
+      if (count) command.push('COUNT', String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XRANGE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXrevrange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, end, start, count } = args;
+      const command = ['XREVRANGE', key, end, start];
+      if (count) command.push('COUNT', String(count));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XREVRANGE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXlen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['XLEN', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XLEN: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXdel(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, ids } = args;
+      const result = await this.upstashRedisFetch(['XDEL', key, ...ids]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XDEL: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXtrim(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, strategy, threshold, limit } = args;
+      const command = ['XTRIM', key, strategy, String(threshold)];
+      if (limit) command.push('LIMIT', String(limit));
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XTRIM: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXgroupCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, group, id, mkstream } = args;
+      const command = ['XGROUP', 'CREATE', key, group, id || '$'];
+      if (mkstream) command.push('MKSTREAM');
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XGROUP CREATE: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXgroupDestroy(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, group } = args;
+      const result = await this.upstashRedisFetch(['XGROUP', 'DESTROY', key, group]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XGROUP DESTROY: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXreadgroup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { group, consumer, count, block, noack, streams } = args;
+      const command = ['XREADGROUP', 'GROUP', group, consumer];
+      if (count) command.push('COUNT', String(count));
+      if (block !== undefined) command.push('BLOCK', String(block));
+      if (noack) command.push('NOACK');
+      command.push('STREAMS');
+      for (const { key } of streams) {
+        command.push(key);
+      }
+      for (const { id } of streams) {
+        command.push(id);
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XREADGROUP: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXack(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, group, ids } = args;
+      const result = await this.upstashRedisFetch(['XACK', key, group, ...ids]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XACK: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXpending(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, group, start, end, count, consumer } = args;
+      const command = ['XPENDING', key, group];
+      if (start && end && count) {
+        command.push(start, end, String(count));
+        if (consumer) command.push(consumer);
+      }
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XPENDING: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXclaim(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { key, group, consumer, minIdleTime, ids } = args;
+      const result = await this.upstashRedisFetch(['XCLAIM', key, group, consumer, String(minIdleTime), ...ids]);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XCLAIM: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXinfo(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { subcommand, key, group } = args;
+      const command = ['XINFO', subcommand];
+      if (key) command.push(key);
+      if (group) command.push(group);
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XINFO: ${error.message}`);
+    }
+  }
+
+  private async upstashRedisXgroup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const { subcommand, key, group, id, consumer } = args;
+      const command = ['XGROUP', subcommand];
+      if (key) command.push(key);
+      if (group) command.push(group);
+      if (id) command.push(id);
+      if (consumer) command.push(consumer);
+      const result = await this.upstashRedisFetch(command);
+      return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to XGROUP: ${error.message}`);
+    }
+  }
+
   private async fetch(url: string, options: any = {}) {
     const response = await globalThis.fetch(url, options);
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     return response.json();
-  }
-
-  // Redis helper methods
-  private async connectRedis(): Promise<void> {
-    if (this.redisClient?.isOpen) {
-      return;
-    }
-    if (!this.redisUrl) {
-      throw new Error('Redis URL not configured');
-    }
-    this.redisClient = createClient({ url: this.redisUrl });
-    this.redisClient.on('error', (err) => console.error('Redis Client Error', err));
-    await this.redisClient.connect();
   }
 
   // Playwright helper methods
@@ -7266,12 +9837,25 @@ class UnifiedToolkit {
   }
 
   async run() {
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
-    console.error("Robinson's Toolkit MCP server running on stdio");
-    console.error("Total tools: 563 (GitHub: 240, Vercel: 150, Neon: 173)");
+    try {
+      console.error("[Robinson Toolkit] Starting server...");
+      const transport = new StdioServerTransport();
+      console.error("[Robinson Toolkit] Transport created");
+      await this.server.connect(transport);
+      console.error("[Robinson Toolkit] Server connected");
+      console.error("Robinson's Toolkit MCP server running on stdio");
+      console.error("Total tools: 703 (GitHub: 240, Vercel: 150, Neon: 173, Upstash: 140)");
+    } catch (error) {
+      console.error("[Robinson Toolkit] FATAL ERROR during startup:", error);
+      throw error;
+    }
   }
 }
 
+console.error("[Robinson Toolkit] Initializing...");
 const toolkit = new UnifiedToolkit();
-toolkit.run().catch(console.error);
+console.error("[Robinson Toolkit] Instance created, starting run()...");
+toolkit.run().catch((error) => {
+  console.error("[Robinson Toolkit] FATAL ERROR in run():", error);
+  process.exit(1);
+});
