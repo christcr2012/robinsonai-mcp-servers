@@ -25,6 +25,8 @@ import OpenAI from 'openai';
 import { google } from 'googleapis';
 import { chromium, Browser, Page, BrowserContext } from 'playwright';
 import Stripe from 'stripe';
+import { BROKER_TOOLS } from './broker-tools.js';
+import { ToolRegistry } from './tool-registry.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -52,6 +54,7 @@ const CONTEXT7_BASE_URL = 'https://api.context7.com';
 class UnifiedToolkit {
   private isEnabled: boolean = true;
   private server: Server;
+  private registry: ToolRegistry;
 
   // Service tokens
   private githubToken: string;
@@ -102,6 +105,10 @@ class UnifiedToolkit {
 
   constructor() {
     console.error("[Robinson Toolkit] Constructor starting...");
+
+    // Initialize tool registry with broker pattern
+    this.registry = new ToolRegistry();
+
     // Load all environment variables
     this.githubToken = process.env.GITHUB_TOKEN || '';
     this.vercelToken = process.env.VERCEL_TOKEN || '';
@@ -261,9 +268,94 @@ class UnifiedToolkit {
   }
 
   private setupHandlers() {
-    // List all 563 tools (GitHub 240 + Vercel 150 + Neon 173)
+    // Populate registry with all tool definitions
+    console.error("[Robinson Toolkit] Populating tool registry...");
+    const allTools = this.getOriginalToolDefinitions();
+    this.registry.bulkRegisterTools(allTools);
+    console.error(`[Robinson Toolkit] Registered ${allTools.length} tools across 5 categories`);
+
+    // BROKER PATTERN: Expose only 5 meta-tools to client
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [
+      tools: BROKER_TOOLS
+    }));
+
+    // Handle broker tool calls
+    this.server.setRequestHandler(CallToolRequestSchema, async (request): Promise<any> => {
+      const { name } = request.params;
+      const args = request.params.arguments as any;
+
+      try {
+        switch (name) {
+          case 'toolkit_list_categories':
+            return {
+              content: [{
+                type: 'text',
+                text: JSON.stringify(this.registry.getCategories(), null, 2)
+              }]
+            };
+
+          case 'toolkit_list_tools':
+            const tools = this.registry.listToolsInCategory(args.category);
+            return {
+              content: [{
+                type: 'text',
+                text: JSON.stringify(tools, null, 2)
+              }]
+            };
+
+          case 'toolkit_get_tool_schema':
+            const schema = this.registry.getToolSchema(args.category, args.toolName);
+            if (!schema) {
+              return {
+                content: [{
+                  type: 'text',
+                  text: `Tool not found: ${args.toolName}`
+                }],
+                isError: true
+              };
+            }
+            return {
+              content: [{
+                type: 'text',
+                text: JSON.stringify(schema, null, 2)
+              }]
+            };
+
+          case 'toolkit_discover':
+            const discovered = this.registry.searchTools(args.query, args.limit || 10);
+            return {
+              content: [{
+                type: 'text',
+                text: JSON.stringify(discovered, null, 2)
+              }]
+            };
+
+          case 'toolkit_call':
+            // Execute the actual tool server-side
+            const toolName = args.toolName;
+            const toolArgs = args.arguments || {};
+            return await this.executeToolInternal(toolName, toolArgs);
+
+          default:
+            // Not a broker tool, try executing as regular tool
+            return await this.executeToolInternal(name, args);
+        }
+      } catch (error: any) {
+        return {
+          content: [{
+            type: 'text',
+            text: `Broker error: ${error.message}`
+          }],
+          isError: true
+        };
+      }
+    });
+  }
+
+  // Original tool definitions (kept for registry population)
+  private getOriginalToolDefinitions(): any[] {
+    // @ts-ignore - Array literal too complex for TypeScript type inference
+    const tools: any[] = [
 // REPOSITORY MANAGEMENT (20 tools)
         { name: 'github_list_repos', description: 'List repositories for authenticated user or organization', inputSchema: { type: 'object', properties: { org: { type: 'string' }, type: { type: 'string', enum: ['all', 'owner', 'public', 'private', 'member'] }, sort: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } } } },
         { name: 'github_get_repo', description: 'Get repository details', inputSchema: { type: 'object', properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
@@ -2898,17 +2990,215 @@ class UnifiedToolkit {
         { name: 'upstash_redis_xpending', description: 'Get pending messages info', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Consumer group' }, start: { type: 'string', description: 'Start ID (optional)' }, end: { type: 'string', description: 'End ID (optional)' }, count: { type: 'number', description: 'Count (optional)' } }, required: ['key', 'group'] } },
         { name: 'upstash_redis_xclaim', description: 'Claim pending messages', inputSchema: { type: 'object', properties: { key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Consumer group' }, consumer: { type: 'string', description: 'Consumer name' }, minIdleTime: { type: 'number', description: 'Min idle time in ms' }, ids: { type: 'array', items: { type: 'string' }, description: 'Message IDs' } }, required: ['key', 'group', 'consumer', 'minIdleTime', 'ids'] } },
         { name: 'upstash_redis_xinfo', description: 'Get stream information', inputSchema: { type: 'object', properties: { subcommand: { type: 'string', description: 'STREAM, GROUPS, or CONSUMERS' }, key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Group name (for CONSUMERS)' } }, required: ['subcommand', 'key'] } },
-        { name: 'upstash_redis_xgroup', description: 'Manage consumer groups', inputSchema: { type: 'object', properties: { subcommand: { type: 'string', description: 'CREATE, DESTROY, SETID, DELCONSUMER' }, key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Group name' }, id: { type: 'string', description: 'ID (for CREATE/SETID)' }, consumer: { type: 'string', description: 'Consumer name (for DELCONSUMER)' } }, required: ['subcommand', 'key', 'group'] } }
-      ]
-    }));
+        { name: 'upstash_redis_xgroup', description: 'Manage consumer groups', inputSchema: { type: 'object', properties: { subcommand: { type: 'string', description: 'CREATE, DESTROY, SETID, DELCONSUMER' }, key: { type: 'string', description: 'Stream key' }, group: { type: 'string', description: 'Group name' }, id: { type: 'string', description: 'ID (for CREATE/SETID)' }, consumer: { type: 'string', description: 'Consumer name (for DELCONSUMER)' } }, required: ['subcommand', 'key', 'group'] } },
 
-    // Handle tool calls
-    this.server.setRequestHandler(CallToolRequestSchema, async (request): Promise<any> => {
-      const { name } = request.params;
-      const args = request.params.arguments as any;
+        
+        // Google Workspace tools (193)
+        { name: 'gmail_send_message', description: 'Send email via Gmail', inputSchema: { type: 'object', properties: { to: { type: 'string' }, subject: { type: 'string' }, body: { type: 'string' } }, required: ['to', 'subject', 'body'] } },
+      { name: 'gmail_list_messages', description: 'List Gmail messages', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' }, query: { type: 'string' } } } },
+      { name: 'gmail_get_message', description: 'Get a Gmail message', inputSchema: { type: 'object', properties: { messageId: { type: 'string' } }, required: ['messageId'] } },
+      { name: 'gmail_delete_message', description: 'Delete a Gmail message', inputSchema: { type: 'object', properties: { messageId: { type: 'string' } }, required: ['messageId'] } },
+      { name: 'gmail_list_labels', description: 'List Gmail labels', inputSchema: { type: 'object', properties: {} } },
+      { name: 'gmail_create_label', description: 'Create a Gmail label', inputSchema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } },
+      { name: 'gmail_delete_label', description: 'Delete a Gmail label', inputSchema: { type: 'object', properties: { labelId: { type: 'string' } }, required: ['labelId'] } },
+      { name: 'gmail_list_drafts', description: 'List Gmail drafts', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' } } } },
+      { name: 'gmail_create_draft', description: 'Create a Gmail draft', inputSchema: { type: 'object', properties: { to: { type: 'string' }, subject: { type: 'string' }, body: { type: 'string' } }, required: ['to', 'subject', 'body'] } },
+      { name: 'gmail_get_profile', description: 'Get Gmail profile', inputSchema: { type: 'object', properties: {} } },
+      { name: 'drive_list_files', description: 'List files in Google Drive', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' }, query: { type: 'string' } } } },
+      { name: 'drive_get_file', description: 'Get file metadata', inputSchema: { type: 'object', properties: { fileId: { type: 'string' } }, required: ['fileId'] } },
+      { name: 'drive_create_folder', description: 'Create a folder', inputSchema: { type: 'object', properties: { name: { type: 'string' }, parentId: { type: 'string' } }, required: ['name'] } },
+      { name: 'drive_delete_file', description: 'Delete a file', inputSchema: { type: 'object', properties: { fileId: { type: 'string' } }, required: ['fileId'] } },
+      { name: 'drive_copy_file', description: 'Copy a file', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, name: { type: 'string' } }, required: ['fileId'] } },
+      { name: 'drive_share_file', description: 'Share a file', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, email: { type: 'string' }, role: { type: 'string' } }, required: ['fileId', 'email', 'role'] } },
+      { name: 'drive_list_permissions', description: 'List file permissions', inputSchema: { type: 'object', properties: { fileId: { type: 'string' } }, required: ['fileId'] } },
+      { name: 'drive_search_files', description: 'Search files', inputSchema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },
+      { name: 'drive_export_file', description: 'Export file', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, mimeType: { type: 'string' } }, required: ['fileId', 'mimeType'] } },
+      { name: 'drive_get_file_content', description: 'Get file content', inputSchema: { type: 'object', properties: { fileId: { type: 'string' } }, required: ['fileId'] } },
+      { name: 'calendar_list_events', description: 'List calendar events', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, maxResults: { type: 'number' } } } },
+      { name: 'calendar_get_event', description: 'Get calendar event', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, eventId: { type: 'string' } }, required: ['eventId'] } },
+      { name: 'calendar_create_event', description: 'Create calendar event', inputSchema: { type: 'object', properties: { summary: { type: 'string' }, start: { type: 'string' }, end: { type: 'string' } }, required: ['summary', 'start', 'end'] } },
+      { name: 'calendar_update_event', description: 'Update calendar event', inputSchema: { type: 'object', properties: { eventId: { type: 'string' }, updates: { type: 'object' } }, required: ['eventId', 'updates'] } },
+      { name: 'calendar_delete_event', description: 'Delete calendar event', inputSchema: { type: 'object', properties: { eventId: { type: 'string' } }, required: ['eventId'] } },
+      { name: 'sheets_get_values', description: 'Get spreadsheet values', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, range: { type: 'string' } }, required: ['spreadsheetId', 'range'] } },
+      { name: 'sheets_update_values', description: 'Update spreadsheet values', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, range: { type: 'string' }, values: { type: 'array' } }, required: ['spreadsheetId', 'range', 'values'] } },
+      { name: 'sheets_append_values', description: 'Append values to sheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, range: { type: 'string' }, values: { type: 'array' } }, required: ['spreadsheetId', 'range', 'values'] } },
+      { name: 'sheets_create_spreadsheet', description: 'Create a spreadsheet', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+      { name: 'sheets_get_spreadsheet', description: 'Get spreadsheet metadata', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' } }, required: ['spreadsheetId'] } },
+      { name: 'sheets_batch_update', description: 'Batch update spreadsheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, requests: { type: 'array' } }, required: ['spreadsheetId', 'requests'] } },
+      { name: 'sheets_clear_values', description: 'Clear spreadsheet values', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, range: { type: 'string' } }, required: ['spreadsheetId', 'range'] } },
+      { name: 'sheets_add_sheet', description: 'Add a new sheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, title: { type: 'string' } }, required: ['spreadsheetId', 'title'] } },
+      { name: 'sheets_delete_sheet', description: 'Delete a sheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, sheetId: { type: 'number' } }, required: ['spreadsheetId', 'sheetId'] } },
+      { name: 'sheets_copy_sheet', description: 'Copy a sheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, sheetId: { type: 'number' }, destinationSpreadsheetId: { type: 'string' } }, required: ['spreadsheetId', 'sheetId'] } },
+      { name: 'docs_get_document', description: 'Get document content', inputSchema: { type: 'object', properties: { documentId: { type: 'string' } }, required: ['documentId'] } },
+      { name: 'docs_create_document', description: 'Create a document', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+      { name: 'docs_insert_text', description: 'Insert text in document', inputSchema: { type: 'object', properties: { documentId: { type: 'string' }, text: { type: 'string' }, index: { type: 'number' } }, required: ['documentId', 'text'] } },
+      { name: 'docs_delete_text', description: 'Delete text from document', inputSchema: { type: 'object', properties: { documentId: { type: 'string' }, startIndex: { type: 'number' }, endIndex: { type: 'number' } }, required: ['documentId', 'startIndex', 'endIndex'] } },
+      { name: 'docs_replace_text', description: 'Replace text in document', inputSchema: { type: 'object', properties: { documentId: { type: 'string' }, find: { type: 'string' }, replace: { type: 'string' } }, required: ['documentId', 'find', 'replace'] } },
+      { name: 'admin_list_users', description: 'List users in domain', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' }, query: { type: 'string' } } } },
+      { name: 'admin_get_user', description: 'Get user details', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
+      { name: 'admin_create_user', description: 'Create a user', inputSchema: { type: 'object', properties: { email: { type: 'string' }, firstName: { type: 'string' }, lastName: { type: 'string' }, password: { type: 'string' } }, required: ['email', 'firstName', 'lastName', 'password'] } },
+      { name: 'admin_update_user', description: 'Update user details', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, updates: { type: 'object' } }, required: ['userKey', 'updates'] } },
+      { name: 'admin_delete_user', description: 'Delete a user', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
+      { name: 'admin_list_user_aliases', description: 'List user aliases', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
+      { name: 'admin_add_user_alias', description: 'Add user alias', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, alias: { type: 'string' } }, required: ['userKey', 'alias'] } },
+      { name: 'admin_delete_user_alias', description: 'Delete user alias', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, alias: { type: 'string' } }, required: ['userKey', 'alias'] } },
+      { name: 'admin_suspend_user', description: 'Suspend a user', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
+      { name: 'admin_unsuspend_user', description: 'Unsuspend a user', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
+      { name: 'admin_list_groups', description: 'List groups in domain', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' }, query: { type: 'string' } } } },
+      { name: 'admin_get_group', description: 'Get group details', inputSchema: { type: 'object', properties: { groupKey: { type: 'string' } }, required: ['groupKey'] } },
+      { name: 'admin_create_group', description: 'Create a group', inputSchema: { type: 'object', properties: { email: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' } }, required: ['email', 'name'] } },
+      { name: 'admin_update_group', description: 'Update group details', inputSchema: { type: 'object', properties: { groupKey: { type: 'string' }, updates: { type: 'object' } }, required: ['groupKey', 'updates'] } },
+      { name: 'admin_delete_group', description: 'Delete a group', inputSchema: { type: 'object', properties: { groupKey: { type: 'string' } }, required: ['groupKey'] } },
+      { name: 'admin_list_group_members', description: 'List group members', inputSchema: { type: 'object', properties: { groupKey: { type: 'string' }, maxResults: { type: 'number' } }, required: ['groupKey'] } },
+      { name: 'admin_add_group_member', description: 'Add member to group', inputSchema: { type: 'object', properties: { groupKey: { type: 'string' }, email: { type: 'string' }, role: { type: 'string' } }, required: ['groupKey', 'email'] } },
+      { name: 'admin_remove_group_member', description: 'Remove member from group', inputSchema: { type: 'object', properties: { groupKey: { type: 'string' }, memberKey: { type: 'string' } }, required: ['groupKey', 'memberKey'] } },
+      { name: 'admin_list_group_aliases', description: 'List group aliases', inputSchema: { type: 'object', properties: { groupKey: { type: 'string' } }, required: ['groupKey'] } },
+      { name: 'admin_add_group_alias', description: 'Add group alias', inputSchema: { type: 'object', properties: { groupKey: { type: 'string' }, alias: { type: 'string' } }, required: ['groupKey', 'alias'] } },
+      { name: 'admin_delete_group_alias', description: 'Delete group alias', inputSchema: { type: 'object', properties: { groupKey: { type: 'string' }, alias: { type: 'string' } }, required: ['groupKey', 'alias'] } },
+      { name: 'admin_list_orgunits', description: 'List organizational units', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, orgUnitPath: { type: 'string' } } } },
+      { name: 'admin_get_orgunit', description: 'Get organizational unit', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, orgUnitPath: { type: 'string' } }, required: ['customerId', 'orgUnitPath'] } },
+      { name: 'admin_create_orgunit', description: 'Create organizational unit', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, name: { type: 'string' }, parentOrgUnitPath: { type: 'string' } }, required: ['customerId', 'name'] } },
+      { name: 'admin_update_orgunit', description: 'Update organizational unit', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, orgUnitPath: { type: 'string' }, updates: { type: 'object' } }, required: ['customerId', 'orgUnitPath', 'updates'] } },
+      { name: 'admin_delete_orgunit', description: 'Delete organizational unit', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, orgUnitPath: { type: 'string' } }, required: ['customerId', 'orgUnitPath'] } },
+      { name: 'admin_list_domains', description: 'List domains', inputSchema: { type: 'object', properties: { customerId: { type: 'string' } }, required: ['customerId'] } },
+      { name: 'admin_get_domain', description: 'Get domain details', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, domainName: { type: 'string' } }, required: ['customerId', 'domainName'] } },
+      { name: 'admin_create_domain', description: 'Create a domain', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, domainName: { type: 'string' } }, required: ['customerId', 'domainName'] } },
+      { name: 'admin_delete_domain', description: 'Delete a domain', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, domainName: { type: 'string' } }, required: ['customerId', 'domainName'] } },
+      { name: 'admin_list_domain_aliases', description: 'List domain aliases', inputSchema: { type: 'object', properties: { customerId: { type: 'string' } }, required: ['customerId'] } },
+      { name: 'admin_list_roles', description: 'List roles', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, maxResults: { type: 'number' } }, required: ['customerId'] } },
+      { name: 'admin_get_role', description: 'Get role details', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, roleId: { type: 'string' } }, required: ['customerId', 'roleId'] } },
+      { name: 'admin_create_role', description: 'Create a role', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, roleName: { type: 'string' }, rolePrivileges: { type: 'array' } }, required: ['customerId', 'roleName'] } },
+      { name: 'admin_update_role', description: 'Update role details', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, roleId: { type: 'string' }, updates: { type: 'object' } }, required: ['customerId', 'roleId', 'updates'] } },
+      { name: 'admin_delete_role', description: 'Delete a role', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, roleId: { type: 'string' } }, required: ['customerId', 'roleId'] } },
+      { name: 'slides_get_presentation', description: 'Get presentation content', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' } }, required: ['presentationId'] } },
+      { name: 'slides_create_presentation', description: 'Create a presentation', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+      { name: 'slides_batch_update', description: 'Batch update presentation', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, requests: { type: 'array' } }, required: ['presentationId', 'requests'] } },
+      { name: 'slides_create_slide', description: 'Create a slide', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, insertionIndex: { type: 'number' } }, required: ['presentationId'] } },
+      { name: 'slides_delete_slide', description: 'Delete a slide', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, objectId: { type: 'string' } }, required: ['presentationId', 'objectId'] } },
+      { name: 'slides_create_shape', description: 'Create a shape on slide', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, pageId: { type: 'string' }, shapeType: { type: 'string' } }, required: ['presentationId', 'pageId', 'shapeType'] } },
+      { name: 'slides_create_textbox', description: 'Create a text box', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, pageId: { type: 'string' }, text: { type: 'string' } }, required: ['presentationId', 'pageId', 'text'] } },
+      { name: 'slides_insert_text', description: 'Insert text into shape', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, objectId: { type: 'string' }, text: { type: 'string' } }, required: ['presentationId', 'objectId', 'text'] } },
+      { name: 'slides_delete_text', description: 'Delete text from shape', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, objectId: { type: 'string' }, startIndex: { type: 'number' }, endIndex: { type: 'number' } }, required: ['presentationId', 'objectId', 'startIndex', 'endIndex'] } },
+      { name: 'slides_create_image', description: 'Create an image on slide', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, pageId: { type: 'string' }, url: { type: 'string' } }, required: ['presentationId', 'pageId', 'url'] } },
+      { name: 'tasks_list_tasklists', description: 'List task lists', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' } } } },
+      { name: 'tasks_get_tasklist', description: 'Get task list', inputSchema: { type: 'object', properties: { tasklistId: { type: 'string' } }, required: ['tasklistId'] } },
+      { name: 'tasks_create_tasklist', description: 'Create a task list', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+      { name: 'tasks_update_tasklist', description: 'Update task list', inputSchema: { type: 'object', properties: { tasklistId: { type: 'string' }, title: { type: 'string' } }, required: ['tasklistId', 'title'] } },
+      { name: 'tasks_delete_tasklist', description: 'Delete task list', inputSchema: { type: 'object', properties: { tasklistId: { type: 'string' } }, required: ['tasklistId'] } },
+      { name: 'tasks_list_tasks', description: 'List tasks', inputSchema: { type: 'object', properties: { tasklistId: { type: 'string' }, maxResults: { type: 'number' } }, required: ['tasklistId'] } },
+      { name: 'tasks_get_task', description: 'Get a task', inputSchema: { type: 'object', properties: { tasklistId: { type: 'string' }, taskId: { type: 'string' } }, required: ['tasklistId', 'taskId'] } },
+      { name: 'tasks_create_task', description: 'Create a task', inputSchema: { type: 'object', properties: { tasklistId: { type: 'string' }, title: { type: 'string' }, notes: { type: 'string' }, due: { type: 'string' } }, required: ['tasklistId', 'title'] } },
+      { name: 'tasks_update_task', description: 'Update a task', inputSchema: { type: 'object', properties: { tasklistId: { type: 'string' }, taskId: { type: 'string' }, updates: { type: 'object' } }, required: ['tasklistId', 'taskId', 'updates'] } },
+      { name: 'tasks_delete_task', description: 'Delete a task', inputSchema: { type: 'object', properties: { tasklistId: { type: 'string' }, taskId: { type: 'string' } }, required: ['tasklistId', 'taskId'] } },
+      { name: 'tasks_clear_completed', description: 'Clear completed tasks', inputSchema: { type: 'object', properties: { tasklistId: { type: 'string' } }, required: ['tasklistId'] } },
+      { name: 'people_get_person', description: 'Get person details', inputSchema: { type: 'object', properties: { resourceName: { type: 'string' } }, required: ['resourceName'] } },
+      { name: 'people_list_connections', description: 'List connections', inputSchema: { type: 'object', properties: { pageSize: { type: 'number' } } } },
+      { name: 'people_create_contact', description: 'Create a contact', inputSchema: { type: 'object', properties: { names: { type: 'array' }, emailAddresses: { type: 'array' }, phoneNumbers: { type: 'array' } } } },
+      { name: 'people_update_contact', description: 'Update a contact', inputSchema: { type: 'object', properties: { resourceName: { type: 'string' }, updates: { type: 'object' } }, required: ['resourceName', 'updates'] } },
+      { name: 'people_delete_contact', description: 'Delete a contact', inputSchema: { type: 'object', properties: { resourceName: { type: 'string' } }, required: ['resourceName'] } },
+      { name: 'forms_get_form', description: 'Get form details', inputSchema: { type: 'object', properties: { formId: { type: 'string' } }, required: ['formId'] } },
+      { name: 'forms_create_form', description: 'Create a form', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+      { name: 'forms_batch_update', description: 'Batch update form', inputSchema: { type: 'object', properties: { formId: { type: 'string' }, requests: { type: 'array' } }, required: ['formId', 'requests'] } },
+      { name: 'forms_list_responses', description: 'List form responses', inputSchema: { type: 'object', properties: { formId: { type: 'string' } }, required: ['formId'] } },
+      { name: 'forms_get_response', description: 'Get form response', inputSchema: { type: 'object', properties: { formId: { type: 'string' }, responseId: { type: 'string' } }, required: ['formId', 'responseId'] } },
+      { name: 'classroom_list_courses', description: 'List courses', inputSchema: { type: 'object', properties: { pageSize: { type: 'number' } } } },
+      { name: 'classroom_get_course', description: 'Get course details', inputSchema: { type: 'object', properties: { courseId: { type: 'string' } }, required: ['courseId'] } },
+      { name: 'classroom_create_course', description: 'Create a course', inputSchema: { type: 'object', properties: { name: { type: 'string' }, section: { type: 'string' }, ownerId: { type: 'string' } }, required: ['name'] } },
+      { name: 'classroom_update_course', description: 'Update course', inputSchema: { type: 'object', properties: { courseId: { type: 'string' }, updates: { type: 'object' } }, required: ['courseId', 'updates'] } },
+      { name: 'classroom_delete_course', description: 'Delete course', inputSchema: { type: 'object', properties: { courseId: { type: 'string' } }, required: ['courseId'] } },
+      { name: 'classroom_list_students', description: 'List students in course', inputSchema: { type: 'object', properties: { courseId: { type: 'string' } }, required: ['courseId'] } },
+      { name: 'classroom_add_student', description: 'Add student to course', inputSchema: { type: 'object', properties: { courseId: { type: 'string' }, userId: { type: 'string' } }, required: ['courseId', 'userId'] } },
+      { name: 'classroom_remove_student', description: 'Remove student from course', inputSchema: { type: 'object', properties: { courseId: { type: 'string' }, userId: { type: 'string' } }, required: ['courseId', 'userId'] } },
+      { name: 'classroom_list_teachers', description: 'List teachers in course', inputSchema: { type: 'object', properties: { courseId: { type: 'string' } }, required: ['courseId'] } },
+      { name: 'classroom_add_teacher', description: 'Add teacher to course', inputSchema: { type: 'object', properties: { courseId: { type: 'string' }, userId: { type: 'string' } }, required: ['courseId', 'userId'] } },
+      { name: 'classroom_list_coursework', description: 'List coursework', inputSchema: { type: 'object', properties: { courseId: { type: 'string' } }, required: ['courseId'] } },
+      { name: 'classroom_create_coursework', description: 'Create coursework', inputSchema: { type: 'object', properties: { courseId: { type: 'string' }, title: { type: 'string' }, description: { type: 'string' } }, required: ['courseId', 'title'] } },
+      { name: 'classroom_list_submissions', description: 'List student submissions', inputSchema: { type: 'object', properties: { courseId: { type: 'string' }, courseWorkId: { type: 'string' } }, required: ['courseId', 'courseWorkId'] } },
+      { name: 'chat_list_spaces', description: 'List chat spaces', inputSchema: { type: 'object', properties: { pageSize: { type: 'number' } } } },
+      { name: 'chat_get_space', description: 'Get space details', inputSchema: { type: 'object', properties: { spaceName: { type: 'string' } }, required: ['spaceName'] } },
+      { name: 'chat_create_space', description: 'Create a space', inputSchema: { type: 'object', properties: { displayName: { type: 'string' } }, required: ['displayName'] } },
+      { name: 'chat_list_messages', description: 'List messages in space', inputSchema: { type: 'object', properties: { spaceName: { type: 'string' } }, required: ['spaceName'] } },
+      { name: 'chat_create_message', description: 'Create a message', inputSchema: { type: 'object', properties: { spaceName: { type: 'string' }, text: { type: 'string' } }, required: ['spaceName', 'text'] } },
+      { name: 'chat_delete_message', description: 'Delete a message', inputSchema: { type: 'object', properties: { messageName: { type: 'string' } }, required: ['messageName'] } },
+      { name: 'chat_list_members', description: 'List space members', inputSchema: { type: 'object', properties: { spaceName: { type: 'string' } }, required: ['spaceName'] } },
+      { name: 'admin_list_mobile_devices', description: 'List mobile devices', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, maxResults: { type: 'number' } } } },
+      { name: 'admin_get_mobile_device', description: 'Get mobile device', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, resourceId: { type: 'string' } }, required: ['customerId', 'resourceId'] } },
+      { name: 'admin_delete_mobile_device', description: 'Delete mobile device', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, resourceId: { type: 'string' } }, required: ['customerId', 'resourceId'] } },
+      { name: 'admin_action_mobile_device', description: 'Perform action on mobile device', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, resourceId: { type: 'string' }, action: { type: 'string' } }, required: ['customerId', 'resourceId', 'action'] } },
+      { name: 'admin_list_chrome_devices', description: 'List Chrome OS devices', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, maxResults: { type: 'number' } } } },
+      { name: 'admin_get_chrome_device', description: 'Get Chrome OS device', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, deviceId: { type: 'string' } }, required: ['customerId', 'deviceId'] } },
+      { name: 'admin_update_chrome_device', description: 'Update Chrome OS device', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, deviceId: { type: 'string' }, updates: { type: 'object' } }, required: ['customerId', 'deviceId', 'updates'] } },
+      { name: 'admin_action_chrome_device', description: 'Perform action on Chrome device', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, deviceId: { type: 'string' }, action: { type: 'string' } }, required: ['customerId', 'deviceId', 'action'] } },
+      { name: 'admin_list_calendar_resources', description: 'List calendar resources', inputSchema: { type: 'object', properties: { customer: { type: 'string' } }, required: ['customer'] } },
+      { name: 'admin_get_calendar_resource', description: 'Get calendar resource', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, calendarResourceId: { type: 'string' } }, required: ['customer', 'calendarResourceId'] } },
+      { name: 'admin_create_calendar_resource', description: 'Create calendar resource', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, resourceId: { type: 'string' }, resourceName: { type: 'string' } }, required: ['customer', 'resourceId', 'resourceName'] } },
+      { name: 'admin_update_calendar_resource', description: 'Update calendar resource', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, calendarResourceId: { type: 'string' }, updates: { type: 'object' } }, required: ['customer', 'calendarResourceId', 'updates'] } },
+      { name: 'admin_delete_calendar_resource', description: 'Delete calendar resource', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, calendarResourceId: { type: 'string' } }, required: ['customer', 'calendarResourceId'] } },
+      { name: 'admin_list_buildings', description: 'List buildings', inputSchema: { type: 'object', properties: { customer: { type: 'string' } }, required: ['customer'] } },
+      { name: 'admin_get_building', description: 'Get building', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, buildingId: { type: 'string' } }, required: ['customer', 'buildingId'] } },
+      { name: 'admin_create_building', description: 'Create building', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, buildingId: { type: 'string' }, buildingName: { type: 'string' } }, required: ['customer', 'buildingId', 'buildingName'] } },
+      { name: 'admin_update_building', description: 'Update building', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, buildingId: { type: 'string' }, updates: { type: 'object' } }, required: ['customer', 'buildingId', 'updates'] } },
+      { name: 'admin_delete_building', description: 'Delete building', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, buildingId: { type: 'string' } }, required: ['customer', 'buildingId'] } },
+      { name: 'admin_list_features', description: 'List calendar features', inputSchema: { type: 'object', properties: { customer: { type: 'string' } }, required: ['customer'] } },
+      { name: 'admin_create_feature', description: 'Create calendar feature', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, name: { type: 'string' } }, required: ['customer', 'name'] } },
+      { name: 'admin_delete_feature', description: 'Delete calendar feature', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, featureKey: { type: 'string' } }, required: ['customer', 'featureKey'] } },
+      { name: 'admin_list_schemas', description: 'List user schemas', inputSchema: { type: 'object', properties: { customerId: { type: 'string' } }, required: ['customerId'] } },
+      { name: 'admin_get_schema', description: 'Get user schema', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, schemaKey: { type: 'string' } }, required: ['customerId', 'schemaKey'] } },
+      { name: 'admin_create_schema', description: 'Create user schema', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, schemaName: { type: 'string' }, fields: { type: 'array' } }, required: ['customerId', 'schemaName', 'fields'] } },
+      { name: 'admin_update_schema', description: 'Update user schema', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, schemaKey: { type: 'string' }, updates: { type: 'object' } }, required: ['customerId', 'schemaKey', 'updates'] } },
+      { name: 'admin_delete_schema', description: 'Delete user schema', inputSchema: { type: 'object', properties: { customerId: { type: 'string' }, schemaKey: { type: 'string' } }, required: ['customerId', 'schemaKey'] } },
+      { name: 'admin_list_tokens', description: 'List user tokens', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
+      { name: 'admin_get_token', description: 'Get user token', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, clientId: { type: 'string' } }, required: ['userKey', 'clientId'] } },
+      { name: 'admin_delete_token', description: 'Delete user token', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, clientId: { type: 'string' } }, required: ['userKey', 'clientId'] } },
+      { name: 'admin_list_asp', description: 'List app-specific passwords', inputSchema: { type: 'object', properties: { userKey: { type: 'string' } }, required: ['userKey'] } },
+      { name: 'admin_get_asp', description: 'Get app-specific password', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, codeId: { type: 'string' } }, required: ['userKey', 'codeId'] } },
+      { name: 'admin_delete_asp', description: 'Delete app-specific password', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, codeId: { type: 'string' } }, required: ['userKey', 'codeId'] } },
+      { name: 'admin_list_role_assignments', description: 'List role assignments', inputSchema: { type: 'object', properties: { customer: { type: 'string' } }, required: ['customer'] } },
+      { name: 'admin_get_role_assignment', description: 'Get role assignment', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, roleAssignmentId: { type: 'string' } }, required: ['customer', 'roleAssignmentId'] } },
+      { name: 'admin_create_role_assignment', description: 'Create role assignment', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, roleId: { type: 'string' }, assignedTo: { type: 'string' } }, required: ['customer', 'roleId', 'assignedTo'] } },
+      { name: 'admin_delete_role_assignment', description: 'Delete role assignment', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, roleAssignmentId: { type: 'string' } }, required: ['customer', 'roleAssignmentId'] } },
+      { name: 'reports_usage_user', description: 'Get user usage report', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, date: { type: 'string' } }, required: ['userKey', 'date'] } },
+      { name: 'reports_usage_customer', description: 'Get customer usage report', inputSchema: { type: 'object', properties: { date: { type: 'string' }, parameters: { type: 'string' } }, required: ['date'] } },
+      { name: 'reports_activity_user', description: 'Get user activity report', inputSchema: { type: 'object', properties: { userKey: { type: 'string' }, applicationName: { type: 'string' } }, required: ['userKey', 'applicationName'] } },
+      { name: 'reports_activity_entity', description: 'Get entity activity report', inputSchema: { type: 'object', properties: { applicationName: { type: 'string' }, entityType: { type: 'string' }, entityKey: { type: 'string' } }, required: ['applicationName', 'entityType', 'entityKey'] } },
+      { name: 'licensing_list_assignments', description: 'List license assignments', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' } }, required: ['productId', 'skuId'] } },
+      { name: 'licensing_get_assignment', description: 'Get license assignment', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' }, userId: { type: 'string' } }, required: ['productId', 'skuId', 'userId'] } },
+      { name: 'licensing_assign_license', description: 'Assign license to user', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' }, userId: { type: 'string' } }, required: ['productId', 'skuId', 'userId'] } },
+      { name: 'licensing_update_assignment', description: 'Update license assignment', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' }, userId: { type: 'string' }, updates: { type: 'object' } }, required: ['productId', 'skuId', 'userId', 'updates'] } },
+      { name: 'licensing_delete_assignment', description: 'Delete license assignment', inputSchema: { type: 'object', properties: { productId: { type: 'string' }, skuId: { type: 'string' }, userId: { type: 'string' } }, required: ['productId', 'skuId', 'userId'] } },
+      // GOOGLE ADMIN CONSOLE (10 tools)
+      { name: 'admin_get_security_settings', description: 'Get organization security settings', inputSchema: { type: 'object', properties: { customer: { type: 'string' } }, required: ['customer'] } },
+      { name: 'admin_update_security_settings', description: 'Update security settings', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, settings: { type: 'object' } }, required: ['customer', 'settings'] } },
+      { name: 'admin_list_alerts', description: 'List security alerts', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, filter: { type: 'string' } }, required: ['customer'] } },
+      { name: 'admin_get_alert', description: 'Get alert details', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, alertId: { type: 'string' } }, required: ['customer', 'alertId'] } },
+      { name: 'admin_delete_alert', description: 'Delete alert', inputSchema: { type: 'object', properties: { customer: { type: 'string' }, alertId: { type: 'string' } }, required: ['customer', 'alertId'] } },
+      { name: 'admin_get_customer_info', description: 'Get customer information', inputSchema: { type: 'object', properties: { customer: { type: 'string' } }, required: ['customer'] } },
+      // ADVANCED GMAIL (6 tools)
+      { name: 'gmail_batch_modify', description: 'Batch modify messages', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, ids: { type: 'array', items: { type: 'string' } }, addLabelIds: { type: 'array' }, removeLabelIds: { type: 'array' } }, required: ['userId', 'ids'] } },
+      { name: 'gmail_import_message', description: 'Import message to mailbox', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, message: { type: 'object' }, internalDateSource: { type: 'string' } }, required: ['userId', 'message'] } },
+      { name: 'gmail_insert_message', description: 'Insert message directly', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, message: { type: 'object' } }, required: ['userId', 'message'] } },
+      { name: 'gmail_stop_watch', description: 'Stop Gmail push notifications', inputSchema: { type: 'object', properties: { userId: { type: 'string' } }, required: ['userId'] } },
+      { name: 'gmail_watch', description: 'Set up Gmail push notifications', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, labelIds: { type: 'array' }, topicName: { type: 'string' } }, required: ['userId', 'topicName'] } },
+      // ADVANCED DRIVE (5 tools)
+      { name: 'drive_empty_trash', description: 'Empty Drive trash', inputSchema: { type: 'object', properties: {} } },
+      { name: 'drive_get_about', description: 'Get Drive storage info', inputSchema: { type: 'object', properties: { fields: { type: 'string' } } } },
+      { name: 'drive_list_changes', description: 'List file changes', inputSchema: { type: 'object', properties: { pageToken: { type: 'string' }, includeRemoved: { type: 'boolean' } }, required: ['pageToken'] } },
+      { name: 'drive_get_start_page_token', description: 'Get start page token for changes', inputSchema: { type: 'object', properties: {} } },
+      { name: 'drive_watch_changes', description: 'Watch for file changes', inputSchema: { type: 'object', properties: { pageToken: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' } }, required: ['pageToken', 'address'] } },
+      // ADVANCED CALENDAR (3 tools)
+      { name: 'calendar_import_event', description: 'Import event to calendar', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, event: { type: 'object' } }, required: ['calendarId', 'event'] } },
+      { name: 'calendar_quick_add', description: 'Quick add event from text', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, text: { type: 'string' } }, required: ['calendarId', 'text'] } },
+      { name: 'calendar_watch_events', description: 'Watch calendar for changes', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' } }, required: ['calendarId', 'address'] } },
+      // ADVANCED SHEETS (2 tools)
+      { name: 'sheets_batch_clear', description: 'Batch clear ranges', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, ranges: { type: 'array', items: { type: 'string' } } }, required: ['spreadsheetId', 'ranges'] } }
+    ];
+    return tools;
+  }
 
-      try {
-        switch (name) {
+  // Internal tool execution (called by broker or directly)
+  private async executeToolInternal(name: string, args: any): Promise<any> {
+    try {
+      switch (name) {
 // REPOSITORY MANAGEMENT
           case 'github_list_repos': return await this.listRepos(args);
           case 'github_get_repo': return await this.getRepo(args);
@@ -4011,7 +4301,6 @@ class UnifiedToolkit {
           isError: true,
         };
       }
-    });
   }
 
   // Helper methods

@@ -123,7 +123,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: 'run_job',
+        name: 'openai_worker_run_job',
         description: 'Execute a job with specified agent (mini-worker, balanced-worker, premium-worker)',
         inputSchema: {
           type: 'object',
@@ -154,7 +154,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'queue_batch',
+        name: 'openai_worker_queue_batch',
         description: 'Queue multiple jobs for batch processing (cheaper, slower)',
         inputSchema: {
           type: 'object',
@@ -175,7 +175,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'get_job_status',
+        name: 'openai_worker_get_job_status',
         description: 'Get status of a job',
         inputSchema: {
           type: 'object',
@@ -189,7 +189,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'get_spend_stats',
+        name: 'openai_worker_get_spend_stats',
         description: 'Get monthly spend statistics',
         inputSchema: {
           type: 'object',
@@ -197,7 +197,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'estimate_cost',
+        name: 'openai_worker_estimate_cost',
         description: 'Estimate cost for a job before running it (helps decide between free Ollama vs paid OpenAI)',
         inputSchema: {
           type: 'object',
@@ -220,7 +220,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'get_capacity',
+        name: 'openai_worker_get_capacity',
         description: 'Get current capacity and availability of OpenAI workers',
         inputSchema: {
           type: 'object',
@@ -228,7 +228,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'refresh_pricing',
+        name: 'openai_worker_refresh_pricing',
         description: 'Force refresh OpenAI pricing from live source (normally auto-refreshes every 24 hours)',
         inputSchema: {
           type: 'object',
@@ -236,7 +236,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'get_token_analytics',
+        name: 'openai_worker_get_token_analytics',
         description: 'Get detailed token usage analytics. Shows actual tokens used, real costs, and spending patterns.',
         inputSchema: {
           type: 'object',
@@ -261,21 +261,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     switch (name) {
-      case 'run_job':
+      case 'openai_worker_run_job':
         return await handleRunJob(args);
-      case 'queue_batch':
+      case 'openai_worker_queue_batch':
         return await handleQueueBatch(args);
-      case 'get_job_status':
+      case 'openai_worker_get_job_status':
         return await handleGetJobStatus(args);
-      case 'get_spend_stats':
+      case 'openai_worker_get_spend_stats':
         return await handleGetSpendStats();
-      case 'estimate_cost':
+      case 'openai_worker_estimate_cost':
         return await handleEstimateCost(args);
-      case 'get_capacity':
+      case 'openai_worker_get_capacity':
         return await handleGetCapacity();
-      case 'refresh_pricing':
+      case 'openai_worker_refresh_pricing':
         return await handleRefreshPricing();
-      case 'get_token_analytics':
+      case 'openai_worker_get_token_analytics':
         return await handleGetTokenAnalytics(args);
       default:
         throw new Error(`Unknown tool: ${name}`);

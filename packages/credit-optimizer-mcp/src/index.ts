@@ -28,6 +28,7 @@ import { AutonomousExecutor } from './autonomous-executor.js';
 import { TemplateEngine } from './template-engine.js';
 import { PRCreator } from './pr-creator.js';
 import { SkillPacksDB } from './skill-packs-db.js';
+import { CostTracker } from './cost-tracker.js';
 
 /**
  * Main Credit Optimizer MCP Server
@@ -40,6 +41,7 @@ class CreditOptimizerServer {
   private templates: TemplateEngine;
   private prCreator: PRCreator;
   private skillPacks: SkillPacksDB;
+  private costTracker: CostTracker;
 
   constructor() {
     this.server = new Server(
@@ -61,6 +63,7 @@ class CreditOptimizerServer {
     this.templates = new TemplateEngine(this.db);
     this.prCreator = new PRCreator();
     this.skillPacks = new SkillPacksDB();
+    this.costTracker = new CostTracker(this.db);
 
     // Initialize tool index and templates
     this.initialize();
@@ -218,6 +221,24 @@ class CreditOptimizerServer {
           result = { cleared: true };
         }
 
+        // Cost Tracking & Learning
+        else if (name === 'estimate_task_cost') {
+          result = this.costTracker.estimateCost(params);
+        } else if (name === 'recommend_worker') {
+          result = this.costTracker.recommendWorker(params);
+        } else if (name === 'get_cost_analytics') {
+          result = this.costTracker.getDashboard();
+        } else if (name === 'get_cost_accuracy') {
+          result = this.costTracker.getCostAccuracy();
+        } else if (name === 'get_cost_savings') {
+          result = this.costTracker.getCostSavings(params.period || 'all');
+        } else if (name === 'record_task_cost') {
+          this.costTracker.startTask(params);
+          result = { started: true, taskId: params.taskId };
+        } else if (name === 'complete_task_cost') {
+          result = this.costTracker.completeTask(params.taskId);
+        }
+
         // Statistics & Diagnostics
         else if (name === 'get_credit_stats') {
           result = this.db.getStats(params.period || 'all');
@@ -229,6 +250,7 @@ class CreditOptimizerServer {
             templates: { available: ['feature-complete', 'react-component', 'api-endpoint', 'database-schema', 'test-suite'] },
             caching: { enabled: true, db_path: process.env.CREDIT_OPTIMIZER_DB || 'credit-optimizer.db' },
             skill_packs: { recipes: 5, blueprints: 2 },
+            cost_tracking: { enabled: true, active_tasks: this.costTracker.getActiveTasks().length },
           };
         }
 
@@ -687,6 +709,90 @@ class CreditOptimizerServer {
           properties: {},
         },
       },
+
+      // Cost Tracking & Learning (7 tools)
+      {
+        name: 'estimate_task_cost',
+        description: 'Estimate cost for a task using historical data and learning algorithm',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            taskType: { type: 'string', description: 'Type of task (e.g., "code_generation", "refactoring")' },
+            linesOfCode: { type: 'number', description: 'Estimated lines of code' },
+            numFiles: { type: 'number', description: 'Number of files' },
+            complexity: { type: 'string', enum: ['simple', 'medium', 'complex'], description: 'Task complexity' },
+          },
+          required: ['taskType'],
+        },
+      },
+      {
+        name: 'recommend_worker',
+        description: 'Recommend which worker (Ollama/OpenAI) to use based on cost and quality requirements',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            taskType: { type: 'string', description: 'Type of task' },
+            maxCost: { type: 'number', description: 'Maximum cost allowed (default: Infinity)' },
+            minQuality: { type: 'string', enum: ['basic', 'standard', 'premium'], description: 'Minimum quality required' },
+          },
+          required: ['taskType'],
+        },
+      },
+      {
+        name: 'get_cost_analytics',
+        description: 'Get comprehensive cost analytics dashboard',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'get_cost_accuracy',
+        description: 'Get cost estimation accuracy metrics by task type',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'get_cost_savings',
+        description: 'Get cost savings report (Ollama vs OpenAI)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            period: { type: 'string', enum: ['today', 'week', 'month', 'all'], description: 'Time period' },
+          },
+        },
+      },
+      {
+        name: 'record_task_cost',
+        description: 'Start tracking cost for a task',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            taskId: { type: 'string', description: 'Unique task ID' },
+            taskType: { type: 'string', description: 'Type of task' },
+            estimatedCost: { type: 'number', description: 'Estimated cost' },
+            workerUsed: { type: 'string', enum: ['ollama', 'openai'], description: 'Which worker is being used' },
+            linesOfCode: { type: 'number', description: 'Lines of code (optional)' },
+            numFiles: { type: 'number', description: 'Number of files (optional)' },
+            complexity: { type: 'string', enum: ['simple', 'medium', 'complex'], description: 'Task complexity (optional)' },
+          },
+          required: ['taskId', 'taskType', 'estimatedCost', 'workerUsed'],
+        },
+      },
+      {
+        name: 'complete_task_cost',
+        description: 'Complete cost tracking for a task and record to database',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            taskId: { type: 'string', description: 'Task ID to complete' },
+          },
+          required: ['taskId'],
+        },
+      },
+
       // PR Creation (1 tool) - THE MISSING PIECE!
       {
         name: 'open_pr_with_changes',
