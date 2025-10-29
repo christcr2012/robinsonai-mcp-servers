@@ -121,23 +121,35 @@ All unfinished tasks from the previous agent's task list have been transferred i
 ### **Step 1: Read Documentation (15 minutes)**
 1. Read `HANDOFF_TO_NEW_AGENT.md` completely
 2. Read `OPENAI_MCP_COMPREHENSIVE_SPEC.md`
-3. Skim `COMPREHENSIVE_TOOLKIT_EXPANSION_SPEC.md`
-4. Skim `RAD_CRAWLER_MASTER_PLAN_V2.md`
+3. Read `PHASE_0.5_AGENT_COORDINATION.md` 🔥 **CRITICAL**
+4. Skim `COMPREHENSIVE_TOOLKIT_EXPANSION_SPEC.md`
+5. Skim `RAD_CRAWLER_MASTER_PLAN_V2.md`
 
-### **Step 2: Start Phase 0, Tier 1 (2-3 hours)**
-Build the first 35 tools:
-- Agents SDK (15 tools) - Multi-agent coordination
-- Responses API (10 tools) - New flagship API
-- Prompt Engineering (10 tools) - AI-powered optimization
+### **Step 2: Phase 0 - Build OpenAI MCP (6-8 hours)**
+Build all 259 tools:
+- Tier 1: Agents SDK, Responses API, Prompt Engineering (2-3h)
+- Tier 2: Monitoring, Safety, Token Management (2-3h)
+- Tier 3: Realtime, Vision, Advanced features (2-3h)
 
-### **Step 3: Continue with Tier 2 & 3 (4-5 hours)**
-Build remaining 114 tools for OpenAI MCP
+### **Step 3: Phase 0.5 - Configure Agent Coordination (2-3 hours) 🔥**
+**CRITICAL - Don't skip this!**
+- Fix Credit Optimizer for direct tool access (1h)
+- Create agent coordination network (1h)
+- Create coordination workflows (30min)
+- Add guardrails (30min)
+- **Result:** Agents can now coordinate and do 90% of work for FREE
 
-### **Step 4: Move to Toolkit Expansion (8-12 hours)**
-Build Upstash, Fly.io, Docker integrations
+### **Step 4: Phase 1-7 - Toolkit Expansion (8-12 hours)**
+**Use coordinated agents to build this!**
+- Let Architect plan the work
+- Let Autonomous Agent generate code (FREE via Ollama)
+- Let Credit Optimizer scaffold structures
+- Augment just reviews and approves
 
-### **Step 5: Build RAD Crawler (35-50 hours)**
-Self-replicating crawler system
+### **Step 5: Phase 8+ - RAD Crawler (35-50 hours)**
+**Use coordinated agents to build this!**
+- Same pattern: coordinated agents do 90% of work
+- Massive credit savings
 
 ---
 
@@ -150,10 +162,16 @@ Self-replicating crawler system
 
 **Work Remaining:**
 - Phase 0: OpenAI MCP (6-8 hours) - 149 new tools
-- Phase 1-7: Toolkit Expansion (8-12 hours) - 300+ new tools
-- Phase 8+: RAD Crawler (35-50 hours) - Complete system
+- Phase 0.5: Agent Coordination (2-3 hours) - Configure agents to coordinate 🔥
+- Phase 1-7: Toolkit Expansion (8-12 hours) - 300+ new tools (use coordinated agents!)
+- Phase 8+: RAD Crawler (35-50 hours) - Complete system (use coordinated agents!)
 
-**Total Estimated Time:** 50-70 hours
+**Total Estimated Time:** 52-73 hours
+
+**Expected Credit Savings with Phase 0.5:**
+- Without coordination: ~$150-200 in Augment credits
+- With coordination: ~$50-75 in Augment credits (90% done by FREE Ollama)
+- **Savings: ~$100-125**
 
 ---
 

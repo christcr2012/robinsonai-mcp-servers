@@ -66,7 +66,38 @@
 
 ---
 
+### **PHASE 0.5: Agent Coordination (2-3 hours) 🔥 CRITICAL**
+
+**Why Second:** You just built 259 tools, but they're useless if agents don't coordinate!
+
+**Goal:** Configure your 6-server system to actually USE the new OpenAI tools
+
+**What to Build:**
+1. **Fix Credit Optimizer** (1h) - Update for direct tool access (not broker pattern)
+2. **Create Agent Network** (1h) - Configure 4 agents with Agents SDK
+3. **Create Workflows** (30min) - Build coordinated workflows
+4. **Add Guardrails** (30min) - Cost protection, quality checks
+
+**Agent Network:**
+- **Architect Agent** → Plans work, decomposes specs
+- **Autonomous Agent** → Generates code (FREE via Ollama)
+- **Credit Optimizer Agent** → Discovers tools, scaffolds
+- **Thinking Agent** → Critical analysis, devil's advocate
+
+**Expected Benefit:**
+- **Before:** Augment does all work (expensive)
+- **After:** 90% work done by FREE Ollama agents
+- **Savings:** ~$50-100 per phase
+
+**Deliverable:** Coordinated 6-server system that can build Phase 1-7 autonomously
+
+**See:** `PHASE_0.5_AGENT_COORDINATION.md` for detailed breakdown
+
+---
+
 ### **PHASE 1-7: Robinson's Toolkit Expansion (8-12 hours)**
+
+**IMPORTANT:** Use coordinated agents from Phase 0.5 to build this! (90% FREE via Ollama)
 
 **Goal:** Expand Robinson's Toolkit from 714 → 1000+ tools
 
