@@ -1,9 +1,9 @@
 # Phase 0.5: OpenAI MCP Integration & Agent Coordination
 
 **Created:** 2025-10-29
-**Updated:** 2025-10-29 (Added Augment Code Rules/Guidelines)
+**Updated:** 2025-10-29 (Added Cost Learning System)
 **Status:** CRITICAL - Execute AFTER Phase 0, BEFORE Phase 1-7
-**Time:** 2.5-3.5 hours
+**Time:** 3-4 hours
 **Purpose:** Put the new OpenAI MCP to WORK improving your 6-server system
 
 ---
@@ -432,7 +432,196 @@ await openai_agent_guardrail_create({
 });
 ```
 
-**Deliverable:** Safety guardrails configured for all agents
+**Guardrail 4: Cost Tracking & Learning**
+```typescript
+// Enable cost tracking for Credit Optimizer to learn from actual costs
+await openai_agent_guardrail_create({
+  agent: "CreditOptimizer",
+  type: "cost_learning",
+  config: {
+    track_estimates: true,
+    track_actuals: true,
+    calculate_variance: true,
+    improve_estimates: true,
+    learning_rate: 0.1, // Adjust estimates by 10% based on variance
+    min_samples: 5 // Need 5 samples before adjusting estimates
+  }
+});
+
+// Cost tracking database schema (stored in credit-optimizer-mcp)
+interface CostTracking {
+  task_id: string;
+  task_type: string; // "code_generation", "bulk_fix", "tool_building", etc.
+  estimated_cost: number;
+  actual_cost: number;
+  variance: number; // (actual - estimated) / estimated
+  worker_used: "autonomous" | "openai";
+  timestamp: Date;
+  task_metadata: {
+    lines_of_code?: number;
+    num_files?: number;
+    complexity?: "simple" | "medium" | "complex";
+  };
+}
+
+// Learning algorithm (pseudo-code)
+function improveEstimate(taskType: string, newEstimate: number): number {
+  const history = getCostHistory(taskType);
+
+  if (history.length < 5) {
+    return newEstimate; // Not enough data yet
+  }
+
+  // Calculate average variance for this task type
+  const avgVariance = history.reduce((sum, h) => sum + h.variance, 0) / history.length;
+
+  // Adjust estimate based on historical variance
+  const adjustedEstimate = newEstimate * (1 + avgVariance * 0.1);
+
+  return adjustedEstimate;
+}
+
+// Example usage in Credit Optimizer
+async function estimateCost(task: Task): Promise<number> {
+  // Initial estimate based on task complexity
+  let estimate = calculateBaseEstimate(task);
+
+  // Improve estimate using historical data
+  estimate = improveEstimate(task.type, estimate);
+
+  // Track this estimate for future learning
+  await trackEstimate(task.id, task.type, estimate);
+
+  return estimate;
+}
+
+// After task completion, track actual cost
+async function recordActualCost(taskId: string, actualCost: number): Promise<void> {
+  const estimate = await getEstimate(taskId);
+  const variance = (actualCost - estimate) / estimate;
+
+  await saveCostTracking({
+    task_id: taskId,
+    estimated_cost: estimate,
+    actual_cost: actualCost,
+    variance: variance,
+    timestamp: new Date()
+  });
+
+  // Log learning progress
+  console.log(`Cost variance: ${(variance * 100).toFixed(1)}%`);
+  console.log(`Estimate: $${estimate.toFixed(2)}, Actual: $${actualCost.toFixed(2)}`);
+}
+```
+
+**Deliverable:** Safety guardrails + cost learning system configured
+
+---
+
+### **Task 4.5: Add Cost Tracking Analytics (20 min)**
+
+**Goal:** Enable Credit Optimizer to track, analyze, and report on cost estimation accuracy
+
+**Implementation:**
+
+```typescript
+// Add analytics tools to Credit Optimizer agent
+const creditOptimizerAnalytics = {
+  // Get cost estimation accuracy report
+  async getCostAccuracyReport(timeframe: "week" | "month" | "all"): Promise<Report> {
+    const history = await getCostHistory(timeframe);
+
+    return {
+      total_tasks: history.length,
+      avg_variance: calculateAvgVariance(history),
+      accuracy_by_task_type: groupByTaskType(history),
+      improvement_trend: calculateTrend(history),
+      recommendations: generateRecommendations(history)
+    };
+  },
+
+  // Get cost savings report
+  async getCostSavingsReport(): Promise<Report> {
+    const autonomousUsage = await getWorkerUsage("autonomous");
+    const openaiUsage = await getWorkerUsage("openai");
+
+    // Calculate what it would have cost if all work went to OpenAI
+    const potentialCost = (autonomousUsage.tasks * 5) + openaiUsage.actual_cost;
+    const actualCost = openaiUsage.actual_cost;
+    const savings = potentialCost - actualCost;
+
+    return {
+      autonomous_tasks: autonomousUsage.tasks,
+      autonomous_cost: 0, // FREE
+      openai_tasks: openaiUsage.tasks,
+      openai_cost: openaiUsage.actual_cost,
+      total_savings: savings,
+      savings_percentage: (savings / potentialCost) * 100
+    };
+  },
+
+  // Get estimation improvement metrics
+  async getEstimationMetrics(): Promise<Metrics> {
+    const recentHistory = await getCostHistory("month");
+    const oldHistory = await getCostHistory("all");
+
+    const recentAccuracy = 1 - Math.abs(calculateAvgVariance(recentHistory));
+    const overallAccuracy = 1 - Math.abs(calculateAvgVariance(oldHistory));
+    const improvement = recentAccuracy - overallAccuracy;
+
+    return {
+      current_accuracy: recentAccuracy,
+      overall_accuracy: overallAccuracy,
+      improvement: improvement,
+      samples_collected: oldHistory.length,
+      learning_status: oldHistory.length >= 5 ? "active" : "collecting_data"
+    };
+  }
+};
+
+// Example: Weekly cost accuracy report
+const report = await creditOptimizerAnalytics.getCostAccuracyReport("week");
+console.log(`
+📊 Cost Estimation Accuracy Report (Last 7 Days)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Total Tasks: ${report.total_tasks}
+Average Variance: ${(report.avg_variance * 100).toFixed(1)}%
+Estimation Accuracy: ${((1 - Math.abs(report.avg_variance)) * 100).toFixed(1)}%
+
+By Task Type:
+${Object.entries(report.accuracy_by_task_type).map(([type, data]) =>
+  `  ${type}: ${((1 - Math.abs(data.variance)) * 100).toFixed(1)}% accurate (${data.count} tasks)`
+).join('\n')}
+
+Improvement Trend: ${report.improvement_trend > 0 ? '📈 Improving' : '📉 Needs attention'}
+
+Recommendations:
+${report.recommendations.map(r => `  • ${r}`).join('\n')}
+`);
+
+// Example: Cost savings report
+const savings = await creditOptimizerAnalytics.getCostSavingsReport();
+console.log(`
+💰 Cost Savings Report
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Autonomous Agent (FREE):
+  Tasks: ${savings.autonomous_tasks}
+  Cost: $0.00
+
+OpenAI Worker (PAID):
+  Tasks: ${savings.openai_tasks}
+  Cost: $${savings.openai_cost.toFixed(2)}
+
+Total Savings: $${savings.total_savings.toFixed(2)} (${savings.savings_percentage.toFixed(1)}% saved)
+
+If all work went to OpenAI: $${(savings.total_savings + savings.openai_cost).toFixed(2)}
+Actual cost: $${savings.openai_cost.toFixed(2)}
+`);
+```
+
+**Deliverable:** Cost tracking analytics + reporting system
 
 ---
 
@@ -538,6 +727,48 @@ Result: Better decision + 0 credits
 User: "Change variable name from 'x' to 'count'"
 Bad: Delegate to autonomous-agent-mcp (overhead > task)
 Good: Just do it yourself (5 seconds)
+```
+
+## Pattern 4: Cost Tracking & Learning
+```
+After completing delegated tasks:
+1. Credit Optimizer automatically tracks estimated vs actual costs
+2. Learning algorithm improves future estimates
+3. You can request cost accuracy reports:
+   - "Show me cost estimation accuracy for this week"
+   - "How much have we saved using autonomous agents?"
+   - "What's the improvement trend in cost estimates?"
+
+Benefits:
+- Estimates get more accurate over time (10% learning rate)
+- You can see ROI of using 6-server system
+- Identify which task types have best cost savings
+```
+
+## Cost Awareness Guidelines
+```
+ALWAYS consider cost when delegating:
+
+1. **Estimate First:**
+   - Ask Credit Optimizer to estimate before delegating
+   - If estimate > $10, user approval required
+   - If estimate > $25 monthly budget, reject
+
+2. **Prefer FREE Options:**
+   - Autonomous Agent (Ollama) = $0
+   - Thinking Tools = $0
+   - Robinson's Toolkit = $0
+   - Only use OpenAI Worker when necessary
+
+3. **Track & Learn:**
+   - Credit Optimizer learns from actual costs
+   - After 5+ tasks, estimates become more accurate
+   - Review cost reports weekly to optimize delegation
+
+4. **Report Savings:**
+   - Periodically show user cost savings
+   - Example: "Saved $45 this week by using autonomous agents"
+   - Builds trust in 6-server system
 ```
 ```
 
@@ -646,11 +877,11 @@ echo "..." > .augment/rules/5-autonomy.md
 ### **Step 1: Complete Phase 0 (6-8 hours)**
 Build all 259 OpenAI MCP tools
 
-### **Step 2: Execute Phase 0.5 (2.5-3.5 hours)** ⬅️ THIS PHASE
+### **Step 2: Execute Phase 0.5 (3-4 hours)** ⬅️ THIS PHASE
 1. Fix Credit Optimizer (1h)
 2. Create agent coordination network (1h)
 3. Create coordination workflows (30min)
-4. Add guardrails (30min)
+4. Add guardrails + cost learning system (50min)
 5. Configure Augment Code rules/guidelines (30min)
 
 ### **Step 3: TEST Coordination (30 min)**
@@ -673,10 +904,13 @@ Now your agents can help build the 300+ toolkit tools!
 - [ ] Thinking Tools accessible to all agents (not an agent itself)
 - [ ] Handoffs working between agents
 - [ ] Guardrails protecting against costs/quality issues
+- [ ] **Cost learning system tracking estimates vs actuals**
+- [ ] **Cost analytics reporting (accuracy, savings, trends)**
 - [ ] Augment Code rules/guidelines configured (5 files in `.augment/rules/`)
 - [ ] Test workflow completes successfully
 - [ ] Agents can coordinate to build Phase 1-7
 - [ ] Augment Code instinctively uses 6-server system
+- [ ] **Credit Optimizer improves estimates over time (10% learning rate)**
 
 ---
 
