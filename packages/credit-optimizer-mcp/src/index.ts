@@ -29,6 +29,8 @@ import { TemplateEngine } from './template-engine.js';
 import { PRCreator } from './pr-creator.js';
 import { SkillPacksDB } from './skill-packs-db.js';
 import { CostTracker } from './cost-tracker.js';
+import { ParallelExecutionEngine } from './parallel-executor.js';
+import { AgentPool, getSharedAgentPool } from './agent-pool.js';
 
 /**
  * Main Credit Optimizer MCP Server
@@ -42,6 +44,8 @@ class CreditOptimizerServer {
   private prCreator: PRCreator;
   private skillPacks: SkillPacksDB;
   private costTracker: CostTracker;
+  private parallelExecutor: ParallelExecutionEngine;
+  private agentPool: AgentPool;
 
   constructor() {
     this.server = new Server(
@@ -64,6 +68,8 @@ class CreditOptimizerServer {
     this.prCreator = new PRCreator();
     this.skillPacks = new SkillPacksDB();
     this.costTracker = new CostTracker(this.db);
+    this.parallelExecutor = new ParallelExecutionEngine();
+    this.agentPool = getSharedAgentPool({ autonomousAgents: 2, openaiWorkers: 2 });
 
     // Initialize tool index and templates
     this.initialize();
@@ -166,6 +172,43 @@ class CreditOptimizerServer {
           if (!result) {
             result = { error: `Result not found: ${params.result_id}` };
           }
+        }
+
+        // Parallel Execution
+        else if (name === 'execute_parallel_workflow') {
+          // Validate plan
+          const validation = this.parallelExecutor.validatePlan(params.plan);
+          if (!validation.valid) {
+            result = {
+              success: false,
+              error: 'Invalid work plan',
+              errors: validation.errors,
+            };
+          } else {
+            // Estimate execution time
+            const estimate = this.parallelExecutor.estimateExecutionTime(params.plan);
+
+            console.error(`[CreditOptimizer] Executing parallel workflow: ${params.plan.name}`);
+            console.error(`[CreditOptimizer] Estimated speedup: ${estimate.speedup.toFixed(1)}x`);
+
+            // Execute workflow
+            const workflowResult = await this.parallelExecutor.executeWorkflow(
+              params.plan,
+              this.agentPool
+            );
+
+            result = {
+              success: workflowResult.success,
+              results: workflowResult.results,
+              totalDuration: workflowResult.totalDuration,
+              parallelGroups: workflowResult.parallelGroups,
+              estimate,
+            };
+          }
+        } else if (name === 'get_agent_pool_stats') {
+          result = this.agentPool.getStats();
+        } else if (name === 'list_agents') {
+          result = this.agentPool.listAgents();
         }
 
         // Template Scaffolding
@@ -563,6 +606,57 @@ class CreditOptimizerServer {
             result_id: { type: 'string', description: 'Result ID from execute_autonomous_workflow' },
           },
           required: ['result_id'],
+        },
+      },
+      // Parallel Execution (3 tools)
+      {
+        name: 'execute_parallel_workflow',
+        description: 'Execute work plan with parallel execution! Analyzes dependencies and runs tasks simultaneously on multiple agents.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            plan: {
+              type: 'object',
+              description: 'Work plan from Architect MCP',
+              properties: {
+                name: { type: 'string' },
+                estimatedTime: { type: 'string' },
+                estimatedCost: { type: 'string' },
+                steps: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      assignTo: { type: 'string' },
+                      tool: { type: 'string' },
+                      dependencies: { type: 'array', items: { type: 'string' } },
+                      params: { type: 'object' },
+                    },
+                    required: ['id', 'assignTo', 'tool', 'dependencies', 'params'],
+                  },
+                },
+              },
+              required: ['name', 'steps'],
+            },
+          },
+          required: ['plan'],
+        },
+      },
+      {
+        name: 'get_agent_pool_stats',
+        description: 'Get agent pool statistics (total, busy, available, free, paid, waiting)',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'list_agents',
+        description: 'List all agents in the pool with their status',
+        inputSchema: {
+          type: 'object',
+          properties: {},
         },
       },
       // Template Scaffolding (5 tools)
