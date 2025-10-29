@@ -1,10 +1,13 @@
 /**
  * Tool Indexer
- * 
+ *
  * Indexes all tools from Robinson's Toolkit for fast discovery.
+ * Now uses the broker pattern to discover actual tools dynamically.
  */
 
 import { DatabaseManager } from './database.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
 export interface ToolDefinition {
   name: string;
@@ -17,228 +20,161 @@ export interface ToolDefinition {
 
 export class ToolIndexer {
   private db: DatabaseManager;
+  private toolkitClient: Client | null = null;
 
   constructor(db: DatabaseManager) {
     this.db = db;
   }
 
   /**
-   * Index all tools from Robinson's Toolkit
+   * Connect to Robinson's Toolkit MCP server
+   */
+  private async connectToToolkit(): Promise<void> {
+    if (this.toolkitClient) return;
+
+    try {
+      const transport = new StdioClientTransport({
+        command: 'node',
+        args: ['packages/robinsons-toolkit-mcp/dist/index.js'],
+      });
+
+      this.toolkitClient = new Client({
+        name: 'credit-optimizer-tool-indexer',
+        version: '1.0.0',
+      }, {
+        capabilities: {},
+      });
+
+      await this.toolkitClient.connect(transport);
+      console.log('✅ Connected to Robinson\'s Toolkit');
+    } catch (error) {
+      console.error('❌ Failed to connect to Robinson\'s Toolkit:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Index all tools from Robinson's Toolkit using broker pattern
    */
   async indexAllTools(): Promise<void> {
-    // GitHub tools (199 tools)
-    this.indexGitHubTools();
-    
-    // Vercel tools (150 tools)
-    this.indexVercelTools();
-    
-    // Neon tools (145 tools)
-    this.indexNeonTools();
-    
-    // Stripe tools (100 tools)
-    this.indexStripeTools();
-    
-    // Supabase tools (80 tools)
-    this.indexSupabaseTools();
-    
-    // Other tools
-    this.indexOtherTools();
-  }
+    try {
+      await this.connectToToolkit();
 
-  private indexGitHubTools(): void {
-    const categories = [
-      { category: 'repositories', count: 25, keywords: ['repo', 'create', 'delete', 'update', 'list'] },
-      { category: 'branches', count: 20, keywords: ['branch', 'merge', 'protect', 'delete'] },
-      { category: 'commits', count: 15, keywords: ['commit', 'compare', 'status', 'history'] },
-      { category: 'issues', count: 25, keywords: ['issue', 'bug', 'feature', 'label', 'assign'] },
-      { category: 'pull-requests', count: 35, keywords: ['pr', 'review', 'merge', 'approve', 'comment'] },
-      { category: 'workflows', count: 25, keywords: ['action', 'workflow', 'ci', 'cd', 'deploy'] },
-      { category: 'releases', count: 15, keywords: ['release', 'tag', 'publish', 'asset'] },
-      { category: 'content', count: 10, keywords: ['file', 'content', 'read', 'write', 'tree'] },
-      { category: 'collaborators', count: 10, keywords: ['user', 'permission', 'access', 'invite'] },
-      { category: 'webhooks', count: 10, keywords: ['webhook', 'event', 'notify', 'trigger'] },
-      { category: 'search', count: 9, keywords: ['search', 'find', 'query', 'filter'] },
-    ];
-
-    for (const cat of categories) {
-      this.db.indexTool({
-        toolName: `github_${cat.category}`,
-        serverName: 'github-mcp',
-        category: cat.category,
-        description: `GitHub ${cat.category} operations (${cat.count} tools)`,
-        keywords: cat.keywords,
-        useCases: [`Manage GitHub ${cat.category}`, `Automate ${cat.category} workflows`],
+      // Get all categories from the broker
+      const categoriesResult = await this.toolkitClient!.callTool({
+        name: 'toolkit_list_categories',
+        arguments: {},
       });
+
+      const content = categoriesResult.content as Array<{ type: string; text: string }>;
+      const categories = JSON.parse(content[0].text);
+      console.log(`📦 Found ${categories.length} categories`);
+
+      // Index tools from each category
+      for (const category of categories) {
+        await this.indexCategoryTools(category);
+      }
+
+      console.log('✅ Tool indexing complete');
+    } catch (error) {
+      console.error('❌ Tool indexing failed:', error);
+      throw error;
     }
   }
 
-  private indexVercelTools(): void {
-    const categories = [
-      { category: 'projects', count: 10, keywords: ['project', 'create', 'deploy', 'settings'] },
-      { category: 'deployments', count: 25, keywords: ['deploy', 'build', 'preview', 'production'] },
-      { category: 'domains', count: 15, keywords: ['domain', 'dns', 'ssl', 'certificate'] },
-      { category: 'env-vars', count: 10, keywords: ['environment', 'variable', 'secret', 'config'] },
-      { category: 'logs', count: 10, keywords: ['log', 'error', 'debug', 'monitor'] },
-      { category: 'analytics', count: 10, keywords: ['analytics', 'metrics', 'performance', 'stats'] },
-      { category: 'edge-config', count: 10, keywords: ['edge', 'config', 'cache', 'kv'] },
-      { category: 'storage', count: 20, keywords: ['blob', 'storage', 'upload', 'download'] },
-      { category: 'database', count: 15, keywords: ['postgres', 'database', 'sql', 'query'] },
-      { category: 'security', count: 25, keywords: ['firewall', 'waf', 'security', 'block', 'protect'] },
-    ];
-
-    for (const cat of categories) {
-      this.db.indexTool({
-        toolName: `vercel_${cat.category}`,
-        serverName: 'vercel-mcp',
-        category: cat.category,
-        description: `Vercel ${cat.category} operations (${cat.count} tools)`,
-        keywords: cat.keywords,
-        useCases: [`Manage Vercel ${cat.category}`, `Deploy and monitor applications`],
+  /**
+   * Index all tools from a specific category
+   */
+  private async indexCategoryTools(category: any): Promise<void> {
+    try {
+      // Get all tools in this category
+      const toolsResult = await this.toolkitClient!.callTool({
+        name: 'toolkit_list_tools',
+        arguments: { category: category.name },
       });
+
+      const content = toolsResult.content as Array<{ type: string; text: string }>;
+      const tools = JSON.parse(content[0].text);
+      console.log(`  📋 ${category.displayName}: ${tools.length} tools`);
+
+      // Index each tool
+      for (const tool of tools) {
+        this.indexTool(tool, category);
+      }
+    } catch (error) {
+      console.error(`❌ Failed to index ${category.displayName} tools:`, error);
     }
   }
 
-  private indexNeonTools(): void {
-    const categories = [
-      { category: 'projects', count: 15, keywords: ['project', 'database', 'create', 'manage'] },
-      { category: 'branches', count: 25, keywords: ['branch', 'clone', 'merge', 'schema'] },
-      { category: 'sql', count: 20, keywords: ['sql', 'query', 'execute', 'transaction'] },
-      { category: 'databases', count: 15, keywords: ['database', 'create', 'delete', 'backup'] },
-      { category: 'roles', count: 10, keywords: ['role', 'user', 'permission', 'grant'] },
-      { category: 'endpoints', count: 15, keywords: ['endpoint', 'compute', 'scale', 'autoscale'] },
-      { category: 'monitoring', count: 20, keywords: ['monitor', 'metrics', 'performance', 'stats'] },
-      { category: 'backups', count: 10, keywords: ['backup', 'restore', 'snapshot', 'recovery'] },
-      { category: 'security', count: 10, keywords: ['security', 'ssl', 'ip', 'firewall'] },
-      { category: 'optimization', count: 5, keywords: ['optimize', 'index', 'query', 'performance'] },
-    ];
+  /**
+   * Index a single tool
+   */
+  private indexTool(tool: any, category: any): void {
+    // Extract keywords from tool name and description
+    const keywords = this.extractKeywords(tool.name, tool.description);
 
-    for (const cat of categories) {
-      this.db.indexTool({
-        toolName: `neon_${cat.category}`,
-        serverName: 'neon-mcp',
-        category: cat.category,
-        description: `Neon ${cat.category} operations (${cat.count} tools)`,
-        keywords: cat.keywords,
-        useCases: [`Manage Neon ${cat.category}`, `Database operations and optimization`],
-      });
-    }
+    // Generate use cases based on tool name
+    const useCases = this.generateUseCases(tool.name, category.name);
+
+    this.db.indexTool({
+      toolName: tool.name,
+      serverName: 'robinsons-toolkit-mcp',
+      category: category.name,
+      description: tool.description,
+      keywords,
+      useCases,
+    });
   }
 
-  private indexStripeTools(): void {
-    const categories = [
-      { category: 'customers', count: 15, keywords: ['customer', 'user', 'create', 'update'] },
-      { category: 'subscriptions', count: 20, keywords: ['subscription', 'plan', 'billing', 'recurring'] },
-      { category: 'payments', count: 20, keywords: ['payment', 'charge', 'refund', 'invoice'] },
-      { category: 'products', count: 10, keywords: ['product', 'price', 'catalog', 'sku'] },
-      { category: 'webhooks', count: 10, keywords: ['webhook', 'event', 'notify', 'listen'] },
-      { category: 'disputes', count: 5, keywords: ['dispute', 'chargeback', 'fraud', 'review'] },
-      { category: 'payouts', count: 10, keywords: ['payout', 'transfer', 'balance', 'bank'] },
-      { category: 'reporting', count: 10, keywords: ['report', 'analytics', 'revenue', 'metrics'] },
-    ];
+  /**
+   * Extract keywords from tool name and description
+   */
+  private extractKeywords(name: string, description: string): string[] {
+    const keywords = new Set<string>();
 
-    for (const cat of categories) {
-      this.db.indexTool({
-        toolName: `stripe_${cat.category}`,
-        serverName: 'stripe-mcp',
-        category: cat.category,
-        description: `Stripe ${cat.category} operations (${cat.count} tools)`,
-        keywords: cat.keywords,
-        useCases: [`Manage Stripe ${cat.category}`, `Payment processing and billing`],
-      });
-    }
+    // Extract from name (e.g., "github_create_repo" -> ["github", "create", "repo"])
+    const nameParts = name.split('_');
+    nameParts.forEach(part => keywords.add(part.toLowerCase()));
+
+    // Extract from description (common action words)
+    const actionWords = ['create', 'delete', 'update', 'list', 'get', 'set', 'add', 'remove', 'deploy', 'build', 'run', 'execute', 'query', 'search', 'find'];
+    const descLower = description.toLowerCase();
+    actionWords.forEach(word => {
+      if (descLower.includes(word)) keywords.add(word);
+    });
+
+    return Array.from(keywords);
   }
 
-  private indexSupabaseTools(): void {
-    const categories = [
-      { category: 'auth', count: 20, keywords: ['auth', 'user', 'login', 'signup', 'session'] },
-      { category: 'database', count: 25, keywords: ['database', 'table', 'query', 'rpc'] },
-      { category: 'storage', count: 15, keywords: ['storage', 'bucket', 'upload', 'download'] },
-      { category: 'realtime', count: 10, keywords: ['realtime', 'subscribe', 'broadcast', 'presence'] },
-      { category: 'functions', count: 10, keywords: ['function', 'edge', 'serverless', 'invoke'] },
-    ];
+  /**
+   * Generate use cases based on tool name
+   */
+  private generateUseCases(name: string, category: string): string[] {
+    const useCases: string[] = [];
 
-    for (const cat of categories) {
-      this.db.indexTool({
-        toolName: `supabase_${cat.category}`,
-        serverName: 'supabase-mcp',
-        category: cat.category,
-        description: `Supabase ${cat.category} operations (${cat.count} tools)`,
-        keywords: cat.keywords,
-        useCases: [`Manage Supabase ${cat.category}`, `Backend operations`],
-      });
-    }
+    // Generic use case based on category
+    useCases.push(`Manage ${category} resources`);
+
+    // Specific use case based on action
+    if (name.includes('create')) useCases.push('Create new resources');
+    if (name.includes('delete')) useCases.push('Delete resources');
+    if (name.includes('update')) useCases.push('Update existing resources');
+    if (name.includes('list')) useCases.push('List and discover resources');
+    if (name.includes('deploy')) useCases.push('Deploy applications');
+    if (name.includes('build')) useCases.push('Build and compile');
+
+    return useCases;
   }
 
-  private indexOtherTools(): void {
-    // Resend (60 tools)
-    this.db.indexTool({
-      toolName: 'resend_emails',
-      serverName: 'resend-mcp',
-      category: 'email',
-      description: 'Resend email operations (60 tools)',
-      keywords: ['email', 'send', 'template', 'smtp'],
-      useCases: ['Send transactional emails', 'Email campaigns'],
-    });
-
-    // Twilio (70 tools)
-    this.db.indexTool({
-      toolName: 'twilio_messaging',
-      serverName: 'twilio-mcp',
-      category: 'messaging',
-      description: 'Twilio SMS/voice operations (70 tools)',
-      keywords: ['sms', 'voice', 'call', 'message'],
-      useCases: ['Send SMS', 'Make phone calls', 'Voice notifications'],
-    });
-
-    // Cloudflare (50 tools)
-    this.db.indexTool({
-      toolName: 'cloudflare_dns',
-      serverName: 'cloudflare-mcp',
-      category: 'dns',
-      description: 'Cloudflare DNS/domains operations (50 tools)',
-      keywords: ['dns', 'domain', 'cloudflare', 'cdn'],
-      useCases: ['Manage DNS records', 'Domain configuration'],
-    });
-
-    // Redis (40 tools)
-    this.db.indexTool({
-      toolName: 'redis_cache',
-      serverName: 'redis-mcp',
-      category: 'cache',
-      description: 'Redis caching operations (40 tools)',
-      keywords: ['redis', 'cache', 'key', 'value'],
-      useCases: ['Cache data', 'Session storage', 'Pub/sub'],
-    });
-
-    // OpenAI (30 tools)
-    this.db.indexTool({
-      toolName: 'openai_api',
-      serverName: 'openai-mcp',
-      category: 'ai',
-      description: 'OpenAI API operations (30 tools)',
-      keywords: ['openai', 'gpt', 'ai', 'completion'],
-      useCases: ['Generate text', 'AI completions'],
-    });
-
-    // Context7 (3 tools)
-    this.db.indexTool({
-      toolName: 'context7_docs',
-      serverName: 'context7-mcp',
-      category: 'documentation',
-      description: 'Context7 documentation retrieval (3 tools)',
-      keywords: ['docs', 'documentation', 'library', 'api'],
-      useCases: ['Fetch library documentation', 'API references'],
-    });
-
-    // Playwright (78 tools)
-    this.db.indexTool({
-      toolName: 'playwright_browser',
-      serverName: 'playwright-mcp',
-      category: 'automation',
-      description: 'Playwright browser automation (78 tools)',
-      keywords: ['browser', 'automation', 'test', 'scrape'],
-      useCases: ['Browser automation', 'Web scraping', 'E2E testing'],
-    });
+  /**
+   * Disconnect from Robinson's Toolkit
+   */
+  async disconnect(): Promise<void> {
+    if (this.toolkitClient) {
+      await this.toolkitClient.close();
+      this.toolkitClient = null;
+      console.log('✅ Disconnected from Robinson\'s Toolkit');
+    }
   }
 
   /**

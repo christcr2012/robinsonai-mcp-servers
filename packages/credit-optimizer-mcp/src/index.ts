@@ -904,6 +904,29 @@ class CreditOptimizerServer {
     await this.server.connect(transport);
     console.error('Credit Optimizer MCP server running on stdio');
     console.error('Ready to optimize Augment Code credit usage!');
+
+    // Graceful shutdown
+    process.on('SIGINT', async () => {
+      console.error('\n🛑 Shutting down Credit Optimizer...');
+      await this.cleanup();
+      process.exit(0);
+    });
+
+    process.on('SIGTERM', async () => {
+      console.error('\n🛑 Shutting down Credit Optimizer...');
+      await this.cleanup();
+      process.exit(0);
+    });
+  }
+
+  private async cleanup(): Promise<void> {
+    try {
+      // Disconnect from Robinson's Toolkit
+      await this.toolIndexer.disconnect();
+      console.error('✅ Cleanup complete');
+    } catch (error) {
+      console.error('❌ Cleanup error:', error);
+    }
   }
 }
 
