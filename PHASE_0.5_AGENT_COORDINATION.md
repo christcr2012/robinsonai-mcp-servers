@@ -1,8 +1,9 @@
 # Phase 0.5: OpenAI MCP Integration & Agent Coordination
 
 **Created:** 2025-10-29
+**Updated:** 2025-10-29 (Added Augment Code Rules/Guidelines)
 **Status:** CRITICAL - Execute AFTER Phase 0, BEFORE Phase 1-7
-**Time:** 2-3 hours
+**Time:** 2.5-3.5 hours
 **Purpose:** Put the new OpenAI MCP to WORK improving your 6-server system
 
 ---
@@ -77,51 +78,87 @@
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│           AUGMENT (You - The Orchestrator)              │
+│           AUGMENT CODE (Primary Orchestrator)           │
+│  - Manages overall workflow                             │
+│  - Decides when to delegate vs do work itself           │
+│  - Has access to ALL 6 servers                          │
 └─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│              OpenAI Agent Coordinator                    │
-│  (Uses Agents SDK for handoffs & guardrails)            │
-└─────────────────────────────────────────────────────────┘
-         │           │           │           │
-         ▼           ▼           ▼           ▼
-    ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐
-    │Architect│  │Autonomous│ │Credit  │  │Thinking│
-    │  Agent  │  │  Agent   │ │Optimizer│ │  Agent │
-    └────────┘  └────────┘  └────────┘  └────────┘
-         │           │           │           │
-         └───────────┴───────────┴───────────┘
-                            │
-                            ▼
-                  ┌──────────────────┐
-                  │ Robinson's Toolkit│
-                  │   (714 tools)     │
-                  └──────────────────┘
+         │
+         ├──────────────────────────────────────────┐
+         │                                          │
+         ▼                                          ▼
+┌──────────────────┐                    ┌──────────────────┐
+│  OpenAI Worker   │                    │ Thinking Tools   │
+│  (Paid, Premium) │                    │ (Cognitive Tools)│
+│                  │                    │                  │
+│ - Agents SDK     │                    │ - Devil's Advocate│
+│ - Responses API  │                    │ - SWOT Analysis  │
+│ - Coordination   │                    │ - Premortem      │
+└──────────────────┘                    │ - Critical Think │
+         │                              │ - 15+ frameworks │
+         │                              └──────────────────┘
+         │                                     ▲
+         ▼                                     │
+┌─────────────────────────────────────────────┼──────────┐
+│         OpenAI Agent Coordinator            │          │
+│  (Uses Agents SDK for handoffs)             │          │
+└─────────────────────────────────────────────┼──────────┘
+         │           │           │            │
+         ▼           ▼           ▼            │
+    ┌────────┐  ┌────────┐  ┌────────┐       │
+    │Architect│  │Autonomous│ │Credit  │       │
+    │  Agent  │  │  Agent   │ │Optimizer│      │
+    │        │  │          │ │  Agent  │       │
+    │ (Uses  │  │ (Uses    │ │ (Uses   │       │
+    │Thinking│  │Thinking  │ │Thinking │       │
+    │ Tools) │  │ Tools)   │ │ Tools)  │───────┘
+    └────────┘  └────────┘  └────────┘
+         │           │           │
+         └───────────┴───────────┘
+                     │
+                     ▼
+           ┌──────────────────┐
+           │ Robinson's Toolkit│
+           │   (714 tools)     │
+           │                   │
+           │ - GitHub          │
+           │ - Vercel          │
+           │ - Neon            │
+           │ - Upstash         │
+           │ - Google          │
+           └──────────────────┘
 ```
+
+**Key Clarification:**
+- **Thinking Tools MCP** is NOT an agent - it's a TOOL SERVER
+- All agents (Augment, Architect, Autonomous, Credit Optimizer) can USE thinking tools
+- Agents can strategically use thinking tools to collaborate (e.g., two agents using devil's advocate to debate)
 
 **Agent Roles:**
 
-1. **Architect Agent** (architect-mcp)
+1. **Augment Code** (Primary Orchestrator)
+   - **Specialty:** Overall workflow management, user interaction
+   - **Delegates to:** Architect (planning), Autonomous (code gen), Credit Optimizer (tool discovery)
+   - **Uses:** Thinking Tools for critical decisions, OpenAI Worker for premium tasks
+   - **Autonomy:** Decides when delegation costs more than doing work itself
+
+2. **Architect Agent** (architect-mcp)
    - **Specialty:** Planning, decomposition, work plans
    - **Handoff to:** Autonomous Agent (for free execution), Credit Optimizer (for tool discovery)
+   - **Uses:** Thinking Tools (premortem, SWOT) for plan validation
    - **Guardrails:** Max plan size, budget limits
 
-2. **Autonomous Agent** (autonomous-agent-mcp)
+3. **Autonomous Agent** (autonomous-agent-mcp)
    - **Specialty:** Code generation, analysis, refactoring (FREE via Ollama)
    - **Handoff to:** Architect (for replanning), Credit Optimizer (for scaffolding)
+   - **Uses:** Thinking Tools (critical thinking) for code quality
    - **Guardrails:** Code quality checks, security scans
 
-3. **Credit Optimizer Agent** (credit-optimizer-mcp)
+4. **Credit Optimizer Agent** (credit-optimizer-mcp)
    - **Specialty:** Tool discovery, workflow execution, scaffolding
    - **Handoff to:** Autonomous Agent (for code gen), Architect (for complex workflows)
+   - **Uses:** Thinking Tools (decision matrix) for tool selection
    - **Guardrails:** Cost limits, tool availability checks
-
-4. **Thinking Agent** (thinking-tools-mcp)
-   - **Specialty:** Critical thinking, devil's advocate, SWOT, premortem
-   - **Handoff to:** Architect (with analysis), Autonomous Agent (with recommendations)
-   - **Guardrails:** Analysis depth limits
 
 **Implementation:**
 ```typescript
@@ -271,16 +308,222 @@ await openai_agent_guardrail_create({
 
 ---
 
+### **Task 5: Configure Augment Code Rules & Guidelines (30 min)**
+
+**Goal:** Add workspace guidelines to help Augment Code instinctively use the 6-server system
+
+**Reference:** https://docs.augmentcode.com/setup-augment/guidelines#workspace-guidelines
+
+**Location:** `.augment/rules/` directory in workspace root
+
+**Guidelines to Add:**
+
+#### **Rule 1: Server System Overview** (`.augment/rules/1-server-system.md`)
+```markdown
+# 6-Server System Overview
+
+You have access to 6 MCP servers that can dramatically reduce your credit usage:
+
+## FREE Servers (Use Liberally):
+1. **autonomous-agent-mcp** - Code generation via Ollama (0 credits)
+2. **thinking-tools-mcp** - 15+ cognitive frameworks (0 credits)
+3. **robinsons-toolkit-mcp** - 714 integration tools (0 credits)
+
+## PAID Servers (Use Strategically):
+4. **architect-mcp** - Planning & decomposition (minimal credits)
+5. **credit-optimizer-mcp** - Tool discovery & workflows (minimal credits)
+6. **openai-worker-mcp** - Premium OpenAI features (paid, use sparingly)
+
+## Decision Framework:
+- **Simple tasks (<50 lines):** Do it yourself (faster)
+- **Medium tasks (50-200 lines):** Delegate to autonomous-agent-mcp (FREE)
+- **Large tasks (200+ lines):** Use architect-mcp to plan, then delegate (saves credits)
+- **Bulk operations (50+ files):** Use credit-optimizer-mcp workflows (saves 99% credits)
+```
+
+#### **Rule 2: When to Delegate** (`.augment/rules/2-delegation-strategy.md`)
+```markdown
+# Delegation Strategy
+
+## ALWAYS Delegate to Autonomous Agent When:
+- Generating 50+ lines of code
+- Creating multiple similar files
+- Refactoring large codebases
+- Generating tests for existing code
+- Analyzing code for issues
+- **Why:** FREE via Ollama, saves 90%+ credits
+
+## ALWAYS Use Credit Optimizer When:
+- Fixing 10+ similar errors across files
+- Scaffolding new features (components + API + tests)
+- Bulk refactoring patterns
+- Applying migrations across codebase
+- **Why:** Autonomous workflows save 99% credits
+
+## ALWAYS Use Thinking Tools When:
+- Making architectural decisions
+- Evaluating tradeoffs
+- Finding flaws in plans (devil's advocate)
+- Risk analysis (premortem)
+- **Why:** FREE and improves decision quality
+
+## Do It Yourself When:
+- Quick edits (<50 lines)
+- User needs immediate response
+- Task requires deep context you already have
+- Delegation overhead > task complexity
+- **Why:** Sometimes faster to just do it
+```
+
+#### **Rule 3: Cost-Aware Workflows** (`.augment/rules/3-cost-optimization.md`)
+```markdown
+# Cost Optimization Patterns
+
+## Pattern 1: Plan → Delegate → Review
+```
+User: "Build authentication system"
+You: Use architect-mcp to create plan (2 min, minimal credits)
+     → Delegate to autonomous-agent-mcp for code gen (FREE)
+     → Review and test (2 min, minimal credits)
+Result: 90% credit savings
+```
+
+## Pattern 2: Bulk Operations
+```
+User: "Fix 50 type errors"
+You: Use credit-optimizer-mcp execute_bulk_fix (FREE, autonomous)
+     → Review results (1 min, minimal credits)
+Result: 99% credit savings vs fixing manually
+```
+
+## Pattern 3: Critical Thinking
+```
+User: "Should we use Redis or Postgres for caching?"
+You: Use thinking-tools-mcp decision_matrix (FREE)
+     → Use thinking-tools-mcp devils_advocate (FREE)
+     → Present analysis to user
+Result: Better decision + 0 credits
+```
+
+## Anti-Pattern: Don't Over-Delegate
+```
+User: "Change variable name from 'x' to 'count'"
+Bad: Delegate to autonomous-agent-mcp (overhead > task)
+Good: Just do it yourself (5 seconds)
+```
+```
+
+#### **Rule 4: Agent Coordination** (`.augment/rules/4-agent-coordination.md`)
+```markdown
+# Agent Coordination Patterns
+
+## Multi-Agent Workflow Example:
+```
+User: "Build comprehensive Upstash Redis tools"
+
+Step 1: Use thinking-tools-mcp premortem_analysis
+        → Identify risks before starting
+
+Step 2: Use architect-mcp plan_work
+        → Break into 110 tool specifications
+
+Step 3: Use thinking-tools-mcp devils_advocate
+        → Challenge the plan, find gaps
+
+Step 4: Use credit-optimizer-mcp scaffold_feature
+        → Generate tool structure (FREE)
+
+Step 5: Use autonomous-agent-mcp delegate_code_generation
+        → Generate all 110 tools (FREE via Ollama)
+
+Step 6: Review and test
+        → You verify quality
+
+Result: 300+ lines of code, 95% FREE
+```
+
+## When Agents Should Collaborate:
+- **Architect + Thinking:** Validate plans before execution
+- **Autonomous + Thinking:** Code quality analysis
+- **Credit Optimizer + Autonomous:** Scaffolding + code generation
+- **You + All Agents:** Complex multi-phase projects
+```
+
+#### **Rule 5: Autonomy Guidelines** (`.augment/rules/5-autonomy.md`)
+```markdown
+# Autonomy & Decision Making
+
+## You Have Full Autonomy To:
+- Decide when delegation costs more than doing work yourself
+- Skip delegation for trivial tasks
+- Use paid OpenAI Worker when quality/speed justifies cost
+- Override these guidelines when user needs require it
+
+## Trust Your Judgment On:
+- **Speed vs Cost:** Sometimes faster to do it yourself
+- **Context Preservation:** You have conversation context agents don't
+- **User Intent:** You understand nuance better than agents
+- **Quality Requirements:** You know when "good enough" is acceptable
+
+## But Consider:
+- **Credit Budget:** User has limited Augment credits
+- **Free Alternatives:** Ollama is FREE and often good enough
+- **Learning Curve:** User wants to see agents in action
+- **Scalability:** Patterns you establish now scale to larger tasks
+
+## Example Decision Tree:
+```
+Task: Generate 200-line React component
+
+Option A: Do it yourself
+- Time: 3 minutes
+- Cost: ~50 Augment credits
+- Quality: Excellent (you have full context)
+
+Option B: Delegate to autonomous-agent-mcp
+- Time: 4 minutes (1 min setup + 2 min generation + 1 min review)
+- Cost: 0 credits (FREE Ollama)
+- Quality: Good (may need minor tweaks)
+
+Decision: Delegate (saves 50 credits for 1 extra minute)
+```
+
+## When to Override and Do It Yourself:
+- User explicitly asks you to do it
+- Task is <30 seconds of work
+- You're already in the middle of the file
+- Delegation would break conversation flow
+- User needs immediate response (emergency fix)
+```
+
+**Implementation:**
+```bash
+# Create rules directory
+mkdir -p .augment/rules
+
+# Create rule files
+echo "..." > .augment/rules/1-server-system.md
+echo "..." > .augment/rules/2-delegation-strategy.md
+echo "..." > .augment/rules/3-cost-optimization.md
+echo "..." > .augment/rules/4-agent-coordination.md
+echo "..." > .augment/rules/5-autonomy.md
+```
+
+**Deliverable:** 5 Augment Code guidelines configured to optimize 6-server usage
+
+---
+
 ## 🚀 **Execution Plan**
 
 ### **Step 1: Complete Phase 0 (6-8 hours)**
 Build all 259 OpenAI MCP tools
 
-### **Step 2: Execute Phase 0.5 (2-3 hours)** ⬅️ THIS PHASE
+### **Step 2: Execute Phase 0.5 (2.5-3.5 hours)** ⬅️ THIS PHASE
 1. Fix Credit Optimizer (1h)
 2. Create agent coordination network (1h)
 3. Create coordination workflows (30min)
 4. Add guardrails (30min)
+5. Configure Augment Code rules/guidelines (30min)
 
 ### **Step 3: TEST Coordination (30 min)**
 Run a real coordinated workflow:
@@ -297,12 +540,15 @@ Now your agents can help build the 300+ toolkit tools!
 
 ## ✅ **Success Criteria**
 
-- [ ] Credit Optimizer works with direct tool access
-- [ ] 4 agents configured with Agents SDK
+- [ ] Credit Optimizer works with direct tool access (not broker pattern)
+- [ ] 3 agents configured with Agents SDK (Architect, Autonomous, Credit Optimizer)
+- [ ] Thinking Tools accessible to all agents (not an agent itself)
 - [ ] Handoffs working between agents
 - [ ] Guardrails protecting against costs/quality issues
+- [ ] Augment Code rules/guidelines configured (5 files in `.augment/rules/`)
 - [ ] Test workflow completes successfully
 - [ ] Agents can coordinate to build Phase 1-7
+- [ ] Augment Code instinctively uses 6-server system
 
 ---
 
