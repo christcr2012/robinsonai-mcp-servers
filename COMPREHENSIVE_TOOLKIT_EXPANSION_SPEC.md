@@ -1,9 +1,22 @@
 # Robinson's Toolkit - Comprehensive Expansion Specification
 
-**Created:** 2025-10-29  
-**Status:** IN PROGRESS  
-**Target:** 714 → 1000+ tools  
+**Created:** 2025-10-29
+**Status:** READY FOR EXECUTION (after Phase 0)
+**Target:** 714 → 1000+ tools
 **Estimated Time:** 8-12 hours autonomous work
+**Priority:** Execute AFTER Phase 0 (OpenAI MCP completion)
+
+---
+
+## ⚠️ **IMPORTANT: Execution Order**
+
+**DO NOT START THIS UNTIL PHASE 0 IS COMPLETE!**
+
+1. **Phase 0 (6-8h):** Complete OpenAI MCP (259 tools) ⚡ **DO THIS FIRST**
+2. **Phase 1-7 (8-12h):** Robinson's Toolkit Expansion (this document) ⬅️ **YOU ARE HERE**
+3. **Phase 8+ (35-50h):** RAD Crawler System
+
+**See:** `HANDOFF_TO_NEW_AGENT.md` for complete execution order
 
 ---
 
@@ -395,6 +408,16 @@ If this work needs to be handed off to another agent:
 4. **Continue from next incomplete phase**
 5. **Update progress tracking** as you complete tasks
 6. **Commit after each phase** with descriptive messages
+
+---
+
+## 📚 **Related Documentation**
+
+- **`HANDOFF_TO_NEW_AGENT.md`** - Start here for complete context and execution order
+- **`HANDOFF_COMPLETE_SUMMARY.md`** - Summary of what was completed
+- **`OPENAI_MCP_COMPREHENSIVE_SPEC.md`** - Phase 0 (must complete first!)
+- **`RAD_CRAWLER_MASTER_PLAN_V2.md`** - Phase 8+ (comes after this)
+- **`packages/robinsons-toolkit-mcp/README.md`** - Current toolkit status (714 tools)
 
 ---
 

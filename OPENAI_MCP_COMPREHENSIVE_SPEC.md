@@ -226,4 +226,14 @@ npm run build
 
 ---
 
+## 📚 **Related Documentation**
+
+- **`HANDOFF_TO_NEW_AGENT.md`** - Start here for complete context and execution order
+- **`HANDOFF_COMPLETE_SUMMARY.md`** - Summary of what was completed
+- **`COMPREHENSIVE_TOOLKIT_EXPANSION_SPEC.md`** - Next phase after OpenAI MCP
+- **`RAD_CRAWLER_MASTER_PLAN_V2.md`** - Final phase (RAD crawler system)
+- **`OPENAI_AGENT_BUILDER_INTEGRATION.md`** - Analysis of Agents SDK vs Responses API
+
+---
+
 **START WITH TIER 1 (Agents SDK, Responses API, Prompt Engineering) - This fixes the "useless agents" problem!**

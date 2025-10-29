@@ -1,9 +1,22 @@
 # RAD Crawler - Master Plan V2
-**Revised with Proper Understanding**  
-**Created:** 2025-10-29  
-**Status:** Ready for Autonomous Execution  
-**Total Time:** 35-50 hours  
+**Revised with Proper Understanding**
+**Created:** 2025-10-29
+**Status:** READY FOR EXECUTION (after Phase 0 & Phase 1-7)
+**Total Time:** 35-50 hours
 **Cost:** $0 (free tiers + local Ollama)
+**Priority:** Execute AFTER OpenAI MCP and Toolkit expansion
+
+---
+
+## ⚠️ **IMPORTANT: Execution Order**
+
+**DO NOT START THIS UNTIL PHASE 0 AND PHASE 1-7 ARE COMPLETE!**
+
+1. **Phase 0 (6-8h):** Complete OpenAI MCP (259 tools) ⚡ **DO THIS FIRST**
+2. **Phase 1-7 (8-12h):** Robinson's Toolkit Expansion (1000+ tools) ⚡ **DO THIS SECOND**
+3. **Phase 8+ (35-50h):** RAD Crawler System (this document) ⬅️ **YOU ARE HERE**
+
+**See:** `HANDOFF_TO_NEW_AGENT.md` for complete execution order
 
 ---
 
@@ -349,14 +362,14 @@ From `COMPREHENSIVE_TOOLKIT_EXPANSION_SPEC.md`:
 ## 📝 **Files to Remove (Outdated)**
 
 These files are superseded by this master plan:
-- `RAD_CRAWLER_COMPLETE.md`
-- `RAD_CRAWLER_INTEGRATION_PLAN.md`
-- `RAD_EXTRACTION_COMPLETE.md`
-- `RAD_INTEGRATION_COMPLETE.md`
-- `RAD_REMAINING_WORK_SPEC.md`
-- `RAD_SYSTEM_AUDIT.md`
-- `QUICK_START_RAD.md`
-- `RAD_MASTER_PLAN.md` (old version)
+- `RAD_CRAWLER_COMPLETE.md` ✅ REMOVED
+- `RAD_CRAWLER_INTEGRATION_PLAN.md` ✅ REMOVED
+- `RAD_EXTRACTION_COMPLETE.md` ✅ REMOVED
+- `RAD_INTEGRATION_COMPLETE.md` ✅ REMOVED
+- `RAD_REMAINING_WORK_SPEC.md` ✅ REMOVED
+- `RAD_SYSTEM_AUDIT.md` ✅ REMOVED
+- `QUICK_START_RAD.md` ✅ REMOVED
+- `RAD_MASTER_PLAN.md` (old version) ✅ REMOVED
 
 Keep only:
 - `RAD_CRAWLER_MASTER_PLAN_V2.md` (this file)
@@ -364,6 +377,16 @@ Keep only:
 - `RAD_PHASE_2_VERCEL_API_PACKAGE.md`
 - `RAD_PHASE_3_COMPREHENSIVE_TESTING.md`
 - `RAD_PHASE_4_DOCUMENTATION_DEPLOYMENT.md`
+
+---
+
+## 📚 **Related Documentation**
+
+- **`HANDOFF_TO_NEW_AGENT.md`** - Start here for complete context and execution order
+- **`HANDOFF_COMPLETE_SUMMARY.md`** - Summary of what was completed
+- **`OPENAI_MCP_COMPREHENSIVE_SPEC.md`** - Phase 0 (must complete first!)
+- **`COMPREHENSIVE_TOOLKIT_EXPANSION_SPEC.md`** - Phase 1-7 (must complete second!)
+- **`RAD_DOCUMENTATION_SUMMARY.md`** - Consolidated RAD documentation summary
 
 ---
 
