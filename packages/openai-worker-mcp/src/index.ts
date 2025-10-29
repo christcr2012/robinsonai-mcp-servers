@@ -289,6 +289,46 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['task', 'taskType'],
         },
       },
+      {
+        name: 'discover_toolkit_tools_openai-worker-mcp',
+        description: 'Search for tools in Robinson\'s Toolkit by keyword. Dynamically discovers tools as new ones are added to the toolkit.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Search query (e.g., "database", "deploy", "email")',
+            },
+            limit: {
+              type: 'number',
+              description: 'Maximum number of results (default: 10)',
+            },
+          },
+          required: ['query'],
+        },
+      },
+      {
+        name: 'list_toolkit_categories_openai-worker-mcp',
+        description: 'List all available categories in Robinson\'s Toolkit (github, vercel, neon, upstash, google, etc.). Dynamically updates as new categories are added.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'list_toolkit_tools_openai-worker-mcp',
+        description: 'List all tools in a specific category. Dynamically updates as new tools are added to Robinson\'s Toolkit.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            category: {
+              type: 'string',
+              description: 'Category name (github, vercel, neon, upstash, google)',
+            },
+          },
+          required: ['category'],
+        },
+      },
     ],
   };
 });
@@ -319,6 +359,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await handleGetTokenAnalytics(args);
       case 'execute_versatile_task_openai-worker-mcp':
         return await handleExecuteVersatileTask(args);
+      case 'discover_toolkit_tools_openai-worker-mcp':
+        return await handleDiscoverToolkitTools(args);
+      case 'list_toolkit_categories_openai-worker-mcp':
+        return await handleListToolkitCategories();
+      case 'list_toolkit_tools_openai-worker-mcp':
+        return await handleListToolkitTools(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -933,6 +979,102 @@ async function handleExecuteVersatileTask(args: any) {
             error: error.message,
             model: modelId,
           }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * Discover toolkit tools
+ */
+async function handleDiscoverToolkitTools(args: any) {
+  try {
+    const toolkitClient = getSharedToolkitClient();
+    const result = await toolkitClient.discoverTools(args.query || '', args.limit || 10);
+
+    if (!result.success) {
+      throw new Error(`Tool discovery failed: ${result.error}`);
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result.result, null, 2),
+        },
+      ],
+    };
+  } catch (error: any) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({ error: error.message }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * List toolkit categories
+ */
+async function handleListToolkitCategories() {
+  try {
+    const toolkitClient = getSharedToolkitClient();
+    const result = await toolkitClient.listCategories();
+
+    if (!result.success) {
+      throw new Error(`Failed to list categories: ${result.error}`);
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result.result, null, 2),
+        },
+      ],
+    };
+  } catch (error: any) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({ error: error.message }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * List toolkit tools in a category
+ */
+async function handleListToolkitTools(args: any) {
+  try {
+    const toolkitClient = getSharedToolkitClient();
+    const result = await toolkitClient.listTools(args.category || '');
+
+    if (!result.success) {
+      throw new Error(`Failed to list tools: ${result.error}`);
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result.result, null, 2),
+        },
+      ],
+    };
+  } catch (error: any) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({ error: error.message }, null, 2),
         },
       ],
     };

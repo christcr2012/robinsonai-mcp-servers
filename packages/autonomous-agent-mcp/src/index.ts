@@ -207,6 +207,34 @@ class AutonomousAgentServer {
             };
             break;
 
+          case 'discover_toolkit_tools_autonomous-agent-mcp':
+            const toolkitClient = getSharedToolkitClient();
+            const discoverResult = await toolkitClient.discoverTools(
+              (args as any)?.query || '',
+              (args as any)?.limit || 10
+            );
+            if (!discoverResult.success) {
+              throw new Error(`Tool discovery failed: ${discoverResult.error}`);
+            }
+            result = discoverResult.result;
+            break;
+
+          case 'list_toolkit_categories_autonomous-agent-mcp':
+            const categoriesResult = await getSharedToolkitClient().listCategories();
+            if (!categoriesResult.success) {
+              throw new Error(`Failed to list categories: ${categoriesResult.error}`);
+            }
+            result = categoriesResult.result;
+            break;
+
+          case 'list_toolkit_tools_autonomous-agent-mcp':
+            const toolsResult = await getSharedToolkitClient().listTools((args as any)?.category || '');
+            if (!toolsResult.success) {
+              throw new Error(`Failed to list tools: ${toolsResult.error}`);
+            }
+            result = toolsResult.result;
+            break;
+
             default:
               throw new Error(`Unknown tool: ${name}`);
           }
@@ -540,6 +568,46 @@ class AutonomousAgentServer {
         inputSchema: {
           type: 'object',
           properties: {},
+        },
+      },
+      {
+        name: 'discover_toolkit_tools_autonomous-agent-mcp',
+        description: 'Search for tools in Robinson\'s Toolkit by keyword. Dynamically discovers tools as new ones are added to the toolkit.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Search query (e.g., "database", "deploy", "email")',
+            },
+            limit: {
+              type: 'number',
+              description: 'Maximum number of results (default: 10)',
+            },
+          },
+          required: ['query'],
+        },
+      },
+      {
+        name: 'list_toolkit_categories_autonomous-agent-mcp',
+        description: 'List all available categories in Robinson\'s Toolkit (github, vercel, neon, upstash, google, etc.). Dynamically updates as new categories are added.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'list_toolkit_tools_autonomous-agent-mcp',
+        description: 'List all tools in a specific category. Dynamically updates as new tools are added to Robinson\'s Toolkit.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            category: {
+              type: 'string',
+              description: 'Category name (github, vercel, neon, upstash, google)',
+            },
+          },
+          required: ['category'],
         },
       },
     ];
