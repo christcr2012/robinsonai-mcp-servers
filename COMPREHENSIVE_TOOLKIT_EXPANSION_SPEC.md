@@ -384,7 +384,7 @@ Expand Robinson's Toolkit MCP from 714 tools to 1000+ tools by adding comprehens
 ### **New Variables to Add:**
 ```bash
 # Docker Configuration
-DOCKER_PAT="dckr_pat_BV2ZJjCnDe0Dnr5npjUWqsy6_6c"
+DOCKER_PAT="your-docker-pat-here"
 DOCKER_REGISTRY_URL="https://registry.hub.docker.com"
 DOCKER_USERNAME="your-docker-username"
 

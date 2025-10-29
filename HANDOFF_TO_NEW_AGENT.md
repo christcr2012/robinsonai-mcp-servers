@@ -223,7 +223,7 @@ UPSTASH_REDIS_REST_TOKEN=...
 FLY_API_TOKEN=...
 
 # Docker
-DOCKER_PAT=dckr_pat_BV2ZJjCnDe0Dnr5npjUWqsy6_6c
+DOCKER_PAT=your-docker-pat-here
 DOCKER_REGISTRY_URL=https://registry.hub.docker.com
 
 # Google Workspace
