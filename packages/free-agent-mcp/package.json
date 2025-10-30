@@ -1,12 +1,12 @@
 {
-  "name": "@robinsonai/autonomous-agent-mcp",
+  "name": "@robinsonai/free-agent-mcp",
   "version": "0.1.1",
-  "description": "Autonomous AI Agent MCP server - Offload heavy AI work to FREE local LLMs",
+  "description": "Free Agent MCP - Execute tasks using FREE models (Ollama, etc.)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "autonomous-agent-mcp": "./dist/index.js"
+    "free-agent-mcp": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -21,8 +21,9 @@
     "ai",
     "llm",
     "ollama",
+    "free-models",
     "code-generation",
-    "autonomous-agent",
+    "free-agent",
     "credit-optimization"
   ],
   "author": "Robinson AI",
@@ -45,6 +46,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/robinsonai/robinsonai-mcp-servers.git",
-    "directory": "packages/autonomous-agent-mcp"
+    "directory": "packages/free-agent-mcp"
   }
 }

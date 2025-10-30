@@ -1,12 +1,22 @@
 /**
  * Unified Model Catalog
- * 
- * Contains both FREE Ollama models and PAID OpenAI models.
- * Smart model selection prioritizes FREE Ollama, escalates to PAID OpenAI only when needed.
+ *
+ * Contains ALL models: FREE Ollama + PAID OpenAI + PAID Claude
+ *
+ * BOTH agents can use ANY model:
+ * - free-agent-mcp: PREFERS FREE (Ollama) but CAN use PAID (OpenAI/Claude) if requested
+ * - paid-agent-mcp: PREFERS PAID (OpenAI/Claude) but CAN use FREE (Ollama) if requested
+ *
+ * Smart model selection based on:
+ * - preferFree: true/false (which models to prefer)
+ * - preferredProvider: 'ollama'|'openai'|'claude'|'any' (specific provider)
+ * - maxCost: budget limit
+ * - taskComplexity: simple|medium|complex|expert
+ * - minQuality: basic|standard|premium|best
  */
 
 export interface ModelConfig {
-  provider: 'ollama' | 'openai';
+  provider: 'ollama' | 'openai' | 'claude';
   model: string;
   baseURL?: string;
   costPerInputToken: number;
@@ -132,6 +142,43 @@ export const MODEL_CATALOG: Record<string, ModelConfig> = {
     contextWindow: 200000,
     description: 'Most capable reasoning model for hardest problems',
   },
+
+  // ========================================
+  // PAID CLAUDE MODELS (Anthropic)
+  // ========================================
+
+  'claude/claude-3-haiku-20240307': {
+    provider: 'claude',
+    model: 'claude-3-haiku-20240307',
+    costPerInputToken: 0.00025,  // $0.25 per 1M tokens
+    costPerOutputToken: 0.00125, // $1.25 per 1M tokens
+    quality: 'standard',
+    maxTokens: 4096,
+    contextWindow: 200000,
+    description: 'Fast, affordable Claude model for simple tasks',
+  },
+
+  'claude/claude-3-5-sonnet-20241022': {
+    provider: 'claude',
+    model: 'claude-3-5-sonnet-20241022',
+    costPerInputToken: 0.003,    // $3.00 per 1M tokens
+    costPerOutputToken: 0.015,   // $15.00 per 1M tokens
+    quality: 'best',
+    maxTokens: 8192,
+    contextWindow: 200000,
+    description: 'Most intelligent Claude model, excellent for complex reasoning',
+  },
+
+  'claude/claude-3-opus-20240229': {
+    provider: 'claude',
+    model: 'claude-3-opus-20240229',
+    costPerInputToken: 0.015,    // $15.00 per 1M tokens
+    costPerOutputToken: 0.075,   // $75.00 per 1M tokens
+    quality: 'best',
+    maxTokens: 4096,
+    contextWindow: 200000,
+    description: 'Most powerful Claude model for hardest problems',
+  },
 };
 
 /**
@@ -146,62 +193,155 @@ export const COST_POLICY = {
 
 /**
  * Select best model based on requirements
- * 
+ *
  * Strategy:
- * 1. Always try FREE Ollama first
- * 2. Escalate to PAID OpenAI only when:
- *    - Quality requirement exceeds Ollama capabilities
- *    - Budget allows for paid model
- *    - Task complexity justifies cost
+ * 1. If preferFree=true: Try FREE Ollama first, escalate to PAID only if needed
+ * 2. If preferFree=false: Use PAID models (OpenAI/Claude) based on budget and complexity
+ * 3. Both agents can use ANY model - the preference just changes the default selection
+ *
+ * This allows:
+ * - free-agent-mcp: Defaults to FREE, but can use PAID if requested
+ * - paid-agent-mcp: Defaults to PAID, but can use FREE if requested
+ *
+ * WHEN CLAUDE IS SELECTED:
+ * - Expert tasks with high budget (maxCost >= $10) → Claude Sonnet
+ * - Complex tasks with high budget (maxCost >= $2) → Claude Sonnet
+ * - Simple tasks with low budget (maxCost >= $0.25) → Claude Haiku
+ * - Explicit request (preferredProvider: 'claude') → Claude Sonnet
  */
 export function selectBestModel(params: {
   minQuality?: 'basic' | 'standard' | 'premium' | 'best';
   maxCost?: number;
   taskComplexity?: 'simple' | 'medium' | 'complex' | 'expert';
   preferFree?: boolean;
+  preferredProvider?: 'ollama' | 'openai' | 'claude' | 'any';
 }): string {
   const {
     minQuality = 'standard',
     maxCost = COST_POLICY.DEFAULT_MAX_COST,
     taskComplexity = 'medium',
     preferFree = true,
+    preferredProvider = 'any',
   } = params;
 
-  // ALWAYS prefer FREE Ollama when possible
-  if (preferFree || maxCost === 0) {
-    // Map quality to Ollama models
-    switch (minQuality) {
-      case 'basic':
-        return 'ollama/qwen2.5:3b';
-      case 'standard':
-        return 'ollama/qwen2.5-coder:7b';
-      case 'premium':
-        return 'ollama/qwen2.5-coder:32b';
-      case 'best':
-        return 'ollama/deepseek-coder:33b';
-    }
+  // If maxCost is 0, MUST use FREE Ollama
+  if (maxCost === 0) {
+    console.error('[ModelCatalog] maxCost=0 → Using FREE Ollama');
+    return selectFreeModel(minQuality);
   }
 
-  // If budget allows and quality demands it, use OpenAI
-  if (maxCost > 0) {
-    // For expert-level tasks, consider o1 models
-    if (taskComplexity === 'expert' && maxCost >= 5.0) {
-      return 'openai/o1-mini';
-    }
-
-    // For complex tasks, use gpt-4o
-    if (taskComplexity === 'complex' && maxCost >= 1.0) {
-      return 'openai/gpt-4o';
-    }
-
-    // For medium tasks, use gpt-4o-mini
-    if (taskComplexity === 'medium' && maxCost >= 0.5) {
-      return 'openai/gpt-4o-mini';
-    }
+  // If preferFree is true, try FREE first
+  if (preferFree) {
+    console.error('[ModelCatalog] preferFree=true → Using FREE Ollama');
+    return selectFreeModel(minQuality);
   }
 
-  // Fallback: Use best FREE Ollama model
-  return 'ollama/deepseek-coder:33b';
+  // If specific provider requested, use it
+  if (preferredProvider === 'ollama') {
+    console.error('[ModelCatalog] preferredProvider=ollama → Using FREE Ollama');
+    return selectFreeModel(minQuality);
+  }
+  if (preferredProvider === 'claude') {
+    console.error('[ModelCatalog] preferredProvider=claude → Using PAID Claude');
+    return selectClaudeModel(taskComplexity, maxCost);
+  }
+  if (preferredProvider === 'openai') {
+    console.error('[ModelCatalog] preferredProvider=openai → Using PAID OpenAI');
+    return selectOpenAIModel(taskComplexity, maxCost);
+  }
+
+  // Otherwise, select best PAID model based on budget and complexity
+  console.error(`[ModelCatalog] Selecting PAID model: complexity=${taskComplexity}, maxCost=$${maxCost}`);
+  return selectPaidModel(taskComplexity, maxCost, minQuality);
+}
+
+/**
+ * Select best FREE Ollama model
+ */
+function selectFreeModel(minQuality: 'basic' | 'standard' | 'premium' | 'best'): string {
+  switch (minQuality) {
+    case 'basic':
+      return 'ollama/qwen2.5:3b';
+    case 'standard':
+      return 'ollama/qwen2.5-coder:7b';
+    case 'premium':
+      return 'ollama/qwen2.5-coder:32b';
+    case 'best':
+      return 'ollama/deepseek-coder:33b';
+  }
+}
+
+/**
+ * Select best PAID model (OpenAI or Claude)
+ */
+function selectPaidModel(
+  taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
+  maxCost: number,
+  minQuality: 'basic' | 'standard' | 'premium' | 'best'
+): string {
+  // For expert-level tasks with high budget, use best models
+  if (taskComplexity === 'expert' && maxCost >= 10.0) {
+    return 'claude/claude-3-5-sonnet-20241022';  // Best reasoning
+  }
+  if (taskComplexity === 'expert' && maxCost >= 5.0) {
+    return 'openai/o1-mini';  // Good reasoning, cheaper
+  }
+
+  // For complex tasks, use premium models
+  if (taskComplexity === 'complex' && maxCost >= 2.0) {
+    return 'claude/claude-3-5-sonnet-20241022';  // Excellent for complex tasks
+  }
+  if (taskComplexity === 'complex' && maxCost >= 1.0) {
+    return 'openai/gpt-4o';  // Good for complex tasks
+  }
+
+  // For medium tasks, use balanced models
+  if (taskComplexity === 'medium' && maxCost >= 0.5) {
+    return 'openai/gpt-4o-mini';  // Affordable and capable
+  }
+
+  // For simple tasks, use cheapest paid model
+  if (maxCost >= 0.25) {
+    return 'claude/claude-3-haiku-20240307';  // Cheapest paid option
+  }
+
+  // If budget too low for paid, fallback to FREE
+  return selectFreeModel(minQuality);
+}
+
+/**
+ * Select best Claude model
+ */
+function selectClaudeModel(
+  taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
+  maxCost: number
+): string {
+  if (taskComplexity === 'expert' && maxCost >= 10.0) {
+    return 'claude/claude-3-opus-20240229';  // Most powerful
+  }
+  if ((taskComplexity === 'complex' || taskComplexity === 'expert') && maxCost >= 2.0) {
+    return 'claude/claude-3-5-sonnet-20241022';  // Best balance
+  }
+  return 'claude/claude-3-haiku-20240307';  // Fast and affordable
+}
+
+/**
+ * Select best OpenAI model
+ */
+function selectOpenAIModel(
+  taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
+  maxCost: number
+): string {
+  if (taskComplexity === 'expert' && maxCost >= 10.0) {
+    return 'openai/o1';  // Most powerful reasoning
+  }
+  if (taskComplexity === 'expert' && maxCost >= 5.0) {
+    return 'openai/o1-mini';  // Good reasoning
+  }
+  if (taskComplexity === 'complex' && maxCost >= 1.0) {
+    return 'openai/gpt-4o';  // High intelligence
+  }
+  return 'openai/gpt-4o-mini';  // Affordable and capable
 }
 
 /**

@@ -46,3 +46,9 @@ secrets*
 
 # Local secrets for crawlers / services
 .env
+
+# Augment troubleshooting files
+.backups/
+augment-console-log.txt
+AUGMENT_FIX_SUMMARY.md
+SIGN_INTO_AUGMENT_NOW.md

@@ -40,8 +40,18 @@ export class OllamaClient {
   private baseURL: string;
 
   constructor(config: OllamaClientConfig = {}) {
-    this.baseURL = config.baseURL || process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1';
-    
+    // ALWAYS use /v1 endpoint for OpenAI compatibility
+    const envBaseURL = process.env.OLLAMA_BASE_URL;
+    const defaultBaseURL = 'http://localhost:11434/v1';
+
+    // If env var is set but missing /v1, add it
+    if (envBaseURL && !envBaseURL.endsWith('/v1')) {
+      this.baseURL = `${envBaseURL}/v1`;
+      console.error(`[OllamaClient] Added /v1 to OLLAMA_BASE_URL: ${envBaseURL} -> ${this.baseURL}`);
+    } else {
+      this.baseURL = config.baseURL || envBaseURL || defaultBaseURL;
+    }
+
     // Create OpenAI client with Ollama baseURL
     this.client = new OpenAI({
       baseURL: this.baseURL,
@@ -62,6 +72,8 @@ export class OllamaClient {
     const actualModel = modelConfig.model;
 
     console.error(`[OllamaClient] Creating chat completion with model: ${actualModel}`);
+    console.error(`[OllamaClient] BaseURL: ${this.baseURL}`);
+    console.error(`[OllamaClient] Messages:`, JSON.stringify(messages, null, 2));
 
     try {
       const response = await this.client.chat.completions.create({
@@ -94,6 +106,9 @@ export class OllamaClient {
       }
     } catch (error: any) {
       console.error(`[OllamaClient] Error:`, error.message);
+      console.error(`[OllamaClient] Error status:`, error.status);
+      console.error(`[OllamaClient] Error response:`, error.response);
+      console.error(`[OllamaClient] Full error:`, JSON.stringify(error, null, 2));
       throw new Error(`Ollama chat completion failed: ${error.message}`);
     }
   }

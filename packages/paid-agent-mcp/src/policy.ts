@@ -10,7 +10,7 @@ export interface PolicyConfig {
 
 const DEFAULT_POLICY: PolicyConfig = {
   MONTHLY_BUDGET: parseFloat(process.env.MONTHLY_BUDGET || '25'),
-  MAX_CONCURRENCY: Math.min(parseInt(process.env.MAX_OPENAI_CONCURRENCY || '10', 10), 10),
+  MAX_CONCURRENCY: Math.min(parseInt(process.env.MAX_OPENAI_CONCURRENCY || '10', 10), 15),
   PER_JOB_TOKEN_LIMIT: parseInt(process.env.PER_JOB_TOKEN_LIMIT || '8192', 10),
 };
 

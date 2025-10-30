@@ -1,17 +1,28 @@
 #!/usr/bin/env node
 
 /**
- * Autonomous AI Agent MCP Server
- * 
- * Offloads heavy AI work from Augment Code to FREE local LLMs (Ollama).
- * 
+ * Free Agent MCP Server
+ *
+ * Purpose: Execute tasks with PREFERENCE for FREE models (Ollama)
+ *          but CAN use PAID models (OpenAI, Claude) if requested
+ *
+ * Supported Providers (ALL):
+ * - FREE: Ollama (qwen, deepseek, codellama) - $0.00 (PREFERRED)
+ * - PAID: OpenAI (gpt-4o-mini, gpt-4o, o1-mini) - $0.15-$15/1M tokens
+ * - PAID: Claude (haiku, sonnet, opus) - $0.25-$75/1M tokens
+ *
+ * Default Behavior:
+ * - preferFree=true (prefers FREE models by default)
+ * - Can be overridden per request
+ *
  * Features:
  * - Code generation using local LLMs (0 Augment credits!)
  * - Code analysis (0 Augment credits!)
  * - Code refactoring (0 Augment credits!)
  * - Test generation (0 Augment credits!)
  * - Documentation generation (0 Augment credits!)
- * 
+ * - Can escalate to PAID models when needed
+ *
  * Savings: 90%+ reduction in Augment Code credits!
  */
 
@@ -65,12 +76,12 @@ class AutonomousAgentServer {
     this.codeRefactor = new CodeRefactor(this.ollama);
     this.stats = new StatsTracker();
 
-    // Configurable concurrency: 1-5 concurrent Ollama jobs
-    // Default: 1 (safe), Max: 5 (if your PC can handle it)
-    // Set MAX_OLLAMA_CONCURRENCY=5 to enable parallel processing
+    // Configurable concurrency: 1-15 concurrent Ollama jobs
+    // Default: 1 (safe), Max: 15 (if your PC can handle it)
+    // Set MAX_OLLAMA_CONCURRENCY=15 to enable parallel processing
     this.maxConcurrency = parseInt(process.env.MAX_OLLAMA_CONCURRENCY || '1', 10);
     if (this.maxConcurrency < 1) this.maxConcurrency = 1;
-    if (this.maxConcurrency > 5) this.maxConcurrency = 5;
+    if (this.maxConcurrency > 15) this.maxConcurrency = 15;
 
     console.error(`[Autonomous Agent] Max concurrency: ${this.maxConcurrency}`);
 
@@ -192,7 +203,7 @@ class AutonomousAgentServer {
                 active: this.activeJobs,
                 queued: this.jobQueue.length,
                 available: this.maxConcurrency - this.activeJobs,
-                config: `Set MAX_OLLAMA_CONCURRENCY=1-5 (current: ${this.maxConcurrency})`
+                config: `Set MAX_OLLAMA_CONCURRENCY=1-15 (current: ${this.maxConcurrency})`
               },
               cost: {
                 per_job: 0,
@@ -293,10 +304,24 @@ class AutonomousAgentServer {
     task: string;
     taskType: 'code_generation' | 'code_analysis' | 'refactoring' | 'test_generation' | 'documentation' | 'toolkit_call';
     params?: any;
+    forcePaid?: boolean;  // NEW: If true, return error (Autonomous Agent is FREE only)
   }): Promise<any> {
-    const { task, taskType, params = {} } = args;
+    const { task, taskType, params = {}, forcePaid = false } = args;
 
     console.error(`[AutonomousAgent] Executing versatile task: ${taskType} - ${task}`);
+
+    // Autonomous Agent is FREE only - if forcePaid=true, reject the request
+    if (forcePaid) {
+      console.error(`[AutonomousAgent] ERROR: forcePaid=true but Autonomous Agent only supports FREE Ollama!`);
+      return {
+        success: false,
+        error: 'WRONG_AGENT',
+        message: 'Autonomous Agent only supports FREE Ollama. Use execute_versatile_task_openai-worker-mcp with forcePaid=true instead.',
+        suggestion: 'Call execute_versatile_task_openai-worker-mcp({ ...args, forcePaid: true })',
+        augmentCreditsUsed: 0,
+        creditsSaved: 0,
+      };
+    }
 
     switch (taskType) {
       case 'code_generation':

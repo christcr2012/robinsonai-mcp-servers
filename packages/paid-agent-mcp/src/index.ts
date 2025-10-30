@@ -1,19 +1,26 @@
 #!/usr/bin/env node
 /**
- * OpenAI Worker MCP Server
- * 
- * Purpose: Do work, not think (apply diffs, format, summarize, rename, small edits)
- * 
- * Sub-agents:
- * - mini-worker (gpt-4o-mini) - Very cheap, fast
- * - balanced-worker (gpt-4o) - Mid-tier
- * - premium-worker (o1-mini) - Expensive, gated
- * 
+ * Paid Agent MCP Server
+ *
+ * Purpose: Execute tasks with PREFERENCE for PAID models (OpenAI, Claude)
+ *          but CAN use FREE models (Ollama) if requested
+ *
+ * Supported Providers (ALL):
+ * - FREE: Ollama (qwen, deepseek, codellama) - $0.00
+ * - PAID: OpenAI (gpt-4o-mini, gpt-4o, o1-mini) - $0.15-$15/1M tokens
+ * - PAID: Claude (haiku, sonnet, opus) - $0.25-$75/1M tokens
+ *
+ * Default Behavior:
+ * - preferFree=false (prefers PAID models by default)
+ * - Can be overridden per request
+ *
  * Features:
+ * - Multi-provider support (OpenAI, Claude, Ollama)
+ * - Smart model selection based on budget and complexity
  * - Per-job token limits
  * - Monthly budget enforcement
  * - Concurrency control
- * - Batch mode for big backlogs
+ * - Cost tracking and optimization
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -23,6 +30,7 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import { initDatabase, createJob, getJob, updateJob, getMonthlySpend, recordSpend } from './db.js';
 import { getPolicy } from './policy.js';
 import { initializePricing, getModelPricing, getPricingInfo, refreshPricing } from './pricing.js';
@@ -33,8 +41,8 @@ import { getSharedToolkitClient, type ToolkitCallParams } from '@robinsonai/shar
 
 const server = new Server(
   {
-    name: 'openai-worker-mcp',
-    version: '0.1.0',
+    name: 'paid-agent-mcp',
+    version: '0.2.0',
   },
   {
     capabilities: {
@@ -46,6 +54,11 @@ const server = new Server(
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+});
+
+// Initialize Anthropic (Claude) client
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY || '',
 });
 
 // Initialize database and pricing
@@ -253,8 +266,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: 'execute_versatile_task_openai-worker-mcp',
-        description: 'Execute ANY task - coding, DB setup, deployment, account management, etc. This worker is VERSATILE and can handle all types of work. Uses smart model selection: FREE Ollama first, PAID OpenAI only when needed.',
+        name: 'execute_versatile_task_paid-agent-mcp',
+        description: 'Execute ANY task using PAID models (OpenAI, Claude, etc.). This agent is VERSATILE and can handle all types of work. Supports multi-provider execution with smart model selection and cost optimization.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -356,10 +369,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'openai_worker_refresh_pricing':
         return await handleRefreshPricing();
       case 'openai_worker_get_token_analytics':
+      case 'paid_agent_get_token_analytics':
         return await handleGetTokenAnalytics(args);
       case 'execute_versatile_task_openai-worker-mcp':
+      case 'execute_versatile_task_paid-agent-mcp':
         return await handleExecuteVersatileTask(args);
       case 'discover_toolkit_tools_openai-worker-mcp':
+      case 'discover_toolkit_tools_paid-agent-mcp':
         return await handleDiscoverToolkitTools(args);
       case 'list_toolkit_categories_openai-worker-mcp':
         return await handleListToolkitCategories();
@@ -761,16 +777,20 @@ async function handleExecuteVersatileTask(args: any) {
     minQuality = 'standard',
     maxCost = COST_POLICY.DEFAULT_MAX_COST,
     taskComplexity = 'medium',
+    forcePaid = false,  // NEW: Force PAID OpenAI (bypass FREE Ollama)
   } = args;
 
   console.error(`[OpenAIWorker] Executing versatile task: ${taskType} - ${task}`);
+  if (forcePaid) {
+    console.error(`[OpenAIWorker] forcePaid=true - Will use PAID OpenAI (bypassing FREE Ollama)`);
+  }
 
   // Select best model (FREE Ollama first, PAID OpenAI when needed)
   const modelId = selectBestModel({
     minQuality,
     maxCost,
     taskComplexity,
-    preferFree: true,
+    preferFree: !forcePaid,  // If forcePaid=true, preferFree=false
   });
 
   const modelConfig = getModelConfig(modelId);
@@ -903,6 +923,59 @@ async function handleExecuteVersatileTask(args: any) {
                     total: 0,
                     currency: 'USD',
                     note: 'FREE - Ollama execution',
+                  },
+                  model: modelId,
+                }, null, 2),
+              },
+            ],
+          };
+        } else if (modelConfig.provider === 'claude') {
+          // Use PAID Claude (Anthropic)
+          const systemPrompt = `You are a ${taskType.replace('_', ' ')} expert. ${params.context || ''}`;
+
+          const response = await anthropic.messages.create({
+            model: modelConfig.model,
+            max_tokens: params.maxTokens || modelConfig.maxTokens || 4096,
+            temperature: params.temperature || 0.7,
+            system: systemPrompt,
+            messages: [
+              {
+                role: 'user',
+                content: task,
+              },
+            ],
+          });
+
+          const usage = response.usage;
+          const content = response.content[0];
+          const resultText = content.type === 'text' ? content.text : '';
+
+          // Calculate actual cost
+          const actualCost = estimateTaskCost({
+            modelId,
+            estimatedInputTokens: usage.input_tokens,
+            estimatedOutputTokens: usage.output_tokens,
+          });
+
+          // Record spend
+          recordSpend(actualCost, `versatile_task_${modelConfig.model}`);
+
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: true,
+                  result: resultText,
+                  usage: {
+                    promptTokens: usage.input_tokens,
+                    completionTokens: usage.output_tokens,
+                    totalTokens: usage.input_tokens + usage.output_tokens,
+                  },
+                  cost: {
+                    total: actualCost,
+                    currency: 'USD',
+                    note: 'PAID - Claude (Anthropic) execution',
                   },
                   model: modelId,
                 }, null, 2),
