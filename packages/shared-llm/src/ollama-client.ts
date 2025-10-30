@@ -17,7 +17,7 @@ export async function ollamaGenerate(opts: {
   timeoutMs?: number;
   retries?: number;
 }) {
-  const { model, prompt, format, timeoutMs = 45000, retries = 2 } = opts;
+  const { model, prompt, format, timeoutMs = 120000, retries = 2 } = opts;  // 2 minutes for cold start
   let lastErr: any;
   for (let i = 0; i <= retries; i++) {
     try {

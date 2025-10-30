@@ -34,7 +34,9 @@
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^11.10.0",
     "handlebars": "^4.7.8",
-    "ollama": "^0.5.9"
+    "ollama": "^0.5.9",
+    "@anthropic-ai/sdk": "^0.32.1",
+    "openai": "^4.77.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

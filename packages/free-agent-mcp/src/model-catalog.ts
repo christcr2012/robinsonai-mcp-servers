@@ -361,7 +361,7 @@ function selectPaidModel(
 ): string {
   // For expert-level tasks with high budget, use best models
   if (taskComplexity === 'expert' && maxCost >= 10.0) {
-    return 'claude/claude-3-5-sonnet-20241022';  // Best reasoning
+    return 'claude/claude-opus-4.1';  // Most powerful - Opus 4.1
   }
   if (taskComplexity === 'expert' && maxCost >= 5.0) {
     return 'openai/o1-mini';  // Good reasoning, cheaper
@@ -369,7 +369,7 @@ function selectPaidModel(
 
   // For complex tasks, use premium models
   if (taskComplexity === 'complex' && maxCost >= 2.0) {
-    return 'claude/claude-3-5-sonnet-20241022';  // Excellent for complex tasks
+    return 'claude/claude-sonnet-4.5';  // Latest Sonnet 4.5 - excellent for complex tasks
   }
   if (taskComplexity === 'complex' && maxCost >= 1.0) {
     return 'openai/gpt-4o';  // Good for complex tasks
@@ -390,22 +390,19 @@ function selectPaidModel(
 }
 
 /**
- * Select best Claude model (using latest 2025 models)
+ * Select best Claude model
  */
 function selectClaudeModel(
   taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
   maxCost: number
 ): string {
   if (taskComplexity === 'expert' && maxCost >= 10.0) {
-    return 'claude/claude-opus-4.1';  // Most powerful - Opus 4.1
+    return 'claude/claude-3-opus-20240229';  // Most powerful
   }
   if ((taskComplexity === 'complex' || taskComplexity === 'expert') && maxCost >= 2.0) {
-    return 'claude/claude-sonnet-4.5';  // Best balance - Sonnet 4.5
+    return 'claude/claude-3-5-sonnet-20241022';  // Best balance
   }
-  if (taskComplexity === 'medium' && maxCost >= 1.0) {
-    return 'claude/claude-sonnet-3.7';  // Cost-effective Sonnet
-  }
-  return 'claude/claude-haiku-4.5';  // Fastest and most affordable - Haiku 4.5
+  return 'claude/claude-3-haiku-20240307';  // Fast and affordable
 }
 
 /**

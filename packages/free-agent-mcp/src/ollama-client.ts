@@ -157,7 +157,7 @@ export class OllamaClient {
         model,
         prompt,
         format: 'text',
-        timeoutMs: 45000,
+        timeoutMs: 120000,  // 2 minutes for cold start
         retries: 2
       });
 

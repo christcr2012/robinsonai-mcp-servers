@@ -34,13 +34,16 @@ import {
   InitializeRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
+import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import { OllamaClient } from './ollama-client.js';
 import { CodeGenerator } from './agents/code-generator.js';
 import { CodeAnalyzer } from './agents/code-analyzer.js';
 import { CodeRefactor } from './agents/code-refactor.js';
 import { StatsTracker } from './utils/stats-tracker.js';
-import { getSharedToolkitClient, type ToolkitCallParams } from '@robinsonai/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinsonai/shared-llm';
 import { getTokenTracker } from './token-tracker.js';
+import { selectBestModel, getModelConfig, estimateTaskCost } from './model-catalog.js';
 
 /**
  * Main Autonomous Agent MCP Server
@@ -48,6 +51,8 @@ import { getTokenTracker } from './token-tracker.js';
 class AutonomousAgentServer {
   private server: Server;
   private ollama: OllamaClient;
+  private openai?: OpenAI;
+  private anthropic?: Anthropic;
   private codeGenerator: CodeGenerator;
   private codeAnalyzer: CodeAnalyzer;
   private codeRefactor: CodeRefactor;
@@ -71,6 +76,19 @@ class AutonomousAgentServer {
 
     // Initialize components
     this.ollama = new OllamaClient();
+
+    // Initialize PAID clients only if API keys are provided
+    if (process.env.OPENAI_API_KEY) {
+      this.openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+    }
+    if (process.env.ANTHROPIC_API_KEY) {
+      this.anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+    }
+
     this.codeGenerator = new CodeGenerator(this.ollama);
     this.codeAnalyzer = new CodeAnalyzer(this.ollama);
     this.codeRefactor = new CodeRefactor(this.ollama);
@@ -246,6 +264,29 @@ class AutonomousAgentServer {
             result = toolsResult.result;
             break;
 
+          // Universal file editing tools (work in ANY MCP client!)
+          case 'file_str_replace':
+            const fileEditor = getSharedFileEditor();
+            result = await fileEditor.strReplace(args as any);
+            break;
+
+          case 'file_insert':
+            result = await getSharedFileEditor().insert(args as any);
+            break;
+
+          case 'file_save':
+            result = await getSharedFileEditor().saveFile(args as any);
+            break;
+
+          case 'file_delete':
+            result = await getSharedFileEditor().deleteFile(args as any);
+            break;
+
+          case 'file_read':
+            const content = await getSharedFileEditor().readFile((args as any).path);
+            result = { success: true, content, path: (args as any).path };
+            break;
+
             default:
               throw new Error(`Unknown tool: ${name}`);
           }
@@ -302,7 +343,7 @@ class AutonomousAgentServer {
    */
   private async executeVersatileTask(args: {
     task: string;
-    taskType: 'code_generation' | 'code_analysis' | 'refactoring' | 'test_generation' | 'documentation' | 'toolkit_call';
+    taskType: 'code_generation' | 'code_analysis' | 'refactoring' | 'test_generation' | 'documentation' | 'toolkit_call' | 'file_editing';
     params?: any;
     forcePaid?: boolean;  // NEW: If true, return error (Autonomous Agent is FREE only)
   }): Promise<any> {
@@ -364,6 +405,10 @@ class AutonomousAgentServer {
           detail: params.detail,
         });
 
+      case 'file_editing':
+        // NEW: Direct file editing using universal file tools
+        return await this.handleFileEditing(task, params);
+
       case 'toolkit_call':
         // Call Robinson's Toolkit for DB setup, deployment, account management, etc.
         const toolkitClient = getSharedToolkitClient();
@@ -394,6 +439,344 @@ class AutonomousAgentServer {
 
       default:
         throw new Error(`Unknown task type: ${taskType}`);
+    }
+  }
+
+  /**
+   * Handle file editing tasks using LLM to determine operations, then execute them
+   */
+  private async handleFileEditing(task: string, params: any): Promise<any> {
+    console.error(`[AutonomousAgent] File editing task: ${task}`);
+
+    const fileEditor = getSharedFileEditor();
+    const results: any[] = [];
+
+    // STEP 1: Detect task complexity and choose strategy
+    // Simple tasks: Small, targeted changes (fix typo, change variable name, update version)
+    // Complex tasks: Large-scale changes (convert format, standardize, refactor, redesign)
+    const isSimpleTask = /fix typo|change variable|update version|add comment|remove comment/i.test(task);
+    const isComplexTask = /convert|standardize|format|single-line|multi-line|refactor|redesign|rewrite|restructure/i.test(task);
+
+    // HYBRID APPROACH (Option C):
+    // - Simple tasks: Use file operations (precise, targeted changes)
+    // - Complex tasks: Generate full code and replace entire sections
+    const useFileOperations = isSimpleTask && !isComplexTask;
+
+    console.error(`[AutonomousAgent] Strategy: ${useFileOperations ? 'FILE_OPERATIONS' : 'FULL_CODE_GENERATION'} (simple=${isSimpleTask}, complex=${isComplexTask})`);
+
+    // STEP 2: Read the file first to get actual content
+    // Try multiple patterns to extract file path
+    let filePath = params?.path || params?.file;
+    if (!filePath) {
+      // Pattern 1: "in packages/..." or "file packages/..."
+      const match1 = task.match(/(?:in|file|path:?)\s+([\w\-\/\.]+\.(?:ts|js|tsx|jsx|json|md))/i);
+      if (match1) filePath = match1[1];
+    }
+    if (!filePath) {
+      // Pattern 2: Just look for any path with file extension
+      const match2 = task.match(/([\w\-\/\.]+\.(?:ts|js|tsx|jsx|json|md))/i);
+      if (match2) filePath = match2[1];
+    }
+
+    let fileContent = '';
+    if (filePath) {
+      try {
+        fileContent = await fileEditor.readFile(filePath);
+        console.error(`[AutonomousAgent] Read ${filePath}: ${fileContent.length} chars`);
+      } catch (e: any) {
+        console.error(`[AutonomousAgent] Could not read ${filePath}: ${e.message}`);
+      }
+    }
+
+    // If complex task, use full code generation approach
+    if (!useFileOperations) {
+      return await this.handleComplexFileEditing(task, params, filePath, fileContent, fileEditor);
+    }
+
+    // STEP 2: Use LLM to analyze the task and determine file operations
+    const analysisPrompt = `You are a file editing assistant. Analyze this task and determine what file operations are needed.
+
+Task: ${task}
+
+Parameters: ${JSON.stringify(params, null, 2)}
+
+${fileContent ? `Current file content (${fileContent.split('\n').length} lines):\n\`\`\`\n${fileContent.slice(0, 5000)}\n\`\`\`\n` : ''}
+
+IMPORTANT RULES:
+1. ALWAYS read the file first if you need to see its content
+2. For str_replace: You MUST provide the EXACT old_str from the file (copy it exactly!)
+3. For save: You MUST provide the complete content field
+4. Use line numbers only if you're sure they're correct
+5. Prefer smaller, targeted changes over large replacements
+
+Respond with a JSON array of file operations. Each operation should have:
+- operation: "read" | "str_replace" | "insert" | "save" | "delete"
+- path: file path (REQUIRED for all operations)
+- For read: (just path)
+- For str_replace: old_str (REQUIRED, exact match), new_str (REQUIRED), old_str_start_line (optional), old_str_end_line (optional)
+- For insert: insert_line (REQUIRED), new_str (REQUIRED)
+- For save: content (REQUIRED, complete file content)
+- For delete: (just path)
+
+GOOD EXAMPLES:
+[
+  {
+    "operation": "read",
+    "path": "src/index.ts"
+  },
+  {
+    "operation": "str_replace",
+    "path": "src/index.ts",
+    "old_str": "export const foo = 'bar';",
+    "new_str": "export const foo = 'baz';",
+    "old_str_start_line": 10,
+    "old_str_end_line": 10
+  }
+]
+
+BAD EXAMPLES (DO NOT DO THIS):
+[
+  {
+    "operation": "save",
+    "path": "src/index.ts"
+    // ❌ Missing content field!
+  },
+  {
+    "operation": "str_replace",
+    "path": "src/index.ts",
+    "old_str": "// approximate code",
+    // ❌ old_str must be EXACT match from file!
+    "new_str": "new code"
+  }
+]
+
+Respond ONLY with the JSON array, no other text.`;
+
+    try {
+      // Use Ollama to analyze and plan file operations
+      const { ollamaGenerate } = await import('@robinsonai/shared-llm');
+      const response = await ollamaGenerate({
+        model: process.env.DEFAULT_OLLAMA_MODEL || 'qwen2.5-coder:7b',
+        prompt: analysisPrompt,
+      });
+
+      // Parse the response
+      let operations: any[];
+      try {
+        // Extract JSON from response (handle markdown code blocks)
+        let jsonStr = response.trim();
+        if (jsonStr.startsWith('```json')) {
+          jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+        } else if (jsonStr.startsWith('```')) {
+          jsonStr = jsonStr.replace(/```\n?/g, '');
+        }
+        operations = JSON.parse(jsonStr);
+      } catch (parseError: any) {
+        console.error(`[AutonomousAgent] Failed to parse LLM response as JSON:`, response);
+        throw new Error(`Failed to parse file operations: ${parseError.message}`);
+      }
+
+      // Execute each operation
+      for (const op of operations) {
+        console.error(`[AutonomousAgent] Executing ${op.operation} on ${op.path}`);
+
+        let result: any;
+        switch (op.operation) {
+          case 'str_replace':
+            result = await fileEditor.strReplace({
+              path: op.path,
+              old_str: op.old_str,
+              new_str: op.new_str,
+              old_str_start_line: op.old_str_start_line,
+              old_str_end_line: op.old_str_end_line,
+            });
+            break;
+
+          case 'insert':
+            result = await fileEditor.insert({
+              path: op.path,
+              insert_line: op.insert_line,
+              new_str: op.new_str,
+            });
+            break;
+
+          case 'save':
+            result = await fileEditor.saveFile({
+              path: op.path,
+              content: op.content,
+              add_last_line_newline: op.add_last_line_newline,
+            });
+            break;
+
+          case 'delete':
+            result = await fileEditor.deleteFile({
+              path: op.path,
+            });
+            break;
+
+          case 'read':
+            const content = await fileEditor.readFile(op.path);
+            result = { success: true, content, path: op.path };
+            break;
+
+          default:
+            result = { success: false, error: `Unknown operation: ${op.operation}` };
+        }
+
+        results.push(result);
+
+        if (!result.success) {
+          console.error(`[AutonomousAgent] Operation failed:`, result);
+        }
+      }
+
+      // Return summary
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.filter(r => !r.success).length;
+
+      return {
+        success: failCount === 0,
+        message: `Executed ${results.length} file operations: ${successCount} succeeded, ${failCount} failed`,
+        operations: results,
+        augmentCreditsUsed: 0,
+        creditsSaved: 1000, // Saved by using FREE Ollama + direct file ops
+        cost: {
+          total: 0,
+          currency: 'USD',
+          note: 'FREE - Ollama + file operations',
+        },
+      };
+    } catch (error: any) {
+      console.error(`[AutonomousAgent] File editing failed:`, error);
+      return {
+        success: false,
+        error: error.message,
+        augmentCreditsUsed: 0,
+        creditsSaved: 0,
+      };
+    }
+  }
+
+  /**
+   * Handle complex file editing using full code generation
+   * (Option C: Hybrid Approach)
+   */
+  private async handleComplexFileEditing(
+    task: string,
+    params: any,
+    filePath: string,
+    fileContent: string,
+    fileEditor: any
+  ): Promise<any> {
+    console.error(`[AutonomousAgent] Using FULL CODE GENERATION approach for complex task`);
+
+    try {
+      // Extract line range if specified
+      const lineRangeMatch = task.match(/lines?\s+(\d+)[-–](\d+)/i);
+      const startLine = lineRangeMatch ? parseInt(lineRangeMatch[1]) : 1;
+      const endLine = lineRangeMatch ? parseInt(lineRangeMatch[2]) : fileContent.split('\n').length;
+
+      // Extract the section to modify
+      const lines = fileContent.split('\n');
+      const sectionToModify = lines.slice(startLine - 1, endLine).join('\n');
+      const beforeSection = lines.slice(0, startLine - 1).join('\n');
+      const afterSection = lines.slice(endLine).join('\n');
+
+      console.error(`[AutonomousAgent] Modifying lines ${startLine}-${endLine} (${sectionToModify.length} chars)`);
+
+      // Use LLM to generate the complete new code
+      const codeGenPrompt = `You are a TypeScript code generation assistant. Your task is to modify a specific section of a file.
+
+TASK: ${task}
+
+CONTEXT:
+- File: ${filePath}
+- Lines to modify: ${startLine}-${endLine}
+- Total file lines: ${lines.length}
+
+SECTION TO MODIFY (lines ${startLine}-${endLine}):
+\`\`\`typescript
+${sectionToModify.slice(0, 10000)}
+\`\`\`
+
+${beforeSection ? `BEFORE THIS SECTION (for context):\n\`\`\`typescript\n${beforeSection.slice(-500)}\n\`\`\`\n` : ''}
+
+${afterSection ? `AFTER THIS SECTION (for context):\n\`\`\`typescript\n${afterSection.slice(0, 500)}\n\`\`\`\n` : ''}
+
+INSTRUCTIONS:
+1. Generate ONLY the modified section (lines ${startLine}-${endLine})
+2. Maintain the EXACT same structure and format as the original
+3. Keep all TypeScript syntax valid
+4. Do NOT include the before/after sections
+5. Do NOT add markdown code blocks
+6. Do NOT add explanations or comments
+7. The output should be valid TypeScript that can directly replace lines ${startLine}-${endLine}
+
+Generate the modified section now:`;
+
+      const { ollamaGenerate } = await import('@robinsonai/shared-llm');
+      let newCode = await ollamaGenerate({
+        model: process.env.DEFAULT_OLLAMA_MODEL || 'qwen2.5-coder:7b',
+        prompt: codeGenPrompt,
+      });
+
+      // Clean up the generated code (remove markdown if present)
+      newCode = newCode.trim();
+      if (newCode.startsWith('```')) {
+        // Remove markdown code blocks
+        newCode = newCode.replace(/^```[\w]*\n?/gm, '').replace(/```$/gm, '').trim();
+      }
+
+      // Reconstruct the full file
+      const fullFileContent = [
+        beforeSection,
+        newCode,
+        afterSection
+      ].filter(s => s).join('\n');
+
+      console.error(`[AutonomousAgent] Reconstructed file: ${fullFileContent.split('\n').length} lines (was ${lines.length} lines)`);
+
+      // Validate the generated code is not garbage
+      if (fullFileContent.length < fileContent.length * 0.5) {
+        throw new Error(`Generated code is too short (${fullFileContent.length} chars vs original ${fileContent.length} chars). Refusing to save.`);
+      }
+
+      if (!fullFileContent.includes('export') && fileContent.includes('export')) {
+        throw new Error('Generated code is missing exports. Refusing to save.');
+      }
+
+      // Save the new code
+      const result = await fileEditor.saveFile({
+        path: filePath,
+        content: fullFileContent,
+        add_last_line_newline: true,
+      });
+
+      if (result.success) {
+        console.error(`[AutonomousAgent] ✅ Successfully generated and saved new code`);
+        return {
+          success: true,
+          message: `Generated and saved new code for ${filePath} (modified lines ${startLine}-${endLine})`,
+          operations: [result],
+          augmentCreditsUsed: 0,
+          creditsSaved: 2000, // Saved by using FREE Ollama for complex task
+          cost: {
+            total: 0,
+            currency: 'USD',
+            note: 'FREE - Ollama full code generation',
+          },
+        };
+      } else {
+        throw new Error(result.error || 'Failed to save generated code');
+      }
+    } catch (error: any) {
+      console.error(`[AutonomousAgent] Complex file editing failed:`, error);
+      return {
+        success: false,
+        error: error.message,
+        augmentCreditsUsed: 0,
+        creditsSaved: 0,
+      };
     }
   }
 
@@ -549,7 +932,7 @@ class AutonomousAgentServer {
             },
             taskType: {
               type: 'string',
-              enum: ['code_generation', 'code_analysis', 'refactoring', 'test_generation', 'documentation', 'toolkit_call'],
+              enum: ['code_generation', 'code_analysis', 'refactoring', 'test_generation', 'documentation', 'toolkit_call', 'file_editing'],
               description: 'Type of task to execute',
             },
             params: {
@@ -633,6 +1016,109 @@ class AutonomousAgentServer {
             },
           },
           required: ['category'],
+        },
+      },
+      // Universal file editing tools (work in ANY MCP client: Augment, Cline, Cursor, etc.)
+      {
+        name: 'file_str_replace',
+        description: 'Replace text in a file (universal - works in any MCP client). Like Augment\'s str-replace-editor but works everywhere.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            path: {
+              type: 'string',
+              description: 'File path relative to workspace root',
+            },
+            old_str: {
+              type: 'string',
+              description: 'Text to find and replace',
+            },
+            new_str: {
+              type: 'string',
+              description: 'Replacement text',
+            },
+            old_str_start_line: {
+              type: 'number',
+              description: 'Optional: Start line number (1-based) to narrow search',
+            },
+            old_str_end_line: {
+              type: 'number',
+              description: 'Optional: End line number (1-based) to narrow search',
+            },
+          },
+          required: ['path', 'old_str', 'new_str'],
+        },
+      },
+      {
+        name: 'file_insert',
+        description: 'Insert text at a specific line in a file (universal - works in any MCP client)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            path: {
+              type: 'string',
+              description: 'File path relative to workspace root',
+            },
+            insert_line: {
+              type: 'number',
+              description: 'Line number to insert after (0 = beginning of file)',
+            },
+            new_str: {
+              type: 'string',
+              description: 'Text to insert',
+            },
+          },
+          required: ['path', 'insert_line', 'new_str'],
+        },
+      },
+      {
+        name: 'file_save',
+        description: 'Create a new file (universal - works in any MCP client). Like Augment\'s save-file but works everywhere.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            path: {
+              type: 'string',
+              description: 'File path relative to workspace root',
+            },
+            content: {
+              type: 'string',
+              description: 'File content',
+            },
+            add_last_line_newline: {
+              type: 'boolean',
+              description: 'Add newline at end of file (default: true)',
+            },
+          },
+          required: ['path', 'content'],
+        },
+      },
+      {
+        name: 'file_delete',
+        description: 'Delete a file (universal - works in any MCP client)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            path: {
+              type: 'string',
+              description: 'File path relative to workspace root',
+            },
+          },
+          required: ['path'],
+        },
+      },
+      {
+        name: 'file_read',
+        description: 'Read file content (universal - works in any MCP client)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            path: {
+              type: 'string',
+              description: 'File path relative to workspace root',
+            },
+          },
+          required: ['path'],
         },
       },
     ];
