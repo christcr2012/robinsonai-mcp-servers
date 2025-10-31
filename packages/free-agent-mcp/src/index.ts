@@ -812,6 +812,11 @@ Generate the modified section now:`;
               description: 'Task complexity (affects model selection)',
               enum: ['simple', 'medium', 'complex'],
             },
+            quality: {
+              type: 'string',
+              description: 'Quality vs speed tradeoff: fast (no sandbox, <5s), balanced (sandbox, ~30s), best (full validation, ~60s)',
+              enum: ['fast', 'balanced', 'best'],
+            },
           },
           required: ['task', 'context'],
         },
@@ -1126,10 +1131,10 @@ Generate the modified section now:`;
   }
 
   async run(): Promise<void> {
-    // Warm up models on startup to avoid cold start delays
-    warmupAvailableModels().catch(error => {
-      console.error('⚠️  Model warmup failed (non-fatal):', error);
-    });
+    // Warm up models on startup to avoid cold start delays (disabled for now - causes timeouts)
+    // warmupAvailableModels().catch(error => {
+    //   console.error('⚠️  Model warmup failed (non-fatal):', error);
+    // });
 
     const transport = new StdioServerTransport();
     await this.server.connect(transport);

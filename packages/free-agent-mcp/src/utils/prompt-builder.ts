@@ -6,6 +6,18 @@
 
 export class PromptBuilder {
   /**
+   * Build code generation prompt (alias for buildGenerationPrompt)
+   */
+  buildCodePrompt(request: {
+    task: string;
+    context: string;
+    template?: string;
+    includeTests?: boolean;
+  }): string {
+    return this.buildGenerationPrompt(request);
+  }
+
+  /**
    * Build code generation prompt
    */
   buildGenerationPrompt(request: {

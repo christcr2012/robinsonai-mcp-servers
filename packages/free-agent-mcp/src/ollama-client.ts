@@ -9,6 +9,7 @@
 import { Ollama } from 'ollama';
 import { spawn } from 'child_process';
 import { ollamaGenerate as sharedGenerate, pingOllama } from '@robinsonai/shared-llm';
+import { getModelManager, type ModelSelectionCriteria } from './utils/model-manager.js';
 
 export interface ModelConfig {
   name: string;
@@ -104,38 +105,49 @@ export class OllamaClient {
   /**
    * Select the best model for the task
    */
-  selectModel(options: GenerateOptions): string {
-    // If model explicitly specified, use it
+  async selectModel(options: GenerateOptions): Promise<string> {
+    const modelManager = getModelManager(this.baseUrl);
+
+    // If model explicitly specified, use it (but verify it exists)
     if (options.model && options.model !== 'auto') {
       const modelMap: Record<string, string> = {
         'router': 'qwen2.5:3b',
         'router-alt': 'llama3.2:3b',
-        'deepseek-coder': 'deepseek-coder:33b',
-        'qwen-coder': 'qwen2.5-coder:32b',
-        'codellama': 'codellama:34b',
+        'deepseek-coder': 'deepseek-coder:1.3b',
+        'qwen-coder': 'qwen2.5-coder:7b',
+        'codellama': 'qwen2.5-coder:7b',
       };
-      return modelMap[options.model] || 'codellama:34b';
+      const requestedModel = modelMap[options.model] || options.model;
+
+      // Check if model exists
+      const modelInfo = modelManager.getModelInfo(requestedModel);
+      if (modelInfo) {
+        return requestedModel;
+      }
+
+      // Fall through to auto-selection if model doesn't exist
+      console.warn(`[OllamaClient] Requested model ${requestedModel} not found, auto-selecting...`);
     }
 
-    // Auto-select based on complexity
-    const complexity = options.complexity || 'medium';
+    // Auto-select using ModelManager
+    const criteria: ModelSelectionCriteria = {
+      task: 'code', // Default to code task
+      complexity: (options.complexity as any) || 'simple',
+      preferSpeed: options.complexity === 'simple',
+      requiredCapabilities: ['code'],
+    };
 
-    switch (complexity) {
-      case 'simple':
-        // Use fast 3B router model for simple tasks (10x faster!)
-        return 'qwen2.5:3b';
-      case 'complex':
-        // Use best quality 33B model for complex tasks
-        return 'deepseek-coder:33b';
-      case 'medium':
-      default:
-        // Use balanced 34B model for medium tasks
-        return 'codellama:34b';
+    const selectedModel = await modelManager.selectModel(criteria);
+
+    if (!selectedModel) {
+      throw new Error('No Ollama models available. Please pull at least one model.');
     }
+
+    return selectedModel;
   }
 
   /**
-   * Generate text using Ollama (with auto-start and shared client!)
+   * Generate text using Ollama (with auto-start, dynamic model selection, and adaptive timeouts!)
    */
   async generate(prompt: string, options: GenerateOptions = {}): Promise<{
     text: string;
@@ -148,20 +160,36 @@ export class OllamaClient {
     // Auto-start Ollama if needed (saves Augment credits!)
     await this.ensureRunning();
 
-    const model = this.selectModel(options);
+    const modelManager = getModelManager(this.baseUrl);
+
+    // Discover models if not done yet
+    await modelManager.discoverModels();
+
+    // Select best model
+    const model = await this.selectModel(options);
     const startTime = Date.now();
 
+    // Get adaptive timeout based on model size
+    // Don't assume cold start - models are usually warm after first use
+    const isColdStart = false;
+    const timeout = await modelManager.getAdaptiveTimeout(model, isColdStart);
+
+    console.error(`[OllamaClient] Using model: ${model} (timeout: ${timeout}ms)`);
+    console.error(`[OllamaClient] Prompt length: ${prompt.length} chars`);
+
     try {
-      // Use shared client with timeout/retry for reliability
+      // Use shared client with adaptive timeout and retry
+      console.error('[OllamaClient] Calling sharedGenerate...');
       const text = await sharedGenerate({
         model,
         prompt,
         format: 'text',
-        timeoutMs: 120000,  // 2 minutes for cold start
+        timeoutMs: timeout,
         retries: 2
       });
 
       const timeMs = Date.now() - startTime;
+      console.error(`[OllamaClient] sharedGenerate completed in ${timeMs}ms`);
 
       // Estimate tokens (rough approximation: 1 token ≈ 4 chars)
       const tokensInput = Math.ceil(prompt.length / 4);
@@ -176,10 +204,48 @@ export class OllamaClient {
         timeMs,
       };
     } catch (error: any) {
-      // If model not found, suggest pulling it
-      if (error.message?.includes('not found')) {
+      // If model not found, try fallback
+      if (error.message?.includes('not found') || error.message?.includes('404')) {
+        console.warn(`[OllamaClient] Model ${model} failed, trying fallback...`);
+
+        const criteria: ModelSelectionCriteria = {
+          task: 'code',
+          complexity: (options.complexity as any) || 'simple',
+        };
+
+        const fallbackChain = await modelManager.getFallbackChain(model, criteria);
+
+        // Try first fallback
+        if (fallbackChain.length > 1) {
+          const fallbackModel = fallbackChain[1];
+          console.error(`[OllamaClient] Retrying with fallback model: ${fallbackModel}`);
+
+          const fallbackTimeout = await modelManager.getAdaptiveTimeout(fallbackModel, isColdStart);
+
+          const text = await sharedGenerate({
+            model: fallbackModel,
+            prompt,
+            format: 'text',
+            timeoutMs: fallbackTimeout,
+            retries: 1
+          });
+
+          const timeMs = Date.now() - startTime;
+          const tokensInput = Math.ceil(prompt.length / 4);
+          const tokensGenerated = Math.ceil(text.length / 4);
+
+          return {
+            text,
+            model: fallbackModel,
+            tokensGenerated,
+            tokensInput,
+            tokensTotal: tokensInput + tokensGenerated,
+            timeMs,
+          };
+        }
+
         throw new Error(
-          `Model ${model} not found. Please run: ollama pull ${model}`
+          `No available models found. Please pull at least one model: ollama pull qwen2.5:3b`
         );
       }
       throw error;
