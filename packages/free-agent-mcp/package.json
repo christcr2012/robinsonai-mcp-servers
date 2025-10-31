@@ -1,0 +1,53 @@
+{
+  "name": "@robinsonai/free-agent-mcp",
+  "version": "0.1.1",
+  "description": "Free Agent MCP - Execute tasks using FREE models (Ollama, etc.)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "free-agent-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Tests coming soon\"",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "llm",
+    "ollama",
+    "free-models",
+    "code-generation",
+    "free-agent",
+    "credit-optimization"
+  ],
+  "author": "Robinson AI",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@robinsonai/shared-llm": "^0.1.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^11.10.0",
+    "handlebars": "^4.7.8",
+    "ollama": "^0.5.9",
+    "@anthropic-ai/sdk": "^0.32.1",
+    "openai": "^4.77.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robinsonai/robinsonai-mcp-servers.git",
+    "directory": "packages/free-agent-mcp"
+  }
+}

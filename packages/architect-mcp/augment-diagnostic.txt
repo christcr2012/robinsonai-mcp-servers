@@ -1,0 +1,45 @@
+=== AUGMENT DIAGNOSTIC REPORT ===
+Generated: 10/30/2025 05:22:15
+
+--- VS Code Settings (mcpServers) ---
+{
+  "credit-optimizer-mcp": {
+    "env": {},
+    "args": [
+      "credit-optimizer-mcp"
+    ],
+    "command": "npx"
+  },
+  "free-agent-mcp": {
+    "env": {
+      "OLLAMA_BASE_URL": "http://localhost:11434"
+    },
+    "args": [
+      "free-agent-mcp"
+    ],
+    "command": "npx"
+  },
+  "architect-mcp": {
+    "env": {
+      "ARCHITECT_BIG_MODEL": "qwen2.5-coder:32b",
+      "OLLAMA_BASE_URL": "http://localhost:11434",
+      "ARCHITECT_STD_MODEL": "deepseek-coder:33b",
+      "ARCHITECT_FAST_MODEL": "qwen2.5:3b"
+    },
+    "args": [
+      "architect-mcp"
+    ],
+    "command": "npx"
+  }
+}
+
+--- Augment Extension Info ---
+augment.vscode-augment@0.603.3
+
+--- Augment Global Storage ---
+EXISTS
+
+--- Latest VS Code Logs (Augment/MCP mentions) ---
+
+Found 1 log files in latest session
+

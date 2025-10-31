@@ -1,0 +1,872 @@
+  private async listProjects(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v9/projects?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getProject(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    return this.formatResponse(data);
+  }
+
+  private async createProject(args: any) {
+    const data = await this.vercelFetch(`/v9/projects`, {
+      method: "POST",
+      body: JSON.stringify(args),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async updateProject(args: any) {
+    const { projectId, ...updates } = args;
+    const data = await this.vercelFetch(`/v9/projects/${projectId}`, {
+      method: "PATCH",
+      body: JSON.stringify(updates),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteProject(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listDeployments(args: any) {
+    const params = new URLSearchParams();
+    if (args.limit) params.append("limit", args.limit.toString());
+    if (args.state) params.append("state", args.state);
+    const data = await this.vercelFetch(
+      `/v6/deployments?projectId=${args.projectId}&${params}`
+    );
+    return this.formatResponse(data);
+  }
+
+  private async getDeployment(args: any) {
+    const data = await this.vercelFetch(`/v13/deployments/${args.deploymentId}`);
+    return this.formatResponse(data);
+  }
+
+  private async createDeployment(args: any) {
+    const data = await this.vercelFetch(`/v13/deployments`, {
+      method: "POST",
+      body: JSON.stringify(args),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async cancelDeployment(args: any) {
+    const data = await this.vercelFetch(
+      `/v12/deployments/${args.deploymentId}/cancel`,
+      { method: "PATCH" }
+    );
+    return this.formatResponse(data);
+  }
+
+  private async deleteDeployment(args: any) {
+    const data = await this.vercelFetch(`/v13/deployments/${args.deploymentId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getDeploymentEvents(args: any) {
+    const data = await this.vercelFetch(
+      `/v3/deployments/${args.deploymentId}/events`
+    );
+    return this.formatResponse(data);
+  }
+
+  private async listEnvVars(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}/env`);
+    return this.formatResponse(data);
+  }
+
+  private async createEnvVar(args: any) {
+    const { projectId, ...envVar } = args;
+    const data = await this.vercelFetch(`/v10/projects/${projectId}/env`, {
+      method: "POST",
+      body: JSON.stringify(envVar),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async updateEnvVar(args: any) {
+    const { projectId, envId, ...updates } = args;
+    const data = await this.vercelFetch(`/v9/projects/${projectId}/env/${envId}`, {
+      method: "PATCH",
+      body: JSON.stringify(updates),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteEnvVar(args: any) {
+    const data = await this.vercelFetch(
+      `/v9/projects/${args.projectId}/env/${args.envId}`,
+      { method: "DELETE" }
+    );
+    return this.formatResponse(data);
+  }
+
+  private async listDomains(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v5/domains?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getDomain(args: any) {
+    const data = await this.vercelFetch(`/v5/domains/${args.domain}`);
+    return this.formatResponse(data);
+  }
+
+  private async removeDomain(args: any) {
+    const data = await this.vercelFetch(`/v9/domains/${args.domain}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async verifyDomain(args: any) {
+    const data = await this.vercelFetch(`/v6/domains/${args.domain}/verify`, {
+      method: "POST",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listDnsRecords(args: any) {
+    const data = await this.vercelFetch(`/v4/domains/${args.domain}/records`);
+    return this.formatResponse(data);
+  }
+
+  private async createDnsRecord(args: any) {
+    const { domain, ...record } = args;
+    const data = await this.vercelFetch(`/v2/domains/${domain}/records`, {
+      method: "POST",
+      body: JSON.stringify(record),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteDnsRecord(args: any) {
+    const data = await this.vercelFetch(
+      `/v2/domains/${args.domain}/records/${args.recordId}`,
+      { method: "DELETE" }
+    );
+    return this.formatResponse(data);
+  }
+
+  private async listTeams(args: any) {
+    const data = await this.vercelFetch(`/v2/teams`);
+    return this.formatResponse(data);
+  }
+
+  private async getTeam(args: any) {
+    const data = await this.vercelFetch(`/v2/teams/${args.teamId}`);
+    return this.formatResponse(data);
+  }
+
+  private async listTeamMembers(args: any) {
+    const data = await this.vercelFetch(`/v2/teams/${args.teamId}/members`);
+    return this.formatResponse(data);
+  }
+
+  private async getDeploymentLogs(args: any) {
+    const params = new URLSearchParams();
+    if (args.limit) params.append("limit", args.limit.toString());
+    if (args.since) params.append("since", args.since.toString());
+    const data = await this.vercelFetch(
+      `/v2/deployments/${args.deploymentId}/events?${params}`
+    );
+    return this.formatResponse(data);
+  }
+
+  private async getProjectAnalytics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(
+      `/v1/projects/${args.projectId}/analytics?${params}`
+    );
+    return this.formatResponse(data);
+  }
+
+  private async listEdgeConfigs(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/edge-config?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async createEdgeConfig(args: any) {
+    const data = await this.vercelFetch(`/v1/edge-config`, {
+      method: "POST",
+      body: JSON.stringify(args),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getEdgeConfigItems(args: any) {
+    const data = await this.vercelFetch(
+      `/v1/edge-config/${args.edgeConfigId}/items`
+    );
+    return this.formatResponse(data);
+  }
+
+  private async listWebhooks(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/webhooks`);
+    return this.formatResponse(data);
+  }
+
+  private async createWebhook(args: any) {
+    const { projectId, ...webhook } = args;
+    const data = await this.vercelFetch(`/v1/projects/${projectId}/webhooks`, {
+      method: "POST",
+      body: JSON.stringify(webhook),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteWebhook(args: any) {
+    const data = await this.vercelFetch(`/v1/webhooks/${args.webhookId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listAliases(args: any) {
+    const params = new URLSearchParams();
+    if (args.projectId) params.append("projectId", args.projectId);
+    if (args.limit) params.append("limit", args.limit.toString());
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const data = await this.vercelFetch(`/v4/aliases${query}`);
+    return this.formatResponse(data);
+  }
+
+  private async deleteAlias(args: any) {
+    const data = await this.vercelFetch(`/v2/aliases/${args.aliasId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listSecrets(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const data = await this.vercelFetch(`/v3/secrets${query}`);
+    return this.formatResponse(data);
+  }
+
+  private async deleteSecret(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const data = await this.vercelFetch(`/v2/secrets/${args.nameOrId}${query}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listChecks(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/checks`);
+    return this.formatResponse(data);
+  }
+
+  private async createCheck(args: any) {
+    const { deploymentId, ...check } = args;
+    const data = await this.vercelFetch(`/v1/deployments/${deploymentId}/checks`, {
+      method: "POST",
+      body: JSON.stringify(check),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async updateCheck(args: any) {
+    const { deploymentId, checkId, ...update } = args;
+    const data = await this.vercelFetch(`/v1/deployments/${deploymentId}/checks/${checkId}`, {
+      method: "PATCH",
+      body: JSON.stringify(update),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listDeploymentFiles(args: any) {
+    const data = await this.vercelFetch(`/v6/deployments/${args.deploymentId}/files`);
+    return this.formatResponse(data);
+  }
+
+  private async getDeploymentFile(args: any) {
+    const data = await this.vercelFetch(`/v6/deployments/${args.deploymentId}/files/${args.fileId}`);
+    return this.formatResponse(data);
+  }
+
+  private async blobList(args: any) {
+    const params = new URLSearchParams();
+    if (args.limit) params.append("limit", args.limit.toString());
+    if (args.cursor) params.append("cursor", args.cursor);
+    const data = await this.vercelFetch(`/v1/blob?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async blobHead(args: any) {
+    const data = await this.vercelFetch(`/v1/blob/head?url=${encodeURIComponent(args.url)}`);
+    return this.formatResponse(data);
+  }
+
+  private async kvGet(args: any) {
+    const data = await this.vercelFetch(`/v1/kv/${args.storeId}/get/${args.key}`);
+    return this.formatResponse(data);
+  }
+
+  private async kvSet(args: any) {
+    const body: any = { key: args.key, value: args.value };
+    if (args.ex) body.ex = args.ex;
+    const data = await this.vercelFetch(`/v1/kv/${args.storeId}/set`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async kvDelete(args: any) {
+    const data = await this.vercelFetch(`/v1/kv/${args.storeId}/delete/${args.key}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async kvListKeys(args: any) {
+    const params = new URLSearchParams();
+    if (args.pattern) params.append("pattern", args.pattern);
+    if (args.cursor) params.append("cursor", args.cursor);
+    const data = await this.vercelFetch(`/v1/kv/${args.storeId}/keys?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async postgresListDatabases(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/postgres?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async postgresDeleteDatabase(args: any) {
+    const data = await this.vercelFetch(`/v1/postgres/${args.databaseId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async postgresGetConnectionString(args: any) {
+    const data = await this.vercelFetch(`/v1/postgres/${args.databaseId}/connection-string`);
+    return this.formatResponse(data);
+  }
+
+  private async listFirewallRules(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/rules?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async updateFirewallRule(args: any) {
+    const body: any = {};
+    if (args.name) body.name = args.name;
+    if (args.action) body.action = args.action;
+    if (args.enabled !== undefined) body.enabled = args.enabled;
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/rules/${args.ruleId}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteFirewallRule(args: any) {
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/rules/${args.ruleId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getFirewallAnalytics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/analytics?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async listBlockedIps(args: any) {
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/blocked-ips`);
+    return this.formatResponse(data);
+  }
+
+  private async unblockIp(args: any) {
+    const data = await this.vercelFetch(`/v1/security/firewall/${args.projectId}/blocked-ips/${encodeURIComponent(args.ipAddress)}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getSecurityEvents(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/security/events/${args.projectId}?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getRuntimeLogsStream(args: any) {
+    const params = new URLSearchParams();
+    if (args.follow) params.append("follow", "1");
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v2/deployments/${args.deploymentId}/events?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getBuildLogs(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/builds`);
+    return this.formatResponse(data);
+  }
+
+  private async getErrorLogs(args: any) {
+    const params = new URLSearchParams();
+    params.append("type", "error");
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v2/deployments/${args.deploymentId}/events?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getBandwidthUsage(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/analytics/${args.projectId}/bandwidth?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getFunctionInvocations(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/analytics/${args.projectId}/functions?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getCacheMetrics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/analytics/${args.projectId}/cache?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getTraces(args: any) {
+    const params = new URLSearchParams();
+    if (args.deploymentId) params.append("deploymentId", args.deploymentId);
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/traces/${args.projectId}?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getPerformanceInsights(args: any) {
+    const data = await this.vercelFetch(`/v1/insights/${args.projectId}/performance`);
+    return this.formatResponse(data);
+  }
+
+  private async getWebVitals(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    const data = await this.vercelFetch(`/v1/analytics/${args.projectId}/web-vitals?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getBillingSummary(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/summary?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getUsageMetrics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/usage?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getInvoice(args: any) {
+    const data = await this.vercelFetch(`/v1/billing/invoices/${args.invoiceId}`);
+    return this.formatResponse(data);
+  }
+
+  private async listInvoices(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/billing/invoices?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getSpendingLimits(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/limits?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getCostBreakdown(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/breakdown?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async exportUsageReport(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    params.append("format", args.format);
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/billing/export?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async listIntegrations(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/integrations?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getIntegration(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}`);
+    return this.formatResponse(data);
+  }
+
+  private async installIntegration(args: any) {
+    const body: any = { integrationSlug: args.integrationSlug };
+    if (args.teamId) body.teamId = args.teamId;
+    if (args.configuration) body.configuration = args.configuration;
+    const data = await this.vercelFetch(`/v1/integrations/install`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async uninstallIntegration(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listIntegrationConfigurations(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}/configurations`);
+    return this.formatResponse(data);
+  }
+
+  private async updateIntegrationConfiguration(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}/configurations/${args.configurationId}`, {
+      method: "PATCH",
+      body: JSON.stringify(args.configuration),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getIntegrationLogs(args: any) {
+    const params = new URLSearchParams();
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}/logs?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async triggerIntegrationSync(args: any) {
+    const data = await this.vercelFetch(`/v1/integrations/${args.integrationId}/sync`, {
+      method: "POST",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listAuditLogs(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/audit-logs?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getAuditLog(args: any) {
+    const data = await this.vercelFetch(`/v1/audit-logs/${args.logId}`);
+    return this.formatResponse(data);
+  }
+
+  private async exportAuditLogs(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append("from", args.from.toString());
+    if (args.to) params.append("to", args.to.toString());
+    params.append("format", args.format);
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/audit-logs/export?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getComplianceReport(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/compliance/${args.reportType}?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async listAccessEvents(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    if (args.userId) params.append("userId", args.userId);
+    if (args.limit) params.append("limit", args.limit.toString());
+    const data = await this.vercelFetch(`/v1/access-events?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async listCronJobs(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/crons`);
+    return this.formatResponse(data);
+  }
+
+  private async updateCronJob(args: any) {
+    const body: any = {};
+    if (args.schedule) body.schedule = args.schedule;
+    if (args.enabled !== undefined) body.enabled = args.enabled;
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/crons/${args.cronId}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteCronJob(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/crons/${args.cronId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async triggerCronJob(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/crons/${args.cronId}/trigger`, {
+      method: "POST",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listRedirects(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    // Redirects are part of project configuration
+    return this.formatResponse((data as any).redirects || []);
+  }
+
+  private async listCustomHeaders(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    // Headers are part of project configuration
+    return this.formatResponse((data as any).headers || []);
+  }
+
+  private async listComments(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/comments`);
+    return this.formatResponse(data);
+  }
+
+  private async createComment(args: any) {
+    const body: any = { text: args.text };
+    if (args.path) body.path = args.path;
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/comments`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async deleteComment(args: any) {
+    const data = await this.vercelFetch(`/v1/comments/${args.commentId}`, {
+      method: "DELETE",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async listGitRepositories(args: any) {
+    const params = new URLSearchParams();
+    if (args.teamId) params.append("teamId", args.teamId);
+    const data = await this.vercelFetch(`/v1/git/repositories?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async connectGitRepository(args: any) {
+    const body: any = {
+      type: args.type,
+      repo: args.repo,
+    };
+    if (args.projectId) body.projectId = args.projectId;
+    const data = await this.vercelFetch(`/v1/git/repositories`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    return this.formatResponse(data);
+  }
+
+  private async syncGitRepository(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/git/sync`, {
+      method: "POST",
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getGitIntegrationStatus(args: any) {
+    const data = await this.vercelFetch(`/v9/projects/${args.projectId}`);
+    return this.formatResponse({
+      connected: !!(data as any).link,
+      link: (data as any).link,
+    });
+  }
+
+  private async listMiddleware(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/middleware`);
+    return this.formatResponse(data);
+  }
+
+  private async getMiddlewareLogs(args: any) {
+    const params = new URLSearchParams();
+    if (args.deploymentId) params.append('deploymentId', args.deploymentId);
+    if (args.limit) params.append('limit', args.limit.toString());
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/middleware/logs?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getMiddlewareMetrics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/middleware/metrics?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getDeploymentHealth(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/health`);
+    return this.formatResponse(data);
+  }
+
+  private async getErrorRate(args: any) {
+    const params = new URLSearchParams();
+    if (args.deploymentId) params.append('deploymentId', args.deploymentId);
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/metrics/errors?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getResponseTime(args: any) {
+    const params = new URLSearchParams();
+    if (args.deploymentId) params.append('deploymentId', args.deploymentId);
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/metrics/response-time?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getUptimeMetrics(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/metrics/uptime?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async removeTeamMember(args: any) {
+    const data = await this.vercelFetch(`/v1/teams/${args.teamId}/members/${args.userId}`, {
+      method: 'DELETE'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getTeamActivity(args: any) {
+    const params = new URLSearchParams();
+    if (args.limit) params.append('limit', args.limit.toString());
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/teams/${args.teamId}/activity?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async getTeamUsage(args: any) {
+    const params = new URLSearchParams();
+    if (args.from) params.append('from', args.from);
+    if (args.to) params.append('to', args.to);
+    const data = await this.vercelFetch(`/v1/teams/${args.teamId}/usage?${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async promoteDeployment(args: any) {
+    const data = await this.vercelFetch(`/v13/deployments/${args.deploymentId}/promote`, {
+      method: 'POST'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async pauseDeployment(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/pause`, {
+      method: 'POST'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async resumeDeployment(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/resume`, {
+      method: 'POST'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getDeploymentDiff(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/diff?deployment1=${args.deploymentId1}&deployment2=${args.deploymentId2}`);
+    return this.formatResponse(data);
+  }
+
+  private async getStorageUsage(args: any) {
+    const params = args.teamId ? `?teamId=${args.teamId}` : '';
+    const data = await this.vercelFetch(`/v1/storage/usage${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async optimizeStorage(args: any) {
+    const params = args.teamId ? `?teamId=${args.teamId}` : '';
+    const data = await this.vercelFetch(`/v1/storage/optimize${params}`);
+    return this.formatResponse(data);
+  }
+
+  private async exportBlobData(args: any) {
+    const data = await this.vercelFetch(`/v1/blob/${args.storeId}/export?format=${args.format || 'json'}`);
+    return this.formatResponse(data);
+  }
+
+  private async scanDeploymentSecurity(args: any) {
+    const data = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/security-scan`, {
+      method: 'POST'
+    });
+    return this.formatResponse(data);
+  }
+
+  private async getSecurityHeaders(args: any) {
+    const data = await this.vercelFetch(`/v1/projects/${args.projectId}/security-headers`);
+    return this.formatResponse(data);
+  }

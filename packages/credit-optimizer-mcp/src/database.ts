@@ -100,6 +100,78 @@ export class DatabaseManager {
     this.db.exec(`
       CREATE INDEX IF NOT EXISTS idx_template_type ON templates(template_type);
     `);
+
+    // Cost History Table (for learning algorithm)
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS cost_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id TEXT NOT NULL,
+        task_type TEXT NOT NULL,
+        estimated_cost REAL NOT NULL,
+        actual_cost REAL NOT NULL,
+        variance REAL NOT NULL,
+        worker_used TEXT NOT NULL,
+        lines_of_code INTEGER,
+        num_files INTEGER,
+        complexity TEXT,
+        timestamp INTEGER NOT NULL
+      )
+    `);
+
+    this.db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_cost_task_type ON cost_history(task_type);
+      CREATE INDEX IF NOT EXISTS idx_cost_timestamp ON cost_history(timestamp);
+    `);
+
+    // Tool Usage Table (for analytics)
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS tool_usage (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tool_name TEXT NOT NULL,
+        usage_count INTEGER DEFAULT 0,
+        success_count INTEGER DEFAULT 0,
+        failure_count INTEGER DEFAULT 0,
+        avg_execution_time REAL,
+        last_used INTEGER NOT NULL
+      )
+    `);
+
+    this.db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_tool_usage_name ON tool_usage(tool_name);
+    `);
+
+    // Workflow Patterns Table (for pattern recognition)
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS workflow_patterns (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        pattern_name TEXT NOT NULL,
+        pattern_json TEXT NOT NULL,
+        success_rate REAL,
+        avg_duration REAL,
+        usage_count INTEGER DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )
+    `);
+
+    this.db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_workflow_pattern_name ON workflow_patterns(pattern_name);
+    `);
+
+    // Learning Metrics Table (for tracking improvement)
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS learning_metrics (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        metric_type TEXT NOT NULL,
+        metric_value REAL NOT NULL,
+        metadata TEXT,
+        timestamp INTEGER NOT NULL
+      )
+    `);
+
+    this.db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_learning_metric_type ON learning_metrics(metric_type);
+      CREATE INDEX IF NOT EXISTS idx_learning_timestamp ON learning_metrics(timestamp);
+    `);
   }
 
   /**
@@ -307,6 +379,271 @@ export class DatabaseManager {
       stmt = this.db.prepare(`SELECT * FROM templates`);
       return stmt.all();
     }
+  }
+
+  /**
+   * Cost History Operations (for learning algorithm)
+   */
+  recordCostHistory(record: {
+    taskId: string;
+    taskType: string;
+    estimatedCost: number;
+    actualCost: number;
+    workerUsed: string;
+    linesOfCode?: number;
+    numFiles?: number;
+    complexity?: string;
+  }): void {
+    const variance = (record.actualCost - record.estimatedCost) / record.estimatedCost;
+
+    const stmt = this.db.prepare(`
+      INSERT INTO cost_history
+      (task_id, task_type, estimated_cost, actual_cost, variance, worker_used, lines_of_code, num_files, complexity, timestamp)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+      record.taskId,
+      record.taskType,
+      record.estimatedCost,
+      record.actualCost,
+      variance,
+      record.workerUsed,
+      record.linesOfCode || null,
+      record.numFiles || null,
+      record.complexity || null,
+      Date.now()
+    );
+  }
+
+  getCostHistory(taskType?: string, limit: number = 100): any[] {
+    let stmt;
+    if (taskType) {
+      stmt = this.db.prepare(`
+        SELECT * FROM cost_history
+        WHERE task_type = ?
+        ORDER BY timestamp DESC
+        LIMIT ?
+      `);
+      return stmt.all(taskType, limit);
+    } else {
+      stmt = this.db.prepare(`
+        SELECT * FROM cost_history
+        ORDER BY timestamp DESC
+        LIMIT ?
+      `);
+      return stmt.all(limit);
+    }
+  }
+
+  getAverageVariance(taskType: string): number {
+    const stmt = this.db.prepare(`
+      SELECT AVG(variance) as avg_variance
+      FROM cost_history
+      WHERE task_type = ?
+    `);
+
+    const row = stmt.get(taskType) as any;
+    return row?.avg_variance || 0;
+  }
+
+  /**
+   * Learning Algorithm: Improve cost estimates based on historical data
+   * Uses 10% learning rate as specified in Phase 0.5 plan
+   */
+  improveEstimate(taskType: string, baseEstimate: number): number {
+    const history = this.getCostHistory(taskType, 100);
+
+    // Need at least 5 samples to start learning
+    if (history.length < 5) {
+      return baseEstimate;
+    }
+
+    // Calculate average variance for this task type
+    const avgVariance = this.getAverageVariance(taskType);
+
+    // Apply 10% learning rate (adjust estimate by 10% of historical variance)
+    const adjustedEstimate = baseEstimate * (1 + avgVariance * 0.1);
+
+    return Math.max(0, adjustedEstimate); // Never return negative
+  }
+
+  /**
+   * Tool Usage Operations
+   */
+  recordToolUsage(toolName: string, success: boolean, executionTimeMs: number): void {
+    // Check if tool exists
+    const checkStmt = this.db.prepare(`
+      SELECT * FROM tool_usage WHERE tool_name = ?
+    `);
+    const existing = checkStmt.get(toolName) as any;
+
+    if (existing) {
+      // Update existing record
+      const newUsageCount = existing.usage_count + 1;
+      const newSuccessCount = existing.success_count + (success ? 1 : 0);
+      const newFailureCount = existing.failure_count + (success ? 0 : 1);
+      const newAvgTime = (existing.avg_execution_time * existing.usage_count + executionTimeMs) / newUsageCount;
+
+      const updateStmt = this.db.prepare(`
+        UPDATE tool_usage
+        SET usage_count = ?,
+            success_count = ?,
+            failure_count = ?,
+            avg_execution_time = ?,
+            last_used = ?
+        WHERE tool_name = ?
+      `);
+
+      updateStmt.run(newUsageCount, newSuccessCount, newFailureCount, newAvgTime, Date.now(), toolName);
+    } else {
+      // Insert new record
+      const insertStmt = this.db.prepare(`
+        INSERT INTO tool_usage (tool_name, usage_count, success_count, failure_count, avg_execution_time, last_used)
+        VALUES (?, 1, ?, ?, ?, ?)
+      `);
+
+      insertStmt.run(toolName, success ? 1 : 0, success ? 0 : 1, executionTimeMs, Date.now());
+    }
+  }
+
+  getToolUsageStats(toolName?: string): any {
+    if (toolName) {
+      const stmt = this.db.prepare(`
+        SELECT * FROM tool_usage WHERE tool_name = ?
+      `);
+      return stmt.get(toolName);
+    } else {
+      const stmt = this.db.prepare(`
+        SELECT * FROM tool_usage ORDER BY usage_count DESC
+      `);
+      return stmt.all();
+    }
+  }
+
+  /**
+   * Workflow Pattern Operations
+   */
+  recordWorkflowPattern(pattern: {
+    name: string;
+    patternJson: any;
+    successRate: number;
+    avgDuration: number;
+  }): void {
+    const checkStmt = this.db.prepare(`
+      SELECT * FROM workflow_patterns WHERE pattern_name = ?
+    `);
+    const existing = checkStmt.get(pattern.name) as any;
+
+    if (existing) {
+      // Update existing pattern
+      const newUsageCount = existing.usage_count + 1;
+      const newSuccessRate = (existing.success_rate * existing.usage_count + pattern.successRate) / newUsageCount;
+      const newAvgDuration = (existing.avg_duration * existing.usage_count + pattern.avgDuration) / newUsageCount;
+
+      const updateStmt = this.db.prepare(`
+        UPDATE workflow_patterns
+        SET pattern_json = ?,
+            success_rate = ?,
+            avg_duration = ?,
+            usage_count = ?
+        WHERE pattern_name = ?
+      `);
+
+      updateStmt.run(JSON.stringify(pattern.patternJson), newSuccessRate, newAvgDuration, newUsageCount, pattern.name);
+    } else {
+      // Insert new pattern
+      const insertStmt = this.db.prepare(`
+        INSERT INTO workflow_patterns (pattern_name, pattern_json, success_rate, avg_duration, usage_count, created_at)
+        VALUES (?, ?, ?, ?, 1, ?)
+      `);
+
+      insertStmt.run(pattern.name, JSON.stringify(pattern.patternJson), pattern.successRate, pattern.avgDuration, Date.now());
+    }
+  }
+
+  getWorkflowPatterns(limit: number = 50): any[] {
+    const stmt = this.db.prepare(`
+      SELECT * FROM workflow_patterns
+      ORDER BY success_rate DESC, usage_count DESC
+      LIMIT ?
+    `);
+    return stmt.all(limit);
+  }
+
+  /**
+   * Learning Metrics Operations
+   */
+  recordLearningMetric(metricType: string, metricValue: number, metadata?: any): void {
+    const stmt = this.db.prepare(`
+      INSERT INTO learning_metrics (metric_type, metric_value, metadata, timestamp)
+      VALUES (?, ?, ?, ?)
+    `);
+
+    stmt.run(metricType, metricValue, metadata ? JSON.stringify(metadata) : null, Date.now());
+  }
+
+  getLearningMetrics(metricType?: string, period: string = 'all'): any[] {
+    const cutoff = this.getPeriodCutoff(period);
+
+    if (metricType) {
+      const stmt = this.db.prepare(`
+        SELECT * FROM learning_metrics
+        WHERE metric_type = ? AND timestamp >= ?
+        ORDER BY timestamp DESC
+      `);
+      return stmt.all(metricType, cutoff);
+    } else {
+      const stmt = this.db.prepare(`
+        SELECT * FROM learning_metrics
+        WHERE timestamp >= ?
+        ORDER BY timestamp DESC
+      `);
+      return stmt.all(cutoff);
+    }
+  }
+
+  /**
+   * Cost Analytics
+   */
+  getCostAccuracy(): any {
+    const stmt = this.db.prepare(`
+      SELECT
+        task_type,
+        COUNT(*) as sample_count,
+        AVG(ABS(variance)) as avg_abs_variance,
+        AVG(variance) as avg_variance,
+        MIN(variance) as min_variance,
+        MAX(variance) as max_variance
+      FROM cost_history
+      GROUP BY task_type
+    `);
+
+    return stmt.all();
+  }
+
+  getCostSavings(period: string = 'all'): any {
+    const cutoff = this.getPeriodCutoff(period);
+
+    const stmt = this.db.prepare(`
+      SELECT
+        SUM(CASE WHEN worker_used = 'ollama' THEN actual_cost ELSE 0 END) as ollama_cost,
+        SUM(CASE WHEN worker_used = 'openai' THEN actual_cost ELSE 0 END) as openai_cost,
+        COUNT(CASE WHEN worker_used = 'ollama' THEN 1 END) as ollama_count,
+        COUNT(CASE WHEN worker_used = 'openai' THEN 1 END) as openai_count
+      FROM cost_history
+      WHERE timestamp >= ?
+    `);
+
+    const row = stmt.get(cutoff) as any;
+
+    return {
+      ollamaCost: row?.ollama_cost || 0,
+      openaiCost: row?.openai_cost || 0,
+      ollamaCount: row?.ollama_count || 0,
+      openaiCount: row?.openai_count || 0,
+      totalSavings: (row?.openai_cost || 0) - (row?.ollama_cost || 0),
+    };
   }
 
   close(): void {

@@ -1,0 +1,64 @@
+{
+  "test_1_default_free": {
+    "description": "Test default behavior - should use FREE Ollama",
+    "params": {
+      "task": "Generate a simple TypeScript function that adds two numbers",
+      "taskType": "code_generation",
+      "minQuality": "standard",
+      "maxCost": 1.0
+    },
+    "expected": {
+      "model": "ollama/qwen2.5-coder:7b",
+      "cost": 0.0,
+      "provider": "ollama"
+    }
+  },
+  "test_2_force_paid": {
+    "description": "Test forcePaid=true - should use PAID OpenAI",
+    "params": {
+      "task": "Generate a simple TypeScript function that adds two numbers",
+      "taskType": "code_generation",
+      "minQuality": "standard",
+      "maxCost": 1.0,
+      "forcePaid": true
+    },
+    "expected": {
+      "model": "openai/gpt-4o-mini",
+      "cost": 0.014,
+      "provider": "openai"
+    }
+  },
+  "test_3_force_paid_complex": {
+    "description": "Test forcePaid=true with complex task - should use gpt-4o",
+    "params": {
+      "task": "Design a distributed caching system with Redis",
+      "taskType": "code_generation",
+      "minQuality": "premium",
+      "maxCost": 5.0,
+      "taskComplexity": "complex",
+      "forcePaid": true
+    },
+    "expected": {
+      "model": "openai/gpt-4o",
+      "cost": 0.5,
+      "provider": "openai"
+    }
+  },
+  "test_4_force_paid_expert": {
+    "description": "Test forcePaid=true with expert task - should use o1-mini",
+    "params": {
+      "task": "Design a fault-tolerant distributed consensus algorithm",
+      "taskType": "code_generation",
+      "minQuality": "best",
+      "maxCost": 10.0,
+      "taskComplexity": "expert",
+      "forcePaid": true
+    },
+    "expected": {
+      "model": "openai/o1-mini",
+      "cost": 3.0,
+      "provider": "openai"
+    }
+  }
+}
+

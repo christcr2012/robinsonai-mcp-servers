@@ -1,0 +1,1192 @@
+
+> @robinsonai/robinsons-toolkit-mcp@0.1.1 build
+> tsc
+
+src/index.ts(2796,11): error TS1128: Declaration or statement expected.
+src/index.ts(2796,16): error TS1005: ':' expected.
+src/index.ts(2796,38): error TS1005: ',' expected.
+src/index.ts(2797,20): error TS1005: ':' expected.
+src/index.ts(2797,49): error TS1005: ',' expected.
+src/index.ts(2798,16): error TS1005: ':' expected.
+src/index.ts(2798,36): error TS1005: ',' expected.
+src/index.ts(2799,20): error TS1005: ':' expected.
+src/index.ts(2799,47): error TS1005: ',' expected.
+src/index.ts(2800,16): error TS1005: ':' expected.
+src/index.ts(2800,39): error TS1005: ',' expected.
+src/index.ts(2801,20): error TS1005: ':' expected.
+src/index.ts(2801,50): error TS1005: ',' expected.
+src/index.ts(2802,16): error TS1005: ':' expected.
+src/index.ts(2802,39): error TS1005: ',' expected.
+src/index.ts(2803,20): error TS1005: ':' expected.
+src/index.ts(2803,50): error TS1005: ',' expected.
+src/index.ts(2804,16): error TS1005: ':' expected.
+src/index.ts(2804,39): error TS1005: ',' expected.
+src/index.ts(2805,20): error TS1005: ':' expected.
+src/index.ts(2805,50): error TS1005: ',' expected.
+src/index.ts(2808,16): error TS1005: ':' expected.
+src/index.ts(2808,41): error TS1005: ',' expected.
+src/index.ts(2809,20): error TS1005: ':' expected.
+src/index.ts(2809,52): error TS1005: ',' expected.
+src/index.ts(2810,16): error TS1005: ':' expected.
+src/index.ts(2810,39): error TS1005: ',' expected.
+src/index.ts(2811,20): error TS1005: ':' expected.
+src/index.ts(2811,50): error TS1005: ',' expected.
+src/index.ts(2812,16): error TS1005: ':' expected.
+src/index.ts(2812,42): error TS1005: ',' expected.
+src/index.ts(2813,20): error TS1005: ':' expected.
+src/index.ts(2813,53): error TS1005: ',' expected.
+src/index.ts(2814,16): error TS1005: ':' expected.
+src/index.ts(2814,42): error TS1005: ',' expected.
+src/index.ts(2815,20): error TS1005: ':' expected.
+src/index.ts(2815,53): error TS1005: ',' expected.
+src/index.ts(2816,16): error TS1005: ':' expected.
+src/index.ts(2816,42): error TS1005: ',' expected.
+src/index.ts(2817,20): error TS1005: ':' expected.
+src/index.ts(2817,53): error TS1005: ',' expected.
+src/index.ts(2818,16): error TS1005: ':' expected.
+src/index.ts(2818,46): error TS1005: ',' expected.
+src/index.ts(2819,20): error TS1005: ':' expected.
+src/index.ts(2819,56): error TS1005: ',' expected.
+src/index.ts(2820,16): error TS1005: ':' expected.
+src/index.ts(2820,33): error TS1005: ',' expected.
+src/index.ts(2821,20): error TS1005: ':' expected.
+src/index.ts(2821,45): error TS1005: ',' expected.
+src/index.ts(2824,16): error TS1005: ':' expected.
+src/index.ts(2824,38): error TS1005: ',' expected.
+src/index.ts(2825,20): error TS1005: ':' expected.
+src/index.ts(2825,48): error TS1005: ',' expected.
+src/index.ts(2826,16): error TS1005: ':' expected.
+src/index.ts(2826,39): error TS1005: ',' expected.
+src/index.ts(2827,20): error TS1005: ':' expected.
+src/index.ts(2827,49): error TS1005: ',' expected.
+src/index.ts(2828,16): error TS1005: ':' expected.
+src/index.ts(2828,39): error TS1005: ',' expected.
+src/index.ts(2829,20): error TS1005: ':' expected.
+src/index.ts(2829,49): error TS1005: ',' expected.
+src/index.ts(2830,16): error TS1005: ':' expected.
+src/index.ts(2830,39): error TS1005: ',' expected.
+src/index.ts(2831,20): error TS1005: ':' expected.
+src/index.ts(2831,49): error TS1005: ',' expected.
+src/index.ts(2832,16): error TS1005: ':' expected.
+src/index.ts(2832,45): error TS1005: ',' expected.
+src/index.ts(2833,20): error TS1005: ':' expected.
+src/index.ts(2833,54): error TS1005: ',' expected.
+src/index.ts(2836,16): error TS1005: ':' expected.
+src/index.ts(2836,37): error TS1005: ',' expected.
+src/index.ts(2837,20): error TS1005: ':' expected.
+src/index.ts(2837,48): error TS1005: ',' expected.
+src/index.ts(2838,16): error TS1005: ':' expected.
+src/index.ts(2838,35): error TS1005: ',' expected.
+src/index.ts(2839,20): error TS1005: ':' expected.
+src/index.ts(2839,46): error TS1005: ',' expected.
+src/index.ts(2840,16): error TS1005: ':' expected.
+src/index.ts(2840,35): error TS1005: ',' expected.
+src/index.ts(2841,20): error TS1005: ':' expected.
+src/index.ts(2841,46): error TS1005: ',' expected.
+src/index.ts(2842,16): error TS1005: ':' expected.
+src/index.ts(2842,38): error TS1005: ',' expected.
+src/index.ts(2843,20): error TS1005: ':' expected.
+src/index.ts(2843,49): error TS1005: ',' expected.
+src/index.ts(2844,16): error TS1005: ':' expected.
+src/index.ts(2844,38): error TS1005: ',' expected.
+src/index.ts(2845,20): error TS1005: ':' expected.
+src/index.ts(2845,49): error TS1005: ',' expected.
+src/index.ts(2848,16): error TS1005: ':' expected.
+src/index.ts(2848,41): error TS1005: ',' expected.
+src/index.ts(2849,20): error TS1005: ':' expected.
+src/index.ts(2849,51): error TS1005: ',' expected.
+src/index.ts(2850,16): error TS1005: ':' expected.
+src/index.ts(2850,42): error TS1005: ',' expected.
+src/index.ts(2851,20): error TS1005: ':' expected.
+src/index.ts(2851,52): error TS1005: ',' expected.
+src/index.ts(2852,16): error TS1005: ':' expected.
+src/index.ts(2852,42): error TS1005: ',' expected.
+src/index.ts(2853,20): error TS1005: ':' expected.
+src/index.ts(2853,52): error TS1005: ',' expected.
+src/index.ts(2856,16): error TS1005: ':' expected.
+src/index.ts(2856,35): error TS1005: ',' expected.
+src/index.ts(2857,20): error TS1005: ':' expected.
+src/index.ts(2857,46): error TS1005: ',' expected.
+src/index.ts(2858,16): error TS1005: ':' expected.
+src/index.ts(2858,33): error TS1005: ',' expected.
+src/index.ts(2859,20): error TS1005: ':' expected.
+src/index.ts(2859,44): error TS1005: ',' expected.
+src/index.ts(2860,16): error TS1005: ':' expected.
+src/index.ts(2860,42): error TS1005: ',' expected.
+src/index.ts(2861,20): error TS1005: ':' expected.
+src/index.ts(2861,52): error TS1005: ',' expected.
+src/index.ts(2864,16): error TS1005: ':' expected.
+src/index.ts(2864,44): error TS1005: ',' expected.
+src/index.ts(2865,20): error TS1005: ':' expected.
+src/index.ts(2865,54): error TS1005: ',' expected.
+src/index.ts(2866,16): error TS1005: ':' expected.
+src/index.ts(2866,46): error TS1005: ',' expected.
+src/index.ts(2867,20): error TS1005: ':' expected.
+src/index.ts(2867,56): error TS1005: ',' expected.
+src/index.ts(2870,16): error TS1005: ':' expected.
+src/index.ts(2870,42): error TS1005: ',' expected.
+src/index.ts(2871,20): error TS1005: ':' expected.
+src/index.ts(2871,52): error TS1005: ',' expected.
+src/index.ts(2872,16): error TS1005: ':' expected.
+src/index.ts(2872,43): error TS1005: ',' expected.
+src/index.ts(2873,20): error TS1005: ':' expected.
+src/index.ts(2873,53): error TS1005: ',' expected.
+src/index.ts(2874,16): error TS1005: ':' expected.
+src/index.ts(2874,46): error TS1005: ',' expected.
+src/index.ts(2875,20): error TS1005: ':' expected.
+src/index.ts(2875,55): error TS1005: ',' expected.
+src/index.ts(2876,16): error TS1005: ':' expected.
+src/index.ts(2876,49): error TS1005: ',' expected.
+src/index.ts(2877,20): error TS1005: ':' expected.
+src/index.ts(2877,58): error TS1005: ',' expected.
+src/index.ts(2880,16): error TS1005: ':' expected.
+src/index.ts(2880,38): error TS1005: ',' expected.
+src/index.ts(2881,20): error TS1005: ':' expected.
+src/index.ts(2881,49): error TS1005: ',' expected.
+src/index.ts(2882,16): error TS1005: ':' expected.
+src/index.ts(2882,39): error TS1005: ',' expected.
+src/index.ts(2883,20): error TS1005: ':' expected.
+src/index.ts(2883,50): error TS1005: ',' expected.
+src/index.ts(2884,16): error TS1005: ':' expected.
+src/index.ts(2884,39): error TS1005: ',' expected.
+src/index.ts(2885,20): error TS1005: ':' expected.
+src/index.ts(2885,50): error TS1005: ',' expected.
+src/index.ts(2888,16): error TS1005: ':' expected.
+src/index.ts(2888,37): error TS1005: ',' expected.
+src/index.ts(2889,20): error TS1005: ':' expected.
+src/index.ts(2889,48): error TS1005: ',' expected.
+src/index.ts(2890,16): error TS1005: ':' expected.
+src/index.ts(2890,37): error TS1005: ',' expected.
+src/index.ts(2891,20): error TS1005: ':' expected.
+src/index.ts(2891,48): error TS1005: ',' expected.
+src/index.ts(2892,16): error TS1005: ':' expected.
+src/index.ts(2892,37): error TS1005: ',' expected.
+src/index.ts(2893,20): error TS1005: ':' expected.
+src/index.ts(2893,48): error TS1005: ',' expected.
+src/index.ts(2896,16): error TS1005: ':' expected.
+src/index.ts(2896,37): error TS1005: ',' expected.
+src/index.ts(2897,20): error TS1005: ':' expected.
+src/index.ts(2897,48): error TS1005: ',' expected.
+src/index.ts(2898,16): error TS1005: ':' expected.
+src/index.ts(2898,38): error TS1005: ',' expected.
+src/index.ts(2899,20): error TS1005: ':' expected.
+src/index.ts(2899,49): error TS1005: ',' expected.
+src/index.ts(2900,16): error TS1005: ':' expected.
+src/index.ts(2900,38): error TS1005: ',' expected.
+src/index.ts(2901,20): error TS1005: ':' expected.
+src/index.ts(2901,49): error TS1005: ',' expected.
+src/index.ts(2902,16): error TS1005: ':' expected.
+src/index.ts(2902,38): error TS1005: ',' expected.
+src/index.ts(2903,20): error TS1005: ':' expected.
+src/index.ts(2903,49): error TS1005: ',' expected.
+src/index.ts(2906,16): error TS1005: ':' expected.
+src/index.ts(2906,36): error TS1005: ',' expected.
+src/index.ts(2907,20): error TS1005: ':' expected.
+src/index.ts(2907,47): error TS1005: ',' expected.
+src/index.ts(2908,16): error TS1005: ':' expected.
+src/index.ts(2908,37): error TS1005: ',' expected.
+src/index.ts(2909,20): error TS1005: ':' expected.
+src/index.ts(2909,48): error TS1005: ',' expected.
+src/index.ts(2910,16): error TS1005: ':' expected.
+src/index.ts(2910,37): error TS1005: ',' expected.
+src/index.ts(2911,20): error TS1005: ':' expected.
+src/index.ts(2911,48): error TS1005: ',' expected.
+src/index.ts(2914,16): error TS1005: ':' expected.
+src/index.ts(2914,46): error TS1005: ',' expected.
+src/index.ts(2915,20): error TS1005: ':' expected.
+src/index.ts(2915,56): error TS1005: ',' expected.
+src/index.ts(2916,16): error TS1005: ':' expected.
+src/index.ts(2916,44): error TS1005: ',' expected.
+src/index.ts(2917,20): error TS1005: ':' expected.
+src/index.ts(2917,54): error TS1005: ',' expected.
+src/index.ts(2920,16): error TS1005: ':' expected.
+src/index.ts(2920,34): error TS1005: ',' expected.
+src/index.ts(2921,20): error TS1005: ':' expected.
+src/index.ts(2921,45): error TS1005: ',' expected.
+src/index.ts(2922,16): error TS1005: ':' expected.
+src/index.ts(2922,33): error TS1005: ',' expected.
+src/index.ts(2923,20): error TS1005: ':' expected.
+src/index.ts(2923,44): error TS1005: ',' expected.
+src/index.ts(2924,16): error TS1005: ':' expected.
+src/index.ts(2924,36): error TS1005: ',' expected.
+src/index.ts(2925,20): error TS1005: ':' expected.
+src/index.ts(2925,47): error TS1005: ',' expected.
+src/index.ts(2926,16): error TS1005: ':' expected.
+src/index.ts(2926,34): error TS1005: ',' expected.
+src/index.ts(2927,20): error TS1005: ':' expected.
+src/index.ts(2927,45): error TS1005: ',' expected.
+src/index.ts(2930,16): error TS1005: ':' expected.
+src/index.ts(2930,31): error TS1005: ',' expected.
+src/index.ts(2931,20): error TS1005: ':' expected.
+src/index.ts(2931,42): error TS1005: ',' expected.
+src/index.ts(2932,16): error TS1005: ':' expected.
+src/index.ts(2932,31): error TS1005: ',' expected.
+src/index.ts(2933,20): error TS1005: ':' expected.
+src/index.ts(2933,42): error TS1005: ',' expected.
+src/index.ts(2934,16): error TS1005: ':' expected.
+src/index.ts(2934,34): error TS1005: ',' expected.
+src/index.ts(2935,20): error TS1005: ':' expected.
+src/index.ts(2935,45): error TS1005: ',' expected.
+src/index.ts(2936,16): error TS1005: ':' expected.
+src/index.ts(2936,37): error TS1005: ',' expected.
+src/index.ts(2937,20): error TS1005: ':' expected.
+src/index.ts(2937,47): error TS1005: ',' expected.
+src/index.ts(2940,16): error TS1005: ':' expected.
+src/index.ts(2940,48): error TS1005: ',' expected.
+src/index.ts(2941,20): error TS1005: ':' expected.
+src/index.ts(2941,58): error TS1005: ',' expected.
+src/index.ts(2942,16): error TS1005: ':' expected.
+src/index.ts(2942,49): error TS1005: ',' expected.
+src/index.ts(2943,20): error TS1005: ':' expected.
+src/index.ts(2943,59): error TS1005: ',' expected.
+src/index.ts(2944,16): error TS1005: ':' expected.
+src/index.ts(2944,49): error TS1005: ',' expected.
+src/index.ts(2945,20): error TS1005: ':' expected.
+src/index.ts(2945,59): error TS1005: ',' expected.
+src/index.ts(2946,16): error TS1005: ':' expected.
+src/index.ts(2946,55): error TS1005: ',' expected.
+src/index.ts(2947,20): error TS1005: ':' expected.
+src/index.ts(2947,64): error TS1005: ',' expected.
+src/index.ts(2950,16): error TS1005: ':' expected.
+src/index.ts(2950,44): error TS1005: ',' expected.
+src/index.ts(2951,20): error TS1005: ':' expected.
+src/index.ts(2951,54): error TS1005: ',' expected.
+src/index.ts(2952,16): error TS1005: ':' expected.
+src/index.ts(2952,45): error TS1005: ',' expected.
+src/index.ts(2953,20): error TS1005: ':' expected.
+src/index.ts(2953,55): error TS1005: ',' expected.
+src/index.ts(2954,16): error TS1005: ':' expected.
+src/index.ts(2954,45): error TS1005: ',' expected.
+src/index.ts(2955,20): error TS1005: ':' expected.
+src/index.ts(2955,55): error TS1005: ',' expected.
+src/index.ts(2956,16): error TS1005: ':' expected.
+src/index.ts(2956,45): error TS1005: ',' expected.
+src/index.ts(2957,20): error TS1005: ':' expected.
+src/index.ts(2957,55): error TS1005: ',' expected.
+src/index.ts(2958,16): error TS1005: ':' expected.
+src/index.ts(2958,47): error TS1005: ',' expected.
+src/index.ts(2959,20): error TS1005: ':' expected.
+src/index.ts(2959,57): error TS1005: ',' expected.
+src/index.ts(2960,16): error TS1005: ':' expected.
+src/index.ts(2960,41): error TS1005: ',' expected.
+src/index.ts(2961,20): error TS1005: ':' expected.
+src/index.ts(2961,51): error TS1005: ',' expected.
+src/index.ts(2962,16): error TS1005: ':' expected.
+src/index.ts(2962,33): error TS1005: ',' expected.
+src/index.ts(2963,20): error TS1005: ':' expected.
+src/index.ts(2963,44): error TS1005: ',' expected.
+src/index.ts(2964,16): error TS1005: ':' expected.
+src/index.ts(2964,35): error TS1005: ',' expected.
+src/index.ts(2965,20): error TS1005: ':' expected.
+src/index.ts(2965,46): error TS1005: ',' expected.
+src/index.ts(2966,16): error TS1005: ':' expected.
+src/index.ts(2966,53): error TS1005: ',' expected.
+src/index.ts(2967,20): error TS1005: ':' expected.
+src/index.ts(2967,62): error TS1005: ',' expected.
+src/index.ts(2968,16): error TS1005: ':' expected.
+src/index.ts(2968,44): error TS1005: ',' expected.
+src/index.ts(2969,20): error TS1005: ':' expected.
+src/index.ts(2969,54): error TS1005: ',' expected.
+src/index.ts(2972,16): error TS1005: ':' expected.
+src/index.ts(2972,48): error TS1005: ',' expected.
+src/index.ts(2973,20): error TS1005: ':' expected.
+src/index.ts(2973,57): error TS1005: ',' expected.
+src/index.ts(2974,16): error TS1005: ':' expected.
+src/index.ts(2974,39): error TS1005: ',' expected.
+src/index.ts(2975,20): error TS1005: ':' expected.
+src/index.ts(2975,49): error TS1005: ',' expected.
+src/index.ts(2976,16): error TS1005: ':' expected.
+src/index.ts(2976,39): error TS1005: ',' expected.
+src/index.ts(2977,20): error TS1005: ':' expected.
+src/index.ts(2977,49): error TS1005: ',' expected.
+src/index.ts(2978,16): error TS1005: ':' expected.
+src/index.ts(2978,44): error TS1005: ',' expected.
+src/index.ts(2979,20): error TS1005: ':' expected.
+src/index.ts(2979,54): error TS1005: ',' expected.
+src/index.ts(2980,16): error TS1005: ':' expected.
+src/index.ts(2980,49): error TS1005: ',' expected.
+src/index.ts(2981,20): error TS1005: ':' expected.
+src/index.ts(2981,59): error TS1005: ',' expected.
+src/index.ts(2982,16): error TS1005: ':' expected.
+src/index.ts(2982,42): error TS1005: ',' expected.
+src/index.ts(2983,20): error TS1005: ':' expected.
+src/index.ts(2983,52): error TS1005: ',' expected.
+src/index.ts(2984,16): error TS1005: ':' expected.
+src/index.ts(2984,35): error TS1005: ',' expected.
+src/index.ts(2985,20): error TS1005: ':' expected.
+src/index.ts(2985,46): error TS1005: ',' expected.
+src/index.ts(2986,16): error TS1005: ':' expected.
+src/index.ts(2986,49): error TS1005: ',' expected.
+src/index.ts(2987,20): error TS1005: ':' expected.
+src/index.ts(2987,59): error TS1005: ',' expected.
+src/index.ts(2988,16): error TS1005: ':' expected.
+src/index.ts(2988,39): error TS1005: ',' expected.
+src/index.ts(2989,20): error TS1005: ':' expected.
+src/index.ts(2989,49): error TS1005: ',' expected.
+src/index.ts(2992,16): error TS1005: ':' expected.
+src/index.ts(2992,44): error TS1005: ',' expected.
+src/index.ts(2993,20): error TS1005: ':' expected.
+src/index.ts(2993,54): error TS1005: ',' expected.
+src/index.ts(2994,16): error TS1005: ':' expected.
+src/index.ts(2994,42): error TS1005: ',' expected.
+src/index.ts(2995,20): error TS1005: ':' expected.
+src/index.ts(2995,52): error TS1005: ',' expected.
+src/index.ts(2996,16): error TS1005: ':' expected.
+src/index.ts(2996,36): error TS1005: ',' expected.
+src/index.ts(2997,20): error TS1005: ':' expected.
+src/index.ts(2997,47): error TS1005: ',' expected.
+src/index.ts(2998,16): error TS1005: ':' expected.
+src/index.ts(2998,38): error TS1005: ',' expected.
+src/index.ts(2999,20): error TS1005: ':' expected.
+src/index.ts(2999,49): error TS1005: ',' expected.
+src/index.ts(3000,16): error TS1005: ':' expected.
+src/index.ts(3000,44): error TS1005: ',' expected.
+src/index.ts(3001,20): error TS1005: ':' expected.
+src/index.ts(3001,54): error TS1005: ',' expected.
+src/index.ts(3002,16): error TS1005: ':' expected.
+src/index.ts(3002,47): error TS1005: ',' expected.
+src/index.ts(3003,20): error TS1005: ':' expected.
+src/index.ts(3003,57): error TS1005: ',' expected.
+src/index.ts(3004,16): error TS1005: ':' expected.
+src/index.ts(3004,43): error TS1005: ',' expected.
+src/index.ts(3005,20): error TS1005: ':' expected.
+src/index.ts(3005,53): error TS1005: ',' expected.
+src/index.ts(3006,16): error TS1005: ':' expected.
+src/index.ts(3006,44): error TS1005: ',' expected.
+src/index.ts(3007,20): error TS1005: ':' expected.
+src/index.ts(3007,54): error TS1005: ',' expected.
+src/index.ts(3010,16): error TS1005: ':' expected.
+src/index.ts(3010,42): error TS1005: ',' expected.
+src/index.ts(3011,20): error TS1005: ':' expected.
+src/index.ts(3011,53): error TS1005: ',' expected.
+src/index.ts(3012,16): error TS1005: ':' expected.
+src/index.ts(3012,40): error TS1005: ',' expected.
+src/index.ts(3013,20): error TS1005: ':' expected.
+src/index.ts(3013,51): error TS1005: ',' expected.
+src/index.ts(3014,16): error TS1005: ':' expected.
+src/index.ts(3014,44): error TS1005: ',' expected.
+src/index.ts(3015,20): error TS1005: ':' expected.
+src/index.ts(3015,55): error TS1005: ',' expected.
+src/index.ts(3016,16): error TS1005: ':' expected.
+src/index.ts(3016,46): error TS1005: ',' expected.
+src/index.ts(3017,20): error TS1005: ':' expected.
+src/index.ts(3017,57): error TS1005: ',' expected.
+src/index.ts(3018,16): error TS1005: ':' expected.
+src/index.ts(3018,56): error TS1005: ',' expected.
+src/index.ts(3019,20): error TS1005: ':' expected.
+src/index.ts(3019,66): error TS1005: ',' expected.
+src/index.ts(3020,16): error TS1005: ':' expected.
+src/index.ts(3020,57): error TS1005: ',' expected.
+src/index.ts(3021,20): error TS1005: ':' expected.
+src/index.ts(3021,67): error TS1005: ',' expected.
+src/index.ts(3022,16): error TS1005: ':' expected.
+src/index.ts(3022,45): error TS1005: ',' expected.
+src/index.ts(3023,20): error TS1005: ':' expected.
+src/index.ts(3023,55): error TS1005: ',' expected.
+src/index.ts(3024,16): error TS1005: ':' expected.
+src/index.ts(3024,49): error TS1005: ',' expected.
+src/index.ts(3025,20): error TS1005: ':' expected.
+src/index.ts(3025,59): error TS1005: ',' expected.
+src/index.ts(3028,16): error TS1005: ':' expected.
+src/index.ts(3028,40): error TS1005: ',' expected.
+src/index.ts(3029,20): error TS1005: ':' expected.
+src/index.ts(3029,50): error TS1005: ',' expected.
+src/index.ts(3030,16): error TS1005: ':' expected.
+src/index.ts(3030,38): error TS1005: ',' expected.
+src/index.ts(3031,20): error TS1005: ':' expected.
+src/index.ts(3031,48): error TS1005: ',' expected.
+src/index.ts(3032,16): error TS1005: ':' expected.
+src/index.ts(3032,42): error TS1005: ',' expected.
+src/index.ts(3033,20): error TS1005: ':' expected.
+src/index.ts(3033,52): error TS1005: ',' expected.
+src/index.ts(3034,16): error TS1005: ':' expected.
+src/index.ts(3034,46): error TS1005: ',' expected.
+src/index.ts(3035,20): error TS1005: ':' expected.
+src/index.ts(3035,56): error TS1005: ',' expected.
+src/index.ts(3036,16): error TS1005: ':' expected.
+src/index.ts(3036,43): error TS1005: ',' expected.
+src/index.ts(3037,20): error TS1005: ':' expected.
+src/index.ts(3037,53): error TS1005: ',' expected.
+src/index.ts(3040,16): error TS1005: ':' expected.
+src/index.ts(3040,39): error TS1005: ',' expected.
+src/index.ts(3041,20): error TS1005: ':' expected.
+src/index.ts(3041,49): error TS1005: ',' expected.
+src/index.ts(3042,16): error TS1005: ':' expected.
+src/index.ts(3042,40): error TS1005: ',' expected.
+src/index.ts(3043,20): error TS1005: ':' expected.
+src/index.ts(3043,50): error TS1005: ',' expected.
+src/index.ts(3044,16): error TS1005: ':' expected.
+src/index.ts(3044,40): error TS1005: ',' expected.
+src/index.ts(3045,20): error TS1005: ':' expected.
+src/index.ts(3045,50): error TS1005: ',' expected.
+src/index.ts(3046,16): error TS1005: ':' expected.
+src/index.ts(3046,40): error TS1005: ',' expected.
+src/index.ts(3047,20): error TS1005: ':' expected.
+src/index.ts(3047,50): error TS1005: ',' expected.
+src/index.ts(3048,16): error TS1005: ':' expected.
+src/index.ts(3048,41): error TS1005: ',' expected.
+src/index.ts(3049,20): error TS1005: ':' expected.
+src/index.ts(3049,51): error TS1005: ',' expected.
+src/index.ts(3052,16): error TS1005: ':' expected.
+src/index.ts(3052,39): error TS1005: ',' expected.
+src/index.ts(3053,20): error TS1005: ':' expected.
+src/index.ts(3053,50): error TS1005: ',' expected.
+src/index.ts(3054,16): error TS1005: ':' expected.
+src/index.ts(3054,40): error TS1005: ',' expected.
+src/index.ts(3055,20): error TS1005: ':' expected.
+src/index.ts(3055,51): error TS1005: ',' expected.
+src/index.ts(3056,16): error TS1005: ':' expected.
+src/index.ts(3056,40): error TS1005: ',' expected.
+src/index.ts(3057,20): error TS1005: ':' expected.
+src/index.ts(3057,51): error TS1005: ',' expected.
+src/index.ts(3058,16): error TS1005: ':' expected.
+src/index.ts(3058,44): error TS1005: ',' expected.
+src/index.ts(3059,20): error TS1005: ':' expected.
+src/index.ts(3059,54): error TS1005: ',' expected.
+src/index.ts(3060,16): error TS1005: ':' expected.
+src/index.ts(3060,45): error TS1005: ',' expected.
+src/index.ts(3061,20): error TS1005: ':' expected.
+src/index.ts(3061,55): error TS1005: ',' expected.
+src/index.ts(3062,16): error TS1005: ':' expected.
+src/index.ts(3062,45): error TS1005: ',' expected.
+src/index.ts(3063,20): error TS1005: ':' expected.
+src/index.ts(3063,55): error TS1005: ',' expected.
+src/index.ts(3066,16): error TS1005: ':' expected.
+src/index.ts(3066,38): error TS1005: ',' expected.
+src/index.ts(3067,20): error TS1005: ':' expected.
+src/index.ts(3067,49): error TS1005: ',' expected.
+src/index.ts(3068,16): error TS1005: ':' expected.
+src/index.ts(3068,39): error TS1005: ',' expected.
+src/index.ts(3069,20): error TS1005: ':' expected.
+src/index.ts(3069,50): error TS1005: ',' expected.
+src/index.ts(3070,16): error TS1005: ':' expected.
+src/index.ts(3070,39): error TS1005: ',' expected.
+src/index.ts(3071,20): error TS1005: ':' expected.
+src/index.ts(3071,50): error TS1005: ',' expected.
+src/index.ts(3072,16): error TS1005: ':' expected.
+src/index.ts(3072,39): error TS1005: ',' expected.
+src/index.ts(3073,20): error TS1005: ':' expected.
+src/index.ts(3073,50): error TS1005: ',' expected.
+src/index.ts(3074,16): error TS1005: ':' expected.
+src/index.ts(3074,40): error TS1005: ',' expected.
+src/index.ts(3075,20): error TS1005: ':' expected.
+src/index.ts(3075,51): error TS1005: ',' expected.
+src/index.ts(3078,16): error TS1005: ':' expected.
+src/index.ts(3078,46): error TS1005: ',' expected.
+src/index.ts(3079,20): error TS1005: ':' expected.
+src/index.ts(3079,56): error TS1005: ',' expected.
+src/index.ts(3080,16): error TS1005: ':' expected.
+src/index.ts(3080,47): error TS1005: ',' expected.
+src/index.ts(3081,20): error TS1005: ':' expected.
+src/index.ts(3081,57): error TS1005: ',' expected.
+src/index.ts(3082,16): error TS1005: ':' expected.
+src/index.ts(3082,50): error TS1005: ',' expected.
+src/index.ts(3083,20): error TS1005: ':' expected.
+src/index.ts(3083,60): error TS1005: ',' expected.
+src/index.ts(3084,16): error TS1005: ':' expected.
+src/index.ts(3084,44): error TS1005: ',' expected.
+src/index.ts(3085,20): error TS1005: ':' expected.
+src/index.ts(3085,54): error TS1005: ',' expected.
+src/index.ts(3086,16): error TS1005: ':' expected.
+src/index.ts(3086,51): error TS1005: ',' expected.
+src/index.ts(3087,20): error TS1005: ':' expected.
+src/index.ts(3087,60): error TS1005: ',' expected.
+src/index.ts(3090,16): error TS1005: ':' expected.
+src/index.ts(3090,40): error TS1005: ',' expected.
+src/index.ts(3091,20): error TS1005: ':' expected.
+src/index.ts(3091,51): error TS1005: ',' expected.
+src/index.ts(3092,16): error TS1005: ':' expected.
+src/index.ts(3092,44): error TS1005: ',' expected.
+src/index.ts(3093,20): error TS1005: ':' expected.
+src/index.ts(3093,54): error TS1005: ',' expected.
+src/index.ts(3094,16): error TS1005: ':' expected.
+src/index.ts(3094,47): error TS1005: ',' expected.
+src/index.ts(3095,20): error TS1005: ':' expected.
+src/index.ts(3095,57): error TS1005: ',' expected.
+src/index.ts(3096,16): error TS1005: ':' expected.
+src/index.ts(3096,40): error TS1005: ',' expected.
+src/index.ts(3097,20): error TS1005: ':' expected.
+src/index.ts(3097,51): error TS1005: ',' expected.
+src/index.ts(3098,16): error TS1005: ':' expected.
+src/index.ts(3098,42): error TS1005: ',' expected.
+src/index.ts(3099,20): error TS1005: ':' expected.
+src/index.ts(3099,53): error TS1005: ',' expected.
+src/index.ts(3102,16): error TS1005: ':' expected.
+src/index.ts(3102,46): error TS1005: ',' expected.
+src/index.ts(3103,20): error TS1005: ':' expected.
+src/index.ts(3103,56): error TS1005: ',' expected.
+src/index.ts(3104,16): error TS1005: ':' expected.
+src/index.ts(3104,39): error TS1005: ',' expected.
+src/index.ts(3105,20): error TS1005: ':' expected.
+src/index.ts(3105,49): error TS1005: ',' expected.
+src/index.ts(3106,16): error TS1005: ':' expected.
+src/index.ts(3106,42): error TS1005: ',' expected.
+src/index.ts(3107,20): error TS1005: ':' expected.
+src/index.ts(3107,52): error TS1005: ',' expected.
+src/index.ts(3108,16): error TS1005: ':' expected.
+src/index.ts(3108,43): error TS1005: ',' expected.
+src/index.ts(3109,20): error TS1005: ':' expected.
+src/index.ts(3109,53): error TS1005: ',' expected.
+src/index.ts(3110,16): error TS1005: ':' expected.
+src/index.ts(3110,37): error TS1005: ',' expected.
+src/index.ts(3111,20): error TS1005: ':' expected.
+src/index.ts(3111,48): error TS1005: ',' expected.
+src/index.ts(3114,16): error TS1005: ':' expected.
+src/index.ts(3114,43): error TS1005: ',' expected.
+src/index.ts(3115,20): error TS1005: ':' expected.
+src/index.ts(3115,53): error TS1005: ',' expected.
+src/index.ts(3116,16): error TS1005: ':' expected.
+src/index.ts(3116,43): error TS1005: ',' expected.
+src/index.ts(3117,20): error TS1005: ':' expected.
+src/index.ts(3117,53): error TS1005: ',' expected.
+src/index.ts(3118,16): error TS1005: ':' expected.
+src/index.ts(3118,48): error TS1005: ',' expected.
+src/index.ts(3119,20): error TS1005: ':' expected.
+src/index.ts(3119,57): error TS1005: ',' expected.
+src/index.ts(3120,16): error TS1005: ':' expected.
+src/index.ts(3120,42): error TS1005: ',' expected.
+src/index.ts(3121,20): error TS1005: ':' expected.
+src/index.ts(3121,52): error TS1005: ',' expected.
+src/index.ts(3122,16): error TS1005: ':' expected.
+src/index.ts(3122,39): error TS1005: ',' expected.
+src/index.ts(3123,20): error TS1005: ':' expected.
+src/index.ts(3123,49): error TS1005: ',' expected.
+src/index.ts(3126,16): error TS1005: ':' expected.
+src/index.ts(3126,43): error TS1005: ',' expected.
+src/index.ts(3127,20): error TS1005: ':' expected.
+src/index.ts(3127,54): error TS1005: ',' expected.
+src/index.ts(3128,16): error TS1005: ':' expected.
+src/index.ts(3128,44): error TS1005: ',' expected.
+src/index.ts(3129,20): error TS1005: ':' expected.
+src/index.ts(3129,55): error TS1005: ',' expected.
+src/index.ts(3130,16): error TS1005: ':' expected.
+src/index.ts(3130,41): error TS1005: ',' expected.
+src/index.ts(3131,20): error TS1005: ':' expected.
+src/index.ts(3131,52): error TS1005: ',' expected.
+src/index.ts(3132,16): error TS1005: ':' expected.
+src/index.ts(3132,42): error TS1005: ',' expected.
+src/index.ts(3133,20): error TS1005: ':' expected.
+src/index.ts(3133,53): error TS1005: ',' expected.
+src/index.ts(3134,16): error TS1005: ':' expected.
+src/index.ts(3134,44): error TS1005: ',' expected.
+src/index.ts(3135,20): error TS1005: ':' expected.
+src/index.ts(3135,54): error TS1005: ',' expected.
+src/index.ts(3138,16): error TS1005: ':' expected.
+src/index.ts(3138,42): error TS1005: ',' expected.
+src/index.ts(3139,20): error TS1005: ':' expected.
+src/index.ts(3139,52): error TS1005: ',' expected.
+src/index.ts(3140,16): error TS1005: ':' expected.
+src/index.ts(3140,41): error TS1005: ',' expected.
+src/index.ts(3141,20): error TS1005: ':' expected.
+src/index.ts(3141,52): error TS1005: ',' expected.
+src/index.ts(3142,16): error TS1005: ':' expected.
+src/index.ts(3142,41): error TS1005: ',' expected.
+src/index.ts(3143,20): error TS1005: ':' expected.
+src/index.ts(3143,51): error TS1005: ',' expected.
+src/index.ts(3144,16): error TS1005: ':' expected.
+src/index.ts(3144,41): error TS1005: ',' expected.
+src/index.ts(3145,20): error TS1005: ':' expected.
+src/index.ts(3145,51): error TS1005: ',' expected.
+src/index.ts(3146,16): error TS1005: ':' expected.
+src/index.ts(3146,38): error TS1005: ',' expected.
+src/index.ts(3147,20): error TS1005: ':' expected.
+src/index.ts(3147,49): error TS1005: ',' expected.
+src/index.ts(3150,16): error TS1005: ':' expected.
+src/index.ts(3150,49): error TS1005: ',' expected.
+src/index.ts(3151,20): error TS1005: ':' expected.
+src/index.ts(3151,59): error TS1005: ',' expected.
+src/index.ts(3152,16): error TS1005: ':' expected.
+src/index.ts(3152,45): error TS1005: ',' expected.
+src/index.ts(3153,20): error TS1005: ':' expected.
+src/index.ts(3153,55): error TS1005: ',' expected.
+src/index.ts(3154,16): error TS1005: ':' expected.
+src/index.ts(3154,48): error TS1005: ',' expected.
+src/index.ts(3155,20): error TS1005: ':' expected.
+src/index.ts(3155,58): error TS1005: ',' expected.
+src/index.ts(3158,13): error TS1109: Expression expected.
+src/index.ts(3158,19): error TS1005: ':' expected.
+src/index.ts(3158,53): error TS1005: ',' expected.
+src/index.ts(3160,7): error TS1005: ',' expected.
+src/index.ts(3160,9): error TS1005: ';' expected.
+src/index.ts(3166,24): error TS1005: ',' expected.
+src/index.ts(3166,36): error TS1005: ',' expected.
+src/index.ts(3166,38): error TS1005: ';' expected.
+src/index.ts(3168,11): error TS1128: Declaration or statement expected.
+src/index.ts(3168,36): error TS1005: ';' expected.
+src/index.ts(3169,11): error TS1128: Declaration or statement expected.
+src/index.ts(3169,41): error TS1005: ';' expected.
+src/index.ts(3170,11): error TS1128: Declaration or statement expected.
+src/index.ts(3170,43): error TS1005: ';' expected.
+src/index.ts(3171,11): error TS1128: Declaration or statement expected.
+src/index.ts(3171,37): error TS1005: ';' expected.
+src/index.ts(3172,11): error TS1128: Declaration or statement expected.
+src/index.ts(3172,37): error TS1005: ';' expected.
+src/index.ts(3173,11): error TS1128: Declaration or statement expected.
+src/index.ts(3173,39): error TS1005: ';' expected.
+src/index.ts(3174,11): error TS1128: Declaration or statement expected.
+src/index.ts(3174,37): error TS1005: ';' expected.
+src/index.ts(3175,11): error TS1128: Declaration or statement expected.
+src/index.ts(3175,45): error TS1005: ';' expected.
+src/index.ts(3176,11): error TS1128: Declaration or statement expected.
+src/index.ts(3176,46): error TS1005: ';' expected.
+src/index.ts(3177,11): error TS1128: Declaration or statement expected.
+src/index.ts(3177,43): error TS1005: ';' expected.
+src/index.ts(3178,11): error TS1128: Declaration or statement expected.
+src/index.ts(3178,41): error TS1005: ';' expected.
+src/index.ts(3179,11): error TS1128: Declaration or statement expected.
+src/index.ts(3179,36): error TS1005: ';' expected.
+src/index.ts(3180,11): error TS1128: Declaration or statement expected.
+src/index.ts(3180,46): error TS1005: ';' expected.
+src/index.ts(3183,11): error TS1128: Declaration or statement expected.
+src/index.ts(3183,36): error TS1005: ';' expected.
+src/index.ts(3184,11): error TS1128: Declaration or statement expected.
+src/index.ts(3184,36): error TS1005: ';' expected.
+src/index.ts(3185,11): error TS1128: Declaration or statement expected.
+src/index.ts(3185,38): error TS1005: ';' expected.
+src/index.ts(3186,11): error TS1128: Declaration or statement expected.
+src/index.ts(3186,40): error TS1005: ';' expected.
+src/index.ts(3187,11): error TS1128: Declaration or statement expected.
+src/index.ts(3187,36): error TS1005: ';' expected.
+src/index.ts(3188,11): error TS1128: Declaration or statement expected.
+src/index.ts(3188,36): error TS1005: ';' expected.
+src/index.ts(3189,11): error TS1128: Declaration or statement expected.
+src/index.ts(3189,41): error TS1005: ';' expected.
+src/index.ts(3190,11): error TS1128: Declaration or statement expected.
+src/index.ts(3190,37): error TS1005: ';' expected.
+src/index.ts(3191,11): error TS1128: Declaration or statement expected.
+src/index.ts(3191,44): error TS1005: ';' expected.
+src/index.ts(3192,11): error TS1128: Declaration or statement expected.
+src/index.ts(3192,45): error TS1005: ';' expected.
+src/index.ts(3193,11): error TS1128: Declaration or statement expected.
+src/index.ts(3193,43): error TS1005: ';' expected.
+src/index.ts(3194,11): error TS1128: Declaration or statement expected.
+src/index.ts(3194,37): error TS1005: ';' expected.
+src/index.ts(3195,11): error TS1128: Declaration or statement expected.
+src/index.ts(3195,37): error TS1005: ';' expected.
+src/index.ts(3196,11): error TS1128: Declaration or statement expected.
+src/index.ts(3196,43): error TS1005: ';' expected.
+src/index.ts(3197,11): error TS1128: Declaration or statement expected.
+src/index.ts(3197,41): error TS1005: ';' expected.
+src/index.ts(3198,11): error TS1128: Declaration or statement expected.
+src/index.ts(3198,50): error TS1005: ';' expected.
+src/index.ts(3199,11): error TS1128: Declaration or statement expected.
+src/index.ts(3199,38): error TS1005: ';' expected.
+src/index.ts(3200,11): error TS1128: Declaration or statement expected.
+src/index.ts(3200,50): error TS1005: ';' expected.
+src/index.ts(3201,11): error TS1128: Declaration or statement expected.
+src/index.ts(3201,45): error TS1005: ';' expected.
+src/index.ts(3202,11): error TS1128: Declaration or statement expected.
+src/index.ts(3202,43): error TS1005: ';' expected.
+src/index.ts(3205,11): error TS1128: Declaration or statement expected.
+src/index.ts(3205,30): error TS1005: ';' expected.
+src/index.ts(3206,11): error TS1128: Declaration or statement expected.
+src/index.ts(3206,42): error TS1005: ';' expected.
+src/index.ts(3207,11): error TS1128: Declaration or statement expected.
+src/index.ts(3207,44): error TS1005: ';' expected.
+src/index.ts(3208,11): error TS1128: Declaration or statement expected.
+src/index.ts(3208,42): error TS1005: ';' expected.
+src/index.ts(3209,11): error TS1128: Declaration or statement expected.
+src/index.ts(3209,44): error TS1005: ';' expected.
+src/index.ts(3210,11): error TS1128: Declaration or statement expected.
+src/index.ts(3210,44): error TS1005: ';' expected.
+src/index.ts(3211,11): error TS1128: Declaration or statement expected.
+src/index.ts(3211,40): error TS1005: ';' expected.
+src/index.ts(3212,11): error TS1128: Declaration or statement expected.
+src/index.ts(3212,37): error TS1005: ';' expected.
+src/index.ts(3213,11): error TS1128: Declaration or statement expected.
+src/index.ts(3213,38): error TS1005: ';' expected.
+src/index.ts(3214,11): error TS1128: Declaration or statement expected.
+src/index.ts(3214,41): error TS1005: ';' expected.
+src/index.ts(3217,11): error TS1128: Declaration or statement expected.
+src/index.ts(3217,38): error TS1005: ';' expected.
+src/index.ts(3218,11): error TS1128: Declaration or statement expected.
+src/index.ts(3218,38): error TS1005: ';' expected.
+src/index.ts(3219,11): error TS1128: Declaration or statement expected.
+src/index.ts(3219,37): error TS1005: ';' expected.
+src/index.ts(3220,11): error TS1128: Declaration or statement expected.
+src/index.ts(3220,40): error TS1005: ';' expected.
+src/index.ts(3221,11): error TS1128: Declaration or statement expected.
+src/index.ts(3221,41): error TS1005: ';' expected.
+src/index.ts(3222,11): error TS1128: Declaration or statement expected.
+src/index.ts(3222,38): error TS1005: ';' expected.
+src/index.ts(3223,11): error TS1128: Declaration or statement expected.
+src/index.ts(3223,39): error TS1005: ';' expected.
+src/index.ts(3224,11): error TS1128: Declaration or statement expected.
+src/index.ts(3224,39): error TS1005: ';' expected.
+src/index.ts(3225,11): error TS1128: Declaration or statement expected.
+src/index.ts(3225,41): error TS1005: ';' expected.
+src/index.ts(3226,11): error TS1128: Declaration or statement expected.
+src/index.ts(3226,42): error TS1005: ';' expected.
+src/index.ts(3227,11): error TS1128: Declaration or statement expected.
+src/index.ts(3227,44): error TS1005: ';' expected.
+src/index.ts(3228,11): error TS1128: Declaration or statement expected.
+src/index.ts(3228,38): error TS1005: ';' expected.
+src/index.ts(3231,11): error TS1128: Declaration or statement expected.
+src/index.ts(3231,49): error TS1005: ';' expected.
+src/index.ts(3232,11): error TS1128: Declaration or statement expected.
+src/index.ts(3232,50): error TS1005: ';' expected.
+src/index.ts(3235,11): error TS1128: Declaration or statement expected.
+src/index.ts(3235,43): error TS1005: ';' expected.
+src/index.ts(3236,11): error TS1128: Declaration or statement expected.
+src/index.ts(3236,44): error TS1005: ';' expected.
+src/index.ts(3239,11): error TS1128: Declaration or statement expected.
+src/index.ts(3239,34): error TS1005: ';' expected.
+src/index.ts(3240,11): error TS1128: Declaration or statement expected.
+src/index.ts(3240,34): error TS1005: ';' expected.
+src/index.ts(3241,11): error TS1128: Declaration or statement expected.
+src/index.ts(3241,33): error TS1005: ';' expected.
+src/index.ts(3242,11): error TS1128: Declaration or statement expected.
+src/index.ts(3242,34): error TS1005: ';' expected.
+src/index.ts(3243,11): error TS1128: Declaration or statement expected.
+src/index.ts(3243,45): error TS1005: ';' expected.
+src/index.ts(3244,11): error TS1128: Declaration or statement expected.
+src/index.ts(3244,46): error TS1005: ';' expected.
+src/index.ts(3245,11): error TS1128: Declaration or statement expected.
+src/index.ts(3245,43): error TS1005: ';' expected.
+src/index.ts(3246,11): error TS1128: Declaration or statement expected.
+src/index.ts(3246,42): error TS1005: ';' expected.
+src/index.ts(3249,11): error TS1128: Declaration or statement expected.
+src/index.ts(3249,38): error TS1005: ';' expected.
+src/index.ts(3250,11): error TS1128: Declaration or statement expected.
+src/index.ts(3250,38): error TS1005: ';' expected.
+src/index.ts(3251,11): error TS1128: Declaration or statement expected.
+src/index.ts(3251,38): error TS1005: ';' expected.
+src/index.ts(3252,11): error TS1128: Declaration or statement expected.
+src/index.ts(3252,37): error TS1005: ';' expected.
+src/index.ts(3253,11): error TS1128: Declaration or statement expected.
+src/index.ts(3253,39): error TS1005: ';' expected.
+src/index.ts(3254,11): error TS1128: Declaration or statement expected.
+src/index.ts(3254,39): error TS1005: ';' expected.
+src/index.ts(3255,11): error TS1128: Declaration or statement expected.
+src/index.ts(3255,43): error TS1005: ';' expected.
+src/index.ts(3256,11): error TS1128: Declaration or statement expected.
+src/index.ts(3256,47): error TS1005: ';' expected.
+src/index.ts(3257,11): error TS1128: Declaration or statement expected.
+src/index.ts(3257,40): error TS1005: ';' expected.
+src/index.ts(3258,11): error TS1128: Declaration or statement expected.
+src/index.ts(3258,43): error TS1005: ';' expected.
+src/index.ts(3261,11): error TS1128: Declaration or statement expected.
+src/index.ts(3261,43): error TS1005: ';' expected.
+src/index.ts(3262,11): error TS1128: Declaration or statement expected.
+src/index.ts(3262,41): error TS1005: ';' expected.
+src/index.ts(3263,11): error TS1128: Declaration or statement expected.
+src/index.ts(3263,43): error TS1005: ';' expected.
+src/index.ts(3264,11): error TS1128: Declaration or statement expected.
+src/index.ts(3264,42): error TS1005: ';' expected.
+src/index.ts(3265,11): error TS1128: Declaration or statement expected.
+src/index.ts(3265,42): error TS1005: ';' expected.
+src/index.ts(3266,11): error TS1128: Declaration or statement expected.
+src/index.ts(3266,37): error TS1005: ';' expected.
+src/index.ts(3267,11): error TS1128: Declaration or statement expected.
+src/index.ts(3267,42): error TS1005: ';' expected.
+src/index.ts(3268,11): error TS1128: Declaration or statement expected.
+src/index.ts(3268,38): error TS1005: ';' expected.
+src/index.ts(3269,11): error TS1128: Declaration or statement expected.
+src/index.ts(3269,38): error TS1005: ';' expected.
+src/index.ts(3270,11): error TS1128: Declaration or statement expected.
+src/index.ts(3270,42): error TS1005: ';' expected.
+src/index.ts(3271,11): error TS1128: Declaration or statement expected.
+src/index.ts(3271,43): error TS1005: ';' expected.
+src/index.ts(3272,11): error TS1128: Declaration or statement expected.
+src/index.ts(3272,36): error TS1005: ';' expected.
+src/index.ts(3273,11): error TS1128: Declaration or statement expected.
+src/index.ts(3273,44): error TS1005: ';' expected.
+src/index.ts(3274,11): error TS1128: Declaration or statement expected.
+src/index.ts(3274,40): error TS1005: ';' expected.
+src/index.ts(3275,11): error TS1128: Declaration or statement expected.
+src/index.ts(3275,47): error TS1005: ';' expected.
+src/index.ts(3278,11): error TS1128: Declaration or statement expected.
+src/index.ts(3278,35): error TS1005: ';' expected.
+src/index.ts(3279,11): error TS1128: Declaration or statement expected.
+src/index.ts(3279,36): error TS1005: ';' expected.
+src/index.ts(3280,11): error TS1128: Declaration or statement expected.
+src/index.ts(3280,37): error TS1005: ';' expected.
+src/index.ts(3281,11): error TS1128: Declaration or statement expected.
+src/index.ts(3281,36): error TS1005: ';' expected.
+src/index.ts(3282,11): error TS1128: Declaration or statement expected.
+src/index.ts(3282,40): error TS1005: ';' expected.
+src/index.ts(3283,11): error TS1128: Declaration or statement expected.
+src/index.ts(3283,38): error TS1005: ';' expected.
+src/index.ts(3284,11): error TS1128: Declaration or statement expected.
+src/index.ts(3284,36): error TS1005: ';' expected.
+src/index.ts(3285,11): error TS1128: Declaration or statement expected.
+src/index.ts(3285,38): error TS1005: ';' expected.
+src/index.ts(3288,11): error TS1128: Declaration or statement expected.
+src/index.ts(3288,42): error TS1005: ';' expected.
+src/index.ts(3289,11): error TS1128: Declaration or statement expected.
+src/index.ts(3289,39): error TS1005: ';' expected.
+src/index.ts(3290,11): error TS1128: Declaration or statement expected.
+src/index.ts(3290,45): error TS1005: ';' expected.
+src/index.ts(3291,11): error TS1128: Declaration or statement expected.
+src/index.ts(3291,41): error TS1005: ';' expected.
+src/index.ts(3292,11): error TS1128: Declaration or statement expected.
+src/index.ts(3292,36): error TS1005: ';' expected.
+src/index.ts(3293,11): error TS1128: Declaration or statement expected.
+src/index.ts(3293,40): error TS1005: ';' expected.
+src/index.ts(3294,11): error TS1128: Declaration or statement expected.
+src/index.ts(3294,40): error TS1005: ';' expected.
+src/index.ts(3295,11): error TS1128: Declaration or statement expected.
+src/index.ts(3295,42): error TS1005: ';' expected.
+src/index.ts(3296,11): error TS1128: Declaration or statement expected.
+src/index.ts(3296,33): error TS1005: ';' expected.
+src/index.ts(3297,11): error TS1128: Declaration or statement expected.
+src/index.ts(3297,44): error TS1005: ';' expected.
+src/index.ts(3300,11): error TS1128: Declaration or statement expected.
+src/index.ts(3300,41): error TS1005: ';' expected.
+src/index.ts(3301,11): error TS1128: Declaration or statement expected.
+src/index.ts(3301,40): error TS1005: ';' expected.
+src/index.ts(3302,11): error TS1128: Declaration or statement expected.
+src/index.ts(3302,38): error TS1005: ';' expected.
+src/index.ts(3303,11): error TS1128: Declaration or statement expected.
+src/index.ts(3303,49): error TS1005: ';' expected.
+src/index.ts(3304,11): error TS1128: Declaration or statement expected.
+src/index.ts(3304,42): error TS1005: ';' expected.
+src/index.ts(3305,11): error TS1128: Declaration or statement expected.
+src/index.ts(3305,41): error TS1005: ';' expected.
+src/index.ts(3306,11): error TS1128: Declaration or statement expected.
+src/index.ts(3306,40): error TS1005: ';' expected.
+src/index.ts(3307,11): error TS1128: Declaration or statement expected.
+src/index.ts(3307,51): error TS1005: ';' expected.
+src/index.ts(3310,11): error TS1128: Declaration or statement expected.
+src/index.ts(3310,37): error TS1005: ';' expected.
+src/index.ts(3311,11): error TS1128: Declaration or statement expected.
+src/index.ts(3311,36): error TS1005: ';' expected.
+src/index.ts(3312,11): error TS1128: Declaration or statement expected.
+src/index.ts(3312,37): error TS1005: ';' expected.
+src/index.ts(3313,11): error TS1128: Declaration or statement expected.
+src/index.ts(3313,35): error TS1005: ';' expected.
+src/index.ts(3314,11): error TS1128: Declaration or statement expected.
+src/index.ts(3314,39): error TS1005: ';' expected.
+src/index.ts(3315,11): error TS1128: Declaration or statement expected.
+src/index.ts(3315,37): error TS1005: ';' expected.
+src/index.ts(3318,11): error TS1128: Declaration or statement expected.
+src/index.ts(3318,40): error TS1005: ';' expected.
+src/index.ts(3319,11): error TS1128: Declaration or statement expected.
+src/index.ts(3319,43): error TS1005: ';' expected.
+src/index.ts(3320,11): error TS1128: Declaration or statement expected.
+src/index.ts(3320,47): error TS1005: ';' expected.
+src/index.ts(3321,11): error TS1128: Declaration or statement expected.
+src/index.ts(3321,46): error TS1005: ';' expected.
+src/index.ts(3322,11): error TS1128: Declaration or statement expected.
+src/index.ts(3322,45): error TS1005: ';' expected.
+src/index.ts(3323,11): error TS1128: Declaration or statement expected.
+src/index.ts(3323,47): error TS1005: ';' expected.
+src/index.ts(3324,11): error TS1128: Declaration or statement expected.
+src/index.ts(3324,49): error TS1005: ';' expected.
+src/index.ts(3325,11): error TS1128: Declaration or statement expected.
+src/index.ts(3325,45): error TS1005: ';' expected.
+src/index.ts(3326,11): error TS1128: Declaration or statement expected.
+src/index.ts(3326,44): error TS1005: ';' expected.
+src/index.ts(3327,11): error TS1128: Declaration or statement expected.
+src/index.ts(3327,40): error TS1005: ';' expected.
+src/index.ts(3330,11): error TS1128: Declaration or statement expected.
+src/index.ts(3330,42): error TS1005: ';' expected.
+src/index.ts(3333,11): error TS1128: Declaration or statement expected.
+src/index.ts(3333,36): error TS1005: ';' expected.
+src/index.ts(3334,11): error TS1128: Declaration or statement expected.
+src/index.ts(3334,49): error TS1005: ';' expected.
+src/index.ts(3335,11): error TS1128: Declaration or statement expected.
+src/index.ts(3335,37): error TS1005: ';' expected.
+src/index.ts(3338,11): error TS1128: Declaration or statement expected.
+src/index.ts(3338,51): error TS1005: ';' expected.
+src/index.ts(3339,11): error TS1128: Declaration or statement expected.
+src/index.ts(3339,54): error TS1005: ';' expected.
+src/index.ts(3342,11): error TS1128: Declaration or statement expected.
+src/index.ts(3342,42): error TS1005: ';' expected.
+src/index.ts(3343,11): error TS1128: Declaration or statement expected.
+src/index.ts(3343,41): error TS1005: ';' expected.
+src/index.ts(3346,11): error TS1128: Declaration or statement expected.
+src/index.ts(3346,36): error TS1005: ';' expected.
+src/index.ts(3347,11): error TS1128: Declaration or statement expected.
+src/index.ts(3347,42): error TS1005: ';' expected.
+src/index.ts(3348,11): error TS1128: Declaration or statement expected.
+src/index.ts(3348,43): error TS1005: ';' expected.
+src/index.ts(3351,11): error TS1128: Declaration or statement expected.
+src/index.ts(3351,38): error TS1005: ';' expected.
+src/index.ts(3352,11): error TS1128: Declaration or statement expected.
+src/index.ts(3352,39): error TS1005: ';' expected.
+src/index.ts(3353,11): error TS1128: Declaration or statement expected.
+src/index.ts(3353,40): error TS1005: ';' expected.
+src/index.ts(3354,11): error TS1128: Declaration or statement expected.
+src/index.ts(3354,44): error TS1005: ';' expected.
+src/index.ts(3355,11): error TS1128: Declaration or statement expected.
+src/index.ts(3355,39): error TS1005: ';' expected.
+src/index.ts(3358,11): error TS1128: Declaration or statement expected.
+src/index.ts(3358,39): error TS1005: ';' expected.
+src/index.ts(3359,11): error TS1128: Declaration or statement expected.
+src/index.ts(3359,38): error TS1005: ';' expected.
+src/index.ts(3360,11): error TS1128: Declaration or statement expected.
+src/index.ts(3360,41): error TS1005: ';' expected.
+src/index.ts(3363,11): error TS1128: Declaration or statement expected.
+src/index.ts(3363,41): error TS1005: ';' expected.
+src/index.ts(3364,11): error TS1128: Declaration or statement expected.
+src/index.ts(3364,38): error TS1005: ';' expected.
+src/index.ts(3365,11): error TS1128: Declaration or statement expected.
+src/index.ts(3365,46): error TS1005: ';' expected.
+src/index.ts(3368,11): error TS1128: Declaration or statement expected.
+src/index.ts(3368,43): error TS1005: ';' expected.
+src/index.ts(3369,11): error TS1128: Declaration or statement expected.
+src/index.ts(3369,37): error TS1005: ';' expected.
+src/index.ts(3372,11): error TS1128: Declaration or statement expected.
+src/index.ts(3372,44): error TS1005: ';' expected.
+src/index.ts(3373,11): error TS1128: Declaration or statement expected.
+src/index.ts(3373,37): error TS1005: ';' expected.
+src/index.ts(3376,11): error TS1128: Declaration or statement expected.
+src/index.ts(3376,45): error TS1005: ';' expected.
+src/index.ts(3377,11): error TS1128: Declaration or statement expected.
+src/index.ts(3377,36): error TS1005: ';' expected.
+src/index.ts(3378,11): error TS1128: Declaration or statement expected.
+src/index.ts(3378,36): error TS1005: ';' expected.
+src/index.ts(3379,11): error TS1128: Declaration or statement expected.
+src/index.ts(3379,41): error TS1005: ';' expected.
+src/index.ts(3380,11): error TS1128: Declaration or statement expected.
+src/index.ts(3380,41): error TS1005: ';' expected.
+src/index.ts(3381,11): error TS1128: Declaration or statement expected.
+src/index.ts(3381,36): error TS1005: ';' expected.
+src/index.ts(3383,11): error TS1128: Declaration or statement expected.
+src/index.ts(3384,19): error TS1442: Expected '=' for property initializer.
+src/index.ts(3385,9): error TS1128: Declaration or statement expected.
+src/index.ts(3386,7): error TS1128: Declaration or statement expected.
+src/index.ts(3386,9): error TS1005: 'try' expected.
+src/index.ts(3391,13): error TS1109: Expression expected.
+src/index.ts(3391,20): error TS1005: ':' expected.
+src/index.ts(3393,14): error TS1005: ',' expected.
+src/index.ts(3395,7): error TS1005: ',' expected.
+src/index.ts(3395,9): error TS1005: ';' expected.
+src/index.ts(3401,6): error TS1128: Declaration or statement expected.
+src/index.ts(3402,3): error TS1128: Declaration or statement expected.
+src/index.ts(3405,3): error TS1128: Declaration or statement expected.
+src/index.ts(3405,30): error TS1005: ',' expected.
+src/index.ts(3405,36): error TS1005: ';' expected.
+src/index.ts(3411,3): error TS1128: Declaration or statement expected.
+src/index.ts(3411,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3411,22): error TS1005: ';' expected.
+src/index.ts(3411,24): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3415,3): error TS1128: Declaration or statement expected.
+src/index.ts(3415,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3415,37): error TS1005: ',' expected.
+src/index.ts(3415,54): error TS1005: ',' expected.
+src/index.ts(3415,66): error TS1005: ';' expected.
+src/index.ts(3429,3): error TS1128: Declaration or statement expected.
+src/index.ts(3429,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3429,27): error TS1005: ',' expected.
+src/index.ts(3429,44): error TS1005: ',' expected.
+src/index.ts(3429,63): error TS1005: ';' expected.
+src/index.ts(3430,11): error TS1005: ':' expected.
+src/index.ts(3430,74): error TS1005: ',' expected.
+src/index.ts(3431,11): error TS1005: ':' expected.
+src/index.ts(3440,7): error TS1005: ',' expected.
+src/index.ts(3442,9): error TS1003: Identifier expected.
+src/index.ts(3442,18): error TS1005: ',' expected.
+src/index.ts(3442,21): error TS1005: ',' expected.
+src/index.ts(3442,23): error TS1136: Property assignment expected.
+src/index.ts(3448,3): error TS1128: Declaration or statement expected.
+src/index.ts(3450,3): error TS1128: Declaration or statement expected.
+src/index.ts(3450,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3450,31): error TS1005: ',' expected.
+src/index.ts(3450,38): error TS1005: ';' expected.
+src/index.ts(3461,3): error TS1128: Declaration or statement expected.
+src/index.ts(3461,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3461,29): error TS1005: ',' expected.
+src/index.ts(3461,36): error TS1005: ';' expected.
+src/index.ts(3466,3): error TS1128: Declaration or statement expected.
+src/index.ts(3466,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3466,32): error TS1005: ',' expected.
+src/index.ts(3466,39): error TS1005: ';' expected.
+src/index.ts(3478,3): error TS1128: Declaration or statement expected.
+src/index.ts(3478,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3478,32): error TS1005: ',' expected.
+src/index.ts(3478,39): error TS1005: ';' expected.
+src/index.ts(3490,3): error TS1128: Declaration or statement expected.
+src/index.ts(3490,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3490,32): error TS1005: ',' expected.
+src/index.ts(3490,39): error TS1005: ';' expected.
+src/index.ts(3495,3): error TS1128: Declaration or statement expected.
+src/index.ts(3495,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3495,36): error TS1005: ',' expected.
+src/index.ts(3495,43): error TS1005: ';' expected.
+src/index.ts(3500,3): error TS1128: Declaration or statement expected.
+src/index.ts(3500,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3500,39): error TS1005: ',' expected.
+src/index.ts(3500,46): error TS1005: ';' expected.
+src/index.ts(3505,3): error TS1128: Declaration or statement expected.
+src/index.ts(3505,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3505,39): error TS1005: ',' expected.
+src/index.ts(3505,46): error TS1005: ';' expected.
+src/index.ts(3510,3): error TS1128: Declaration or statement expected.
+src/index.ts(3510,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3510,34): error TS1005: ',' expected.
+src/index.ts(3510,41): error TS1005: ';' expected.
+src/index.ts(3518,3): error TS1128: Declaration or statement expected.
+src/index.ts(3518,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3518,35): error TS1005: ',' expected.
+src/index.ts(3518,42): error TS1005: ';' expected.
+src/index.ts(3523,3): error TS1128: Declaration or statement expected.
+src/index.ts(3523,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3523,34): error TS1005: ',' expected.
+src/index.ts(3523,41): error TS1005: ';' expected.
+src/index.ts(3528,3): error TS1128: Declaration or statement expected.
+src/index.ts(3528,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3528,50): error TS1005: ',' expected.
+src/index.ts(3528,57): error TS1005: ';' expected.
+src/index.ts(3533,3): error TS1128: Declaration or statement expected.
+src/index.ts(3533,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3533,51): error TS1005: ',' expected.
+src/index.ts(3533,58): error TS1005: ';' expected.
+src/index.ts(3538,3): error TS1128: Declaration or statement expected.
+src/index.ts(3538,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3538,47): error TS1005: ',' expected.
+src/index.ts(3538,54): error TS1005: ';' expected.
+src/index.ts(3543,3): error TS1128: Declaration or statement expected.
+src/index.ts(3543,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3543,48): error TS1005: ',' expected.
+src/index.ts(3543,55): error TS1005: ';' expected.
+src/index.ts(3548,3): error TS1128: Declaration or statement expected.
+src/index.ts(3548,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3548,35): error TS1005: ',' expected.
+src/index.ts(3548,42): error TS1005: ';' expected.
+src/index.ts(3555,3): error TS1128: Declaration or statement expected.
+src/index.ts(3555,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3555,36): error TS1005: ',' expected.
+src/index.ts(3555,43): error TS1005: ';' expected.
+src/index.ts(3560,3): error TS1128: Declaration or statement expected.
+src/index.ts(3560,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3560,45): error TS1005: ',' expected.
+src/index.ts(3560,52): error TS1005: ';' expected.
+src/index.ts(3565,3): error TS1128: Declaration or statement expected.
+src/index.ts(3565,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3565,46): error TS1005: ',' expected.
+src/index.ts(3565,53): error TS1005: ';' expected.
+src/index.ts(3570,3): error TS1128: Declaration or statement expected.
+src/index.ts(3570,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3570,48): error TS1005: ',' expected.
+src/index.ts(3570,55): error TS1005: ';' expected.
+src/index.ts(3575,3): error TS1128: Declaration or statement expected.
+src/index.ts(3575,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3575,34): error TS1005: ',' expected.
+src/index.ts(3575,41): error TS1005: ';' expected.
+src/index.ts(3584,3): error TS1128: Declaration or statement expected.
+src/index.ts(3584,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3584,31): error TS1005: ',' expected.
+src/index.ts(3584,38): error TS1005: ';' expected.
+src/index.ts(3589,3): error TS1128: Declaration or statement expected.
+src/index.ts(3589,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3589,34): error TS1005: ',' expected.
+src/index.ts(3589,41): error TS1005: ';' expected.
+src/index.ts(3600,3): error TS1128: Declaration or statement expected.
+src/index.ts(3600,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3600,34): error TS1005: ',' expected.
+src/index.ts(3600,41): error TS1005: ';' expected.
+src/index.ts(3605,3): error TS1128: Declaration or statement expected.
+src/index.ts(3605,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3605,33): error TS1005: ',' expected.
+src/index.ts(3605,40): error TS1005: ';' expected.
+src/index.ts(3612,3): error TS1128: Declaration or statement expected.
+src/index.ts(3612,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3612,41): error TS1005: ',' expected.
+src/index.ts(3612,48): error TS1005: ';' expected.
+src/index.ts(3617,3): error TS1128: Declaration or statement expected.
+src/index.ts(3617,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3617,44): error TS1005: ',' expected.
+src/index.ts(3617,51): error TS1005: ';' expected.
+src/index.ts(3627,3): error TS1128: Declaration or statement expected.
+src/index.ts(3627,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3627,44): error TS1005: ',' expected.
+src/index.ts(3627,51): error TS1005: ';' expected.
+src/index.ts(3632,3): error TS1128: Declaration or statement expected.
+src/index.ts(3632,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3632,45): error TS1005: ',' expected.
+src/index.ts(3632,52): error TS1005: ';' expected.
+src/index.ts(3637,3): error TS1128: Declaration or statement expected.
+src/index.ts(3637,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3637,48): error TS1005: ',' expected.
+src/index.ts(3637,55): error TS1005: ';' expected.
+src/index.ts(3645,3): error TS1128: Declaration or statement expected.
+src/index.ts(3645,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3645,41): error TS1005: ',' expected.
+src/index.ts(3645,48): error TS1005: ';' expected.
+src/index.ts(3650,3): error TS1128: Declaration or statement expected.
+src/index.ts(3650,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3650,41): error TS1005: ',' expected.
+src/index.ts(3650,48): error TS1005: ';' expected.
+src/index.ts(3655,3): error TS1128: Declaration or statement expected.
+src/index.ts(3655,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3655,53): error TS1005: ',' expected.
+src/index.ts(3655,60): error TS1005: ';' expected.
+src/index.ts(3660,3): error TS1128: Declaration or statement expected.
+src/index.ts(3660,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3660,56): error TS1005: ',' expected.
+src/index.ts(3660,63): error TS1005: ';' expected.
+src/index.ts(3670,3): error TS1128: Declaration or statement expected.
+src/index.ts(3670,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3670,34): error TS1005: ',' expected.
+src/index.ts(3670,41): error TS1005: ';' expected.
+src/index.ts(3675,3): error TS1128: Declaration or statement expected.
+src/index.ts(3675,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3675,33): error TS1005: ',' expected.
+src/index.ts(3675,40): error TS1005: ';' expected.
+src/index.ts(3688,3): error TS1128: Declaration or statement expected.
+src/index.ts(3688,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3688,31): error TS1005: ',' expected.
+src/index.ts(3688,38): error TS1005: ';' expected.
+src/index.ts(3693,3): error TS1128: Declaration or statement expected.
+src/index.ts(3693,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3693,36): error TS1005: ',' expected.
+src/index.ts(3693,43): error TS1005: ';' expected.
+src/index.ts(3698,3): error TS1128: Declaration or statement expected.
+src/index.ts(3698,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3698,40): error TS1005: ',' expected.
+src/index.ts(3698,47): error TS1005: ';' expected.
+src/index.ts(3706,3): error TS1128: Declaration or statement expected.
+src/index.ts(3706,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3706,41): error TS1005: ',' expected.
+src/index.ts(3706,48): error TS1005: ';' expected.
+src/index.ts(3714,3): error TS1128: Declaration or statement expected.
+src/index.ts(3714,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3714,37): error TS1005: ',' expected.
+src/index.ts(3714,44): error TS1005: ';' expected.
+src/index.ts(3719,3): error TS1128: Declaration or statement expected.
+src/index.ts(3719,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3719,40): error TS1005: ',' expected.
+src/index.ts(3719,47): error TS1005: ';' expected.
+src/index.ts(3727,3): error TS1128: Declaration or statement expected.
+src/index.ts(3727,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3727,40): error TS1005: ',' expected.
+src/index.ts(3727,47): error TS1005: ';' expected.
+src/index.ts(3736,3): error TS1128: Declaration or statement expected.
+src/index.ts(3736,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3736,58): error TS1005: ',' expected.
+src/index.ts(3736,65): error TS1005: ';' expected.
+src/index.ts(3741,3): error TS1128: Declaration or statement expected.
+src/index.ts(3741,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3741,52): error TS1005: ',' expected.
+src/index.ts(3741,59): error TS1005: ';' expected.
+src/index.ts(3746,3): error TS1128: Declaration or statement expected.
+src/index.ts(3746,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3746,32): error TS1005: ',' expected.
+src/index.ts(3746,39): error TS1005: ';' expected.
+src/index.ts(3759,3): error TS1128: Declaration or statement expected.
+src/index.ts(3759,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3759,30): error TS1005: ',' expected.
+src/index.ts(3759,37): error TS1005: ';' expected.
+src/index.ts(3764,3): error TS1128: Declaration or statement expected.
+src/index.ts(3764,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3764,33): error TS1005: ',' expected.
+src/index.ts(3764,40): error TS1005: ';' expected.
+src/index.ts(3774,3): error TS1128: Declaration or statement expected.
+src/index.ts(3774,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3774,33): error TS1005: ',' expected.
+src/index.ts(3774,40): error TS1005: ';' expected.
+src/index.ts(3785,3): error TS1128: Declaration or statement expected.
+src/index.ts(3785,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3785,31): error TS1005: ',' expected.
+src/index.ts(3785,38): error TS1005: ';' expected.
+src/index.ts(3792,3): error TS1128: Declaration or statement expected.
+src/index.ts(3792,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3792,33): error TS1005: ',' expected.
+src/index.ts(3792,40): error TS1005: ';' expected.
+src/index.ts(3797,3): error TS1128: Declaration or statement expected.
+src/index.ts(3797,11): error TS1434: Unexpected keyword or identifier.
+src/index.ts(3797,34): error TS1005: ',' expected.
+src/index.ts(3797,41): error TS1005: ';' expected.
+src/index.ts(3802,3): error TS1128: Declaration or statement expected.

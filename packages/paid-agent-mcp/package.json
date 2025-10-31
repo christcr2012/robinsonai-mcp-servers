@@ -1,0 +1,48 @@
+{
+  "name": "@robinsonai/paid-agent-mcp",
+  "version": "0.2.0",
+  "description": "Paid Agent MCP - Execute tasks using PAID models (OpenAI, Claude, etc.)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "paid-agent-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Tests coming soon\""
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "openai",
+    "claude",
+    "anthropic",
+    "paid-models",
+    "cost-control",
+    "multi-provider"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@anthropic-ai/sdk": "^0.32.1",
+    "better-sqlite3": "^11.10.0",
+    "openai": "^4.77.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robinsonai/robinsonai-mcp-servers.git",
+    "directory": "packages/paid-agent-mcp"
+  }
+}

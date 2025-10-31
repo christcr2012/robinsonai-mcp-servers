@@ -27,21 +27,21 @@ You should see all 4 packages listed.
 
 ## Configuration Format
 
-### Working Configuration
+### Working Configuration (Verified in VS Code on Windows)
 
 ```json
 {
   "mcpServers": {
-    "architect-mcp": {
-      "command": "npx",
-      "args": ["architect-mcp"],
-      "env": {
-        "OLLAMA_BASE_URL": "http://localhost:11434",
-        "ARCHITECT_FAST_MODEL": "qwen2.5:3b",
-        "ARCHITECT_STD_MODEL": "deepseek-coder:33b",
-        "ARCHITECT_BIG_MODEL": "qwen2.5-coder:32b"
-      }
-    },
+      "architect-mcp": {
+         "command": "npx",
+         "args": ["architect-mcp"],
+         "env": {
+            "OLLAMA_BASE_URL": "http://localhost:11434",
+            "ARCHITECT_FAST_MODEL": "qwen2.5:3b",
+            "ARCHITECT_STD_MODEL": "deepseek-coder:33b",
+            "ARCHITECT_BIG_MODEL": "qwen2.5-coder:32b"
+         }
+      },
     "autonomous-agent-mcp": {
       "command": "npx",
       "args": ["autonomous-agent-mcp"],
@@ -54,15 +54,13 @@ You should see all 4 packages listed.
       "args": ["credit-optimizer-mcp"],
       "env": {}
     },
-    "robinsons-toolkit-mcp": {
-      "command": "npx",
-      "args": ["robinsons-toolkit-mcp"],
-      "env": {
-        "GITHUB_TOKEN": "your_github_token_here",
-        "VERCEL_TOKEN": "your_vercel_token_here",
-        "NEON_API_KEY": "your_neon_api_key_here"
+      "robinsons-toolkit-mcp": {
+         "command": "npx",
+         "args": ["robinsons-toolkit-mcp"],
+         "env": {
+        
+         }
       }
-    }
   }
 }
 ```
@@ -97,17 +95,18 @@ You should see tools from all 4 servers.
 
 ### ✅ DO THIS
 
-1. **Use npx with package name in args:**
+1. **Use npx with bin name in args:**
    - `"command": "npx"` ✅
-   - `"args": ["architect-mcp"]` ✅
-   - This is the VERIFIED WORKING format
+   - `"args": ["architect-mcp"]` (bin from each package.json) ✅
+   - This is the VERIFIED WORKING format in VS Code’s Augment extension
 
 2. **Use `"mcpServers"` (not `"augment.mcpServers"`):**
    - For Augment Settings Panel JSON import: `"mcpServers"` ✅
    - For VS Code settings.json: `"augment.mcpServers"` ✅
 
-3. **Globally link packages FIRST:**
-   - Run `npm link` in each package directory
+3. **Make bins available FIRST:**
+   - Preferred: Run `npm link` in each package directory to expose the local bins globally
+   - Or: `npm i -g` for published packages (if available)
    - Verify with `npm list -g --depth=0`
 
 4. **Package name in args array:**
@@ -115,27 +114,25 @@ You should see tools from all 4 servers.
    - NOT `"args": []` ❌
    - NOT `"args": ["-y", "@robinsonai/package-name"]` ❌
 
-5. **Fully quit VS Code:**
+5. **Fully reload VS Code:**
    - Close all windows
-   - Reopen fresh
+   - Reopen fresh (or run Developer: Reload Window)
 
 ### ❌ DON'T DO THIS
 
-1. **Don't use bin names directly:**
-   - `"command": "architect-mcp"` ❌
-   - This does NOT work in Augment
+1. **Don't use bin as command (without npx):**
+   - `"command": "architect-mcp"` ❌ may fail if PATH doesn't include npm global bin in the extension host
+   - Always prefer `"command": "npx"` with the bin name in args
 
-2. **Don't use `node` with file paths:**
-   - `"command": "node"` ❌
-   - `"args": ["C:\\path\\to\\file.js"]` ❌
+2. **Avoid `node` with file paths:**
+   - The Augment extension expects an executable; using `node` may work but is not recommended here
 
 3. **Don't mix formats:**
    - Don't use `"augment.mcpServers"` in JSON import ❌
    - Don't use `"mcpServers"` in VS Code settings.json ❌
 
-4. **Don't skip global linking:**
-   - Packages MUST be globally linked
-   - `npx` won't work in Augment
+4. **Don't skip making bins available:**
+   - Ensure bins resolve via `npm link` or global install; otherwise `npx` may fetch from registry instead of your local build
 
 ---
 
@@ -250,13 +247,13 @@ Each package MUST have:
 
 ## Summary
 
-**The ONLY configuration that works:**
+Use this pattern consistently in Augment’s MCP configuration:
 
-1. Globally link packages: `npm link`
-2. Use bin names: `"command": "architect-mcp"`
-3. Empty args: `"args": []`
-4. Use `"mcpServers"` in JSON import
-5. Fully quit and reopen VS Code
+- `"command": "npx"`, `"args": ["<bin-name>"]` where `<bin-name>` is one of:
+   - `architect-mcp`, `autonomous-agent-mcp`, `credit-optimizer-mcp`, `robinsons-toolkit-mcp`
+- Provide required env vars (see reference above)
+- Import via Augment Settings panel using the `mcpServers` root key
+- Reload VS Code after changes
 
-**This is the source of truth. All other documentation is outdated.**
+Tip: You can import `READY_TO_PASTE_CONFIG.json` from the repo root as a known-good starting point.
 

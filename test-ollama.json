@@ -1,0 +1,12 @@
+{
+  "model": "qwen2.5:3b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Say hello in 5 words or less"
+    }
+  ],
+  "max_tokens": 20,
+  "stream": false
+}
+

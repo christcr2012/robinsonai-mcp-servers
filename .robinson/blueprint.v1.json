@@ -1,0 +1,32 @@
+{
+  "$schema": "https://robinson.ai/schemas/blueprint.v1.json",
+  "version": "1.1.0",
+  "owner": "you",
+  "repo_agnostic": true,
+  "goals": [
+    "Enable a non-coder to ship working features with minimum clicks",
+    "Plan \u2192 Scaffold \u2192 Fill \u2192 Verify \u2192 PR with zero placeholders in final pass",
+    "Keep costs low: ChatGPT+ for planning, local/Ollama for grunt work, burst GPU only when needed",
+    "Optional: use Business/Teams MCP so ChatGPT can push plans directly"
+  ],
+  "paths": {
+    "config": ".robinson/config.json",
+    "inbox": ".robinson/inbox",
+    "outbox": ".robinson/outbox",
+    "symbols": ".robinson/symbols.json",
+    "scripts": {
+      "genSymbols": "tools/gen-symbol-map.mjs",
+      "audit": "tools/placeholder-audit.mjs",
+      "phaseRun": "tools/phase-run.mjs",
+      "orchestrator": "tools/robinson-orchestrator.mjs"
+    }
+  },
+  "policy": {
+    "phase1_allow_placeholders": true,
+    "phase2_allow_placeholders": false,
+    "max_files_per_shot": 25,
+    "max_loc_per_shot": 1500,
+    "full_file_outputs": true,
+    "reject_on_build_or_tests_fail": true
+  }
+}

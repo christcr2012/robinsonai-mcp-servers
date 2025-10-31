@@ -1,0 +1,49 @@
+name: "Add user soft-delete"
+context: "Users should be recoverable for 30 days after deletion."
+goals:
+  - "Add soft-delete endpoint and flag"
+  - "Update list endpoint to exclude soft-deleted users by default"
+  - "Add restore endpoint"
+nonGoals:
+  - "Hard delete user data"
+  - "Cascade delete to related entities"
+acceptance:
+  - "OpenAPI schema updated with new endpoints"
+  - "Generated TypeScript types compile without errors"
+  - "Integration test passes: delete → list (excludes deleted) → restore → list (includes restored)"
+  - "Database migration adds deletedAt column with index"
+constraints:
+  - "No new dependencies"
+  - "Respect existing naming conventions (camelCase for variables, PascalCase for types)"
+  - "Follow existing error handling patterns"
+allowedPaths:
+  - "src/features/users/**"
+  - "src/api/routes/users.ts"
+  - "tests/integration/users/**"
+  - "prisma/schema.prisma"
+  - "openapi.yaml"
+interfaces:
+  - style: http
+    method: DELETE
+    path: "/v1/users/{id}"
+    request: "DeleteUserRequest"
+    response: "DeleteUserResponse"
+    description: "Soft-delete a user by setting deletedAt timestamp"
+  - style: http
+    method: POST
+    path: "/v1/users/{id}/restore"
+    request: "RestoreUserRequest"
+    response: "RestoreUserResponse"
+    description: "Restore a soft-deleted user by clearing deletedAt"
+dataModel:
+  entities:
+    - name: User
+      addFields:
+        - name: deletedAt
+          type: timestamp
+          nullable: true
+          index: true
+risks:
+  - "List users query is on hot path — ensure deletedAt index exists"
+  - "Existing code may not handle deletedAt field — audit callers"
+

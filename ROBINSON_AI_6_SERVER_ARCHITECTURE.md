@@ -1,26 +1,28 @@
-# Robinson AI 6-Server MCP Architecture
+# Robinson AI 7-Server MCP Architecture with Orchestration
 
-**Last Updated:** October 22, 2025  
-**Status:** Production Ready  
+**Last Updated:** October 30, 2025
+**Status:** Production Ready with Orchestration Layer
 **Total Tools:** 1,200+ across 16 integrations
+**New:** Agent Orchestrator for autonomous multi-agent coordination
 
 ## Overview
 
-Robinson AI uses a 6-server MCP (Model Context Protocol) architecture designed to minimize AI costs through intelligent routing between free local Ollama models and paid OpenAI models. The system provides 1,200+ tools across 16 integrations for comprehensive development automation.
+Robinson AI uses a 7-server MCP (Model Context Protocol) architecture designed to minimize AI costs through intelligent routing between free local Ollama models and paid OpenAI/Claude models. The system provides 1,200+ tools across 16 integrations for comprehensive development automation, now with an orchestration layer that enables autonomous multi-agent workflows.
 
 ## Core Philosophy
 
 **Cost Optimization Through Intelligent Routing:**
 - **FREE:** Planning (Architect MCP) → Local Ollama
-- **FREE:** Code Generation (Autonomous Agent MCP) → Local Ollama  
+- **FREE:** Code Generation (Free Agent MCP) → Local Ollama
 - **0 AI Credits:** Tool Discovery (Credit Optimizer MCP) → Pre-built index
-- **Paid:** Complex reasoning only (OpenAI Worker MCP) → GPT-4/GPT-3.5
+- **Paid:** Complex reasoning only (Paid Agent MCP) → GPT-4/Claude/o1
+- **NEW:** Orchestration (Agent Orchestrator) → Coordinates all servers with parallel execution
 
 **Result:** 90%+ cost savings compared to using OpenAI for everything.
 
 ---
 
-## The 6 Servers
+## The 7 Servers
 
 ### 1. Architect MCP (`@robinsonai/architect-mcp`)
 **Purpose:** Strategic planning using FREE local Ollama models  
@@ -40,22 +42,22 @@ Robinson AI uses a 6-server MCP (Model Context Protocol) architecture designed t
 
 ---
 
-### 2. Autonomous Agent MCP (`@robinsonai/autonomous-agent-mcp`)
-**Purpose:** Code generation using FREE local Ollama models  
-**Tools:** 8 code generation and analysis tools  
+### 2. Free Agent MCP (`@robinsonai/free-agent-mcp`)
+**Purpose:** Code generation using FREE local Ollama models (renamed from autonomous-agent-mcp)
+**Tools:** 8 code generation and analysis tools
 **Models:**
-- `qwen-coder` - Fast code generation
-- `deepseek-coder` - Complex refactoring
-- `codellama` - Test generation
+- **Primary:** Ollama (qwen-coder, deepseek-coder, codellama) - FREE
+- **Fallback:** OpenAI/Claude (when Ollama unavailable) - PAID
 
 **Key Tools:**
-- `delegate_code_generation` - Generate code (0 Augment credits!)
-- `delegate_code_analysis` - Analyze code for issues
-- `delegate_code_refactoring` - Refactor code
-- `delegate_test_generation` - Generate test suites
-- `delegate_documentation` - Generate docs
+- `delegate_code_generation_free-agent-mcp` - Generate code (0 Augment credits!)
+- `delegate_code_analysis_free-agent-mcp` - Analyze code for issues
+- `delegate_code_refactoring_free-agent-mcp` - Refactor code
+- `delegate_test_generation_free-agent-mcp` - Generate test suites
+- `delegate_documentation_free-agent-mcp` - Generate docs
+- `execute_versatile_task_autonomous-agent-mcp_free-agent-mcp` - Execute any task type
 
-**Cost:** $0 (uses local Ollama)
+**Cost:** $0 (uses local Ollama by default)
 
 ---
 
@@ -113,33 +115,41 @@ Robinson AI uses a 6-server MCP (Model Context Protocol) architecture designed t
 
 ---
 
-### 5. OpenAI Worker MCP (`@robinsonai/openai-worker-mcp`)
-**Purpose:** Paid AI work with budget controls  
-**Tools:** 30 worker and cost management tools  
+### 5. Paid Agent MCP (`@robinsonai/paid-agent-mcp`)
+**Purpose:** Paid AI work with budget controls (renamed from openai-worker-mcp)
+**Tools:** 30 worker and cost management tools
+**Models:**
+- **OpenAI:** GPT-4o-mini, GPT-4o, o1-mini, o1-preview
+- **Claude:** Haiku, Sonnet, Opus
+- **Fallback:** Ollama (when budget exhausted) - FREE
+
 **Agents:**
 - `mini-worker` - GPT-4o-mini ($0.15/$0.60 per 1M tokens)
-- `balanced-worker` - GPT-4o ($2.50/$10.00 per 1M tokens)
-- `premium-worker` - o1-preview ($15.00/$60.00 per 1M tokens)
+- `balanced-worker` - GPT-4o / Claude Sonnet ($2.50-$3/$10-$15 per 1M tokens)
+- `premium-worker` - o1-preview / Claude Opus ($15-$75 per 1M tokens)
 
 **Key Tools:**
-- `run_job` - Execute job with specific agent
-- `queue_batch` - Queue multiple jobs (cheaper, slower)
-- `get_job_status` - Check job status
-- `get_spend_stats` - Monthly spend tracking
+- `openai_worker_run_job_paid-agent-mcp` - Execute job with specific agent
+- `openai_worker_queue_batch_paid-agent-mcp` - Queue multiple jobs (cheaper, slower)
+- `openai_worker_get_job_status_paid-agent-mcp` - Check job status
+- `openai_worker_get_spend_stats_paid-agent-mcp` - Monthly spend tracking
+- `execute_versatile_task_paid-agent-mcp_paid-agent-mcp` - Execute any task type
 
 **Features:**
 - Live pricing from OpenAI API (24-hour cache)
 - Monthly budget enforcement ($25 default)
 - Concurrency limits (10 concurrent jobs)
 - Token usage tracking and cost calculation
+- Multi-provider support (OpenAI + Claude)
+- Smart model selection based on task complexity
 
 **Cost:** Paid (but optimized with budgets and routing)
 
 ---
 
 ### 6. Thinking Tools MCP (`@robinsonai/thinking-tools-mcp`)
-**Purpose:** Cognitive frameworks for better decision-making  
-**Tools:** 18 thinking and reasoning tools  
+**Purpose:** Cognitive frameworks for better decision-making
+**Tools:** 18 thinking and reasoning tools
 **Categories:**
 - Critical Analysis (devils_advocate, critical_thinking, red_team, blue_team)
 - Problem Solving (first_principles, root_cause_analysis, five_whys)
@@ -155,6 +165,48 @@ Robinson AI uses a 6-server MCP (Model Context Protocol) architecture designed t
 - `decision_matrix` - Structured decision-making
 
 **Cost:** $0 (pure logic, no AI calls)
+
+---
+
+### 7. Agent Orchestrator (`@robinsonai/agent-orchestrator`)
+**Purpose:** Autonomous multi-agent coordination and parallel execution
+**Type:** Runtime orchestration layer (not an MCP server)
+**Features:**
+- Dynamic MCP tool discovery (finds tools by regex)
+- Parallel execution with dependency resolution
+- Smart worker routing (FREE Ollama → PAID OpenAI/Claude)
+- Cost estimation and budget enforcement
+- Task history tracking (SQLite + Neon)
+- Repo context scanning and anti-generic validation
+
+**Key Components:**
+1. **MCP Client** (`mcpClient.ts`) - Generic JSON-RPC client over stdio
+2. **Orchestrator** (`orchestrator.ts`) - Main coordination logic
+3. **Database** (`db.ts`) - SQLite + Neon tracking
+4. **Schemas** (`schemas.ts`) - Zod validation for WorkPlan/WorkStep
+
+**Workflow:**
+```
+1. User Prompt → Architect MCP (plan creation)
+2. Plan → Thinking Tools MCP (validation)
+3. Plan → Credit Optimizer MCP (cost estimation)
+4. Steps → Free/Paid Agents (parallel execution)
+5. Results → SQLite + Neon (tracking)
+```
+
+**Usage:**
+```bash
+node packages/agent-orchestrator/dist/index.js "Standardize all Vercel tools to single-line format"
+```
+
+**Benefits:**
+- ✅ Autonomous execution (no confirmation loops)
+- ✅ Parallel processing (2-6x speedup)
+- ✅ Smart routing (90% cost savings)
+- ✅ Persistent tracking (SQLite + Neon)
+- ✅ Anti-generic validation (concrete file references required)
+
+**Cost:** Minimal orchestration overhead + agent execution costs
 
 ---
 
@@ -186,13 +238,48 @@ Robinson AI uses a 6-server MCP (Model Context Protocol) architecture designed t
 
 ## Workflow Patterns
 
-### Pattern 1: Plan → Generate → Execute (All FREE!)
+### Pattern 1: Orchestrated Workflow (NEW - Fully Autonomous!)
+```bash
+# Single command executes entire workflow
+node packages/agent-orchestrator/dist/index.js "Build user auth with tests and deploy to Vercel"
+
+# What happens:
+1. Architect MCP: Creates concrete plan with file references
+   → Uses FREE Ollama (qwen2.5:3b)
+   → Anti-generic validation (rejects vague steps)
+   → Returns: { steps: [{ name, files, tool, params }] }
+
+2. Thinking Tools MCP: Validates plan
+   → devils_advocate: Challenges assumptions
+   → premortem_analysis: Identifies risks
+   → Returns: { challenges, risks, recommendations }
+
+3. Credit Optimizer MCP: Estimates costs
+   → Analyzes task complexity
+   → Routes to FREE/PAID agents
+   → Returns: { estimatedCost: $0.05 }
+
+4. Free/Paid Agents: Execute steps in parallel
+   → FREE Ollama for code generation
+   → PAID OpenAI/Claude for complex reasoning
+   → Parallel execution (2-6x speedup)
+
+5. Database: Tracks everything
+   → SQLite: Local task/step history
+   → Neon: Cloud replication (optional)
+```
+
+**Total Cost:** $0-$0.50 (mostly FREE Ollama)
+**Time:** 2-6x faster than sequential
+**Autonomy:** 100% (no confirmation loops!)
+
+### Pattern 2: Manual Plan → Generate → Execute (All FREE!)
 ```
 1. Architect MCP: plan_work({ goal: "Build user auth" })
    → Uses FREE Ollama (qwen2.5:3b)
    → Returns: { plan_id: 9, steps: [...] }
 
-2. Autonomous Agent MCP: delegate_code_generation({ task: "auth module" })
+2. Free Agent MCP: delegate_code_generation({ task: "auth module" })
    → Uses FREE Ollama (deepseek-coder:33b)
    → Returns: Generated code (0 Augment credits!)
 

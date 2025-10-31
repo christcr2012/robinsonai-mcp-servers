@@ -1,7 +1,7 @@
 {
   "name": "@robinsonai/robinsons-toolkit-mcp",
-  "version": "0.1.1",
-  "description": "Unified MCP server with 912 tools across GitHub, Vercel, Neon, Stripe, Supabase, and more",
+  "version": "1.0.0",
+  "description": "Unified MCP server with 1,594+ tools across GitHub, Vercel, Neon, Redis, OpenAI, Google Workspace, Playwright, Context7, Stripe, Supabase, Resend, Twilio, and Cloudflare",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -20,8 +20,16 @@
     "github",
     "vercel",
     "neon",
+    "redis",
+    "openai",
+    "google-workspace",
+    "playwright",
+    "context7",
     "stripe",
     "supabase",
+    "resend",
+    "twilio",
+    "cloudflare",
     "unified-toolkit"
   ],
   "author": "Robinson AI",
@@ -29,14 +37,20 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "@octokit/rest": "^21.0.2",
-    "redis": "^4.7.1",
+    "@supabase/supabase-js": "^2.47.10",
     "axios": "^1.7.9",
-    "dotenv": "^16.4.7",
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.6.1",
+    "googleapis": "^144.0.0",
+    "openai": "^4.77.3",
     "p-limit": "^6.1.0",
     "pg": "^8.13.1",
-    "cheerio": "^1.0.0",
+    "playwright": "^1.49.1",
+    "redis": "^4.7.1",
+    "stripe": "^17.5.0",
+    "tiktoken": "^1.0.18",
     "turndown": "^7.2.0",
-    "tiktoken": "^1.0.18"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

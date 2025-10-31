@@ -1,8 +1,10 @@
 # 🛠️ Robinson's Toolkit MCP Server
 
-**912 tools across 12 integrations - Augment Code's HANDS to DO things!**
+**556 tools across 3 integrations (GitHub, Vercel, Neon) - Augment Code's HANDS to DO things!**
 
 Robinson's Toolkit is a unified MCP server that consolidates all your development tools into one place, giving Augment Code the ability to actually DO things instead of just explaining them.
+
+**Status:** ✅ Currently working with GitHub (240 tools), Vercel (150 tools), and Neon (166 tools). More integrations coming soon!
 
 ---
 
@@ -10,20 +12,23 @@ Robinson's Toolkit is a unified MCP server that consolidates all your developmen
 
 Robinson's Toolkit gives Augment Code direct access to:
 
-- **GitHub** (199 tools) - Repos, branches, PRs, issues, workflows, releases
-- **Vercel** (150 tools) - Projects, deployments, domains, env vars, logs, analytics
-- **Neon** (145 tools) - Databases, branches, SQL, roles, endpoints, monitoring
-- **Stripe** (100 tools) - Customers, subscriptions, payments, products, webhooks
-- **Supabase** (80 tools) - Auth, database, storage, realtime, functions
-- **Resend** (60 tools) - Emails, templates, domains, API keys
-- **Twilio** (70 tools) - SMS, voice, verify, lookup
-- **Cloudflare** (50 tools) - DNS, domains, zones, workers
-- **Redis** (40 tools) - Cache, pub/sub, streams, keys
-- **OpenAI** (30 tools) - Completions, chat, embeddings, models
-- **Playwright** (78 tools) - Browser automation, scraping, testing
+### **Currently Integrated (556 tools):**
+- **GitHub** (240 tools) ✅ - Repos, branches, PRs, issues, workflows, releases, actions
+- **Vercel** (150 tools) ✅ - Projects, deployments, domains, env vars, logs, analytics, edge config
+- **Neon** (166 tools) ✅ - Databases, branches, SQL, roles, endpoints, monitoring, backups
+
+### **Coming Soon:**
+- **Stripe** (~100 tools) - Customers, subscriptions, payments, products, webhooks
+- **Supabase** (~80 tools) - Auth, database, storage, realtime, functions
+- **Resend** (~60 tools) - Emails, templates, domains, API keys
+- **Twilio** (~70 tools) - SMS, voice, verify, lookup
+- **Cloudflare** (~50 tools) - DNS, domains, zones, workers
+- **Redis** (~40 tools) - Cache, pub/sub, streams, keys
+- **OpenAI** (~30 tools) - Completions, chat, embeddings, models
+- **Google Workspace** (~80 tools) - Gmail, Drive, Calendar, Sheets, Docs, Admin
 - **Context7** (3 tools) - Documentation retrieval
 
-**Total: 912 tools!**
+**Current Total: 556 tools | Target: ~900+ tools**
 
 ---
 

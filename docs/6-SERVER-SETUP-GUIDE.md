@@ -1,23 +1,25 @@
-# 6-Server MCP System - Complete Setup Guide
+# 7-Server MCP System with Orchestration - Complete Setup Guide
 
-**Last Updated:** October 23, 2025  
-**For:** Augment Code (Claude Sonnet 4.5)  
+**Last Updated:** October 30, 2025
+**For:** Augment Code (Claude Sonnet 4.5)
 **Platform:** Windows (with macOS/Linux notes)
+**New:** Agent Orchestrator for autonomous multi-agent workflows
 
 ---
 
 ## Overview
 
-This guide sets up a production-ready 6-server MCP architecture that saves 90%+ on AI costs by routing work to free local Ollama models while maintaining quality through strategic escalation to OpenAI when needed.
+This guide sets up a production-ready 7-server MCP architecture that saves 90%+ on AI costs by routing work to free local Ollama models while maintaining quality through strategic escalation to OpenAI/Claude when needed. Now includes an orchestration layer for fully autonomous multi-agent workflows.
 
-### The 6 Servers
+### The 7 Servers
 
 1. **architect-mcp** - Strategic planning, specs, ADRs, cost forecasting
-2. **autonomous-agent-mcp** - Local code generation, analysis, refactoring (FREE)
-3. **openai-worker-mcp** - Paid OpenAI jobs with budget enforcement
-4. **thinking-tools-mcp** - 15+ cognitive frameworks (devils advocate, SWOT, etc.)
+2. **free-agent-mcp** - Local code generation, analysis, refactoring (FREE Ollama)
+3. **paid-agent-mcp** - Paid OpenAI/Claude jobs with budget enforcement
+4. **thinking-tools-mcp** - 18+ cognitive frameworks (devils advocate, SWOT, etc.)
 5. **credit-optimizer-mcp** - Workflows, recipes, blueprints, caching
-6. **robinsons-toolkit-mcp** - Broker for 1,197+ integration tools (GitHub, Vercel, Neon, etc.)
+6. **robinsons-toolkit-mcp** - Broker for 1,200+ integration tools (GitHub, Vercel, Neon, etc.)
+7. **agent-orchestrator** - Autonomous multi-agent coordination (NEW!)
 
 ---
 
@@ -33,7 +35,7 @@ This guide sets up a production-ready 6-server MCP architecture that saves 90%+ 
 
 ---
 
-## Quick Start (5 Minutes)
+## Quick Start (7 Minutes)
 
 ### 1. Clone & Build
 ```bash
@@ -49,14 +51,41 @@ ollama pull deepseek-coder:33b
 ollama pull qwen2.5-coder:32b
 ```
 
-### 3. Configure Augment
+### 3. Build Agent Orchestrator
+```bash
+cd packages/agent-orchestrator
+npm install
+npm run build
+cd ../..
+```
+
+### 4. Configure Environment Variables
+Create or update `.env.local` in repo root:
+```bash
+# Required for Paid Agent
+OPENAI_API_KEY=your_openai_key_here
+ANTHROPIC_API_KEY=your_claude_key_here
+
+# Optional for Neon tracking
+NEON_DATABASE_URL=postgresql://user:pass@host/db
+
+# Optional for debugging
+DEBUG_RPC=1
+```
+
+### 5. Configure Augment
 1. Open VS Code
 2. Go to Settings → Tools → MCP Servers
-3. Import `AUGMENT_6_SERVER_CONFIG_HARDENED.json`
+3. Import `AUGMENT_MCP_CONFIG_COMPLETE.txt`
 4. Restart VS Code
 
-### 4. Validate
+### 6. Validate
 Run the smoke test from `scripts/smoke-test-6-servers.md`
+
+### 7. Test Orchestrator
+```bash
+node packages/agent-orchestrator/dist/index.js "Create a simple hello world function with tests"
+```
 
 ---
 
@@ -273,27 +302,85 @@ npm run build --workspaces --if-present
 
 ---
 
+## Agent Orchestrator Usage
+
+### Basic Usage
+```bash
+# Run a task
+node packages/agent-orchestrator/dist/index.js "Your task description here"
+
+# Example: Code generation
+node packages/agent-orchestrator/dist/index.js "Add user authentication to the API"
+
+# Example: Refactoring
+node packages/agent-orchestrator/dist/index.js "Standardize all Vercel tools to single-line format"
+
+# Example: Feature development
+node packages/agent-orchestrator/dist/index.js "Build a notification system with email and SMS support"
+```
+
+### What Happens
+1. **Planning** - Architect MCP creates concrete plan with file references
+2. **Validation** - Thinking Tools MCP validates plan (devils advocate, premortem)
+3. **Cost Estimation** - Credit Optimizer MCP estimates costs
+4. **Execution** - Free/Paid Agents execute steps in parallel
+5. **Tracking** - Results saved to SQLite + Neon (if configured)
+
+### Viewing Results
+```bash
+# Check SQLite database
+sqlite3 .agent-data.sqlite "SELECT * FROM task_history ORDER BY created_at DESC LIMIT 5;"
+
+# Check step history
+sqlite3 .agent-data.sqlite "SELECT server, tool, status, actual_usd FROM step_history WHERE task_id='<task_id>';"
+```
+
+### Environment Variables
+```bash
+# Required
+OPENAI_API_KEY=your_key          # For paid-agent-mcp
+ANTHROPIC_API_KEY=your_key       # For Claude support
+
+# Optional
+NEON_DATABASE_URL=postgres://... # Cloud replication
+AGENT_SQLITE_PATH=.agent-data.sqlite  # Custom DB path
+DEBUG_RPC=1                      # Enable debug logging
+```
+
+### Benefits
+- ✅ **Autonomous** - No confirmation loops
+- ✅ **Parallel** - 2-6x faster than sequential
+- ✅ **Smart Routing** - 90% FREE Ollama, 10% PAID when needed
+- ✅ **Tracked** - Full history in SQLite + Neon
+- ✅ **Validated** - Anti-generic checks (rejects vague plans)
+
+---
+
 ## Maintenance
 
 ### Daily
 - Quick validation (thinking-tools + broker)
 - Check Ollama is running
+- Review orchestrator task history
 
 ### Weekly
 - Full smoke test
 - Review autonomous agent stats
 - Check OpenAI spend
+- Analyze orchestrator cost savings
 
 ### Monthly
 - Update Ollama models
 - Rotate API keys
 - Review and optimize workflows
 - Check for package updates
+- Clean up old task history
 
 ### Quarterly
 - Audit integration credentials
 - Review cost savings
 - Update documentation
+- Optimize orchestrator routing logic
 
 ---
 
@@ -304,13 +391,18 @@ npm run build --workspaces --if-present
 | Server | Operation | Time | Cost |
 |--------|-----------|------|------|
 | thinking-tools-mcp | Devils advocate | <1s | $0 |
-| autonomous-agent-mcp | Code generation | 30-60s | $0 |
+| free-agent-mcp | Code generation | 30-60s | $0 |
 | architect-mcp | Plan creation | 10-45s | $0 |
-| openai-worker-mcp | Mini job | 2-5s | ~$0.001 |
+| paid-agent-mcp | Mini job (GPT-4o-mini) | 2-5s | ~$0.001 |
+| paid-agent-mcp | Balanced job (Claude Sonnet) | 3-8s | ~$0.01 |
 | credit-optimizer-mcp | Tool discovery | <1s | $0 |
 | robinsons-toolkit-mcp | Broker call | 2-5s | Varies |
+| **agent-orchestrator** | **Full workflow (5 steps)** | **60-180s** | **$0-$0.50** |
 
-**Total Savings:** 90%+ by using local Ollama for most work
+**Orchestrator Benefits:**
+- **Parallel Execution:** 2-6x faster than sequential
+- **Smart Routing:** 90% FREE Ollama, 10% PAID when needed
+- **Total Savings:** 90%+ by using local Ollama for most work
 
 ---
 
