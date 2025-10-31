@@ -1,0 +1,304 @@
+name: 'Train LoRA on Google Colab'
+description: 'Automatically train LoRA adapter using Google Colab free GPU'
+
+inputs:
+  role:
+    description: 'Role to train (coder, fixer, judge)'
+    required: true
+  sft_file:
+    description: 'Path to SFT JSONL file'
+    required: true
+  base_model:
+    description: 'Base model name'
+    required: true
+    default: 'qwen2.5-coder:7b'
+  colab_token:
+    description: 'Google Colab API token'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pip install google-colab-api requests
+    
+    - name: Upload SFT data to GitHub Gist
+      shell: bash
+      id: upload
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        # Create a gist with the SFT data
+        gist_url=$(gh gist create ${{ inputs.sft_file }} --public)
+        echo "gist_url=$gist_url" >> $GITHUB_OUTPUT
+        echo "📤 Uploaded SFT data to: $gist_url"
+    
+    - name: Generate Colab notebook
+      shell: bash
+      run: |
+        cat > train_${{ inputs.role }}.ipynb <<'EOF'
+        {
+          "cells": [
+            {
+              "cell_type": "markdown",
+              "metadata": {},
+              "source": ["# Auto-Train LoRA Adapter - ${{ inputs.role }}\n", "**Triggered by GitHub Actions**"]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Install dependencies\n",
+                "!pip install -q torch transformers datasets peft accelerate bitsandbytes\n",
+                "!pip install -q \"unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git\""
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Download SFT data from gist\n",
+                "import requests\n",
+                "import json\n",
+                "\n",
+                "gist_url = \"${{ steps.upload.outputs.gist_url }}\"\n",
+                "raw_url = gist_url.replace('gist.github.com', 'gist.githubusercontent.com') + '/raw'\n",
+                "\n",
+                "response = requests.get(raw_url)\n",
+                "with open('sft_data.jsonl', 'w') as f:\n",
+                "    f.write(response.text)\n",
+                "\n",
+                "# Count examples\n",
+                "with open('sft_data.jsonl') as f:\n",
+                "    count = sum(1 for _ in f)\n",
+                "print(f'📊 Loaded {count} training examples')"
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Load dataset\n",
+                "from datasets import load_dataset\n",
+                "\n",
+                "dataset = load_dataset('json', data_files='sft_data.jsonl', split='train')\n",
+                "print(f'✅ Dataset loaded: {len(dataset)} examples')\n",
+                "print(f'📝 Sample: {dataset[0]}')"
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Load base model with Unsloth\n",
+                "from unsloth import FastLanguageModel\n",
+                "\n",
+                "model, tokenizer = FastLanguageModel.from_pretrained(\n",
+                "    model_name='unsloth/qwen2.5-coder-7b-bnb-4bit',\n",
+                "    max_seq_length=2048,\n",
+                "    dtype=None,\n",
+                "    load_in_4bit=True,\n",
+                ")\n",
+                "\n",
+                "print('✅ Model loaded')"
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Add LoRA adapters\n",
+                "model = FastLanguageModel.get_peft_model(\n",
+                "    model,\n",
+                "    r=16,\n",
+                "    target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj', 'gate_proj', 'up_proj', 'down_proj'],\n",
+                "    lora_alpha=16,\n",
+                "    lora_dropout=0,\n",
+                "    bias='none',\n",
+                "    use_gradient_checkpointing='unsloth',\n",
+                "    random_state=3407,\n",
+                ")\n",
+                "\n",
+                "print('✅ LoRA adapters added')"
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Format dataset\n",
+                "def format_prompts(examples):\n",
+                "    texts = []\n",
+                "    for prompt, completion in zip(examples['prompt'], examples['completion']):\n",
+                "        text = f'{prompt}\\n\\n{completion}'\n",
+                "        texts.append(text)\n",
+                "    return {'text': texts}\n",
+                "\n",
+                "dataset = dataset.map(format_prompts, batched=True)\n",
+                "print('✅ Dataset formatted')"
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Train\n",
+                "from trl import SFTTrainer\n",
+                "from transformers import TrainingArguments\n",
+                "\n",
+                "trainer = SFTTrainer(\n",
+                "    model=model,\n",
+                "    tokenizer=tokenizer,\n",
+                "    train_dataset=dataset,\n",
+                "    dataset_text_field='text',\n",
+                "    max_seq_length=2048,\n",
+                "    args=TrainingArguments(\n",
+                "        per_device_train_batch_size=2,\n",
+                "        gradient_accumulation_steps=4,\n",
+                "        warmup_steps=10,\n",
+                "        max_steps=100,\n",
+                "        learning_rate=2e-4,\n",
+                "        fp16=not torch.cuda.is_bf16_supported(),\n",
+                "        bf16=torch.cuda.is_bf16_supported(),\n",
+                "        logging_steps=10,\n",
+                "        optim='adamw_8bit',\n",
+                "        weight_decay=0.01,\n",
+                "        lr_scheduler_type='linear',\n",
+                "        seed=3407,\n",
+                "        output_dir='outputs',\n",
+                "    ),\n",
+                ")\n",
+                "\n",
+                "print('🚀 Starting training...')\n",
+                "trainer.train()\n",
+                "print('✅ Training complete!')"
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Save adapter\n",
+                "model.save_pretrained('lora_adapter')\n",
+                "tokenizer.save_pretrained('lora_adapter')\n",
+                "print('✅ Adapter saved')"
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Convert to GGUF for Ollama\n",
+                "model.save_pretrained_gguf('lora_adapter_gguf', tokenizer, quantization_method='q4_k_m')\n",
+                "print('✅ Converted to GGUF')"
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "# Upload to GitHub as artifact\n",
+                "!zip -r lora_adapter.zip lora_adapter_gguf/\n",
+                "from google.colab import files\n",
+                "files.download('lora_adapter.zip')\n",
+                "print('✅ Download adapter and deploy to Ollama!')"
+              ]
+            }
+          ],
+          "metadata": {
+            "accelerator": "GPU",
+            "colab": {
+              "provenance": [],
+              "gpuType": "T4"
+            },
+            "kernelspec": {
+              "display_name": "Python 3",
+              "name": "python3"
+            }
+          },
+          "nbformat": 4,
+          "nbformat_minor": 0
+        }
+        EOF
+    
+    - name: Execute on Colab (if token provided)
+      if: inputs.colab_token != ''
+      shell: bash
+      run: |
+        echo "🚀 Triggering Colab execution..."
+        echo "⚠️  Colab API execution not yet implemented"
+        echo "📝 Manual step: Open train_${{ inputs.role }}.ipynb in Colab and run"
+    
+    - name: Create manual instructions
+      shell: bash
+      run: |
+        cat > TRAIN_INSTRUCTIONS_${{ inputs.role }}.md <<EOF
+        # Manual Training Instructions for ${{ inputs.role }}
+        
+        ## Quick Start
+        
+        1. **Open Colab Notebook:**
+           - Upload \`train_${{ inputs.role }}.ipynb\` to Google Colab
+           - Or click: https://colab.research.google.com/
+        
+        2. **Run All Cells:**
+           - Click Runtime → Run All
+           - Training will take ~10-15 minutes on free T4 GPU
+        
+        3. **Download Adapter:**
+           - Last cell will download \`lora_adapter.zip\`
+           - Extract to \`.agent/lora/${{ inputs.role }}/\`
+        
+        4. **Deploy to Ollama:**
+           \`\`\`bash
+           # Create Modelfile
+           cat > .agent/Modelfile.${{ inputs.role }} <<MODELFILE
+           FROM ${{ inputs.base_model }}
+           ADAPTER .agent/lora/${{ inputs.role }}/adapter.gguf
+           MODELFILE
+           
+           # Deploy
+           ollama create my-coder-tuned-${{ inputs.role }} -f .agent/Modelfile.${{ inputs.role }}
+           \`\`\`
+        
+        5. **Test:**
+           \`\`\`bash
+           ollama run my-coder-tuned-${{ inputs.role }}
+           \`\`\`
+        
+        ## SFT Data
+        
+        - **File:** ${{ inputs.sft_file }}
+        - **Gist:** ${{ steps.upload.outputs.gist_url }}
+        
+        EOF
+        
+        echo "📝 Created training instructions: TRAIN_INSTRUCTIONS_${{ inputs.role }}.md"
+

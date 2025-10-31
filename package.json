@@ -15,7 +15,10 @@
     "link:all": "npm run link --workspaces --if-present",
     "qa": "node scripts/qa.mjs",
     "accept": "node scripts/accept.mjs",
-    "precommit": "npm run qa"
+    "precommit": "npm run qa",
+    "check-training": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js check",
+    "watch-training": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js watch",
+    "train-colab": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js open"
   },
   "keywords": [
     "mcp",
