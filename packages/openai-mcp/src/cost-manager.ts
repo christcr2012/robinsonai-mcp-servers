@@ -2,16 +2,53 @@ import { encoding_for_model } from "tiktoken";
 import * as fs from "fs";
 import * as path from "path";
 
-// OpenAI Pricing (as of 2025)
+// OpenAI Pricing (as of January 2025)
+// Updated with latest models: GPT-5, GPT-4.1, o1, o3, o4-mini, gpt-4o, etc.
 export const PRICING = {
+  // GPT-5 Series (Latest flagship models)
+  "gpt-5": { input_per_1k: 0.00125, output_per_1k: 0.01 },
+  "gpt-5-mini": { input_per_1k: 0.00025, output_per_1k: 0.002 },
+  "gpt-5-nano": { input_per_1k: 0.00005, output_per_1k: 0.0004 },
+  "gpt-5-pro": { input_per_1k: 0.015, output_per_1k: 0.12 },
+
+  // GPT-4.1 Series
+  "gpt-4.1": { input_per_1k: 0.003, output_per_1k: 0.012 },
+  "gpt-4.1-mini": { input_per_1k: 0.0008, output_per_1k: 0.0032 },
+  "gpt-4.1-nano": { input_per_1k: 0.0002, output_per_1k: 0.0008 },
+
+  // GPT-4o Series (Optimized models)
+  "gpt-4o": { input_per_1k: 0.0025, output_per_1k: 0.01 },
+  "gpt-4o-2024-05-13": { input_per_1k: 0.0025, output_per_1k: 0.01 },
+  "gpt-4o-mini": { input_per_1k: 0.00015, output_per_1k: 0.0006 },
+  "gpt-4o-mini-2024-07-18": { input_per_1k: 0.00015, output_per_1k: 0.0006 },
+
+  // o-series (Reasoning models)
+  "o1": { input_per_1k: 0.015, output_per_1k: 0.06 },
+  "o1-preview": { input_per_1k: 0.015, output_per_1k: 0.06 },
+  "o1-mini": { input_per_1k: 0.003, output_per_1k: 0.012 },
+  "o1-2024-12-17": { input_per_1k: 0.015, output_per_1k: 0.06 },
+  "o3": { input_per_1k: 0.02, output_per_1k: 0.08 },
+  "o3-mini": { input_per_1k: 0.004, output_per_1k: 0.016 },
+  "o4-mini": { input_per_1k: 0.004, output_per_1k: 0.016 },
+
+  // GPT-4 Series (Legacy)
   "gpt-4": { input_per_1k: 0.03, output_per_1k: 0.06 },
   "gpt-4-turbo": { input_per_1k: 0.01, output_per_1k: 0.03 },
   "gpt-4-turbo-preview": { input_per_1k: 0.01, output_per_1k: 0.03 },
+  "gpt-4-0125-preview": { input_per_1k: 0.01, output_per_1k: 0.03 },
+  "gpt-4-1106-preview": { input_per_1k: 0.01, output_per_1k: 0.03 },
+
+  // GPT-3.5 Series
   "gpt-3.5-turbo": { input_per_1k: 0.0005, output_per_1k: 0.0015 },
   "gpt-3.5-turbo-16k": { input_per_1k: 0.001, output_per_1k: 0.002 },
+  "gpt-3.5-turbo-0125": { input_per_1k: 0.0005, output_per_1k: 0.0015 },
+
+  // Embeddings
   "text-embedding-3-small": { per_1k: 0.00002 },
   "text-embedding-3-large": { per_1k: 0.00013 },
   "text-embedding-ada-002": { per_1k: 0.0001 },
+
+  // Image Generation
   "dall-e-3": {
     standard_1024: 0.04,
     standard_1792: 0.08,
@@ -23,6 +60,8 @@ export const PRICING = {
     "512x512": 0.018,
     "256x256": 0.016,
   },
+
+  // Audio
   "whisper-1": { per_minute: 0.006 },
   "tts-1": { per_1k_chars: 0.015 },
   "tts-1-hd": { per_1k_chars: 0.03 },
@@ -149,9 +188,16 @@ export class CostManager {
     inputText: string,
     maxTokens: number = 1000
   ): CostEstimate {
-    const pricing = PRICING[model as keyof typeof PRICING] as any;
+    let pricing = PRICING[model as keyof typeof PRICING] as any;
+
+    // If model not found in pricing table, use conservative estimate based on GPT-4o
     if (!pricing || !pricing.input_per_1k) {
-      throw new Error(`Unknown model: ${model}`);
+      console.warn(`Unknown model: ${model}. Using conservative pricing estimate based on gpt-4o.`);
+      pricing = {
+        input_per_1k: 0.0025,  // gpt-4o input price
+        output_per_1k: 0.01,   // gpt-4o output price
+        estimated: true,       // Flag to indicate this is an estimate
+      };
     }
 
     const inputTokens = this.estimateTokens(inputText, model);
@@ -170,6 +216,7 @@ export class CostManager {
       output_cost: outputCost,
       model,
       pricing,
+      warning: pricing.estimated ? `Pricing for ${model} is estimated (not in pricing table)` : undefined,
     });
   }
 

@@ -1,10 +1,43 @@
 # OpenAI MCP Server
 
-**The Most Comprehensive OpenAI MCP Server** with **~110 tools** covering the complete OpenAI API surface area, enterprise management, and advanced cost analytics.
+**The Most Comprehensive OpenAI MCP Server** with **249 tools** covering the complete OpenAI API surface area, enterprise management, advanced cost analytics, AI agents, and production-ready features.
+
+**Latest Update (2025-10-29):** Added 139 new tools including Agents SDK, Advanced Assistants, Realtime API, Vision API, Advanced Fine-tuning, Advanced Batch, Prompt Engineering, Safety & Compliance, Monitoring, and more!
 
 ## 🎯 Features
 
-### ✅ Complete API Coverage (~110 Tools)
+### ✅ Complete API Coverage (249 Tools)
+
+**Core APIs:**
+- Chat & Completions (3 tools)
+- Embeddings (2 tools + 8 advanced)
+- Images/DALL-E (3 tools)
+- Audio/Whisper (3 tools)
+- Moderation (1 tool)
+- Models (3 tools)
+- Files (5 tools)
+- Fine-tuning (6 tools + 10 advanced)
+- Batch API (5 tools + 8 advanced)
+- Assistants API (10 tools + 12 advanced)
+- Threads & Messages (8 tools)
+- Runs & Steps (9 tools + 8 advanced)
+
+**Advanced Features (NEW!):**
+- **Agents SDK** (15 tools) - Create, run, coordinate AI agents
+- **Realtime API** (12 tools) - Low-latency voice conversations
+- **Vision API** (8 tools) - Image analysis, OCR, object detection
+- **Prompt Engineering** (10 tools) - Optimize, test, validate prompts
+- **Token Management** (8 tools) - Count, optimize, estimate costs
+- **Model Comparison** (8 tools) - Benchmark, compare, recommend models
+- **Safety & Compliance** (10 tools) - Content filtering, PII detection, GDPR/HIPAA
+- **Monitoring & Observability** (12 tools) - Metrics, alerts, tracing, anomaly detection
+- **Vector Stores** (10 tools) - Search, cluster, optimize vector data
+- **Cost Management** (16 tools) - Budget tracking, forecasting, optimization
+- **Enterprise** (20 tools) - Audit logs, compliance, security
+
+---
+
+### 📚 Detailed Tool List
 
 #### 1. **Chat & Completions** (3 tools)
 - `openai_chat_completion` - Standard chat completions

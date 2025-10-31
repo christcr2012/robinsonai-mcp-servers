@@ -1,0 +1,65 @@
+{
+  "mcpServers": {
+    "architect-mcp": {
+      "command": "npx",
+      "args": ["architect-mcp"],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "ARCHITECT_FAST_MODEL": "qwen2.5:3b",
+        "ARCHITECT_STD_MODEL": "deepseek-coder:33b",
+        "ARCHITECT_BIG_MODEL": "qwen2.5-coder:32b"
+      }
+    },
+    "free-agent-mcp": {
+      "command": "npx",
+      "args": ["free-agent-mcp"],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434/v1",
+        "MAX_OLLAMA_CONCURRENCY": "15"
+      }
+    },
+    "paid-agent-mcp": {
+      "command": "npx",
+      "args": ["paid-agent-mcp"],
+      "env": {
+        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY_HERE",
+        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
+        "MONTHLY_BUDGET": "25",
+        "MAX_OPENAI_CONCURRENCY": "15"
+      }
+    },
+    "credit-optimizer-mcp": {
+      "command": "npx",
+      "args": ["credit-optimizer-mcp"],
+      "env": {}
+    },
+    "thinking-tools-mcp": {
+      "command": "npx",
+      "args": ["thinking-tools-mcp"],
+      "env": {}
+    },
+    "openai-mcp": {
+      "command": "npx",
+      "args": ["openai-mcp"],
+      "env": {
+        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY_HERE"
+      }
+    },
+    "robinsons-toolkit-mcp": {
+      "command": "npx",
+      "args": ["robinsons-toolkit-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "YOUR_GITHUB_TOKEN_HERE",
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_TOKEN_HERE",
+        "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE",
+        "NEON_API_KEY": "YOUR_NEON_API_KEY_HERE",
+        "NEON_ORG_ID": "YOUR_NEON_ORG_ID_HERE",
+        "NEON_DATABASE_URL": "YOUR_NEON_DATABASE_URL_HERE",
+        "UPSTASH_API_KEY": "YOUR_UPSTASH_API_KEY_HERE",
+        "UPSTASH_EMAIL": "YOUR_EMAIL_HERE",
+        "FLY_API_TOKEN": "YOUR_FLY_API_TOKEN_HERE"
+      }
+    }
+  }
+}
+

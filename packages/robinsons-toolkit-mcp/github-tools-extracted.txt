@@ -1,0 +1,3 @@
+
+        // REPOSITORY MANAGEMENT (20 tools)
+        { name: 'github_list_repos', description: 'List repositories for authenticated user or organization', inputSchema: { type: 'object', properties: { org: { type: 'string' }, type: { type: 'string', enum: ['all', 'owner', 'public', 'private', 'member'

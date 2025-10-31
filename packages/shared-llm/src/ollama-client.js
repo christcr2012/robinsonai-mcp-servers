@@ -10,14 +10,20 @@ export async function pingOllama(timeoutMs = 1000) {
     }
 }
 export async function ollamaGenerate(opts) {
-    const { model, prompt, format = 'text', timeoutMs = 45000, retries = 2 } = opts;
+    const { model, prompt, format, timeoutMs = 120000, retries = 2 } = opts; // 2 minutes for cold start
     let lastErr;
     for (let i = 0; i <= retries; i++) {
         try {
+            // Build request body - only include format if it's 'json'
+            // Ollama doesn't accept 'text' as a format value
+            const body = { model, prompt, stream: false };
+            if (format === 'json') {
+                body.format = 'json';
+            }
             const r = await fetch(`${BASE}/api/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ model, prompt, format, stream: false }),
+                body: JSON.stringify(body),
                 signal: AbortSignal.timeout(timeoutMs)
             });
             if (!r.ok)

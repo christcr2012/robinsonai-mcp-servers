@@ -94,7 +94,24 @@ function ensureRepoMap(root: string, head: string) {
 }
 
 function shortlistTools(goal: string, repoDigest: string): string[] {
-  return ["scaffold_feature", "apply_patches", "open_pr_with_changes", "vercel_deploy", "generate_contract_tests"].slice(0, 10);
+  // Return REAL MCP tools that are actually available
+  // These are the delegation tools from Autonomous Agent MCP and workflow tools from Credit Optimizer MCP
+  return [
+    "delegate_code_generation_autonomous-agent-mcp",
+    "delegate_code_analysis_autonomous-agent-mcp",
+    "delegate_code_refactoring_autonomous-agent-mcp",
+    "delegate_test_generation_autonomous-agent-mcp",
+    "delegate_documentation_autonomous-agent-mcp",
+    "execute_autonomous_workflow_credit-optimizer-mcp",
+    "execute_bulk_fix_credit-optimizer-mcp",
+    "execute_refactor_pattern_credit-optimizer-mcp",
+    "execute_test_generation_credit-optimizer-mcp",
+    "scaffold_feature_credit-optimizer-mcp",
+    "scaffold_component_credit-optimizer-mcp",
+    "scaffold_api_endpoint_credit-optimizer-mcp",
+    "scaffold_database_schema_credit-optimizer-mcp",
+    "scaffold_test_suite_credit-optimizer-mcp",
+  ];
 }
 
 function pickPlannerModel(depth: string, repoSize: number): string {
@@ -105,17 +122,95 @@ function pickPlannerModel(depth: string, repoSize: number): string {
 
 async function llmPlan(params: { goal: string; repoDigest: string; tools: string[]; model: string }): Promise<any> {
   const prompt = [
-    "You are a principal software architect.",
-    "Given the goal, a digest of the repo, and a shortlist of available tools, output a JSON WorkPlan that my executor can run.",
-    "Be concise. Include caps (max_files_changed, require_green_tests), budgets (time_ms, max_steps), successSignals, and a small DAG of steps.",
-    "Respond with ONLY JSON.",
+    "You are a principal software architect creating CONCRETE, EXECUTABLE work plans for PARALLEL EXECUTION.",
+    "",
+    "CRITICAL REQUIREMENTS:",
+    "1. Use ONLY tools from the provided tool list (no fake tools!)",
+    "2. Be SPECIFIC: Include exact file paths, function names, parameter values",
+    "3. Use 'assignTo: \"any_available_agent\"' for ALL steps (Credit Optimizer distributes work)",
+    "4. Use 'execute_versatile_task' tools (NOT old delegate_* tools)",
+    "5. Add 'dependencies' array to enable parallel execution",
+    "6. Include concrete success criteria",
+    "",
+    "VERSATILE TASK EXECUTION:",
+    "- ALL agents can do EVERYTHING (code, DB setup, deploy, account mgmt)",
+    "- Use execute_versatile_task_autonomous-agent-mcp (FREE Ollama)",
+    "- Use execute_versatile_task_openai-worker-mcp (PAID OpenAI, only when needed)",
+    "- Credit Optimizer decides WHO based on availability (not specialization)",
+    "",
+    "TASK TYPES:",
+    "- code_generation: Generate new code",
+    "- code_analysis: Analyze existing code",
+    "- refactoring: Refactor code (generates code but doesn't modify files)",
+    "- file_editing: DIRECTLY EDIT FILES (use this for file modifications, conversions, standardization)",
+    "- test_generation: Generate tests",
+    "- documentation: Generate docs",
+    "- toolkit_call: DB setup, deployment, account mgmt (via Robinson's Toolkit)",
     "",
     `Goal: ${params.goal}`,
     `RepoDigest: ${params.repoDigest}`,
-    `Tools: ${params.tools.join(", ")}`,
+    `Available Tools: ${params.tools.join(", ")}`,
     "",
-    "Return shape:",
-    `{"name": "...","caps":{"max_files_changed":40,"require_green_tests":true},"budgets":{"time_ms":480000,"max_steps":12},"successSignals":["tests_pass","preview_ok"],"steps":[{"id":"preflight","tool":"preflight_checks"},{"id":"scaffold","tool":"scaffold_feature","params":{"blueprint": "..."}, "requires":["preflight"]},{"id":"tests","tool":"generate_contract_tests","requires":["scaffold"]},{"id":"patch","tool":"apply_patches","requires":["tests"]},{"id":"pr","tool":"open_pr_with_changes","requires":["patch"]},{"id":"preview","tool":"vercel_deploy","params":{"prod":false},"requires":["pr"]}]}`
+    "EXAMPLE (PARALLEL EXECUTION PLAN):",
+    `{
+  "name": "Add 10 Upstash Redis Tools",
+  "estimatedTime": "15 minutes",
+  "estimatedCost": "$0.00 (FREE Ollama)",
+  "caps": {"max_files_changed": 20, "require_green_tests": true},
+  "budgets": {"time_ms": 900000, "max_steps": 15},
+  "successSignals": ["npm test passes", "all 10 tools registered"],
+  "steps": [
+    {
+      "id": "gen_hset",
+      "assignTo": "any_available_agent",
+      "tool": "execute_versatile_task_autonomous-agent-mcp",
+      "dependencies": [],
+      "params": {
+        "task": "Create HSET tool handler in packages/robinsons-toolkit-mcp/src/integrations/upstash/redis-tools.ts",
+        "taskType": "code_generation",
+        "params": {
+          "context": "TypeScript, Upstash Redis client, MCP tool pattern",
+          "complexity": "simple"
+        }
+      }
+    },
+    {
+      "id": "gen_hget",
+      "assignTo": "any_available_agent",
+      "tool": "execute_versatile_task_autonomous-agent-mcp",
+      "dependencies": [],
+      "params": {
+        "task": "Create HGET tool handler in packages/robinsons-toolkit-mcp/src/integrations/upstash/redis-tools.ts",
+        "taskType": "code_generation",
+        "params": {
+          "context": "TypeScript, Upstash Redis client, MCP tool pattern",
+          "complexity": "simple"
+        }
+      }
+    },
+    {
+      "id": "test_redis_tools",
+      "assignTo": "any_available_agent",
+      "tool": "execute_versatile_task_autonomous-agent-mcp",
+      "dependencies": ["gen_hset", "gen_hget"],
+      "params": {
+        "task": "Generate tests for HSET and HGET tools",
+        "taskType": "test_generation",
+        "params": {
+          "code": "packages/robinsons-toolkit-mcp/src/integrations/upstash/redis-tools.ts",
+          "framework": "jest",
+          "coverage": "comprehensive"
+        }
+      }
+    }
+  ]
+}`,
+    "",
+    "Now create a CONCRETE plan for the goal above.",
+    "Use 'assignTo: \"any_available_agent\"' for ALL steps.",
+    "Use execute_versatile_task tools (autonomous-agent-mcp or openai-worker-mcp).",
+    "Add dependencies array to enable parallel execution.",
+    "Respond with ONLY JSON (no markdown, no explanation)."
   ].join("\n");
 
   const raw = await ollamaGenerate({ model: params.model, prompt, timeoutMs: 180_000 });

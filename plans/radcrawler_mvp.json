@@ -1,0 +1,53 @@
+{
+  "intent": "Radcrawler MVP: multi-crawler pipeline to single Postgres + simple API",
+  "phases": [
+    {
+      "name": "scaffold",
+      "file_ops": [
+        {
+          "kind": "write",
+          "path": "db/radcrawler.sql",
+          "content": "CREATE TABLE IF NOT EXISTS crawl_jobs(\n  id TEXT PRIMARY KEY,\n  url TEXT NOT NULL,\n  depth INT DEFAULT 1,\n  max_pages INT DEFAULT 100,\n  same_host BOOLEAN DEFAULT TRUE,\n  respect_robots BOOLEAN DEFAULT TRUE,\n  budget_s INT DEFAULT 300,\n  tag TEXT,\n  state TEXT NOT NULL DEFAULT 'queued',\n  created_at TIMESTAMPTZ DEFAULT now(),\n  started_at TIMESTAMPTZ,\n  finished_at TIMESTAMPTZ,\n  error TEXT\n);\nCREATE INDEX IF NOT EXISTS crawl_jobs_state_idx ON crawl_jobs(state);\nCREATE TABLE IF NOT EXISTS crawl_events(\n  id BIGSERIAL PRIMARY KEY,\n  job_id TEXT REFERENCES crawl_jobs(id) ON DELETE CASCADE,\n  t TIMESTAMPTZ DEFAULT now(),\n  level TEXT NOT NULL,\n  msg TEXT NOT NULL,\n  data_json JSONB\n);\nCREATE TABLE IF NOT EXISTS crawl_pages(\n  id BIGSERIAL PRIMARY KEY,\n  job_id TEXT REFERENCES crawl_jobs(id) ON DELETE CASCADE,\n  url TEXT NOT NULL,\n  status INT,\n  title TEXT,\n  fetched_at TIMESTAMPTZ,\n  text TEXT,\n  html TEXT\n);\nCREATE INDEX IF NOT EXISTS crawl_pages_job_idx ON crawl_pages(job_id);\nCREATE UNIQUE INDEX IF NOT EXISTS crawl_pages_job_url_uidx ON crawl_pages(job_id, url);\n"
+        },
+        {
+          "kind": "write",
+          "path": "apps/radcrawler/package.json",
+          "content": "{\n  \"name\": \"radcrawler\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev:server\": \"node server.mjs\",\n    \"dev:worker\": \"node worker.mjs\"\n  },\n  \"dependencies\": {\n    \"express\": \"^4.19.2\",\n    \"pg\": \"^8.11.3\",\n    \"cheerio\": \"^1.0.0-rc.12\"\n  }\n}\n"
+        },
+        {
+          "kind": "write",
+          "path": "apps/radcrawler/server.mjs",
+          "content": "#!/usr/bin/env node\nimport express from 'express';\nimport pkg from 'pg';\nconst { Pool } = pkg;\nconst PORT = process.env.PORT || 4318;\nconst DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/postgres';\nconst pool = new Pool({ connectionString: DATABASE_URL });\nconst app = express();\napp.use(express.json({ limit: '1mb' }));\n\napp.post('/enqueue', async (req, res) => {\n  try {\n    const { url, depth = 2, max_pages = 200, same_host = true, respect_robots = true, budget_s = 300, tag = null } = req.body || {};\n    if (!url) return res.status(400).json({ error: 'url required' });\n    const id = 'j_' + Date.now() + '_' + Math.floor(Math.random()*1e6);\n    await pool.query('INSERT INTO crawl_jobs(id,url,depth,max_pages,same_host,respect_robots,budget_s,tag) VALUES($1,$2,$3,$4,$5,$6,$7,$8)', [id,url,depth,max_pages,same_host,respect_robots,budget_s,tag]);\n    res.json({ job_id: id });\n  } catch (e) { res.status(500).json({ error: e.message }); }\n});\n\napp.get('/status', async (req, res) => {\n  try {\n    const id = req.query.job_id; if (!id) return res.status(400).json({ error: 'job_id required' });\n    const r = await pool.query('SELECT * FROM crawl_jobs WHERE id=$1', [id]);\n    if (!r.rows[0]) return res.status(404).json({ error: 'not found' });\n    const row = r.rows[0];\n    const p = await pool.query('SELECT count(*)::int AS pages FROM crawl_pages WHERE job_id=$1', [id]);\n    res.json({ state: row.state, pages_fetched: p.rows[0].pages, started_at: row.started_at, finished_at: row.finished_at, message: row.error });\n  } catch (e) { res.status(500).json({ error: e.message }); }\n});\n\napp.get('/results', async (req, res) => {\n  try {\n    const id = req.query.job_id; if (!id) return res.status(400).json({ error: 'job_id required' });\n    const limit = Math.min(parseInt(req.query.limit||'100',10), 1000);\n    const offset = Math.max(parseInt(req.query.offset||'0',10), 0);\n    const total = (await pool.query('SELECT count(*)::int AS n FROM crawl_pages WHERE job_id=$1', [id])).rows[0].n;\n    const pages = (await pool.query('SELECT url,title,status,text FROM crawl_pages WHERE job_id=$1 ORDER BY id ASC LIMIT $2 OFFSET $3', [id, limit, offset])).rows;\n    res.json({ total, pages });\n  } catch (e) { res.status(500).json({ error: e.message }); }\n});\n\napp.post('/cancel', async (req,res)=>{\n  try { const { job_id } = req.body || {}; if(!job_id) return res.status(400).json({error:'job_id required'});\n    await pool.query(\"UPDATE crawl_jobs SET state='cancelled', finished_at=now() WHERE id=$1 AND state IN ('queued','running')\", [job_id]);\n    res.json({ cancelled: true });\n  } catch(e){ res.status(500).json({ error: e.message }); }\n});\n\napp.listen(PORT, () => console.log('radcrawler server on', PORT));\n"
+        },
+        {
+          "kind": "write",
+          "path": "apps/radcrawler/worker.mjs",
+          "content": "#!/usr/bin/env node\nimport pkg from 'pg';\nimport * as cheerio from 'cheerio';\nconst { Pool } = pkg;\nconst DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost/postgres';\nconst pool = new Pool({ connectionString: DATABASE_URL });\nconst MAX_CONCURRENCY = parseInt(process.env.RADC_MAX_CONCURRENCY||'3',10);\n\nasync function log(job_id, level, msg, data){\n  await pool.query('INSERT INTO crawl_events(job_id,level,msg,data_json) VALUES($1,$2,$3,$4)', [job_id, level, msg, data||null]);\n}\n\nasync function nextJob(){\n  const r = await pool.query(\"UPDATE crawl_jobs SET state='running', started_at=now() WHERE id = (\n    SELECT id FROM crawl_jobs WHERE state='queued' ORDER BY created_at ASC LIMIT 1 FOR UPDATE SKIP LOCKED\n  ) RETURNING *\");\n  return r.rows[0] || null;\n}\n\nfunction sameHost(a,b){ try { return new URL(a).host === new URL(b).host; } catch { return false; } }\n\nasync function crawl(job){\n  const { id, url, depth, max_pages, same_host, budget_s } = job;\n  const start = Date.now();\n  const Q = [url];\n  const seen = new Set();\n  let pages = 0;\n  await log(id,'info','start', { url });\n  while (Q.length && pages < max_pages) {\n    if ((Date.now()-start)/1000 > budget_s) { await log(id,'warn','budget_exceeded',{}); break; }\n    const u = Q.shift();\n    if (!u || seen.has(u)) continue; seen.add(u);\n    try {\n      const res = await fetch(u, { redirect: 'follow' });\n      const html = await res.text();\n      const status = res.status;\n      const $ = cheerio.load(html);\n      const title = $('title').first().text().slice(0,200) || null;\n      const text = $('body').text().replace(/\\s+/g,' ').trim().slice(0,20000);\n      await pool.query('INSERT INTO crawl_pages(job_id,url,status,title,fetched_at,text,html) VALUES($1,$2,$3,$4,now(),$5,$6) ON CONFLICT (job_id,url) DO NOTHING', [id,u,status,title,text,html]);\n      pages++;\n      if (depth > 0) {\n        const links = $('a[href]').map((_,a)=>$(a).attr('href')).get();\n        for (const href of links){\n          const abs = new URL(href, u).toString();\n          if (same_host && !sameHost(url, abs)) continue;\n          if (!seen.has(abs)) Q.push(abs);\n        }\n      }\n    } catch (e) {\n      await log(id,'error','fetch_failed',{u, err: String(e)});\n    }\n  }\n  await pool.query(\"UPDATE crawl_jobs SET state='done', finished_at=now() WHERE id=$1\", [id]);\n  await log(id,'info','done',{ pages });\n}\n\n(async function loop(){\n  console.log('radcrawler worker up');\n  while (true){\n    const jobs = [];\n    for (let i=0;i<MAX_CONCURRENCY;i++){\n      const j = await nextJob(); if (j) jobs.push(crawl(j));\n    }\n    if (jobs.length===0) { await new Promise(r=>setTimeout(r, 1500)); continue; }\n    await Promise.allSettled(jobs);\n  }\n})();\n"
+        },
+        {
+          "kind": "write",
+          "path": "README_RADCRAWLER.md",
+          "content": "# Radcrawler MVP\n\n**Prereqs:** Postgres reachable via `DATABASE_URL`.\n\n**Init DB:**\n```bash\npsql \"$DATABASE_URL\" -f db/radcrawler.sql\n```\n\n**Run:**\n```bash\ncd apps/radcrawler\nnode server.mjs   # API: POST /enqueue, GET /status, GET /results, POST /cancel\nnode worker.mjs   # background crawler(s) \u2014 run multiple for parallelism\n```\n\n**Enqueue example:**\n```bash\ncurl -X POST http://localhost:4318/enqueue  -H 'content-type: application/json'  -d '{\"url\":\"https://example.com\",\"depth\":2,\"max_pages\":100,\"same_host\":true,\"budget_s\":180}'\n```\n\nRun a **second** worker process to get multiple crawlers writing to the **same Postgres**.\n"
+        }
+      ],
+      "post_steps": [],
+      "placeholder_policy": {
+        "allow": true
+      }
+    },
+    {
+      "name": "fill",
+      "file_ops": [
+        {
+          "kind": "write",
+          "path": ".vscode/tasks.json",
+          "content": "{\n  \"version\": \"2.0.0\",\n  \"tasks\": [\n    {\"label\":\"Radcrawler: DB init\",\"type\":\"shell\",\"command\":\"psql \\\"$DATABASE_URL\\\" -f db/radcrawler.sql\",\"problemMatcher\":[]},\n    {\"label\":\"Radcrawler: API\",\"type\":\"shell\",\"command\":\"cd apps/radcrawler && node server.mjs\",\"problemMatcher\":[]},\n    {\"label\":\"Radcrawler: Worker\",\"type\":\"shell\",\"command\":\"cd apps/radcrawler && node worker.mjs\",\"problemMatcher\":[]}\n  ]\n}\n"
+        }
+      ],
+      "post_steps": [],
+      "placeholder_policy": {
+        "allow": false
+      }
+    }
+  ]
+}

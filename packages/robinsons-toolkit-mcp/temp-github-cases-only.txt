@@ -1,0 +1,293 @@
+// REPOSITORY MANAGEMENT
+          case 'github_list_repos': return await this.listRepos(args);
+          case 'github_get_repo': return await this.getRepo(args);
+          case 'github_create_repo': return await this.createRepo(args);
+          case 'github_update_repo': return await this.updateRepo(args);
+          case 'github_delete_repo': return await this.deleteRepo(args);
+          case 'github_list_repo_topics': return await this.listRepoTopics(args);
+          case 'github_replace_repo_topics': return await this.replaceRepoTopics(args);
+          case 'github_list_repo_languages': return await this.listRepoLanguages(args);
+          case 'github_list_repo_tags': return await this.listRepoTags(args);
+          case 'github_list_repo_teams': return await this.listRepoTeams(args);
+          case 'github_transfer_repo': return await this.transferRepo(args);
+          case 'github_enable_automated_security_fixes': return await this.enableAutomatedSecurityFixes(args);
+          case 'github_disable_automated_security_fixes': return await this.disableAutomatedSecurityFixes(args);
+          case 'github_enable_vulnerability_alerts': return await this.enableVulnerabilityAlerts(args);
+          case 'github_disable_vulnerability_alerts': return await this.disableVulnerabilityAlerts(args);
+          case 'github_get_repo_readme': return await this.getRepoReadme(args);
+          case 'github_get_repo_license': return await this.getRepoLicense(args);
+          case 'github_get_repo_community_profile': return await this.getRepoCommunityProfile(args);
+          case 'github_get_repo_stats_contributors': return await this.getRepoStatsContributors(args);
+          case 'github_get_repo_stats_commit_activity': return await this.getRepoStatsCommitActivity(args);
+
+          // BRANCHES
+          case 'github_list_branches': return await this.listBranches(args);
+          case 'github_get_branch': return await this.getBranch(args);
+          case 'github_create_branch': return await this.createBranch(args);
+          case 'github_delete_branch': return await this.deleteBranch(args);
+          case 'github_merge_branch': return await this.mergeBranch(args);
+          case 'github_get_branch_protection': return await this.getBranchProtection(args);
+          case 'github_update_branch_protection': return await this.updateBranchProtection(args);
+          case 'github_delete_branch_protection': return await this.deleteBranchProtection(args);
+          case 'github_get_required_status_checks': return await this.getRequiredStatusChecks(args);
+          case 'github_update_required_status_checks': return await this.updateRequiredStatusChecks(args);
+          case 'github_get_admin_enforcement': return await this.getAdminEnforcement(args);
+          case 'github_set_admin_enforcement': return await this.setAdminEnforcement(args);
+          case 'github_get_pull_request_review_enforcement': return await this.getPullRequestReviewEnforcement(args);
+          case 'github_update_pull_request_review_enforcement': return await this.updatePullRequestReviewEnforcement(args);
+          case 'github_rename_branch': return await this.renameBranch(args);
+
+          // COMMITS
+          case 'github_list_commits': return await this.listCommits(args);
+          case 'github_get_commit': return await this.getCommit(args);
+          case 'github_compare_commits': return await this.compareCommits(args);
+          case 'github_list_commit_comments': return await this.listCommitComments(args);
+          case 'github_create_commit_comment': return await this.createCommitComment(args);
+          case 'github_get_commit_status': return await this.getCommitStatus(args);
+          case 'github_list_commit_statuses': return await this.listCommitStatuses(args);
+          case 'github_create_commit_status': return await this.createCommitStatus(args);
+          case 'github_list_pull_requests_associated_with_commit': return await this.listPullRequestsAssociatedWithCommit(args);
+          case 'github_get_commit_signature_verification': return await this.getCommitSignatureVerification(args);
+
+          // ISSUES
+          case 'github_list_issues': return await this.listIssues(args);
+          case 'github_get_issue': return await this.getIssue(args);
+          case 'github_create_issue': return await this.createIssue(args);
+          case 'github_update_issue': return await this.updateIssue(args);
+          case 'github_lock_issue': return await this.lockIssue(args);
+          case 'github_unlock_issue': return await this.unlockIssue(args);
+          case 'github_add_assignees': return await this.addAssignees(args);
+          case 'github_remove_assignees': return await this.removeAssignees(args);
+          case 'github_add_labels': return await this.addLabels(args);
+          case 'github_remove_label': return await this.removeLabel(args);
+          case 'github_replace_labels': return await this.replaceLabels(args);
+          case 'github_list_issue_comments': return await this.listIssueComments(args);
+          case 'github_create_issue_comment': return await this.createIssueComment(args);
+          case 'github_update_issue_comment': return await this.updateIssueComment(args);
+          case 'github_delete_issue_comment': return await this.deleteIssueComment(args);
+          case 'github_list_issue_events': return await this.listIssueEvents(args);
+          case 'github_list_issue_timeline': return await this.listIssueTimeline(args);
+          case 'github_list_labels': return await this.listLabels(args);
+          case 'github_create_label': return await this.createLabel(args);
+          case 'github_delete_label': return await this.deleteLabel(args);
+
+          // PULL REQUESTS
+          case 'github_list_pull_requests': return await this.listPullRequests(args);
+          case 'github_get_pull_request': return await this.getPullRequest(args);
+          case 'github_create_pull_request': return await this.createPullRequest(args);
+          case 'github_update_pull_request': return await this.updatePullRequest(args);
+          case 'github_merge_pull_request': return await this.mergePullRequest(args);
+          case 'github_get_pull_request_merge_status': return await this.getPullRequestMergeStatus(args);
+          case 'github_list_pull_request_commits': return await this.listPullRequestCommits(args);
+          case 'github_list_pull_request_files': return await this.listPullRequestFiles(args);
+          case 'github_list_pull_request_reviews': return await this.listPullRequestReviews(args);
+          case 'github_get_pull_request_review': return await this.getPullRequestReview(args);
+          case 'github_create_pull_request_review': return await this.createPullRequestReview(args);
+          case 'github_submit_pull_request_review': return await this.submitPullRequestReview(args);
+          case 'github_dismiss_pull_request_review': return await this.dismissPullRequestReview(args);
+          case 'github_list_pull_request_review_comments': return await this.listPullRequestReviewComments(args);
+          case 'github_create_pull_request_review_comment': return await this.createPullRequestReviewComment(args);
+          case 'github_update_pull_request_review_comment': return await this.updatePullRequestReviewComment(args);
+          case 'github_delete_pull_request_review_comment': return await this.deletePullRequestReviewComment(args);
+          case 'github_request_pull_request_reviewers': return await this.requestPullRequestReviewers(args);
+          case 'github_remove_pull_request_reviewers': return await this.removePullRequestReviewers(args);
+          case 'github_update_pull_request_branch': return await this.updatePullRequestBranch(args);
+          case 'github_list_requested_reviewers': return await this.listRequestedReviewers(args);
+          case 'github_check_pull_request_reviewability': return await this.checkPullRequestReviewability(args);
+          case 'github_get_pull_request_diff': return await this.getPullRequestDiff(args);
+          case 'github_get_pull_request_patch': return await this.getPullRequestPatch(args);
+          case 'github_convert_issue_to_pull_request': return await this.convertIssueToPullRequest(args);
+
+          // GITHUB ACTIONS
+          case 'github_list_workflows': return await this.listWorkflows(args);
+          case 'github_get_workflow': return await this.getWorkflow(args);
+          case 'github_disable_workflow': return await this.disableWorkflow(args);
+          case 'github_enable_workflow': return await this.enableWorkflow(args);
+          case 'github_create_workflow_dispatch': return await this.createWorkflowDispatch(args);
+          case 'github_list_workflow_runs': return await this.listWorkflowRuns(args);
+          case 'github_get_workflow_run': return await this.getWorkflowRun(args);
+          case 'github_cancel_workflow_run': return await this.cancelWorkflowRun(args);
+          case 'github_rerun_workflow': return await this.rerunWorkflow(args);
+          case 'github_rerun_failed_jobs': return await this.rerunFailedJobs(args);
+          case 'github_delete_workflow_run': return await this.deleteWorkflowRun(args);
+          case 'github_list_workflow_run_artifacts': return await this.listWorkflowRunArtifacts(args);
+          case 'github_download_workflow_run_logs': return await this.downloadWorkflowRunLogs(args);
+          case 'github_delete_workflow_run_logs': return await this.deleteWorkflowRunLogs(args);
+          case 'github_list_workflow_run_jobs': return await this.listWorkflowRunJobs(args);
+          case 'github_get_workflow_run_job': return await this.getWorkflowRunJob(args);
+          case 'github_download_job_logs': return await this.downloadJobLogs(args);
+          case 'github_list_repo_secrets': return await this.listRepoSecrets(args);
+          case 'github_create_or_update_repo_secret': return await this.createOrUpdateRepoSecret(args);
+          case 'github_delete_repo_secret': return await this.deleteRepoSecret(args);
+
+          // RELEASES
+          case 'github_list_releases': return await this.listReleases(args);
+          case 'github_get_release': return await this.getRelease(args);
+          case 'github_get_latest_release': return await this.getLatestRelease(args);
+          case 'github_get_release_by_tag': return await this.getReleaseByTag(args);
+          case 'github_create_release': return await this.createRelease(args);
+          case 'github_update_release': return await this.updateRelease(args);
+          case 'github_delete_release': return await this.deleteRelease(args);
+          case 'github_list_release_assets': return await this.listReleaseAssets(args);
+          case 'github_get_release_asset': return await this.getReleaseAsset(args);
+          case 'github_update_release_asset': return await this.updateReleaseAsset(args);
+          case 'github_delete_release_asset': return await this.deleteReleaseAsset(args);
+          case 'github_generate_release_notes': return await this.generateReleaseNotes(args);
+
+          // FILES & CONTENT
+          case 'github_get_content': return await this.getContent(args);
+          case 'github_create_or_update_file': return await this.createOrUpdateFile(args);
+          case 'github_delete_file': return await this.deleteFile(args);
+          case 'github_get_archive': return await this.getArchive(args);
+          case 'github_list_repo_contributors': return await this.listRepoContributors(args);
+          case 'github_get_repo_clones': return await this.getRepoClones(args);
+          case 'github_get_repo_views': return await this.getRepoViews(args);
+          case 'github_get_repo_top_paths': return await this.getRepoTopPaths(args);
+          case 'github_get_repo_top_referrers': return await this.getRepoTopReferrers(args);
+          case 'github_create_tree': return await this.createTree(args);
+          case 'github_get_tree': return await this.getTree(args);
+          case 'github_get_blob': return await this.getBlob(args);
+          case 'github_create_blob': return await this.createBlob(args);
+          case 'github_create_commit': return await this.createCommit(args);
+          case 'github_get_ref': return await this.getRef(args);
+
+          // COLLABORATORS & PERMISSIONS
+          case 'github_list_collaborators': return await this.listCollaborators(args);
+          case 'github_check_collaborator': return await this.checkCollaborator(args);
+          case 'github_add_collaborator': return await this.addCollaborator(args);
+          case 'github_remove_collaborator': return await this.removeCollaborator(args);
+          case 'github_get_collaborator_permission': return await this.getCollaboratorPermission(args);
+          case 'github_list_invitations': return await this.listInvitations(args);
+          case 'github_update_invitation': return await this.updateInvitation(args);
+          case 'github_delete_invitation': return await this.deleteInvitation(args);
+          case 'github_list_deploy_keys': return await this.listDeployKeys(args);
+          case 'github_create_deploy_key': return await this.createDeployKey(args);
+
+          // WEBHOOKS
+          case 'github_list_webhooks': return await this.listWebhooks(args);
+          case 'github_get_webhook': return await this.getWebhook(args);
+          case 'github_create_webhook': return await this.createWebhook(args);
+          case 'github_update_webhook': return await this.updateWebhook(args);
+          case 'github_delete_webhook': return await this.deleteWebhook(args);
+          case 'github_ping_webhook': return await this.pingWebhook(args);
+          case 'github_test_webhook': return await this.testWebhook(args);
+          case 'github_list_webhook_deliveries': return await this.listWebhookDeliveries(args);
+
+          // ORGANIZATIONS & TEAMS
+          case 'github_list_user_orgs': return await this.listUserOrgs(args);
+          case 'github_get_org': return await this.getOrg(args);
+          case 'github_update_org': return await this.updateOrg(args);
+          case 'github_list_org_members': return await this.listOrgMembers(args);
+          case 'github_check_org_membership': return await this.checkOrgMembership(args);
+          case 'github_remove_org_member': return await this.removeOrgMember(args);
+          case 'github_list_org_teams': return await this.listOrgTeams(args);
+          case 'github_get_team': return await this.getTeam(args);
+          case 'github_create_team': return await this.createTeam(args);
+          case 'github_update_team': return await this.updateTeam(args);
+          case 'github_delete_team': return await this.deleteTeam(args);
+          case 'github_list_team_members': return await this.listTeamMembers(args);
+
+          // SEARCH
+          case 'github_search_repositories': return await this.searchRepositories(args);
+          case 'github_search_code': return await this.searchCode(args);
+          case 'github_search_issues': return await this.searchIssues(args);
+          case 'github_search_users': return await this.searchUsers(args);
+          case 'github_search_commits': return await this.searchCommits(args);
+          case 'github_search_topics': return await this.searchTopics(args);
+
+          // USERS
+          case 'github_get_authenticated_user': return await this.getAuthenticatedUser(args);
+          case 'github_get_user': return await this.getUser(args);
+          case 'github_update_authenticated_user': return await this.updateAuthenticatedUser(args);
+          case 'github_list_user_repos': return await this.listUserRepos(args);
+          case 'github_list_user_followers': return await this.listUserFollowers(args);
+          case 'github_list_user_following': return await this.listUserFollowing(args);
+          case 'github_check_following': return await this.checkFollowing(args);
+          case 'github_list_user_gists': return await this.listUserGists(args);
+
+          // GISTS
+          case 'github_list_gists': return await this.listGists(args);
+          case 'github_get_gist': return await this.getGist(args);
+          case 'github_create_gist': return await this.createGist(args);
+          case 'github_update_gist': return await this.updateGist(args);
+          case 'github_delete_gist': return await this.deleteGist(args);
+          case 'github_star_gist': return await this.starGist(args);
+          case 'github_unstar_gist': return await this.unstarGist(args);
+          case 'github_check_gist_star': return await this.checkGistStar(args);
+          case 'github_fork_gist': return await this.forkGist(args);
+          case 'github_list_gist_commits': return await this.listGistCommits(args);
+
+          // MILESTONES & PROJECTS
+          case 'github_list_milestones': return await this.listMilestones(args);
+          case 'github_get_milestone': return await this.getMilestone(args);
+          case 'github_create_milestone': return await this.createMilestone(args);
+          case 'github_update_milestone': return await this.updateMilestone(args);
+          case 'github_delete_milestone': return await this.deleteMilestone(args);
+          case 'list_projects': return await this.listProjects(args);
+          case 'get_project': return await this.getProject(args);
+          case 'create_project': return await this.createProject(args);
+
+          // Advanced Actions
+          case 'github_list_workflow_runs': return await this.listWorkflowRuns(args);
+          case 'github_get_workflow_run': return await this.getWorkflowRun(args);
+          case 'github_cancel_workflow_run': return await this.cancelWorkflowRun(args);
+          case 'github_rerun_workflow': return await this.rerunWorkflow(args);
+          case 'github_download_workflow_logs': return await this.downloadWorkflowRunLogs(args);
+          case 'github_list_workflow_jobs': return await this.listWorkflowRunJobs(args);
+          case 'github_get_workflow_job': return await this.getWorkflowRunJob(args);
+          case 'github_download_job_logs': return await this.downloadJobLogs(args);
+          case 'github_list_repo_secrets': return await this.listRepoSecrets(args);
+          case 'github_create_repo_secret': return await this.createRepoSecretHandler(args);
+
+          // Packages
+          case 'github_list_packages': return await this.listPackages(args);
+          case 'github_get_package': return await this.getPackage(args);
+          case 'github_delete_package': return await this.deletePackage(args);
+          case 'github_restore_package': return await this.restorePackage(args);
+          case 'github_list_package_versions': return await this.listPackageVersions(args);
+          case 'github_get_package_version': return await this.getPackageVersion(args);
+          case 'github_delete_package_version': return await this.deletePackageVersion(args);
+          case 'github_restore_package_version': return await this.restorePackageVersion(args);
+
+          // Projects v2
+          case 'github_list_org_projects_v2': return await this.listOrgProjectsV2(args);
+          case 'github_get_project_v2': return await this.getProjectV2(args);
+          case 'github_create_project_v2': return await this.createProjectV2(args);
+          case 'github_update_project_v2': return await this.updateProjectV2(args);
+          case 'github_delete_project_v2': return await this.deleteProjectV2(args);
+          case 'github_list_project_items': return await this.listProjectItems(args);
+          case 'github_add_project_item': return await this.addProjectItem(args);
+          case 'github_remove_project_item': return await this.removeProjectItem(args);
+
+          // Discussions
+          case 'github_list_discussions': return await this.listDiscussions(args);
+          case 'github_get_discussion': return await this.getDiscussion(args);
+          case 'github_create_discussion': return await this.createDiscussion(args);
+          case 'github_update_discussion': return await this.updateDiscussion(args);
+          case 'github_delete_discussion': return await this.deleteDiscussion(args);
+          case 'github_list_discussion_comments': return await this.listDiscussionComments(args);
+          case 'github_create_discussion_comment': return await this.createDiscussionComment(args);
+          case 'github_list_discussion_categories': return await this.listDiscussionCategories(args);
+
+          // Codespaces
+          case 'github_list_codespaces': return await this.listCodespaces(args);
+          case 'github_get_codespace': return await this.getCodespace(args);
+          case 'github_create_codespace': return await this.createCodespace(args);
+          case 'github_start_codespace': return await this.startCodespace(args);
+          case 'github_stop_codespace': return await this.stopCodespace(args);
+          case 'github_delete_codespace': return await this.deleteCodespace(args);
+          case 'github_list_repo_codespaces': return await this.listRepoCodespaces(args);
+
+          // Copilot
+          case 'github_get_copilot_org_settings': return await this.getCopilotOrgSettings(args);
+          case 'github_list_copilot_seats': return await this.listCopilotSeats(args);
+          case 'github_add_copilot_seats': return await this.addCopilotSeats(args);
+          case 'github_remove_copilot_seats': return await this.removeCopilotSeats(args);
+          case 'github_get_copilot_usage': return await this.getCopilotUsage(args);
+
+          // Advanced Security
+          case 'github_list_code_scanning_alerts': return await this.listCodeScanningAlerts(args);
+          case 'github_get_code_scanning_alert': return await this.getCodeScanningAlert(args);
+          case 'github_update_code_scanning_alert': return await this.updateCodeScanningAlert(args);
+          case 'github_list_secret_scanning_alerts': return await this.listSecretScanningAlerts(args);
+          case 'github_update_secret_scanning_alert': return await this.updateSecretScanningAlert(args);

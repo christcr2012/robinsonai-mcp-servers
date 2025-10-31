@@ -15,6 +15,7 @@ packages/unified-mcp/unified-mcp-config.json
 *-config.json
 !mcp-config-*.json
 !READY_TO_USE_6_SERVER_CONFIG.json
+!SIMPLIFIED_AUGMENT_CONFIG.txt
 mcp-config-enhanced.json
 WORKING_AUGMENT_CONFIG.json
 *_CONFIG_*.json
@@ -37,3 +38,18 @@ secrets*
 
 # Editor settings
 .vscode/
+
+# Robinson Orchestrator runtime stuff
+.robinson/inbox/
+.robinson/outbox/
+.robinson/symbols.json
+.robinson/tmp-*
+
+# Local secrets for crawlers / services
+.env
+
+# Augment troubleshooting files
+.backups/
+augment-console-log.txt
+AUGMENT_FIX_SUMMARY.md
+SIGN_INTO_AUGMENT_NOW.md

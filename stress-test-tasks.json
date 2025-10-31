@@ -1,0 +1,161 @@
+{
+  "test_name": "OpenAI Worker Stress Test - 30 Concurrent Tasks",
+  "budget_per_agent": 1.0,
+  "total_budget": 15.0,
+  "model": "gpt-4o-mini",
+  "expected_cost_per_task": 0.01,
+  "expected_total_cost": 0.30,
+  "tasks": [
+    {
+      "id": 1,
+      "name": "Generate redisHSET function",
+      "description": "Create TypeScript function for Redis HSET command. Input: (key: string, field: string, value: string). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 2,
+      "name": "Generate redisHGET function",
+      "description": "Create TypeScript function for Redis HGET command. Input: (key: string, field: string). Return: Promise<string | null>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 3,
+      "name": "Generate redisHDEL function",
+      "description": "Create TypeScript function for Redis HDEL command. Input: (key: string, ...fields: string[]). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 4,
+      "name": "Generate redisHGETALL function",
+      "description": "Create TypeScript function for Redis HGETALL command. Input: (key: string). Return: Promise<Record<string, string>>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 5,
+      "name": "Generate redisHINCRBY function",
+      "description": "Create TypeScript function for Redis HINCRBY command. Input: (key: string, field: string, increment: number). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 6,
+      "name": "Generate redisHLEN function",
+      "description": "Create TypeScript function for Redis HLEN command. Input: (key: string). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 7,
+      "name": "Generate redisHEXISTS function",
+      "description": "Create TypeScript function for Redis HEXISTS command. Input: (key: string, field: string). Return: Promise<boolean>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 8,
+      "name": "Generate redisHKEYS function",
+      "description": "Create TypeScript function for Redis HKEYS command. Input: (key: string). Return: Promise<string[]>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 9,
+      "name": "Generate redisHVALS function",
+      "description": "Create TypeScript function for Redis HVALS command. Input: (key: string). Return: Promise<string[]>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 10,
+      "name": "Generate redisSET function",
+      "description": "Create TypeScript function for Redis SET command. Input: (key: string, value: string, ttl?: number). Return: Promise<string>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 11,
+      "name": "Generate redisGET function",
+      "description": "Create TypeScript function for Redis GET command. Input: (key: string). Return: Promise<string | null>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 12,
+      "name": "Generate redisDEL function",
+      "description": "Create TypeScript function for Redis DEL command. Input: (...keys: string[]). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 13,
+      "name": "Generate redisEXISTS function",
+      "description": "Create TypeScript function for Redis EXISTS command. Input: (...keys: string[]). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 14,
+      "name": "Generate redisEXPIRE function",
+      "description": "Create TypeScript function for Redis EXPIRE command. Input: (key: string, seconds: number). Return: Promise<boolean>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 15,
+      "name": "Generate redisTTL function",
+      "description": "Create TypeScript function for Redis TTL command. Input: (key: string). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 16,
+      "name": "Generate redisINCR function",
+      "description": "Create TypeScript function for Redis INCR command. Input: (key: string). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 17,
+      "name": "Generate redisDECR function",
+      "description": "Create TypeScript function for Redis DECR command. Input: (key: string). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 18,
+      "name": "Generate redisLPUSH function",
+      "description": "Create TypeScript function for Redis LPUSH command. Input: (key: string, ...values: string[]). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 19,
+      "name": "Generate redisRPUSH function",
+      "description": "Create TypeScript function for Redis RPUSH command. Input: (key: string, ...values: string[]). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 20,
+      "name": "Generate redisLPOP function",
+      "description": "Create TypeScript function for Redis LPOP command. Input: (key: string). Return: Promise<string | null>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 21,
+      "name": "Generate redisRPOP function",
+      "description": "Create TypeScript function for Redis RPOP command. Input: (key: string). Return: Promise<string | null>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 22,
+      "name": "Generate redisLLEN function",
+      "description": "Create TypeScript function for Redis LLEN command. Input: (key: string). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 23,
+      "name": "Generate redisSADD function",
+      "description": "Create TypeScript function for Redis SADD command. Input: (key: string, ...members: string[]). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 24,
+      "name": "Generate redisSREM function",
+      "description": "Create TypeScript function for Redis SREM command. Input: (key: string, ...members: string[]). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 25,
+      "name": "Generate redisSMEMBERS function",
+      "description": "Create TypeScript function for Redis SMEMBERS command. Input: (key: string). Return: Promise<string[]>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 26,
+      "name": "Generate redisSISMEMBER function",
+      "description": "Create TypeScript function for Redis SISMEMBER command. Input: (key: string, member: string). Return: Promise<boolean>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 27,
+      "name": "Generate redisZADD function",
+      "description": "Create TypeScript function for Redis ZADD command. Input: (key: string, score: number, member: string). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 28,
+      "name": "Generate redisZREM function",
+      "description": "Create TypeScript function for Redis ZREM command. Input: (key: string, ...members: string[]). Return: Promise<number>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 29,
+      "name": "Generate redisZRANGE function",
+      "description": "Create TypeScript function for Redis ZRANGE command. Input: (key: string, start: number, stop: number). Return: Promise<string[]>. Include JSDoc. Max 15 lines."
+    },
+    {
+      "id": 30,
+      "name": "Generate redisZSCORE function",
+      "description": "Create TypeScript function for Redis ZSCORE command. Input: (key: string, member: string). Return: Promise<number | null>. Include JSDoc. Max 15 lines."
+    }
+  ]
+}
+

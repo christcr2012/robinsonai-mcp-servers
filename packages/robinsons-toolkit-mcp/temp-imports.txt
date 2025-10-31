@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+/**
+ * Robinson's Toolkit - Unified MCP Server  
+ * 563 tools: GitHub (240) + Vercel (150) + Neon (173)
+ */
+
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import axios, { AxiosInstance } from 'axios';
+
+// ============================================================
+// GITHUB (240 tools)
+// ============================================================
+
+interface GitHubClient {
+  get(path: string, params?: any): Promise<any>;
+  post(path: string, body?: any): Promise<any>;
+  patch(path: string, body?: any): Promise<any>;
+  put(path: string, body?: any): Promise<any>;
+  delete(path: string): Promise<any>;
+}
+

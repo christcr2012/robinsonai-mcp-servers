@@ -1,0 +1,201 @@
+{
+  "name": "Agent Coordination Network",
+  "version": "1.0.0",
+  "description": "Coordinated multi-agent workflow using OpenAI Agents SDK",
+  "agents": {
+    "architect": {
+      "id": "asst_zJhhV4CutVhOwIGDaZqw7djr",
+      "name": "Architect Planner",
+      "role": "Planning and decomposition",
+      "capabilities": [
+        "Break down complex tasks",
+        "Create concrete execution plans",
+        "Estimate costs",
+        "Validate plans with thinking tools"
+      ],
+      "handoffs": [
+        {
+          "to": "credit_optimizer",
+          "when": "plan_created",
+          "data": ["plan", "cost_estimate"]
+        }
+      ]
+    },
+    "credit_optimizer": {
+      "id": "asst_cb04bxNdhlSUNYYsQXBwyJRi",
+      "name": "Credit Optimizer Controller",
+      "role": "Cost control and work routing",
+      "capabilities": [
+        "Validate costs against budgets",
+        "Route work to optimal worker",
+        "Track spending",
+        "Request approvals"
+      ],
+      "handoffs": [
+        {
+          "to": "autonomous_agent",
+          "when": "standard_task",
+          "data": ["work_unit", "context"]
+        },
+        {
+          "to": "openai_worker",
+          "when": "specialized_task",
+          "data": ["work_unit", "context", "approval"]
+        }
+      ]
+    }
+  },
+  "workflows": {
+    "code_generation": {
+      "name": "Code Generation Workflow",
+      "description": "Generate code using FREE Ollama via Autonomous Agent",
+      "steps": [
+        {
+          "agent": "architect",
+          "action": "create_plan",
+          "input": "user_request",
+          "output": "concrete_plan"
+        },
+        {
+          "agent": "credit_optimizer",
+          "action": "validate_and_route",
+          "input": "concrete_plan",
+          "output": "routed_work"
+        },
+        {
+          "agent": "autonomous_agent",
+          "action": "execute",
+          "input": "routed_work",
+          "output": "generated_code"
+        },
+        {
+          "agent": "credit_optimizer",
+          "action": "track_results",
+          "input": "generated_code",
+          "output": "cost_report"
+        }
+      ],
+      "estimated_cost": "$0 (uses FREE Ollama)",
+      "estimated_time": "30-60 seconds"
+    },
+    "bulk_refactoring": {
+      "name": "Bulk Refactoring Workflow",
+      "description": "Refactor multiple files autonomously",
+      "steps": [
+        {
+          "agent": "architect",
+          "action": "create_plan",
+          "input": "refactoring_request",
+          "output": "refactoring_plan"
+        },
+        {
+          "agent": "credit_optimizer",
+          "action": "validate_and_execute",
+          "tool": "execute_autonomous_workflow_credit-optimizer-mcp",
+          "input": "refactoring_plan",
+          "output": "refactored_files"
+        },
+        {
+          "agent": "credit_optimizer",
+          "action": "track_results",
+          "input": "refactored_files",
+          "output": "cost_report"
+        }
+      ],
+      "estimated_cost": "$0.10-0.50 (minimal Augment credits)",
+      "estimated_time": "1-5 minutes"
+    },
+    "feature_development": {
+      "name": "Complete Feature Development",
+      "description": "Build feature with component + API + tests",
+      "steps": [
+        {
+          "agent": "architect",
+          "action": "decompose_feature",
+          "input": "feature_spec",
+          "output": "feature_plan"
+        },
+        {
+          "agent": "credit_optimizer",
+          "action": "validate_cost",
+          "input": "feature_plan",
+          "output": "approved_plan"
+        },
+        {
+          "agent": "autonomous_agent",
+          "action": "generate_component",
+          "tool": "delegate_code_generation_autonomous-agent-mcp",
+          "input": "component_spec",
+          "output": "component_code"
+        },
+        {
+          "agent": "autonomous_agent",
+          "action": "generate_api",
+          "tool": "delegate_code_generation_autonomous-agent-mcp",
+          "input": "api_spec",
+          "output": "api_code"
+        },
+        {
+          "agent": "autonomous_agent",
+          "action": "generate_tests",
+          "tool": "delegate_test_generation_autonomous-agent-mcp",
+          "input": "test_spec",
+          "output": "test_code"
+        },
+        {
+          "agent": "credit_optimizer",
+          "action": "create_pr",
+          "tool": "open_pr_with_changes_credit-optimizer-mcp",
+          "input": "all_code",
+          "output": "github_pr"
+        }
+      ],
+      "estimated_cost": "$0.50-2.00 (mostly FREE Ollama)",
+      "estimated_time": "2-10 minutes"
+    },
+    "integration_setup": {
+      "name": "Integration Setup Workflow",
+      "description": "Set up new integration using Robinson's Toolkit",
+      "steps": [
+        {
+          "agent": "architect",
+          "action": "plan_integration",
+          "input": "integration_request",
+          "output": "integration_plan"
+        },
+        {
+          "agent": "credit_optimizer",
+          "action": "discover_tools",
+          "tool": "toolkit_discover_robinsons-toolkit-mcp",
+          "input": "integration_name",
+          "output": "available_tools"
+        },
+        {
+          "agent": "credit_optimizer",
+          "action": "execute_setup",
+          "tool": "toolkit_call_robinsons-toolkit-mcp",
+          "input": "setup_commands",
+          "output": "integration_ready"
+        }
+      ],
+      "estimated_cost": "$0 (tool discovery is free)",
+      "estimated_time": "10-30 seconds"
+    }
+  },
+  "cost_controls": {
+    "per_task_limit": 10,
+    "monthly_budget": 25,
+    "approval_required_over": 10,
+    "auto_approve_under": 1,
+    "preferred_worker": "autonomous_agent",
+    "fallback_worker": "openai_worker"
+  },
+  "monitoring": {
+    "track_costs": true,
+    "track_time": true,
+    "track_quality": true,
+    "learn_from_execution": true,
+    "alert_on_budget_exceeded": true
+  }
+}
+

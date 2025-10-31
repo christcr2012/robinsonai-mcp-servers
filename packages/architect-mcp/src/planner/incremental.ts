@@ -10,6 +10,7 @@ import Database from 'better-sqlite3';
 import { join } from 'path';
 import { ollamaGenerate, pingOllama } from '@robinsonai/shared-llm';
 import { getSpecById } from '../specs/store.js';
+import { discoverProjectStructure, formatProjectSummary } from '../context/discovery.js';
 // Node 18+ has global fetch; AbortSignal.timeout is available in Node 18+
 
 const DATA_DIR = join(process.cwd(), 'packages', 'architect-mcp', 'data');
@@ -212,12 +213,52 @@ async function generateStepsFromSpec(specText: string, maxSteps: number, sliceMs
 
   if (reachable) {
     const model = process.env.ARCHITECT_STD_MODEL || 'deepseek-coder:33b';
+
+    // Discover repository structure dynamically
+    console.error("[Planner] Discovering repository structure...");
+    const projectStructure = discoverProjectStructure();
+    const contextSummary = formatProjectSummary(projectStructure);
+
     const prompt = [
-      "You are a senior software architect. Given a requirement/spec, produce a small JSON array of",
-      "concrete implementation steps that this system can execute using tools like:",
-      "file.patch_edit, npm.install_package, playwright.create_test, github.open_pr_with_changes.",
-      "Each item must be {title, tool, params}. Limit to " + maxSteps + " steps. Respond with JSON only.",
-      "", "SPEC:", specText
+      "You are a senior software architect creating PARALLEL EXECUTION plans.",
+      "Given a requirement/spec, produce a JSON array of concrete implementation steps.",
+      "",
+      "REPOSITORY CONTEXT (use this to understand the codebase):",
+      "```",
+      contextSummary,
+      "```",
+      "",
+      "CRITICAL RULES:",
+      "1. Use 'assignTo: \"any_available_agent\"' for ALL steps",
+      "2. Use execute_versatile_task tools (autonomous-agent-mcp or openai-worker-mcp)",
+      "3. Add 'dependencies' array to enable parallel execution",
+      "4. Each step MUST include 'title' field with clear description",
+      "5. Each step: {id, title, assignTo, tool, dependencies, params}",
+      "6. Limit to " + maxSteps + " steps",
+      "7. Follow the repository's conventions (see REPOSITORY CONTEXT above)",
+      "8. Reference actual files/packages from the repository structure",
+      "",
+      "TASK TYPES: code_generation, code_analysis, refactoring, file_editing (DIRECTLY EDIT FILES), test_generation, documentation, toolkit_call",
+      "",
+      "EXAMPLE:",
+      "[",
+      "  {",
+      "    \"id\": \"gen_code\",",
+      "    \"title\": \"Generate user profile component in src/components\",",
+      "    \"assignTo\": \"any_available_agent\",",
+      "    \"tool\": \"execute_versatile_task_autonomous-agent-mcp\",",
+      "    \"dependencies\": [],",
+      "    \"params\": {",
+      "      \"task\": \"Generate user profile component in src/components/UserProfile.tsx\",",
+      "      \"taskType\": \"code_generation\",",
+      "      \"params\": {\"context\": \"React, TypeScript\", \"complexity\": \"simple\"}",
+      "    }",
+      "  }",
+      "]",
+      "",
+      "SPEC:", specText,
+      "",
+      "Respond with ONLY JSON array (no markdown, no explanation)."
     ].join("\n");
 
     try {
@@ -230,7 +271,220 @@ async function generateStepsFromSpec(specText: string, maxSteps: number, sliceMs
     } catch { /* fall through to deterministic fallback */ }
   }
 
-  // Deterministic skeleton (no AI)
+  // Deterministic fallback (no AI, but context-aware)
+  console.error("[Planner] Ollama unavailable, using context-aware fallback");
+
+  // Discover repository structure for context-aware fallback
+  const projectStructure = discoverProjectStructure();
+
+  // Parse the spec to extract key information
+  const specLower = specText.toLowerCase();
+
+  // Detect scaffolding opportunities (0 AI credits!)
+  const isScaffoldComponent = (specLower.includes("create") || specLower.includes("add") || specLower.includes("new")) &&
+                               (specLower.includes("component") || specLower.includes("react"));
+  const isScaffoldAPI = (specLower.includes("create") || specLower.includes("add") || specLower.includes("new")) &&
+                        (specLower.includes("api") || specLower.includes("endpoint") || specLower.includes("route"));
+  const isScaffoldDB = (specLower.includes("create") || specLower.includes("add") || specLower.includes("new")) &&
+                       (specLower.includes("database") || specLower.includes("schema") || specLower.includes("table"));
+  const isScaffoldTest = (specLower.includes("create") || specLower.includes("add") || specLower.includes("new")) &&
+                         (specLower.includes("test") || specLower.includes("spec"));
+  const isScaffoldFeature = (specLower.includes("create") || specLower.includes("add") || specLower.includes("new")) &&
+                            specLower.includes("feature");
+  const isScaffolding = isScaffoldComponent || isScaffoldAPI || isScaffoldDB || isScaffoldTest || isScaffoldFeature;
+
+  // Detect bulk operations that should use Credit Optimizer autonomous workflows
+  const isBulkFix = (specLower.includes("fix") && (specLower.includes("all") || specLower.includes("multiple") || specLower.includes("every")));
+  const isRefactoring = specLower.includes("refactor") || specLower.includes("extract");
+  const isTestGeneration = (specLower.includes("test") && specLower.includes("generate"));
+  const isBulkOperation = isBulkFix || isRefactoring || isTestGeneration;
+
+  // If scaffolding detected, use templates (0 AI credits!)
+  if (isScaffolding) {
+    console.error("[Planner] Detected scaffolding opportunity, using template (0 AI credits!)");
+
+    // Extract name from spec (simple heuristic)
+    const nameMatch = specText.match(/(?:create|add|new)\s+(?:a\s+)?(?:component|api|endpoint|feature|test|schema|table)?\s*["']?([A-Za-z0-9_-]+)["']?/i);
+    const name = nameMatch ? nameMatch[1] : "NewItem";
+
+    if (isScaffoldFeature) {
+      return [{
+        title: `Scaffold complete feature: ${name}`,
+        tool: "scaffold_feature_credit-optimizer-mcp",
+        params: {
+          name,
+          outputPath: "src/features",
+          variables: {}
+        },
+        successSignals: ["scaffolded", "created", "success"]
+      }];
+    }
+
+    if (isScaffoldComponent) {
+      return [{
+        title: `Scaffold React component: ${name}`,
+        tool: "scaffold_component_credit-optimizer-mcp",
+        params: {
+          name,
+          outputPath: "src/components",
+          variables: {}
+        },
+        successSignals: ["scaffolded", "created", "success"]
+      }];
+    }
+
+    if (isScaffoldAPI) {
+      return [{
+        title: `Scaffold API endpoint: ${name}`,
+        tool: "scaffold_api_endpoint_credit-optimizer-mcp",
+        params: {
+          name,
+          outputPath: "src/api",
+          variables: {}
+        },
+        successSignals: ["scaffolded", "created", "success"]
+      }];
+    }
+
+    if (isScaffoldDB) {
+      return [{
+        title: `Scaffold database schema: ${name}`,
+        tool: "scaffold_database_schema_credit-optimizer-mcp",
+        params: {
+          name,
+          outputPath: "src/db",
+          variables: {}
+        },
+        successSignals: ["scaffolded", "created", "success"]
+      }];
+    }
+
+    if (isScaffoldTest) {
+      return [{
+        title: `Scaffold test suite: ${name}`,
+        tool: "scaffold_test_suite_credit-optimizer-mcp",
+        params: {
+          name,
+          outputPath: "src/__tests__",
+          variables: {}
+        },
+        successSignals: ["scaffolded", "created", "success"]
+      }];
+    }
+  }
+
+  // If bulk operation detected, use Credit Optimizer autonomous workflows
+  if (isBulkOperation) {
+    console.error("[Planner] Detected bulk operation, using Credit Optimizer autonomous workflow");
+
+    if (isBulkFix) {
+      // Extract pattern from spec (simple heuristic)
+      const findMatch = specText.match(/fix\s+["']?([^"'\n]+)["']?/i);
+      const find = findMatch ? findMatch[1] : "TODO";
+
+      return [{
+        title: "Fix errors across multiple files autonomously",
+        tool: "execute_bulk_fix_credit-optimizer-mcp",
+        params: {
+          errorType: "custom",
+          find,
+          replace: "// Fixed",
+          filePattern: "src/**/*.ts",
+          verify: true
+        },
+        successSignals: ["fixed", "completed", "success"]
+      }];
+    }
+
+    if (isRefactoring) {
+      return [{
+        title: "Apply refactoring pattern autonomously",
+        tool: "execute_refactor_pattern_credit-optimizer-mcp",
+        params: {
+          pattern: "custom",
+          target: specText,
+          files: ["src/**/*.ts"]
+        },
+        successSignals: ["refactored", "completed", "success"]
+      }];
+    }
+
+    if (isTestGeneration) {
+      return [{
+        title: "Generate tests for multiple files autonomously",
+        tool: "execute_test_generation_credit-optimizer-mcp",
+        params: {
+          files: ["src/**/*.ts"],
+          framework: "vitest",
+          coverage: "comprehensive",
+          runTests: true
+        },
+        successSignals: ["generated", "tests created", "success"]
+      }];
+    }
+  }
+
+  const isStandardization = specLower.includes("standardize") || specLower.includes("format");
+  const isVercelTask = specLower.includes("vercel");
+  const isToolkitTask = specLower.includes("toolkit") || specLower.includes("robinsons-toolkit");
+
+  // Build context-aware steps
+  if (isStandardization && isVercelTask && isToolkitTask) {
+    // Specific task: Standardize Vercel tools
+    return [
+      {
+        title: "Analyze Vercel tool format in packages/robinsons-toolkit-mcp/src/index.ts",
+        tool: "execute_versatile_task_autonomous-agent-mcp_free-agent-mcp",
+        params: {
+          task: "Analyze the format of Vercel tools (lines 643-2556) in packages/robinsons-toolkit-mcp/src/index.ts and compare with GitHub/Neon/Upstash format",
+          taskType: "code_analysis"
+        },
+        successSignals: ["analysis complete", "format comparison", "identified patterns"]
+      },
+      {
+        title: "Convert Vercel tools to single-line format (batch 1: lines 643-1100)",
+        tool: "execute_versatile_task_autonomous-agent-mcp_free-agent-mcp",
+        params: {
+          task: "Convert Vercel tools from multi-line to single-line format in packages/robinsons-toolkit-mcp/src/index.ts (lines 643-1100). DIRECTLY EDIT THE FILE.",
+          taskType: "file_editing",
+          params: { context: "TypeScript, MCP tools, single-quote single-line format" }
+        },
+        successSignals: ["file modified", "converted", "single-line format", "success"]
+      },
+      {
+        title: "Convert Vercel tools to single-line format (batch 2: lines 1101-1600)",
+        tool: "execute_versatile_task_autonomous-agent-mcp_free-agent-mcp",
+        params: {
+          task: "Convert Vercel tools from multi-line to single-line format in packages/robinsons-toolkit-mcp/src/index.ts (lines 1101-1600). DIRECTLY EDIT THE FILE.",
+          taskType: "file_editing",
+          params: { context: "TypeScript, MCP tools, single-quote single-line format" }
+        },
+        successSignals: ["file modified", "converted", "single-line format", "success"]
+      },
+      {
+        title: "Convert Vercel tools to single-line format (batch 3: lines 1601-2100)",
+        tool: "execute_versatile_task_autonomous-agent-mcp_free-agent-mcp",
+        params: {
+          task: "Convert Vercel tools from multi-line to single-line format in packages/robinsons-toolkit-mcp/src/index.ts (lines 1601-2100). DIRECTLY EDIT THE FILE.",
+          taskType: "file_editing",
+          params: { context: "TypeScript, MCP tools, single-quote single-line format" }
+        },
+        successSignals: ["file modified", "converted", "single-line format", "success"]
+      },
+      {
+        title: "Convert Vercel tools to single-line format (batch 4: lines 2101-2556)",
+        tool: "execute_versatile_task_autonomous-agent-mcp_free-agent-mcp",
+        params: {
+          task: "Convert Vercel tools from multi-line to single-line format in packages/robinsons-toolkit-mcp/src/index.ts (lines 2101-2556). DIRECTLY EDIT THE FILE.",
+          taskType: "file_editing",
+          params: { context: "TypeScript, MCP tools, single-quote single-line format" }
+        },
+        successSignals: ["file modified", "converted", "single-line format", "success"]
+      }
+    ].slice(0, maxSteps);
+  }
+
+  // Generic fallback
   return [
     { title: "Scaffold tests", tool: "npm.install_package", params: { package: "vitest", dev: true } },
     { title: "Implement feature", tool: "file.patch_edit", params: { path: "src/index.ts", patch: "// TODO: implement\n" } },

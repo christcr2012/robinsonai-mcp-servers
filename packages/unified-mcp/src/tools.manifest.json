@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "generated": "2025-10-23T17:24:29.785Z",
-  "totalTools": 621,
+  "generated": "2025-10-30T22:43:58.165Z",
+  "totalTools": 622,
   "namespaces": [
     "github",
     "vercel",
@@ -4444,6 +4444,13 @@
     {
       "name": "openai_get_model_pricing",
       "description": "Get current pricing for a model",
+      "namespace": "openai",
+      "source": "openai-mcp",
+      "inputSchema": "{}"
+    },
+    {
+      "name": "openai_prompt_generate_examples",
+      "description": "Generate example inputs/outputs for prompt",
       "namespace": "openai",
       "source": "openai-mcp",
       "inputSchema": "{}"

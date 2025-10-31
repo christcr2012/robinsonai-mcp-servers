@@ -172,9 +172,9 @@ export function formatValidationErrors(result: ValidationResult): string {
   if (result.valid) {
     return '✅ Plan validation passed';
   }
-  
+
   let output = '❌ Plan validation failed:\n\n';
-  
+
   for (const error of result.errors) {
     output += `Step ${error.step_index + 1}: ${error.step_title}\n`;
     for (const err of error.errors) {
@@ -182,16 +182,88 @@ export function formatValidationErrors(result: ValidationResult): string {
     }
     output += '\n';
   }
-  
+
   if (result.warnings.length > 0) {
     output += '⚠️  Warnings:\n';
     for (const warning of result.warnings) {
       output += `  - ${warning}\n`;
     }
   }
-  
+
   output += '\nFix these errors using revise_plan, then re-export.';
-  
+
   return output;
 }
 
+/**
+ * Anti-Generic Validation (Lightweight)
+ * Rejects vague steps without concrete file references
+ */
+const VAGUE = [
+  /\bset\s*up\b/i,
+  /\bimprove\b/i,
+  /\brefactor\b/i,
+  /\boptimi[sz]e\b/i,
+  /\badjust\b/i,
+  /\bclean\s*up\b/i,
+  /\bupdate\b/i,
+  /\bfix\b/i,
+  /\benhance\b/i
+];
+
+const mentionsFile = (s:string)=> /[\\\/]\w|\w+\.\w+/.test(s);
+
+export interface SimpleValidationError {
+  field: string;
+  message: string;
+  step?: number;
+}
+
+export function antiGeneric(plan:any): SimpleValidationError[] {
+  const errors: SimpleValidationError[] = [];
+
+  if (!plan || typeof plan !== 'object') {
+    errors.push({ field: 'plan', message: 'Plan must be an object' });
+    return errors;
+  }
+
+  if (!Array.isArray(plan?.steps)) {
+    errors.push({ field: 'steps', message: 'Plan must have a steps array' });
+    return errors;
+  }
+
+  plan.steps.forEach((s:any, i:number)=>{
+    const name = String(s.name || s.title ||"");
+    const desc = String(s.description||"");
+    const combined = name + " " + desc;
+
+    // Check for vague language without concrete file references
+    if ((VAGUE.some(rx=>rx.test(name)) || VAGUE.some(rx=>rx.test(desc))) && !mentionsFile(combined)) {
+      errors.push({
+        field: `steps[${i}]`,
+        step: i,
+        message: `Vague step without concrete file references: "${name}". Must specify exact files to modify.`
+      });
+    }
+
+    // Check for file references
+    if (!s.files || !Array.isArray(s.files) || s.files.length===0) {
+      errors.push({
+        field: `steps[${i}].files`,
+        step: i,
+        message: `Each step must target specific files. Step "${name}" has no files specified.`
+      });
+    }
+
+    // Check for tool binding
+    if (!s.tool) {
+      errors.push({
+        field: `steps[${i}].tool`,
+        step: i,
+        message: `Each step must bind to a tool. Step "${name}" has no tool specified.`
+      });
+    }
+  });
+
+  return errors;
+}

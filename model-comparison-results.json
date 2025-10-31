@@ -1,0 +1,75 @@
+{
+  "timestamp": "2025-10-31T00:41:42.077Z",
+  "models": [
+    {
+      "model": "deepseek-coder:1.3b",
+      "size": "776 MB",
+      "attempts": [
+        {
+          "success": true,
+          "timeMs": 11775,
+          "validJson": true
+        },
+        {
+          "success": true,
+          "timeMs": 5619,
+          "validJson": true
+        },
+        {
+          "success": true,
+          "timeMs": 7339,
+          "validJson": true
+        }
+      ],
+      "avgTime": 8244.333333333334,
+      "successRate": 100
+    },
+    {
+      "model": "qwen2.5:3b",
+      "size": "1.9 GB",
+      "attempts": [
+        {
+          "success": true,
+          "timeMs": 25842,
+          "validJson": true
+        },
+        {
+          "success": true,
+          "timeMs": 16389,
+          "validJson": true
+        },
+        {
+          "success": true,
+          "timeMs": 22065,
+          "validJson": true
+        }
+      ],
+      "avgTime": 21432,
+      "successRate": 100
+    },
+    {
+      "model": "qwen2.5-coder:7b",
+      "size": "4.7 GB",
+      "attempts": [
+        {
+          "success": true,
+          "timeMs": 107578,
+          "validJson": true
+        },
+        {
+          "success": true,
+          "timeMs": 275191,
+          "validJson": true
+        },
+        {
+          "success": true,
+          "timeMs": 23707,
+          "validJson": true
+        }
+      ],
+      "avgTime": 135492,
+      "successRate": 100
+    }
+  ],
+  "recommendation": "deepseek-coder:1.3b"
+}

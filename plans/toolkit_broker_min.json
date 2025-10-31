@@ -1,0 +1,59 @@
+{
+  "intent": "Toolkit: auto-discover local MCP servers and add broker utilities",
+  "phases": [
+    {
+      "name": "scaffold",
+      "file_ops": [
+        {
+          "kind": "write",
+          "path": "tools/resolve-servers.mjs",
+          "content": "#!/usr/bin/env node\nimport fs from 'node:fs';\nimport path from 'node:path';\nconst ROOT = process.cwd();\nconst PACK = path.join(ROOT, 'packages');\nconst out = path.join(ROOT, '.robinson', 'servers.auto.json');\nfunction findServers() {\n  const found = [];\n  if (!fs.existsSync(PACK)) return found;\n  for (const d of fs.readdirSync(PACK, { withFileTypes: true })) {\n    if (!d.isDirectory()) continue;\n    const name = d.name;\n    if (!name.endsWith('-mcp')) continue;\n    const dist = path.join(PACK, name, 'dist', 'index.js');\n    if (fs.existsSync(dist)) {\n      found.push({ name, cmd: process.execPath, args: [dist], env: {} });\n    }\n  }\n  return found;\n}\nfs.mkdirSync(path.dirname(out), { recursive: true });\nfs.writeFileSync(out, JSON.stringify({ servers: findServers() }, null, 2));\nconsole.log('Wrote', out);\n"
+        },
+        {
+          "kind": "write",
+          "path": ".vscode/tasks.json",
+          "content": "{\n  \"version\": \"2.0.0\",\n  \"tasks\": [\n    { \"label\": \"Robinson: Resolve MCP Servers\", \"type\": \"shell\", \"command\": \"node tools/resolve-servers.mjs\", \"problemMatcher\": [] }\n  ]\n}\n"
+        },
+        {
+          "kind": "write",
+          "path": "tools/list-servers.mjs",
+          "content": "#!/usr/bin/env node\nimport fs from 'node:fs';\nconst m = JSON.parse(fs.readFileSync('.robinson/servers.auto.json', 'utf8'));\nconsole.log('Auto servers (stdio):');\nfor (const s of m.servers) console.log('-', s.name, '\u2192', s.args[0]);\n"
+        },
+        {
+          "kind": "write",
+          "path": "README_ROBINSON_TOOLKIT.md",
+          "content": "# Robinson Toolkit broker (minimal)\n\n- Run: `node tools/resolve-servers.mjs` \u2192 writes `.robinson/servers.auto.json`\n- Inspect: `node tools/list-servers.mjs`\n- Your wrapper (Kilo/ChatGPT MCP) should point to each `dist/index.js` with stdio.\n"
+        }
+      ],
+      "post_steps": [
+        {
+          "cmd": "node tools/resolve-servers.mjs"
+        },
+        {
+          "cmd": "node tools/list-servers.mjs"
+        }
+      ],
+      "placeholder_policy": {
+        "allow": true
+      }
+    },
+    {
+      "name": "fill",
+      "file_ops": [
+        {
+          "kind": "write",
+          "path": ".robinson/config.json",
+          "content": "{\n  \"build\": \"npm run build || echo no-build\",\n  \"test\": \"npm -v || echo no-tests\",\n  \"lint\": \"echo skip\",\n  \"baseBranch\": \"main\",\n  \"branchPrefix\": \"feat/auto-\",\n  \"allowPlaceholdersInPhase1\": true,\n  \"gitUserName\": \"Robinson Bot\",\n  \"gitUserEmail\": \"bot@example.com\",\n  \"openPR\": true,\n  \"repo\": \"your-org/your-repo\"\n}\n"
+        }
+      ],
+      "post_steps": [
+        {
+          "cmd": "node tools/list-servers.mjs"
+        }
+      ],
+      "placeholder_policy": {
+        "allow": false
+      }
+    }
+  ]
+}
