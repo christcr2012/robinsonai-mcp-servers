@@ -38,6 +38,7 @@ import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, estimateTaskCost, getModelConfig, COST_POLICY, requiresApproval, withinBudget } from './model-catalog.js';
 import { getSharedOllamaClient } from './ollama-client.js';
 import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinsonai/shared-llm';
+import { buildStrictSystemPrompt } from './prompt-builder.js';
 
 const server = new Server(
   {
@@ -1027,7 +1028,7 @@ async function handleExecuteVersatileTask(args: any) {
           const messages = [
             {
               role: 'system' as const,
-              content: `You are a ${taskType.replace('_', ' ')} expert. ${params.context || ''}`,
+              content: buildStrictSystemPrompt(taskType, params.context),
             },
             {
               role: 'user' as const,
@@ -1062,7 +1063,7 @@ async function handleExecuteVersatileTask(args: any) {
           };
         } else if (modelConfig.provider === 'claude') {
           // Use PAID Claude (Anthropic)
-          const systemPrompt = `You are a ${taskType.replace('_', ' ')} expert. ${params.context || ''}`;
+          const systemPrompt = buildStrictSystemPrompt(taskType, params.context);
 
           const response = await anthropic.messages.create({
             model: modelConfig.model,
@@ -1118,7 +1119,7 @@ async function handleExecuteVersatileTask(args: any) {
           const messages = [
             {
               role: 'system' as const,
-              content: `You are a ${taskType.replace('_', ' ')} expert. ${params.context || ''}`,
+              content: buildStrictSystemPrompt(taskType, params.context),
             },
             {
               role: 'user' as const,

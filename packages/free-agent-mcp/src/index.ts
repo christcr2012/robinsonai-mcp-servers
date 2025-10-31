@@ -44,6 +44,7 @@ import { StatsTracker } from './utils/stats-tracker.js';
 import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinsonai/shared-llm';
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, getModelConfig, estimateTaskCost } from './model-catalog.js';
+import { warmupAvailableModels } from './utils/model-warmup.js';
 
 /**
  * Main Autonomous Agent MCP Server
@@ -1125,6 +1126,11 @@ Generate the modified section now:`;
   }
 
   async run(): Promise<void> {
+    // Warm up models on startup to avoid cold start delays
+    warmupAvailableModels().catch(error => {
+      console.error('⚠️  Model warmup failed (non-fatal):', error);
+    });
+
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Autonomous Agent MCP server running on stdio');

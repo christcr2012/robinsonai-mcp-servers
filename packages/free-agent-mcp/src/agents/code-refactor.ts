@@ -7,6 +7,8 @@
 
 import { OllamaClient, GenerateOptions } from '../ollama-client.js';
 import { PromptBuilder } from '../utils/prompt-builder.js';
+import { iterateTask, PipelineResult } from '../pipeline/index.js';
+import { ValidationResult } from '../types/validation.js';
 
 export interface RefactorRequest {
   code: string;
@@ -28,6 +30,8 @@ export interface RefactorResult {
   model: string;
   tokensGenerated: number;
   timeMs: number;
+  validation?: ValidationResult;
+  refinementAttempts?: number;
 }
 
 export class CodeRefactor {
@@ -40,26 +44,69 @@ export class CodeRefactor {
   }
 
   /**
-   * Refactor code according to instructions
+   * Refactor code using the Synthesize-Execute-Critique-Refine pipeline
+   * This produces REAL, WORKING refactored code with hard quality gates
    */
   async refactor(request: RefactorRequest): Promise<RefactorResult> {
-    const prompt = this.promptBuilder.buildRefactorPrompt(request);
+    const startTime = Date.now();
 
-    const options: GenerateOptions = {
-      model: request.model,
-      complexity: 'medium',
-      temperature: 0.5, // Balanced for refactoring
-      maxTokens: 4096,
+    // Build specification for refactoring
+    const spec = `Refactor this code according to the following instructions:
+
+ORIGINAL CODE:
+${request.code}
+
+REFACTORING INSTRUCTIONS:
+${request.instructions}
+
+STYLE: ${request.style || 'balanced'}
+
+Requirements:
+- Maintain all existing functionality
+- Improve code structure and readability
+- Apply best practices and design patterns
+- Ensure all tests still pass
+- Document significant changes
+`;
+
+    // Run the pipeline with tuned parameters
+    const pipelineResult = await iterateTask(spec, {
+      maxAttempts: 5,
+      acceptThreshold: 0.70,
+      minCoverage: 70,
+      allowedLibraries: [
+        'fs', 'path', 'util', 'crypto', 'stream', 'events', 'buffer',
+        'lodash', 'axios', 'express', 'react', 'vue', 'next',
+        'jest', 'vitest', 'mocha', 'chai',
+        'typescript', '@types/*',
+      ],
+    });
+
+    const totalTimeMs = Date.now() - startTime;
+
+    // Extract refactored code from pipeline result
+    const mainFile = pipelineResult.files[0];
+    const code = mainFile?.content || request.code; // Fallback to original if failed
+
+    // Extract changes from pipeline verdict
+    const changes: Change[] = pipelineResult.verdict?.fix_plan?.map(fix => ({
+      type: fix.operation,
+      description: fix.brief,
+    })) || [];
+
+    // Convert pipeline validation to old format for compatibility
+    const validation: ValidationResult = {
+      valid: pipelineResult.ok,
+      score: pipelineResult.score * 100,
+      issues: pipelineResult.verdict?.explanations.root_cause ? [{
+        type: 'incomplete',
+        severity: 'error',
+        description: pipelineResult.verdict.explanations.root_cause,
+        suggestion: pipelineResult.verdict.explanations.minimal_fix,
+      }] : [],
     };
 
-    const result = await this.ollama.generate(prompt, options);
-
-    // Parse the refactored code and changes
-    const { code, changes } = this.parseRefactorResult(result.text);
-
     // Calculate credit savings
-    // Augment would use ~7,000 credits for refactoring
-    // We use ~400 credits (just for orchestration)
     const augmentCreditsUsed = 400;
     const creditsSaved = 7000 - augmentCreditsUsed;
 
@@ -68,9 +115,11 @@ export class CodeRefactor {
       changes,
       augmentCreditsUsed,
       creditsSaved,
-      model: result.model,
-      tokensGenerated: result.tokensGenerated,
-      timeMs: result.timeMs,
+      model: request.model || 'qwen2.5-coder:7b',
+      tokensGenerated: 0, // Pipeline doesn't expose token counts yet
+      timeMs: totalTimeMs,
+      validation,
+      refinementAttempts: pipelineResult.attempts,
     };
   }
 
