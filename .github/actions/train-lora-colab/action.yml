@@ -40,7 +40,13 @@ runs:
         echo "gist_url=$gist_url" >> $GITHUB_OUTPUT
         echo "📤 Uploaded SFT data to: $gist_url"
     
-    - name: Generate Colab notebook
+    - name: Copy Colab notebook template
+      shell: bash
+      run: |
+        cp .training/colab/AUTO_TRAIN_LORA.ipynb train_${{ inputs.role }}.ipynb
+
+    - name: Generate Colab notebook (fallback)
+      if: failure()
       shell: bash
       run: |
         cat > train_${{ inputs.role }}.ipynb <<'EOF'

@@ -32,7 +32,7 @@ export class AutoTrainMonitor {
   constructor(repoRoot: string) {
     this.repoRoot = repoRoot;
     this.statusFile = join(repoRoot, '.agent', 'training-status.json');
-    this.colabNotebook = join(repoRoot, 'colab', 'AUTO_TRAIN_LORA.ipynb');
+    this.colabNotebook = join(repoRoot, '.training', 'colab', 'AUTO_TRAIN_LORA.ipynb');
   }
 
   /**
