@@ -178,7 +178,7 @@ export class WebKnowledge {
       'body',
     ];
 
-    let contentElement: Element | null = null;
+    let contentElement: globalThis.Element | null = null;
     for (const selector of contentSelectors) {
       contentElement = document.querySelector(selector);
       if (contentElement) break;
@@ -194,7 +194,7 @@ export class WebKnowledge {
       .trim();
 
     // Generate summary (first N paragraphs)
-    const paragraphs = cleanText.split('\n').filter(p => p.trim().length > 50);
+    const paragraphs = cleanText.split('\n').filter((p: string) => p.trim().length > 50);
     const summary = paragraphs.slice(0, this.config.summarizeLength).join('\n\n');
 
     return {

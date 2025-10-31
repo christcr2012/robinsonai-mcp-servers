@@ -215,7 +215,20 @@ export class AutoTrainMonitor {
 /**
  * CLI
  */
-if (require.main === module) {
+// ES module check for direct execution
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Check if this file is being run directly
+const isMainModule = process.argv[1] && (
+  process.argv[1] === __filename ||
+  process.argv[1] === fileURLToPath(import.meta.url)
+);
+
+if (isMainModule) {
   const repoRoot = process.cwd();
   const monitor = new AutoTrainMonitor(repoRoot);
 
