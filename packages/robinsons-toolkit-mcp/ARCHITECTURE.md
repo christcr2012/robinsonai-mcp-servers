@@ -526,14 +526,50 @@ NEON_API_KEY=...
 
 Location: `%APPDATA%\Code\User\globalStorage\augment.vscode-augment\augment-global-state\mcpServers.json`
 
-**Proven Working Configuration (tested and verified):**
+Use one of these Windows-safe options:
+
+1) Absolute .cmd shim (preferred when globally linked)
 
 ```json
 {
   "type": "stdio",
   "name": "robinsons-toolkit",
-  "command": "npx",
-  "arguments": ["@robinsonai/robinsons-toolkit-mcp"],
+  "command": "C:\\nvm4w\\nodejs\\robinsons-toolkit-mcp.cmd",
+  "arguments": [],
+  "env": {
+    "GITHUB_TOKEN": "ghp_YOUR_GITHUB_TOKEN_HERE",
+    "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE",
+    "NEON_API_KEY": "napi_YOUR_NEON_API_KEY_HERE"
+  }
+}
+```
+
+2) Explicit node + dist entry (no global link required)
+
+```json
+{
+  "type": "stdio",
+  "name": "robinsons-toolkit",
+  "command": "C:\\Program Files\\nodejs\\node.exe",
+  "arguments": [
+    "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-toolkit-mcp\\dist\\index.js"
+  ],
+  "env": {
+    "GITHUB_TOKEN": "ghp_YOUR_GITHUB_TOKEN_HERE",
+    "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE",
+    "NEON_API_KEY": "napi_YOUR_NEON_API_KEY_HERE"
+  }
+}
+```
+
+3) npx fallback (use with caution; pin absolute npx shim)
+
+```json
+{
+  "type": "stdio",
+  "name": "robinsons-toolkit",
+  "command": "C:\\nvm4w\\nodejs\\npx.cmd",
+  "arguments": ["-y", "@robinsonai/robinsons-toolkit-mcp"],
   "env": {
     "GITHUB_TOKEN": "ghp_YOUR_GITHUB_TOKEN_HERE",
     "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE",
@@ -543,12 +579,11 @@ Location: `%APPDATA%\Code\User\globalStorage\augment.vscode-augment\augment-glob
 ```
 
 **Important Notes:**
-- ALWAYS use `npx` - NEVER use `node` (node does NOT work)
-- The package must be linked globally with `npm link` before use
-- Replace placeholder tokens with your actual API keys
-- This configuration has been tested and verified to work with 556 tools
-- The server must be built (`npm run build`) before use
-- VS Code must be reloaded after configuration changes
+- Prefer absolute executables; don’t rely on PATH inside the extension host.
+- Keep stdout clean (JSON-RPC only); send logs to stderr.
+- Build before running: `npm run build`.
+- Reload VS Code after configuration changes.
+- If startup is slow due to multiple servers, minimize heavy work during init.
 
 ### **Package.json**
 

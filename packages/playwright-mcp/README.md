@@ -87,6 +87,34 @@ npm link
 }
 ```
 
+Windows (VS Code Augment) – prefer absolute executables:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "C:\\nvm4w\\nodejs\\playwright-mcp.cmd",
+      "args": []
+    }
+  }
+}
+```
+
+Or explicit node + dist entry:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\playwright-mcp\\dist\\index.js"
+      ]
+    }
+  }
+}
+```
+
 ## 📖 Usage Examples
 
 ### Navigate and Extract

@@ -25,9 +25,9 @@ if (!API_KEY) {
 }
 
 if (OPENAI_ADMIN_KEY) {
-  console.log("✅ Using OpenAI Admin Key - All features enabled!");
+  console.error("✅ Using OpenAI Admin Key - All features enabled!");
 } else {
-  console.log("ℹ️  Using regular API Key - Enterprise features require admin key");
+  console.error("ℹ️  Using regular API Key - Enterprise features require admin key");
 }
 
 class OpenAIMCP {

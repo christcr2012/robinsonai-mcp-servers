@@ -53,3 +53,17 @@ secrets*
 augment-console-log.txt
 AUGMENT_FIX_SUMMARY.md
 SIGN_INTO_AUGMENT_NOW.md
+
+# Local Augment MCP import with secrets (do not commit)
+MCP_SERVERS_IMPORT.secrets.json
+
+# Config files with API keys (do not commit)
+AUGMENT_CODE_MCP_CONFIG.json
+AUGMENT_FIX_COMPLETE.json
+CORRECTED_AUGMENT_CONFIG.json
+CORRECT_AUGMENT_CONFIG.json
+WINDOWS_SAFE_MCP_CONFIG.json
+augment-mcp-config-FIXED.json
+test-openai-mcp-specifically.ps1
+AUGMENT_IMPORT_*.json
+AUGMENT_WORKING_CONFIG.json

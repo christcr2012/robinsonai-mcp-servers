@@ -310,15 +310,33 @@ export class OllamaClient {
 
   /**
    * Auto-start Ollama if not running (saves Augment credits!)
+   * Enhanced with better detection, configurable timeout, and exponential backoff
    */
   private async startOllama(): Promise<void> {
     console.error('🚀 Auto-starting Ollama...');
 
-    const ollamaPath = process.platform === 'win32'
-      ? 'C:\\Users\\chris\\AppData\\Local\\Programs\\Ollama\\ollama.exe'
-      : 'ollama';
+    // Get configurable timeout (default: 60 seconds)
+    const timeoutSeconds = parseInt(process.env.OLLAMA_START_TIMEOUT || '60', 10);
+
+    // Get Ollama path from environment or use defaults
+    const ollamaPath = process.env.OLLAMA_PATH || (
+      process.platform === 'win32'
+        ? 'C:\\Users\\chris\\AppData\\Local\\Programs\\Ollama\\ollama.exe'
+        : 'ollama'
+    );
 
     try {
+      // First, check if Ollama is already running (might be Windows service)
+      console.error('🔍 Checking if Ollama is already running...');
+      const isRunning = await pingOllama(2000);
+
+      if (isRunning) {
+        console.error('✅ Ollama is already running!');
+        return;
+      }
+
+      console.error(`🚀 Spawning Ollama process: ${ollamaPath}`);
+
       this.ollamaProcess = spawn(ollamaPath, ['serve'], {
         detached: true,
         stdio: 'ignore',
@@ -328,39 +346,95 @@ export class OllamaClient {
       this.ollamaProcess.unref();
       this.startedByUs = true;
 
-      console.error('⏳ Waiting for Ollama to be ready...');
+      console.error(`⏳ Waiting for Ollama to be ready (timeout: ${timeoutSeconds}s)...`);
 
-      // Wait up to 30 seconds
-      for (let i = 0; i < 30; i++) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      // Exponential backoff: 1s, 2s, 4s, 8s, then 1s intervals
+      const delays = [1000, 2000, 4000, 8000];
+      let totalWait = 0;
+      let attemptCount = 0;
+
+      while (totalWait < timeoutSeconds * 1000) {
+        const delay = attemptCount < delays.length ? delays[attemptCount] : 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        totalWait += delay;
+        attemptCount++;
+
         try {
-          await this.ollama.list();
-          console.error('✅ Ollama ready!');
-          return;
+          const ready = await pingOllama(2000);
+          if (ready) {
+            console.error(`✅ Ollama ready after ${totalWait}ms!`);
+            return;
+          }
         } catch {
-          // Not ready yet
+          // Not ready yet, continue waiting
+          console.error(`⏳ Still waiting... (${Math.floor(totalWait / 1000)}s / ${timeoutSeconds}s)`);
         }
       }
 
-      throw new Error('Ollama started but not ready within 30 seconds');
+      throw new Error(`Ollama started but not ready within ${timeoutSeconds} seconds. Try increasing OLLAMA_START_TIMEOUT.`);
     } catch (error: any) {
+      // Better error messages
+      if (error.code === 'ENOENT') {
+        throw new Error(
+          `Ollama not found at: ${ollamaPath}\n` +
+          `Please install Ollama from https://ollama.com or set OLLAMA_PATH environment variable.`
+        );
+      }
+
+      if (error.code === 'EADDRINUSE' || error.message?.includes('address already in use')) {
+        throw new Error(
+          `Port 11434 is already in use. Another Ollama instance may be running.\n` +
+          `Try: pkill ollama (Linux/Mac) or taskkill /F /IM ollama.exe (Windows)`
+        );
+      }
+
       throw new Error(`Failed to auto-start Ollama: ${error.message}`);
     }
   }
 
   /**
    * Ensure Ollama is running (auto-start if needed)
+   * Enhanced with better health checking using pingOllama
    */
   async ensureRunning(): Promise<void> {
     try {
-      // Quick health check
-      await this.ollama.list();
-    } catch (error) {
-      // Ollama not running
+      // Use pingOllama for more reliable health check
+      const isRunning = await pingOllama(5000);
+
+      if (isRunning) {
+        return; // Already running, all good!
+      }
+
+      // Not running, try to start if auto-start enabled
       if (this.autoStart) {
         await this.startOllama();
       } else {
-        throw new Error('Ollama is not running. Please start Ollama with: ollama serve');
+        throw new Error(
+          'Ollama is not running. Please start Ollama with: ollama serve\n' +
+          'Or enable auto-start by setting autoStart=true in constructor.'
+        );
+      }
+    } catch (error: any) {
+      // If pingOllama failed, try auto-start
+      if (this.autoStart && !error.message?.includes('auto-start')) {
+        await this.startOllama();
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Cleanup spawned Ollama process on shutdown
+   */
+  async cleanup(): Promise<void> {
+    if (this.ollamaProcess && this.startedByUs) {
+      console.error('🧹 Cleaning up spawned Ollama process...');
+      try {
+        this.ollamaProcess.kill();
+        console.error('✅ Ollama process terminated');
+      } catch (error: any) {
+        console.error(`⚠️ Failed to kill Ollama process: ${error.message}`);
       }
     }
   }

@@ -185,33 +185,34 @@ cd ../rad-crawler-mcp && npm link
 
 ### **2. Configure Augment Code**
 
-Add to VS Code settings (`settings.json`):
+Add to VS Code settings (`settings.json`). On Windows with Augment, prefer absolute executables (don’t rely on PATH) and keep stdout clean.
+
+Option A: Absolute .cmd shims (requires `npm link` for each package)
 
 ```json
 {
   "augment.mcpServers": {
     "architect-agent": {
-      "command": "npx",
-      "args": ["architect-mcp"],
+      "command": "C:\\nvm4w\\nodejs\\architect-mcp.cmd",
+      "args": [],
       "env": {
         "OLLAMA_BASE_URL": "http://localhost:11434",
         "ARCHITECT_MODEL": "qwen2.5:3b"
       }
     },
     "autonomous-agent": {
-      "command": "npx",
-      "args": ["autonomous-agent-mcp"],
-      "env": {
-        "OLLAMA_BASE_URL": "http://localhost:11434"
-      }
+      "command": "C:\\nvm4w\\nodejs\\autonomous-agent-mcp.cmd",
+      "args": [],
+      "env": { "OLLAMA_BASE_URL": "http://localhost:11434" }
     },
     "credit-optimizer": {
-      "command": "npx",
-      "args": ["credit-optimizer-mcp"]
+      "command": "C:\\nvm4w\\nodejs\\credit-optimizer-mcp.cmd",
+      "args": [],
+      "env": { "CREDIT_OPTIMIZER_SKIP_INDEX": "1" }
     },
     "robinsons-toolkit": {
-      "command": "npx",
-      "args": ["robinsons-toolkit-mcp"],
+      "command": "C:\\nvm4w\\nodejs\\robinsons-toolkit-mcp.cmd",
+      "args": [],
       "env": {
         "GITHUB_TOKEN": "your-token",
         "VERCEL_TOKEN": "your-token",
@@ -221,6 +222,39 @@ Add to VS Code settings (`settings.json`):
   }
 }
 ```
+
+Option B: Explicit node + dist entry (no global link required)
+
+```json
+{
+  "augment.mcpServers": {
+    "architect-agent": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": ["C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\architect-mcp\\dist\\index.js"],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "ARCHITECT_MODEL": "qwen2.5:3b"
+      }
+    }
+  }
+}
+```
+
+Option C (fallback): npx via absolute shim (may be slower, can emit stdout noise)
+
+```json
+{
+  "augment.mcpServers": {
+    "architect-agent": {
+      "command": "C:\\nvm4w\\nodejs\\npx.cmd",
+      "args": ["-y", "@robinsonai/architect-mcp"],
+      "env": { "OLLAMA_BASE_URL": "http://localhost:11434" }
+    }
+  }
+}
+```
+
+Tip: Use `node tools/generate-augment-mcp-import.mjs` to generate Windows-safe import JSONs (including an optional secrets file). 
 
 ### **3. Install Ollama Models**
 

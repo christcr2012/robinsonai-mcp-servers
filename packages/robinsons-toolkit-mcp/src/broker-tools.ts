@@ -13,7 +13,7 @@ import { Tool } from '@modelcontextprotocol/sdk/types.js';
 export const BROKER_TOOLS: Tool[] = [
   {
     name: 'toolkit_list_categories',
-    description: 'List all available integration categories (GitHub, Vercel, Neon, Upstash, Google). Returns category names, descriptions, and tool counts.',
+    description: 'List all available integration categories (GitHub, Vercel, Neon, Upstash, Google, OpenAI). Returns category names, descriptions, and tool counts.',
     inputSchema: {
       type: 'object',
       properties: {},
@@ -27,8 +27,8 @@ export const BROKER_TOOLS: Tool[] = [
       properties: {
         category: {
           type: 'string',
-          description: 'Category name (github, vercel, neon, upstash, google)',
-          enum: ['github', 'vercel', 'neon', 'upstash', 'google'],
+          description: 'Category name (github, vercel, neon, upstash, google, openai)',
+          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai'],
         },
         limit: {
           type: 'number',
@@ -50,8 +50,8 @@ export const BROKER_TOOLS: Tool[] = [
       properties: {
         category: {
           type: 'string',
-          description: 'Category name (github, vercel, neon, upstash, google)',
-          enum: ['github', 'vercel', 'neon', 'upstash', 'google'],
+          description: 'Category name (github, vercel, neon, upstash, google, openai)',
+          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai'],
         },
         tool_name: {
           type: 'string',
@@ -87,8 +87,8 @@ export const BROKER_TOOLS: Tool[] = [
       properties: {
         category: {
           type: 'string',
-          description: 'Category name (github, vercel, neon, upstash, google)',
-          enum: ['github', 'vercel', 'neon', 'upstash', 'google'],
+          description: 'Category name (github, vercel, neon, upstash, google, openai)',
+          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai'],
         },
         tool_name: {
           type: 'string',
@@ -100,6 +100,14 @@ export const BROKER_TOOLS: Tool[] = [
         },
       },
       required: ['category', 'tool_name', 'arguments'],
+    },
+  },
+  {
+    name: 'toolkit_health_check',
+    description: 'Check MCP server health, connection status, and available integrations. Returns server status, loaded categories, and environment variable status.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
     },
   },
 ];

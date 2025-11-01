@@ -1,5 +1,5 @@
 {
-  "name": "@robinsonai/sequential-thinking-mcp",
+  "name": "@robinson_ai_systems/sequential-thinking-mcp",
   "version": "1.0.0",
   "description": "Enhanced Sequential Thinking MCP server with parallel and reflective thinking capabilities",
   "type": "module",

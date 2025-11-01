@@ -173,6 +173,42 @@ Or if using the monorepo bin:
 }
 ```
 
+Windows (VS Code Augment) – prefer absolute executables:
+
+```json
+{
+  "mcpServers": {
+    "rad-crawler-mcp": {
+      "command": "C:\\nvm4w\\nodejs\\rad-crawler-mcp.cmd",
+      "args": [],
+      "env": {
+        "NEON_DATABASE_URL": "postgres://...",
+        "OLLAMA_BASE_URL": "http://localhost:11434"
+      }
+    }
+  }
+}
+```
+
+Or explicit node + dist entry (no global link required):
+
+```json
+{
+  "mcpServers": {
+    "rad-crawler-mcp": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\rad-crawler-mcp\\dist\\index.js"
+      ],
+      "env": {
+        "NEON_DATABASE_URL": "postgres://...",
+        "OLLAMA_BASE_URL": "http://localhost:11434"
+      }
+    }
+  }
+}
+```
+
 ## Step 9: Verify in Augment
 
 Restart Augment and verify RAD Crawler tools are available:

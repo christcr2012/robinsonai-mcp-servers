@@ -166,6 +166,35 @@ npm install @robinsonai/neon-mcp
 }
 ```
 
+Windows (VS Code Augment) – prefer absolute executables:
+
+```json
+{
+  "mcpServers": {
+    "neon": {
+      "command": "C:\\nvm4w\\nodejs\\neon-mcp.cmd",
+      "args": ["YOUR_NEON_API_KEY_HERE"]
+    }
+  }
+}
+```
+
+Or explicit node + dist entry (no global link required):
+
+```json
+{
+  "mcpServers": {
+    "neon": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\neon-mcp\\dist\\index.js",
+        "YOUR_NEON_API_KEY_HERE"
+      ]
+    }
+  }
+}
+```
+
 3. Replace `YOUR_NEON_API_KEY_HERE` with your actual Neon API key
 
 4. Restart your MCP client to load the 145 tools

@@ -85,6 +85,34 @@ npm run worker
 }
 ```
 
+Windows (VS Code Augment) – prefer absolute executables:
+
+```json
+{
+  "mcpServers": {
+    "rad-crawler-mcp": {
+      "command": "C:\\nvm4w\\nodejs\\rad-crawler-mcp.cmd",
+      "args": []
+    }
+  }
+}
+```
+
+Or explicit node + dist entry (no global link required):
+
+```json
+{
+  "mcpServers": {
+    "rad-crawler-mcp": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\rad-crawler-mcp\\dist\\index.js"
+      ]
+    }
+  }
+}
+```
+
 ## MCP Tools
 
 ### `plan_crawl`

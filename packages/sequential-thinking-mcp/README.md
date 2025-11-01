@@ -50,6 +50,34 @@ npm link
 }
 ```
 
+Windows (VS Code Augment) – prefer absolute executables:
+
+```json
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "C:\\nvm4w\\nodejs\\sequential-thinking-mcp.cmd",
+      "args": []
+    }
+  }
+}
+```
+
+Or explicit node + dist entry:
+
+```json
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\sequential-thinking-mcp\\dist\\index.js"
+      ]
+    }
+  }
+}
+```
+
 ## 📖 Usage Examples
 
 ### Sequential Thinking

@@ -156,9 +156,9 @@ delegate_code_generation_free-agent-mcp({
 **When to use:** GitHub, Vercel, Neon, Upstash, Google Workspace operations
 
 **Broker Pattern (IMPORTANT):**
-1. **Discover:** `toolkit_discover_robinsons-toolkit-mcp({ query: "create repo" })`
-2. **Get Schema:** `toolkit_get_tool_schema_robinsons-toolkit-mcp({ category: "github", tool_name: "github_create_repo" })`
-3. **Execute:** `toolkit_call_robinsons-toolkit-mcp({ category: "github", tool_name: "github_create_repo", arguments: {...} })`
+1. **Discover:** `toolkit_discover({ query: "create repo" })`
+2. **Get Schema:** `toolkit_get_tool_schema({ category: "github", tool_name: "github_create_repo" })`
+3. **Execute:** `toolkit_call({ category: "github", tool_name: "github_create_repo", arguments: {...} })`
 
 **Categories:**
 - **github** (241 tools) - Repos, issues, PRs, workflows, releases
@@ -170,10 +170,10 @@ delegate_code_generation_free-agent-mcp({
 **Example:**
 ```javascript
 // Find the right tool
-toolkit_discover_robinsons-toolkit-mcp({ query: "deploy vercel", limit: 5 })
+toolkit_discover({ query: "deploy vercel", limit: 5 })
 
 // Execute it
-toolkit_call_robinsons-toolkit-mcp({
+toolkit_call({
   category: "vercel",
   tool_name: "vercel_create_deployment",
   arguments: { projectId: "my-project", ... }

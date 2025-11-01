@@ -150,5 +150,41 @@ export class BrokerHandlers {
     // This delegates to the existing tool handlers in UnifiedToolkit
     return await executeToolFn(tool_name, toolArgs);
   }
+
+  /**
+   * toolkit_health_check
+   * Check MCP server health and connection status
+   */
+  async healthCheck(): Promise<any> {
+    const categories = this.registry.getCategories();
+    const envStatus = {
+      GITHUB_TOKEN: !!process.env.GITHUB_TOKEN,
+      VERCEL_TOKEN: !!process.env.VERCEL_TOKEN,
+      NEON_API_KEY: !!process.env.NEON_API_KEY,
+      UPSTASH_REDIS_REST_URL: !!process.env.UPSTASH_REDIS_REST_URL,
+      UPSTASH_REDIS_REST_TOKEN: !!process.env.UPSTASH_REDIS_REST_TOKEN,
+      GOOGLE_SERVICE_ACCOUNT_KEY: !!process.env.GOOGLE_SERVICE_ACCOUNT_KEY,
+      GOOGLE_USER_EMAIL: !!process.env.GOOGLE_USER_EMAIL,
+    };
+
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          status: 'healthy',
+          server: 'robinsons-toolkit-mcp',
+          version: '1.0.0',
+          timestamp: new Date().toISOString(),
+          categories: categories.map(cat => ({
+            name: cat.name,
+            enabled: cat.enabled,
+            toolCount: cat.toolCount,
+          })),
+          environment: envStatus,
+          totalTools: this.registry.getTotalToolCount(),
+        }, null, 2),
+      }],
+    };
+  }
 }
 
