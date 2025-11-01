@@ -91,13 +91,71 @@ stmt.all(
 
 ---
 
+## ✅ COMPLETED (Continued)
+
+### **Phase 3: Medium Priority Enhancements**
+
+#### **✅ Enhancement #2: Add Cost Alerts** (30 min)
+**Status:** COMPLETE
+**Time:** 20 minutes
+**Version:** 0.2.2 → 0.2.3
+
+**Problem:**
+- No warnings when approaching monthly budget
+- Users could accidentally exceed budget
+
+**Solution:**
+```typescript
+// Budget alerts (only alert once per threshold)
+const alertsSent = new Set<string>();
+
+function checkBudgetAlerts(): void {
+  const policy = getPolicy();
+  const monthlySpend = getMonthlySpend();
+  const percentage = (monthlySpend / policy.MONTHLY_BUDGET) * 100;
+
+  if (percentage >= 95 && !alertsSent.has('95%')) {
+    console.error('🚨 CRITICAL: 95% of monthly budget used!');
+    // ... alert details
+  } else if (percentage >= 90 && !alertsSent.has('90%')) {
+    console.error('🚨 WARNING: 90% of monthly budget used!');
+  } else if (percentage >= 80 && !alertsSent.has('80%')) {
+    console.error('⚠️  WARNING: 80% of monthly budget used!');
+  } else if (percentage >= 50 && !alertsSent.has('50%')) {
+    console.error('ℹ️  NOTICE: 50% of monthly budget used.');
+  }
+}
+```
+
+**Changes:**
+- File: `packages/paid-agent-mcp/src/index.ts`
+- Added `checkBudgetAlerts()` function with 4 thresholds (50%, 80%, 90%, 95%)
+- Called after every `recordSpend()` (6 locations)
+- Alerts only fire once per threshold
+- Built and published v0.2.3
+
+**Testing:**
+```javascript
+// When 50% budget used: "ℹ️  NOTICE: 50% of monthly budget used."
+// When 80% budget used: "⚠️  WARNING: 80% of monthly budget used!"
+// When 90% budget used: "🚨 WARNING: 90% of monthly budget used!"
+// When 95% budget used: "🚨 CRITICAL: 95% of monthly budget used!"
+```
+
+**Expected Impact:**
+- ✅ Prevents accidental budget overruns
+- ✅ Proactive cost management
+- ✅ Suggests switching to FREE agent when approaching limit
+
+---
+
 ## 🔄 IN PROGRESS
 
 ### **Phase 1: Critical Fixes (Continued)**
 
 #### **⏳ Fix #2: Update Ollama Model Config** (5 min)
-**Status:** PENDING  
-**Priority:** HIGH  
+**Status:** PENDING (User-side config change)
+**Priority:** HIGH
 
 **Problem:**
 - Config expects models that don't exist:
@@ -366,9 +424,9 @@ private async ensureRunning(): Promise<void> {
 |-------|-------|-----------|-----------|------------|----------------|
 | **Phase 1** | 2 | 1 | 1 | 15 min | 5 min |
 | **Phase 2** | 1 | 0 | 1 | 0 min | 45 min |
-| **Phase 3** | 3 | 0 | 3 | 0 min | 2.5 hours |
+| **Phase 3** | 3 | 1 | 2 | 20 min | 2 hours |
 | **Phase 4** | 3 | 0 | 3 | 0 min | 4 hours |
-| **TOTAL** | 9 | 1 | 8 | 15 min | 7.5 hours |
+| **TOTAL** | 9 | 2 | 7 | 35 min | 6.75 hours |
 
 ---
 
