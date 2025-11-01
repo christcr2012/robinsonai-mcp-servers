@@ -1,0 +1,18 @@
+[
+  {
+    "type": "stdio",
+    "name": "robinsons-toolkit-mcp",
+    "command": "C:\\nvm4w\\nodejs\\robinsons-toolkit-mcp.cmd",
+    "arguments": "",
+    "useShellInterpolation": true,
+    "env": {
+      "GITHUB_TOKEN": "${env:GITHUB_TOKEN}",
+      "VERCEL_TOKEN": "${env:VERCEL_TOKEN}",
+      "NEON_API_KEY": "${env:NEON_API_KEY}",
+      "UPSTASH_REDIS_REST_URL": "${env:UPSTASH_REDIS_REST_URL}",
+      "UPSTASH_REDIS_REST_TOKEN": "${env:UPSTASH_REDIS_REST_TOKEN}",
+      "GOOGLE_SERVICE_ACCOUNT_KEY": "${env:GOOGLE_SERVICE_ACCOUNT_KEY}",
+      "GOOGLE_USER_EMAIL": "${env:GOOGLE_USER_EMAIL}"
+    }
+  }
+]

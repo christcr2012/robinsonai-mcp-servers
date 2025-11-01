@@ -1,0 +1,14 @@
+[
+  {
+    "type": "stdio",
+    "name": "paid-agent-mcp",
+    "command": "C:\\nvm4w\\nodejs\\paid-agent-mcp.cmd",
+    "arguments": "",
+    "useShellInterpolation": true,
+    "env": {
+      "OPENAI_API_KEY": "${env:OPENAI_API_KEY}",
+      "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}",
+      "MAX_WORKER_CONCURRENCY": "${env:MAX_WORKER_CONCURRENCY}"
+    }
+  }
+]

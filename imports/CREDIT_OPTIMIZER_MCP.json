@@ -1,0 +1,14 @@
+[
+  {
+    "type": "stdio",
+    "name": "credit-optimizer-mcp",
+    "command": "C:\\nvm4w\\nodejs\\credit-optimizer-mcp.cmd",
+    "arguments": "",
+    "useShellInterpolation": true,
+    "env": {
+      "AUGMENT_CREDITS_PER_MONTH": "${env:AUGMENT_CREDITS_PER_MONTH}",
+      "AUGMENT_COST_PER_MONTH": "${env:AUGMENT_COST_PER_MONTH}",
+      "OPTIMIZER_DB": "${env:OPTIMIZER_DB}"
+    }
+  }
+]
