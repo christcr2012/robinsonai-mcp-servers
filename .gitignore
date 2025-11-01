@@ -67,3 +67,10 @@ augment-mcp-config-FIXED.json
 test-openai-mcp-specifically.ps1
 AUGMENT_IMPORT_*.json
 AUGMENT_WORKING_CONFIG.json
+AUGGIE_CLI_CONFIG.json
+FIX_MCP_SERVERS_COMPLETE.bat
+Fix-MCP-Servers.ps1
+SETUP_STATUS_REPORT.md
+update-augment-settings.ps1
+test-mcp-servers.mjs
+test-standalone-openai.mjs
