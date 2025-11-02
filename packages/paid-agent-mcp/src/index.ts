@@ -1831,9 +1831,8 @@ async function handleExecuteWithQualityGates(args: any) {
 
     const result = await iterateTask(spec, config);
 
-    // Calculate actual cost (will be tracked by model calls)
-    // TODO: Track actual cost from OpenAI/Claude API calls
-    const actualCost = 0; // Placeholder - will be implemented with provider integration
+    // Get actual cost from pipeline result
+    const actualCost = result.totalCost || 0;
 
     return {
       content: [
@@ -1850,6 +1849,7 @@ async function handleExecuteWithQualityGates(args: any) {
               total: actualCost,
               currency: 'USD',
               note: 'PAID - OpenAI/Claude with quality gates pipeline',
+              breakdown: result.costBreakdown,
             },
           }, null, 2),
         },

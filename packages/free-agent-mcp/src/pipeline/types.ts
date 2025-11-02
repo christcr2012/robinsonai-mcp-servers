@@ -32,6 +32,9 @@ export interface GenResult {
 
   /** Optional notes from the model about known gaps or decisions */
   notes?: string;
+
+  /** Cost of this generation (from LLM API) */
+  cost?: number;
 }
 
 /**
@@ -119,6 +122,9 @@ export interface JudgeVerdict {
     operation: 'edit' | 'add' | 'remove';
     brief: string;
   }>;
+
+  /** Cost of this judgment (from LLM API) */
+  cost?: number;
 }
 
 /**
@@ -173,24 +179,34 @@ export interface PipelineConfig {
 export interface PipelineResult {
   /** Did the pipeline succeed? */
   ok: boolean;
-  
+
   /** Final files (best attempt) */
   files: Array<{
     path: string;
     content: string;
   }>;
-  
+
   /** Final weighted score */
   score: number;
-  
+
   /** Number of refinement attempts */
   attempts: number;
-  
+
   /** Final verdict */
   verdict?: JudgeVerdict;
-  
+
   /** Execution report from final attempt */
   report?: ExecReport;
+
+  /** Total cost from all LLM calls */
+  totalCost?: number;
+
+  /** Cost breakdown by stage */
+  costBreakdown?: {
+    synthesize: number;
+    judge: number;
+    refine: number;
+  };
 }
 
 /**

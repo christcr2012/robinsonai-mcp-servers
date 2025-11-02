@@ -56,15 +56,15 @@ function generateImportPathTest(
 describe('Import Path Conventions', () => {
   it('should use correct import paths', () => {
     const files = ${JSON.stringify(files.map(f => ({ path: f.path, content: f.content })), null, 2)};
-    
+
     for (const file of files) {
       const imports = extractImports(file.content);
-      
+
       for (const imp of imports) {
         // Check for relative imports going up too many levels
         const upLevels = (imp.match(/\\.\\./g) || []).length;
         expect(upLevels).toBeLessThanOrEqual(2);
-        
+
         // Check for absolute imports from src
         if (imp.startsWith('src/')) {
           fail(\`File \${file.path} uses absolute import '\${imp}'. Use relative imports or path aliases.\`);
@@ -73,16 +73,6 @@ describe('Import Path Conventions', () => {
     }
   });
 });
-
-function extractImports(content: string): string[] {
-  const imports: string[] = [];
-  const importRegex = /import\\s+.*?from\\s+['"]([^'"]+)['"]/g;
-  let match;
-  while ((match = importRegex.exec(content)) !== null) {
-    imports.push(match[1]);
-  }
-  return imports;
-}
 `;
 
   return {
@@ -189,23 +179,23 @@ describe('Layering Rules', () => {
   it('should respect layer boundaries', () => {
     const files = ${JSON.stringify(files.map(f => ({ path: f.path, content: f.content })), null, 2)};
     const layers = ${JSON.stringify(brief.layering.layers, null, 2)};
-    
+
     for (const file of files) {
       // Determine file's layer
       const fileLayer = layers.find(layer => file.path.includes(layer.name));
       if (!fileLayer) continue;
-      
+
       // Extract imports
       const imports = extractImports(file.content);
-      
+
       for (const imp of imports) {
         // Skip external imports
         if (!imp.startsWith('.') && !imp.startsWith('/')) continue;
-        
+
         // Check if import violates layer rules
         const importedLayer = layers.find(layer => imp.includes(layer.name));
         if (!importedLayer) continue;
-        
+
         if (!fileLayer.canImport.includes(importedLayer.name)) {
           fail(\`File \${file.path} in layer '\${fileLayer.name}' cannot import from layer '\${importedLayer.name}'\`);
         }
@@ -213,16 +203,6 @@ describe('Layering Rules', () => {
     }
   });
 });
-
-function extractImports(content: string): string[] {
-  const imports: string[] = [];
-  const importRegex = /import\\s+.*?from\\s+['"]([^'"]+)['"]/g;
-  let match;
-  while ((match = importRegex.exec(content)) !== null) {
-    imports.push(match[1]);
-  }
-  return imports;
-}
 `;
 
   return {
@@ -292,11 +272,22 @@ export function generateConventionTestFile(
 
   const testFile = `/**
  * Convention Tests - Auto-generated
- * 
+ *
  * These tests ensure generated code follows repository conventions.
  */
 
 import { describe, it, expect } from '@jest/globals';
+
+// Helper function used by multiple tests
+function extractImports(content: string): string[] {
+  const imports: string[] = [];
+  const importRegex = /import\\s+.*?from\\s+['"]([^'"]+)['"]/g;
+  let match;
+  while ((match = importRegex.exec(content)) !== null) {
+    imports.push(match[1]);
+  }
+  return imports;
+}
 
 ${tests.map(t => t.code).join('\n\n')}
 `;

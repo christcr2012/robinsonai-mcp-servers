@@ -117,6 +117,7 @@ export async function generateCodeAndTests(
     });
 
     const result = parseCoderResponse(llmResult.text);
+    result.cost = llmResult.cost || 0;
     console.log(`[Synthesize] Success! Cost: $${llmResult.cost?.toFixed(4) || '0.0000'}`);
     return result;
   } catch (error) {

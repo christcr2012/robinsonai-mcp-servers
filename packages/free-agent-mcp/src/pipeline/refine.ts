@@ -39,6 +39,7 @@ export async function applyFixPlan(
     });
 
     const result = parseFixerResponse(llmResult.text);
+    result.cost = llmResult.cost || 0;
     console.log(`[Refine] Success! Cost: $${llmResult.cost?.toFixed(4) || '0.0000'}`);
     return result;
   } catch (error) {

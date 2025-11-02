@@ -48,6 +48,7 @@ export async function judgeCode(input: JudgeInput, genResult?: GenResult, config
 
     const verdict = parseJudgeResponse(llmResult.text, input.signals);
     verdict.scores.conventions = conventionScore;
+    verdict.cost = llmResult.cost || 0;
     console.log(`[Judge] Success! Cost: $${llmResult.cost?.toFixed(4) || '0.0000'}`);
     return verdict;
   } catch (error) {

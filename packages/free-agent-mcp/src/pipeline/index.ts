@@ -41,6 +41,10 @@ export async function iterateTask(
   let currentSpec = spec;
   let previousVerdict: JudgeVerdict | undefined;
 
+  // Track costs
+  let totalCost = 0;
+  const costBreakdown = { synthesize: 0, judge: 0, refine: 0 };
+
   // Check if Docker is available once at the start
   const dockerAvailable = await isDockerAvailable();
   if (dockerAvailable) {
@@ -56,12 +60,18 @@ export async function iterateTask(
     console.log('  📝 Synthesizing code and tests...');
     const genResult = await generateCodeAndTests(currentSpec, config, previousVerdict);
 
+    // Track cost
+    if (genResult.cost) {
+      totalCost += genResult.cost;
+      costBreakdown.synthesize += genResult.cost;
+    }
+
     // 2. EXECUTE: Run in sandbox (Docker if available, local otherwise)
     console.log('  🏃 Executing in sandbox...');
     const report = dockerAvailable
       ? await runDockerSandboxPipeline(genResult, config)
       : await runSandboxPipeline(genResult, config);
-    
+
     // 3. CRITIQUE: Judge the results
     console.log('  ⚖️  Judging quality...');
     const judgeInput: JudgeInput = {
@@ -76,8 +86,15 @@ export async function iterateTask(
       },
       modelNotes: genResult.notes ?? '',
     };
-    
+
     const verdict = await judgeCode(judgeInput, genResult, config);
+
+    // Track cost
+    if (verdict.cost) {
+      totalCost += verdict.cost;
+      costBreakdown.judge += verdict.cost;
+    }
+
     const score = calculateWeightedScore(verdict.scores, config.weights);
     
     console.log(`  📊 Score: ${(score * 100).toFixed(1)}% (threshold: ${(config.acceptThreshold ?? DEFAULT_PIPELINE_CONFIG.acceptThreshold) * 100}%)`);
@@ -91,6 +108,7 @@ export async function iterateTask(
     // Check if we meet acceptance criteria
     if (meetsAcceptanceCriteria(verdict, config)) {
       console.log('  ✅ Accepted!');
+      console.log(`  💰 Total cost: $${totalCost.toFixed(4)}`);
       return {
         ok: true,
         files: genResult.files,
@@ -98,6 +116,8 @@ export async function iterateTask(
         attempts: attempt,
         verdict,
         report,
+        totalCost,
+        costBreakdown,
       };
     }
     
@@ -112,13 +132,16 @@ export async function iterateTask(
   // Return best attempt
   console.log(`\n❌ Failed to meet acceptance criteria after ${maxAttempts} attempts`);
   console.log(`  📊 Best score: ${(best!.score * 100).toFixed(1)}%`);
-  
+  console.log(`  💰 Total cost: $${totalCost.toFixed(4)}`);
+
   return {
     ok: false,
     files: best?.files ?? [],
     score: best?.score ?? 0,
     attempts: maxAttempts,
     verdict: best?.verdict,
+    totalCost,
+    costBreakdown,
   };
 }
 
