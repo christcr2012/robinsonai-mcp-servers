@@ -326,36 +326,44 @@ async function runSecurityChecks(
     }
   }
   
-  // Check import allowlist
+  // Check import allowlist (only in src/, not node_modules)
   const allowedLibs = config.allowedLibraries || DEFAULT_PIPELINE_CONFIG.allowedLibraries;
-  const files = fs.readdirSync(sandboxDir, { recursive: true }) as string[];
-  
-  for (const file of files) {
-    if (!file.endsWith('.ts') && !file.endsWith('.js')) continue;
-    
-    const filePath = path.join(sandboxDir, file);
-    const content = fs.readFileSync(filePath, 'utf-8');
-    
-    // Check imports
-    const importRegex = /import\s+.*\s+from\s+['"]([^'"]+)['"]/g;
-    let match;
-    
-    while ((match = importRegex.exec(content)) !== null) {
-      const importPath = match[1];
-      
-      // Skip relative imports
-      if (importPath.startsWith('.')) continue;
-      
-      // Check if allowed
-      const isAllowed = allowedLibs.some(lib => {
-        if (lib.endsWith('/*')) {
-          return importPath.startsWith(lib.slice(0, -2));
+  const srcDir = path.join(sandboxDir, 'src');
+
+  if (fs.existsSync(srcDir)) {
+    const files = fs.readdirSync(srcDir, { recursive: true }) as string[];
+
+    for (const file of files) {
+      if (!file.endsWith('.ts') && !file.endsWith('.js')) continue;
+
+      const filePath = path.join(srcDir, file);
+
+      // Skip if not a file (could be directory)
+      if (!fs.statSync(filePath).isFile()) continue;
+
+      const content = fs.readFileSync(filePath, 'utf-8');
+
+      // Check imports
+      const importRegex = /import\s+.*\s+from\s+['"]([^'"]+)['"]/g;
+      let match;
+
+      while ((match = importRegex.exec(content)) !== null) {
+        const importPath = match[1];
+
+        // Skip relative imports
+        if (importPath.startsWith('.')) continue;
+
+        // Check if allowed
+        const isAllowed = allowedLibs.some(lib => {
+          if (lib.endsWith('/*')) {
+            return importPath.startsWith(lib.slice(0, -2));
+          }
+          return importPath === lib || importPath.startsWith(`${lib}/`);
+        });
+
+        if (!isAllowed) {
+          violations.push(`Disallowed import: ${importPath} in src/${file}`);
         }
-        return importPath === lib || importPath.startsWith(`${lib}/`);
-      });
-      
-      if (!isAllowed) {
-        violations.push(`Disallowed import: ${importPath} in ${file}`);
       }
     }
   }

@@ -178,7 +178,12 @@ function generateLayeringTest(
 describe('Layering Rules', () => {
   it('should respect layer boundaries', () => {
     const files = ${JSON.stringify(files.map(f => ({ path: f.path, content: f.content })), null, 2)};
-    const layers = ${JSON.stringify(brief.layering.layers, null, 2)};
+    const layers = ${JSON.stringify(brief.layering?.layers || [], null, 2)};
+
+    // Skip if no layers defined
+    if (!layers || layers.length === 0) {
+      return;
+    }
 
     for (const file of files) {
       // Determine file's layer
