@@ -429,6 +429,15 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: 'boolean',
               description: 'Auto-generate and use Project Brief for repo-native code (default: true)',
             },
+            provider: {
+              type: 'string',
+              enum: ['openai', 'claude', 'ollama'],
+              description: 'Model provider to use (default: openai). Use "ollama" only if you want FREE local models.',
+            },
+            model: {
+              type: 'string',
+              description: 'Specific model to use (default: gpt-4o for OpenAI, claude-3-5-sonnet-20241022 for Claude, qwen2.5-coder:7b for Ollama)',
+            },
           },
           required: ['task', 'context'],
         },
@@ -1806,18 +1815,25 @@ async function handleExecuteWithQualityGates(args: any) {
       spec += `\n\nProject Brief:\n${JSON.stringify(brief, null, 2)}`;
     }
 
-    // Run pipeline (currently uses Ollama - free)
-    // Note: PAID model support will be added in future version
+    // Determine provider and model
+    // PAID agent uses OpenAI by default, Ollama only if explicitly requested
+    const provider = args.provider || 'openai';
+    const model = args.model || (provider === 'openai' ? 'gpt-4o' : provider === 'claude' ? 'claude-3-5-sonnet-20241022' : 'qwen2.5-coder:7b');
+
+    // Run pipeline with PAID models
     const config = {
       maxAttempts: args.maxAttempts || 3,
       acceptThreshold: args.acceptThreshold || 0.9,
       minCoverage: args.minCoverage || 80,
+      provider,
+      model,
     };
 
     const result = await iterateTask(spec, config);
 
-    // Cost is $0 since we're using Ollama
-    const actualCost = 0;
+    // Calculate actual cost (will be tracked by model calls)
+    // TODO: Track actual cost from OpenAI/Claude API calls
+    const actualCost = 0; // Placeholder - will be implemented with provider integration
 
     return {
       content: [

@@ -77,7 +77,7 @@ export async function iterateTask(
       modelNotes: genResult.notes ?? '',
     };
     
-    const verdict = await judgeCode(judgeInput);
+    const verdict = await judgeCode(judgeInput, genResult, config);
     const score = calculateWeightedScore(verdict.scores, config.weights);
     
     console.log(`  📊 Score: ${(score * 100).toFixed(1)}% (threshold: ${(config.acceptThreshold ?? DEFAULT_PIPELINE_CONFIG.acceptThreshold) * 100}%)`);

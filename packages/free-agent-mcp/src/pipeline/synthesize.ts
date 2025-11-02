@@ -10,7 +10,7 @@
 
 import type { GenResult, PipelineConfig, JudgeVerdict } from './types.js';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
-import { ollamaGenerate } from '@robinsonai/shared-llm';
+import { ollamaGenerate, llmGenerate } from '@robinsonai/shared-llm';
 import { makeProjectBrief, formatBriefForPrompt, type ProjectBrief } from '../utils/project-brief.js';
 import { retrieveCodeContext } from '../utils/code-retrieval.js';
 
@@ -100,35 +100,50 @@ export async function generateCodeAndTests(
 ): Promise<GenResult> {
   const prompt = await buildCoderPrompt(spec, config, previousVerdict);
 
-  // Try primary model first (qwen2.5-coder:7b)
+  // Determine provider and model from config
+  const provider = config.provider || 'ollama';
+  const model = config.model || (provider === 'ollama' ? 'qwen2.5-coder:7b' : provider === 'openai' ? 'gpt-4o' : 'claude-3-5-sonnet-20241022');
+
+  console.log(`[Synthesize] Using ${provider}/${model}`);
+
+  // Use unified LLM client
   try {
-    const response = await ollamaGenerate({
-      model: 'qwen2.5-coder:7b', // Primary: Better code quality
+    const llmResult = await llmGenerate({
+      provider,
+      model,
       prompt,
       format: 'json',
-      timeoutMs: 300000, // 5 minutes - increased for cold start and larger model
+      timeoutMs: provider === 'ollama' ? 300000 : 60000, // 5 min for Ollama (cold start), 1 min for PAID
     });
 
-    const result = parseCoderResponse(response);
+    const result = parseCoderResponse(llmResult.text);
+    console.log(`[Synthesize] Success! Cost: $${llmResult.cost?.toFixed(4) || '0.0000'}`);
     return result;
   } catch (error) {
-    console.warn('Primary model (qwen2.5-coder:7b) failed, falling back to qwen2.5:3b:', error);
+    // If using Ollama and primary model fails, try fallback
+    if (provider === 'ollama' && model === 'qwen2.5-coder:7b') {
+      console.warn('Primary model (qwen2.5-coder:7b) failed, falling back to qwen2.5:3b:', error);
 
-    // Fallback to smaller, faster model
-    try {
-      const response = await ollamaGenerate({
-        model: 'qwen2.5:3b', // Fallback: Faster, more reliable
-        prompt,
-        format: 'json',
-        timeoutMs: 60000, // 1 minute - smaller model is faster
-      });
+      try {
+        const llmResult = await llmGenerate({
+          provider: 'ollama',
+          model: 'qwen2.5:3b',
+          prompt,
+          format: 'json',
+          timeoutMs: 60000,
+        });
 
-      const result = parseCoderResponse(response);
-      return result;
-    } catch (fallbackError) {
-      console.error('Both models failed:', fallbackError);
-      throw fallbackError;
+        const result = parseCoderResponse(llmResult.text);
+        return result;
+      } catch (fallbackError) {
+        console.error('Both Ollama models failed:', fallbackError);
+        throw fallbackError;
+      }
     }
+
+    // For PAID models or if fallback also failed, throw error
+    console.error(`[Synthesize] ${provider}/${model} failed:`, error);
+    throw error;
   }
 }
 

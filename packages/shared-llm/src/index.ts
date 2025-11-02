@@ -1,4 +1,5 @@
 export { BASE, pingOllama, ollamaGenerate, warmModels } from './ollama-client.js';
+export { llmGenerate, llmGenerateJSON, type LLMGenerateOptions, type LLMGenerateResult } from './llm-client.js';
 export { ToolkitClient, getSharedToolkitClient, type ToolkitCallParams, type ToolkitCallResult } from './toolkit-client.js';
 export {
   FileEditor,

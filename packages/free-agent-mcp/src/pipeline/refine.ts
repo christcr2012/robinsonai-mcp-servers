@@ -5,9 +5,10 @@
  * Uses separate model call for fixing (not combined with critique)
  */
 
-import type { JudgeVerdict, GenResult, ExecReport } from './types.js';
-import { ollamaGenerate } from '@robinsonai/shared-llm';
+import type { JudgeVerdict, GenResult, ExecReport, PipelineConfig } from './types.js';
+import { ollamaGenerate, llmGenerate } from '@robinsonai/shared-llm';
 import { generateMultiFileDiff, formatDiffsForPrompt } from '../utils/diff-generator.js';
+import { DEFAULT_PIPELINE_CONFIG } from './types.js';
 
 /**
  * Apply fix plan from judge
@@ -16,39 +17,55 @@ export async function applyFixPlan(
   verdict: JudgeVerdict,
   currentFiles: GenResult['files'],
   report: ExecReport,
-  previousFiles?: GenResult['files']
+  previousFiles?: GenResult['files'],
+  config: PipelineConfig = DEFAULT_PIPELINE_CONFIG
 ): Promise<GenResult> {
   const prompt = buildFixerPrompt(verdict, currentFiles, report, previousFiles);
 
-  // Try primary model first
+  // Determine provider and model from config
+  const provider = config.provider || 'ollama';
+  const model = config.model || (provider === 'ollama' ? 'qwen2.5-coder:7b' : provider === 'openai' ? 'gpt-4o' : 'claude-3-5-sonnet-20241022');
+
+  console.log(`[Refine] Using ${provider}/${model}`);
+
+  // Use unified LLM client
   try {
-    const response = await ollamaGenerate({
-      model: 'qwen2.5-coder:7b', // Primary: Better fix quality
+    const llmResult = await llmGenerate({
+      provider,
+      model,
       prompt,
       format: 'json',
-      timeoutMs: 120000, // 2 minutes - increased for cold start and larger model
+      timeoutMs: provider === 'ollama' ? 120000 : 60000, // 2 min for Ollama, 1 min for PAID
     });
 
-    const result = parseFixerResponse(response);
+    const result = parseFixerResponse(llmResult.text);
+    console.log(`[Refine] Success! Cost: $${llmResult.cost?.toFixed(4) || '0.0000'}`);
     return result;
   } catch (error) {
-    console.warn('Primary model (qwen2.5-coder:7b) failed for refining, falling back to qwen2.5:3b:', error);
+    // If using Ollama and primary model fails, try fallback
+    if (provider === 'ollama' && model === 'qwen2.5-coder:7b') {
+      console.warn('Primary model (qwen2.5-coder:7b) failed for refining, falling back to qwen2.5:3b:', error);
 
-    // Fallback to smaller model
-    try {
-      const response = await ollamaGenerate({
-        model: 'qwen2.5:3b', // Fallback: Faster, more reliable
-        prompt,
-        format: 'json',
-        timeoutMs: 30000, // 30 seconds - smaller model is faster
-      });
+      try {
+        const llmResult = await llmGenerate({
+          provider: 'ollama',
+          model: 'qwen2.5:3b',
+          prompt,
+          format: 'json',
+          timeoutMs: 30000,
+        });
 
-      const result = parseFixerResponse(response);
-      return result;
-    } catch (fallbackError) {
-      console.error('Both models failed to apply fixes:', fallbackError);
-      throw fallbackError;
+        const result = parseFixerResponse(llmResult.text);
+        return result;
+      } catch (fallbackError) {
+        console.error('Both Ollama models failed to apply fixes:', fallbackError);
+        throw fallbackError;
+      }
     }
+
+    // For PAID models or if fallback also failed, throw error
+    console.error(`[Refine] ${provider}/${model} failed:`, error);
+    throw error;
   }
 }
 

@@ -5,15 +5,16 @@
  * Returns structured verdict with scores and fix plan
  */
 
-import type { JudgeInput, JudgeVerdict, ExecReport, GenResult } from './types.js';
-import { ollamaGenerate } from '@robinsonai/shared-llm';
+import type { JudgeInput, JudgeVerdict, ExecReport, GenResult, PipelineConfig } from './types.js';
+import { ollamaGenerate, llmGenerate } from '@robinsonai/shared-llm';
 import { calculateConventionScore } from '../utils/convention-score.js';
 import { makeProjectBrief } from '../utils/project-brief.js';
+import { DEFAULT_PIPELINE_CONFIG } from './types.js';
 
 /**
  * Judge the generated code with structured verdict
  */
-export async function judgeCode(input: JudgeInput, genResult?: GenResult): Promise<JudgeVerdict> {
+export async function judgeCode(input: JudgeInput, genResult?: GenResult, config: PipelineConfig = DEFAULT_PIPELINE_CONFIG): Promise<JudgeVerdict> {
   const prompt = buildJudgePrompt(input);
 
   // Calculate convention score
@@ -29,40 +30,56 @@ export async function judgeCode(input: JudgeInput, genResult?: GenResult): Promi
     conventionScore = score.total;
   }
 
-  // Try primary model first
+  // Determine provider and model from config
+  const provider = config.provider || 'ollama';
+  const model = config.model || (provider === 'ollama' ? 'qwen2.5-coder:7b' : provider === 'openai' ? 'gpt-4o' : 'claude-3-5-sonnet-20241022');
+
+  console.log(`[Judge] Using ${provider}/${model}`);
+
+  // Use unified LLM client
   try {
-    const response = await ollamaGenerate({
-      model: 'qwen2.5-coder:7b', // Primary: Better judgment quality
+    const llmResult = await llmGenerate({
+      provider,
+      model,
       prompt,
       format: 'json',
-      timeoutMs: 120000, // 2 minutes - increased for cold start and larger model
+      timeoutMs: provider === 'ollama' ? 120000 : 60000, // 2 min for Ollama, 1 min for PAID
     });
 
-    const verdict = parseJudgeResponse(response, input.signals);
+    const verdict = parseJudgeResponse(llmResult.text, input.signals);
     verdict.scores.conventions = conventionScore;
+    console.log(`[Judge] Success! Cost: $${llmResult.cost?.toFixed(4) || '0.0000'}`);
     return verdict;
   } catch (error) {
-    console.warn('Primary model (qwen2.5-coder:7b) failed for judging, falling back to qwen2.5:3b:', error);
+    // If using Ollama and primary model fails, try fallback
+    if (provider === 'ollama' && model === 'qwen2.5-coder:7b') {
+      console.warn('Primary model (qwen2.5-coder:7b) failed for judging, falling back to qwen2.5:3b:', error);
 
-    // Try fallback model
-    try {
-      const response = await ollamaGenerate({
-        model: 'qwen2.5:3b', // Fallback: Faster, more reliable
-        prompt,
-        format: 'json',
-        timeoutMs: 30000, // 30 seconds - smaller model is faster
-      });
+      try {
+        const llmResult = await llmGenerate({
+          provider: 'ollama',
+          model: 'qwen2.5:3b',
+          prompt,
+          format: 'json',
+          timeoutMs: 30000,
+        });
 
-      const verdict = parseJudgeResponse(response, input.signals);
-      verdict.scores.conventions = conventionScore;
-      return verdict;
-    } catch (fallbackError) {
-      console.warn('Fallback model also failed, using automatic verdict:', fallbackError);
-      // Last resort: automatic verdict based on signals
-      const verdict = buildAutomaticVerdict(input.signals);
-      verdict.scores.conventions = conventionScore;
-      return verdict;
+        const verdict = parseJudgeResponse(llmResult.text, input.signals);
+        verdict.scores.conventions = conventionScore;
+        return verdict;
+      } catch (fallbackError) {
+        console.warn('Fallback model also failed, using automatic verdict:', fallbackError);
+        const verdict = buildAutomaticVerdict(input.signals);
+        verdict.scores.conventions = conventionScore;
+        return verdict;
+      }
     }
+
+    // For PAID models, use automatic verdict as fallback
+    console.warn(`[Judge] ${provider}/${model} failed, using automatic verdict:`, error);
+    const verdict = buildAutomaticVerdict(input.signals);
+    verdict.scores.conventions = conventionScore;
+    return verdict;
   }
 }
 

@@ -340,7 +340,7 @@ Use tool openai-worker-mcp.estimate_cost with {
 ```
 Use tool thinking-tools-mcp.premortem_analysis with {
   "project": "MCP E2E validation",
-  "context": "6 servers; local LLMs; budget caps"
+  "context": "5 servers; local LLMs; budget caps; Augment-led planning"
 }
 ```
 

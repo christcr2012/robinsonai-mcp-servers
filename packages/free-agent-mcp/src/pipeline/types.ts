@@ -127,10 +127,10 @@ export interface JudgeVerdict {
 export interface PipelineConfig {
   /** Maximum refinement attempts */
   maxAttempts?: number;
-  
+
   /** Minimum weighted score to accept (0..1) */
   acceptThreshold?: number;
-  
+
   /** Score weights (must sum to 1.0) */
   weights?: {
     compilation: number;
@@ -141,12 +141,18 @@ export interface PipelineConfig {
     security: number;
     conventions?: number;
   };
-  
+
   /** Allowed libraries/imports (security allowlist) */
   allowedLibraries?: string[];
-  
+
   /** Minimum code coverage percentage */
   minCoverage?: number;
+
+  /** Model provider to use (default: 'ollama' for FREE agent, 'openai' for PAID agent) */
+  provider?: 'ollama' | 'openai' | 'claude';
+
+  /** Specific model to use (e.g., 'gpt-4o', 'claude-3-5-sonnet-20241022', 'qwen2.5-coder:7b') */
+  model?: string;
   
   /** Timeout per test (ms) */
   testTimeout?: number;
@@ -240,6 +246,8 @@ export const DEFAULT_PIPELINE_CONFIG: Required<PipelineConfig> = {
   globalTimeout: 30000,
   memoryLimit: 512,
   spec: '',
+  provider: 'ollama',
+  model: 'qwen2.5-coder:7b',
 };
 
 /**
