@@ -1,0 +1,52 @@
+# Robinson AI MCP Servers - Publishing Commands
+# Run these commands one by one in your terminal
+
+# 1. Free Agent MCP (0 credits)
+cd packages/free-agent-mcp
+npm publish --access public
+cd ../..
+
+# 2. Paid Agent MCP (complex tasks)
+cd packages/paid-agent-mcp
+npm publish --access public
+cd ../..
+
+# 3. Thinking Tools MCP (24 cognitive frameworks)
+cd packages/thinking-tools-mcp
+npm publish --access public
+cd ../..
+
+# 4. Credit Optimizer MCP (tool discovery)
+cd packages/credit-optimizer-mcp
+npm publish --access public
+cd ../..
+
+# 5. GitHub MCP (241 tools)
+cd packages/github-mcp
+npm publish --access public
+cd ../..
+
+# 6. Vercel MCP (deployments)
+cd packages/vercel-mcp
+npm publish --access public
+cd ../..
+
+# 7. Neon MCP (Postgres)
+cd packages/neon-mcp
+npm publish --access public
+cd ../..
+
+# 8. OpenAI MCP (direct API)
+cd packages/openai-mcp
+npm publish --access public
+cd ../..
+
+# After publishing, install with:
+# npm install -g @robinson_ai_systems/free-agent-mcp
+# npm install -g @robinson_ai_systems/paid-agent-mcp
+# npm install -g @robinson_ai_systems/thinking-tools-mcp
+# npm install -g @robinson_ai_systems/credit-optimizer-mcp
+# npm install -g @robinson_ai_systems/github-mcp
+# npm install -g @robinson_ai_systems/vercel-mcp
+# npm install -g @robinson_ai_systems/neon-mcp
+# npm install -g @robinson_ai_systems/openai-mcp

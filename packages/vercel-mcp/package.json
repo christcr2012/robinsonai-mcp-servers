@@ -1,6 +1,6 @@
 {
-  "name": "@robinsonai/vercel-mcp",
-  "version": "1.0.0",
+  "name": "@robinson_ai_systems/vercel-mcp",
+  "version": "1.0.1",
   "description": "Comprehensive Vercel MCP server with 50+ tools for deployments, domains, env vars, and more",
   "type": "module",
   "bin": {
@@ -28,4 +28,3 @@
     "typescript": "^5.7.2"
   }
 }
-

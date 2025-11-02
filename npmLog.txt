@@ -1,0 +1,1130 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+
+PS C:\Users\chris\Git Local\robinsonai-mcp-servers> npm login
+npm notice Log in on https://registry.npmjs.org/
+npm notice SECURITY NOTICE: Breaking changes starting October 13, 2025. New tokens will be limited to a maximum lifetime of 90 days, and TOTP setup will be disabled. Classic tokens will be revoked in November. Update your CI/CD workflows to avoid disruption. Learn more: https://gh.io/npm-token-changes
+Login at:
+https://www.npmjs.com/login?next=/login/cli/c8b3f2c6-deb1-4f91-87d4-00a34a69b4fb
+Press ENTER to open in the browser...
+
+Logged in on https://registry.npmjs.org/.
+PS C:\Users\chris\Git Local\robinsonai-mcp-servers> node check-npm-status.js
+🚀 Robinson AI MCP Servers - NPM Status Check
+==============================================
+
+📋 Checking npm authentication...
+✅ Logged in as: robinson_ai_systems
+
+📦 Checking package status...
+
+🔍 @robinsonai/free-agent-mcp v0.1.1
+   📝 FREE models (0 credits)
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2ffree-agent-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/free-agent-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_10_862Z-debug-0.log
+   📋 Package not yet published
+   ✅ Ready to publish (new package)
+
+🔍 @robinsonai/paid-agent-mcp v0.2.0
+   📝 PAID models for complex tasks
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fpaid-agent-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/paid-agent-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_11_281Z-debug-0.log
+   📋 Package not yet published
+   ✅ Ready to publish (new package)
+
+🔍 @robinsonai/thinking-tools-mcp v1.0.0
+   📝 24 cognitive frameworks
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fthinking-tools-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/thinking-tools-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_11_733Z-debug-0.log
+   📋 Package not yet published
+   ✅ Ready to publish (new package)
+
+🔍 @robinsonai/credit-optimizer-mcp v0.1.1
+   📝 Tool discovery & templates
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fcredit-optimizer-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/credit-optimizer-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_12_144Z-debug-0.log
+   📋 Package not yet published
+   ✅ Ready to publish (new package)
+
+🔍 @robinsonai/github-mcp v2.0.0
+   📝 GitHub integration (241 tools)
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fgithub-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/github-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_12_557Z-debug-0.log
+   📋 Package not yet published
+   ✅ Ready to publish (new package)
+
+🔍 @robinsonai/vercel-mcp v1.0.0
+   📝 Vercel deployment integration
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fvercel-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/vercel-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_12_971Z-debug-0.log
+   📋 Package not yet published
+   ✅ Ready to publish (new package)
+
+🔍 @robinsonai/neon-mcp v2.0.0
+   📝 Neon Postgres integration
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fneon-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/neon-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_13_382Z-debug-0.log
+   📋 Package not yet published
+   ✅ Ready to publish (new package)
+
+🔍 @robinsonai/openai-mcp v1.0.0
+   📝 Direct OpenAI API access
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fopenai-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/openai-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_13_788Z-debug-0.log
+   📋 Package not yet published
+   ✅ Ready to publish (new package)
+
+📊 STATUS SUMMARY
+================
+✅ Ready to publish: 8 packages
+⚠️  Already published: 0 packages
+❌ Need work: 0 packages
+📦 Total: 8 packages
+
+🚀 READY TO PUBLISH! Run this command to publish all:
+   node publish-all.js
+
+Or publish individually:
+   cd packages/free-agent-mcp && npm publish --access public
+   cd packages/paid-agent-mcp && npm publish --access public
+   cd packages/thinking-tools-mcp && npm publish --access public
+   cd packages/credit-optimizer-mcp && npm publish --access public
+   cd packages/github-mcp && npm publish --access public
+   cd packages/vercel-mcp && npm publish --access public
+   cd packages/neon-mcp && npm publish --access public
+   cd packages/openai-mcp && npm publish --access public
+
+✨ Done!
+PS C:\Users\chris\Git Local\robinsonai-mcp-servers> node publish-all.js
+🚀 Robinson AI MCP Servers - Publishing Script
+==============================================
+
+📋 Checking npm authentication...
+✅ Logged in as: robinson_ai_systems
+
+📦 Publishing 8 MCP servers...
+
+🔄 Publishing @robinsonai/free-agent-mcp v0.1.1...
+   📝 FREE models (0 credits)
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2ffree-agent-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/free-agent-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_37_918Z-debug-0.log
+   📋 Package not yet published
+   🚀 Publishing...
+
+> @robinsonai/free-agent-mcp@0.1.1 prepare
+> npm run build
+
+
+> @robinsonai/free-agent-mcp@0.1.1 build
+> tsc
+
+npm warn publish npm auto-corrected some errors in your package.json when publishing.  Please run "npm pkg fix" to address these errors.
+npm warn publish errors corrected:
+npm warn publish "bin[free-agent-mcp]" script name dist/index.js was invalid and removed
+npm warn publish "repository.url" was normalized to "git+https://github.com/robinsonai/robinsonai-mcp-servers.git"
+npm notice
+npm notice package: @robinsonai/free-agent-mcp@0.1.1
+npm notice Tarball Contents
+npm notice 896B .docker/.eslintrc.json.template
+npm notice 174B .docker/.prettierrc.json.template
+npm notice 2.1kB .docker/Dockerfile
+npm notice 710B .docker/jest.config.js.template
+npm notice 620B .docker/package.json.template
+npm notice 668B .docker/tsconfig.json.template
+npm notice 9.8kB AUTOMATED_LEARNING.md
+npm notice 12.4kB LEARNING_SYSTEM.md
+npm notice 8.9kB LORA_TRAINING_GUIDE.md
+npm notice 7.5kB README.md
+npm notice 70B dist/agents/agent-cli.d.ts
+npm notice 122B dist/agents/agent-cli.d.ts.map
+npm notice 8.9kB dist/agents/agent-cli.js
+npm notice 7.6kB dist/agents/agent-cli.js.map
+npm notice 1.1kB dist/agents/code-analyzer.d.ts
+npm notice 957B dist/agents/code-analyzer.d.ts.map
+npm notice 3.3kB dist/agents/code-analyzer.js
+npm notice 2.5kB dist/agents/code-analyzer.js.map
+npm notice 2.5kB dist/agents/code-generator.d.ts
+npm notice 1.7kB dist/agents/code-generator.d.ts.map
+npm notice 12.2kB dist/agents/code-generator.js
+npm notice 8.2kB dist/agents/code-generator.js.map
+npm notice 1.3kB dist/agents/code-graph.d.ts
+npm notice 1.3kB dist/agents/code-graph.d.ts.map
+npm notice 7.7kB dist/agents/code-graph.js
+npm notice 7.2kB dist/agents/code-graph.js.map
+npm notice 1.3kB dist/agents/code-refactor.d.ts
+npm notice 990B dist/agents/code-refactor.d.ts.map
+npm notice 5.3kB dist/agents/code-refactor.js
+npm notice 3.8kB dist/agents/code-refactor.js.map
+npm notice 2.4kB dist/agents/context-memory.d.ts
+npm notice 1.7kB dist/agents/context-memory.d.ts.map
+npm notice 10.0kB dist/agents/context-memory.js
+npm notice 10.6kB dist/agents/context-memory.js.map
+npm notice 1.8kB dist/agents/context-packing.d.ts
+npm notice 1.8kB dist/agents/context-packing.d.ts.map
+npm notice 7.0kB dist/agents/context-packing.js
+npm notice 6.2kB dist/agents/context-packing.js.map
+npm notice 1.9kB dist/agents/cost-budgeter.d.ts
+npm notice 1.8kB dist/agents/cost-budgeter.d.ts.map
+npm notice 7.2kB dist/agents/cost-budgeter.js
+npm notice 6.5kB dist/agents/cost-budgeter.js.map
+npm notice 1.3kB dist/agents/db-migration-safety.d.ts
+npm notice 1.2kB dist/agents/db-migration-safety.d.ts.map
+npm notice 11.1kB dist/agents/db-migration-safety.js
+npm notice 9.1kB dist/agents/db-migration-safety.js.map
+npm notice 1.4kB dist/agents/design-card.d.ts
+npm notice 1.4kB dist/agents/design-card.d.ts.map
+npm notice 9.3kB dist/agents/design-card.js
+npm notice 9.2kB dist/agents/design-card.js.map
+npm notice 1.6kB dist/agents/flaky-test-detector.d.ts
+npm notice 1.5kB dist/agents/flaky-test-detector.d.ts.map
+npm notice 7.6kB dist/agents/flaky-test-detector.js
+npm notice 7.5kB dist/agents/flaky-test-detector.js.map
+npm notice 1.7kB dist/agents/impacted-tests.d.ts
+npm notice 1.5kB dist/agents/impacted-tests.d.ts.map
+npm notice 7.2kB dist/agents/impacted-tests.js
+npm notice 6.3kB dist/agents/impacted-tests.js.map
+npm notice 1.4kB dist/agents/merge-conflict-resolver.d.ts
+npm notice 1.1kB dist/agents/merge-conflict-resolver.d.ts.map
+npm notice 9.3kB dist/agents/merge-conflict-resolver.js
+npm notice 8.7kB dist/agents/merge-conflict-resolver.js.map
+npm notice 1.2kB dist/agents/model-adapters.d.ts
+npm notice 1.4kB dist/agents/model-adapters.d.ts.map
+npm notice 4.8kB dist/agents/model-adapters.js
+npm notice 4.4kB dist/agents/model-adapters.js.map
+npm notice 1.2kB dist/agents/pr-quality-pack.d.ts
+npm notice 1.2kB dist/agents/pr-quality-pack.d.ts.map
+npm notice 8.7kB dist/agents/pr-quality-pack.js
+npm notice 8.5kB dist/agents/pr-quality-pack.js.map
+npm notice 984B dist/agents/property-tests.d.ts
+npm notice 683B dist/agents/property-tests.d.ts.map
+npm notice 11.4kB dist/agents/property-tests.js
+npm notice 7.0kB dist/agents/property-tests.js.map
+npm notice 961B dist/agents/refactor-engine.d.ts
+npm notice 739B dist/agents/refactor-engine.d.ts.map
+npm notice 9.4kB dist/agents/refactor-engine.js
+npm notice 8.2kB dist/agents/refactor-engine.js.map
+npm notice 1.4kB dist/agents/safety-gates.d.ts
+npm notice 1.3kB dist/agents/safety-gates.d.ts.map
+npm notice 8.5kB dist/agents/safety-gates.js
+npm notice 7.1kB dist/agents/safety-gates.js.map
+npm notice 55B dist/agents/sandbox-runner.d.ts
+npm notice 132B dist/agents/sandbox-runner.d.ts.map
+npm notice 3.7kB dist/agents/sandbox-runner.js
+npm notice 3.9kB dist/agents/sandbox-runner.js.map
+npm notice 1.4kB dist/agents/semantic-diff.d.ts
+npm notice 1.2kB dist/agents/semantic-diff.d.ts.map
+npm notice 11.9kB dist/agents/semantic-diff.js
+npm notice 12.3kB dist/agents/semantic-diff.js.map
+npm notice 931B dist/index.d.ts
+npm notice 138B dist/index.d.ts.map
+npm notice 50.6kB dist/index.js
+npm notice 26.8kB dist/index.js.map
+npm notice 2.0kB dist/learning/auto-learner.d.ts
+npm notice 1.1kB dist/learning/auto-learner.d.ts.map
+npm notice 11.2kB dist/learning/auto-learner.js
+npm notice 7.7kB dist/learning/auto-learner.js.map
+npm notice 1.4kB dist/learning/auto-train-monitor.d.ts
+npm notice 859B dist/learning/auto-train-monitor.d.ts.map
+npm notice 8.5kB dist/learning/auto-train-monitor.js
+npm notice 6.8kB dist/learning/auto-train-monitor.js.map
+npm notice 1.6kB dist/learning/config.d.ts
+npm notice 1.4kB dist/learning/config.d.ts.map
+npm notice 2.5kB dist/learning/config.js
+npm notice 2.1kB dist/learning/config.js.map
+npm notice 2.4kB dist/learning/experience-db.d.ts
+npm notice 2.1kB dist/learning/experience-db.d.ts.map
+npm notice 8.1kB dist/learning/experience-db.js
+npm notice 4.2kB dist/learning/experience-db.js.map
+npm notice 2.6kB dist/learning/feedback-capture.d.ts
+npm notice 1.8kB dist/learning/feedback-capture.d.ts.map
+npm notice 11.9kB dist/learning/feedback-capture.js
+npm notice 7.7kB dist/learning/feedback-capture.js.map
+npm notice 1.2kB dist/learning/index.d.ts
+npm notice 594B dist/learning/index.d.ts.map
+npm notice 1.1kB dist/learning/index.js
+npm notice 474B dist/learning/index.js.map
+npm notice 3.4kB dist/learning/learning-loop.d.ts
+npm notice 1.8kB dist/learning/learning-loop.d.ts.map
+npm notice 9.8kB dist/learning/learning-loop.js
+npm notice 7.3kB dist/learning/learning-loop.js.map
+npm notice 1.9kB dist/learning/make-sft.d.ts
+npm notice 841B dist/learning/make-sft.d.ts.map
+npm notice 9.1kB dist/learning/make-sft.js
+npm notice 8.7kB dist/learning/make-sft.js.map
+npm notice 1.8kB dist/learning/pipeline-integration.d.ts
+npm notice 970B dist/learning/pipeline-integration.d.ts.map
+npm notice 5.0kB dist/learning/pipeline-integration.js
+npm notice 4.1kB dist/learning/pipeline-integration.js.map
+npm notice 1.7kB dist/learning/web-knowledge.d.ts
+npm notice 1.0kB dist/learning/web-knowledge.d.ts.map
+npm notice 8.1kB dist/learning/web-knowledge.js
+npm notice 6.3kB dist/learning/web-knowledge.js.map
+npm notice 3.2kB dist/model-catalog.d.ts
+npm notice 1.6kB dist/model-catalog.d.ts.map
+npm notice 15.4kB dist/model-catalog.js
+npm notice 9.3kB dist/model-catalog.js.map
+npm notice 1.3kB dist/model-router.d.ts
+npm notice 883B dist/model-router.d.ts.map
+npm notice 5.2kB dist/model-router.js
+npm notice 3.2kB dist/model-router.js.map
+npm notice 2.0kB dist/ollama-client.d.ts
+npm notice 1.4kB dist/ollama-client.d.ts.map
+npm notice 11.2kB dist/ollama-client.js
+npm notice 7.4kB dist/ollama-client.js.map
+npm notice 758B dist/pipeline/docker-sandbox.d.ts
+npm notice 446B dist/pipeline/docker-sandbox.d.ts.map
+npm notice 9.3kB dist/pipeline/docker-sandbox.js
+npm notice 8.1kB dist/pipeline/docker-sandbox.js.map
+npm notice 789B dist/pipeline/index.d.ts
+npm notice 409B dist/pipeline/index.d.ts.map
+npm notice 5.9kB dist/pipeline/index.js
+npm notice 4.8kB dist/pipeline/index.js.map
+npm notice 900B dist/pipeline/judge.d.ts
+npm notice 605B dist/pipeline/judge.d.ts.map
+npm notice 10.5kB dist/pipeline/judge.js
+npm notice 7.2kB dist/pipeline/judge.js.map
+npm notice 931B dist/pipeline/refine.d.ts
+npm notice 728B dist/pipeline/refine.d.ts.map
+npm notice 6.8kB dist/pipeline/refine.js
+npm notice 4.8kB dist/pipeline/refine.js.map
+npm notice 590B dist/pipeline/sandbox.d.ts
+npm notice 312B dist/pipeline/sandbox.d.ts.map
+npm notice 12.0kB dist/pipeline/sandbox.js
+npm notice 10.1kB dist/pipeline/sandbox.js.map
+npm notice 741B dist/pipeline/synthesize.d.ts
+npm notice 446B dist/pipeline/synthesize.d.ts.map
+npm notice 12.5kB dist/pipeline/synthesize.js
+npm notice 6.9kB dist/pipeline/synthesize.js.map
+npm notice 5.1kB dist/pipeline/types.d.ts
+npm notice 3.4kB dist/pipeline/types.d.ts.map
+npm notice 2.2kB dist/pipeline/types.js
+npm notice 1.7kB dist/pipeline/types.js.map
+npm notice 3.6kB dist/providers/base-provider.d.ts
+npm notice 2.8kB dist/providers/base-provider.d.ts.map
+npm notice 6.9kB dist/providers/base-provider.js
+npm notice 6.0kB dist/providers/base-provider.js.map
+npm notice 891B dist/providers/groq-provider.d.ts
+npm notice 637B dist/providers/groq-provider.d.ts.map
+npm notice 8.3kB dist/providers/groq-provider.js
+npm notice 6.4kB dist/providers/groq-provider.js.map
+npm notice 575B dist/providers/index.d.ts
+npm notice 363B dist/providers/index.d.ts.map
+npm notice 1.2kB dist/providers/index.js
+npm notice 871B dist/providers/index.js.map
+npm notice 751B dist/providers/ollama-provider.d.ts
+npm notice 579B dist/providers/ollama-provider.d.ts.map
+npm notice 6.5kB dist/providers/ollama-provider.js
+npm notice 5.6kB dist/providers/ollama-provider.js.map
+npm notice 912B dist/providers/together-provider.d.ts
+npm notice 647B dist/providers/together-provider.d.ts.map
+npm notice 9.4kB dist/providers/together-provider.js
+npm notice 7.2kB dist/providers/together-provider.js.map
+npm notice 1.9kB dist/token-tracker.d.ts
+npm notice 1.5kB dist/token-tracker.d.ts.map
+npm notice 6.0kB dist/token-tracker.js
+npm notice 4.2kB dist/token-tracker.js.map
+npm notice 491B dist/types/validation.d.ts
+npm notice 455B dist/types/validation.d.ts.map
+npm notice 178B dist/types/validation.js
+npm notice 134B dist/types/validation.js.map
+npm notice 59B dist/utils/agent-loop-example.d.ts
+npm notice 139B dist/utils/agent-loop-example.d.ts.map
+npm notice 5.2kB dist/utils/agent-loop-example.js
+npm notice 4.7kB dist/utils/agent-loop-example.js.map
+npm notice 72B dist/utils/apply-patch.d.ts
+npm notice 125B dist/utils/apply-patch.d.ts.map
+npm notice 4.3kB dist/utils/apply-patch.js
+npm notice 4.1kB dist/utils/apply-patch.js.map
+npm notice 1.0kB dist/utils/code-retrieval.d.ts
+npm notice 679B dist/utils/code-retrieval.d.ts.map
+npm notice 9.8kB dist/utils/code-retrieval.js
+npm notice 9.4kB dist/utils/code-retrieval.js.map
+npm notice 2.4kB dist/utils/convention-score-patch.d.ts
+npm notice 2.5kB dist/utils/convention-score-patch.d.ts.map
+npm notice 9.3kB dist/utils/convention-score-patch.js
+npm notice 9.9kB dist/utils/convention-score-patch.js.map
+npm notice 1.3kB dist/utils/convention-score.d.ts
+npm notice 897B dist/utils/convention-score.d.ts.map
+npm notice 7.3kB dist/utils/convention-score.js
+npm notice 6.8kB dist/utils/convention-score.js.map
+npm notice 750B dist/utils/convention-tests.d.ts
+npm notice 615B dist/utils/convention-tests.d.ts.map
+npm notice 7.7kB dist/utils/convention-tests.js
+npm notice 2.9kB dist/utils/convention-tests.js.map
+npm notice 991B dist/utils/dependency-cache.d.ts
+npm notice 610B dist/utils/dependency-cache.d.ts.map
+npm notice 6.1kB dist/utils/dependency-cache.js
+npm notice 5.9kB dist/utils/dependency-cache.js.map
+npm notice 1.3kB dist/utils/diff-generator.d.ts
+npm notice 1.1kB dist/utils/diff-generator.d.ts.map
+npm notice 7.1kB dist/utils/diff-generator.js
+npm notice 6.9kB dist/utils/diff-generator.js.map
+npm notice 1.5kB dist/utils/edit-constraints.d.ts
+npm notice 1.1kB dist/utils/edit-constraints.d.ts.map
+npm notice 7.7kB dist/utils/edit-constraints.js
+npm notice 6.6kB dist/utils/edit-constraints.js.map
+npm notice 4.3kB dist/utils/judge-fixer-prompts.d.ts
+npm notice 2.8kB dist/utils/judge-fixer-prompts.d.ts.map
+npm notice 6.5kB dist/utils/judge-fixer-prompts.js
+npm notice 4.5kB dist/utils/judge-fixer-prompts.js.map
+npm notice 1.3kB dist/utils/language-adapters.d.ts
+npm notice 1.1kB dist/utils/language-adapters.d.ts.map
+npm notice 10.0kB dist/utils/language-adapters.js
+npm notice 9.6kB dist/utils/language-adapters.js.map
+npm notice 2.2kB dist/utils/model-manager.d.ts
+npm notice 1.6kB dist/utils/model-manager.d.ts.map
+npm notice 8.8kB dist/utils/model-manager.js
+npm notice 7.9kB dist/utils/model-manager.js.map
+npm notice 790B dist/utils/model-warmup.d.ts
+npm notice 578B dist/utils/model-warmup.d.ts.map
+npm notice 4.1kB dist/utils/model-warmup.js
+npm notice 3.4kB dist/utils/model-warmup.js.map
+npm notice 947B dist/utils/portable-brief-builder.d.ts
+npm notice 820B dist/utils/portable-brief-builder.d.ts.map
+npm notice 9.8kB dist/utils/portable-brief-builder.js
+npm notice 8.9kB dist/utils/portable-brief-builder.js.map
+npm notice 4.3kB dist/utils/portable-interfaces.d.ts
+npm notice 3.2kB dist/utils/portable-interfaces.d.ts.map
+npm notice 7.5kB dist/utils/portable-interfaces.js
+npm notice 5.9kB dist/utils/portable-interfaces.js.map
+npm notice 2.1kB dist/utils/project-brief.d.ts
+npm notice 1.8kB dist/utils/project-brief.d.ts.map
+npm notice 14.3kB dist/utils/project-brief.js
+npm notice 13.8kB dist/utils/project-brief.js.map
+npm notice 1.3kB dist/utils/prompt-builder.d.ts
+npm notice 1.0kB dist/utils/prompt-builder.d.ts.map
+npm notice 8.9kB dist/utils/prompt-builder.js
+npm notice 2.2kB dist/utils/prompt-builder.js.map
+npm notice 1.2kB dist/utils/refinement.d.ts
+npm notice 971B dist/utils/refinement.d.ts.map
+npm notice 5.8kB dist/utils/refinement.js
+npm notice 3.8kB dist/utils/refinement.js.map
+npm notice 1.2kB dist/utils/repo-portable-runner.d.ts
+npm notice 985B dist/utils/repo-portable-runner.d.ts.map
+npm notice 13.1kB dist/utils/repo-portable-runner.js
+npm notice 15.9kB dist/utils/repo-portable-runner.js.map
+npm notice 1.7kB dist/utils/repo-portable-tools.d.ts
+npm notice 1.2kB dist/utils/repo-portable-tools.d.ts.map
+npm notice 11.9kB dist/utils/repo-portable-tools.js
+npm notice 12.1kB dist/utils/repo-portable-tools.js.map
+npm notice 674B dist/utils/repo-probe.d.ts
+npm notice 530B dist/utils/repo-probe.d.ts.map
+npm notice 7.5kB dist/utils/repo-probe.js
+npm notice 7.2kB dist/utils/repo-probe.js.map
+npm notice 671B dist/utils/repo-tools.d.ts
+npm notice 456B dist/utils/repo-tools.d.ts.map
+npm notice 10.7kB dist/utils/repo-tools.js
+npm notice 9.5kB dist/utils/repo-tools.js.map
+npm notice 1.0kB dist/utils/schema-codegen.d.ts
+npm notice 702B dist/utils/schema-codegen.d.ts.map
+npm notice 9.4kB dist/utils/schema-codegen.js
+npm notice 7.4kB dist/utils/schema-codegen.js.map
+npm notice 1.0kB dist/utils/stats-tracker.d.ts
+npm notice 786B dist/utils/stats-tracker.d.ts.map
+npm notice 4.6kB dist/utils/stats-tracker.js
+npm notice 4.1kB dist/utils/stats-tracker.js.map
+npm notice 1.7kB dist/utils/symbol-indexer.d.ts
+npm notice 1.4kB dist/utils/symbol-indexer.d.ts.map
+npm notice 8.7kB dist/utils/symbol-indexer.js
+npm notice 8.5kB dist/utils/symbol-indexer.js.map
+npm notice 881B dist/utils/validation.d.ts
+npm notice 714B dist/utils/validation.d.ts.map
+npm notice 9.0kB dist/utils/validation.js
+npm notice 7.5kB dist/utils/validation.js.map
+npm notice 60B input.txt
+npm notice 1.6kB package.json
+npm notice 1.6kB src/agents/.agent/tasks/example-soft-delete.yaml
+npm notice 9.0kB src/agents/agent-cli.ts
+npm notice 3.6kB src/agents/code-analyzer.ts
+npm notice 12.2kB src/agents/code-generator.ts
+npm notice 8.2kB src/agents/code-graph.ts
+npm notice 5.4kB src/agents/code-refactor.ts
+npm notice 10.2kB src/agents/context-memory.ts
+npm notice 7.8kB src/agents/context-packing.ts
+npm notice 8.1kB src/agents/cost-budgeter.ts
+npm notice 10.5kB src/agents/db-migration-safety.ts
+npm notice 9.3kB src/agents/design-card.ts
+npm notice 803B src/agents/docker/Dockerfile
+npm notice 147B src/agents/docker/entrypoint.sh
+npm notice 8.0kB src/agents/flaky-test-detector.ts
+npm notice 7.5kB src/agents/impacted-tests.ts
+npm notice 9.4kB src/agents/merge-conflict-resolver.ts
+npm notice 4.7kB src/agents/model-adapters.ts
+npm notice 9.3kB src/agents/pr-quality-pack.ts
+npm notice 11.9kB src/agents/property-tests.ts
+npm notice 9.8kB src/agents/refactor-engine.ts
+npm notice 8.5kB src/agents/safety-gates.ts
+npm notice 3.5kB src/agents/sandbox-runner.ts
+npm notice 12.4kB src/agents/semantic-diff.ts
+npm notice 42.6kB src/index.ts
+npm notice 11.2kB src/learning/auto-learner.ts
+npm notice 8.1kB src/learning/auto-train-monitor.ts
+npm notice 4.0kB src/learning/config.ts
+npm notice 9.4kB src/learning/experience-db.ts
+npm notice 13.8kB src/learning/feedback-capture.ts
+npm notice 1.2kB src/learning/index.ts
+npm notice 10.2kB src/learning/learning-loop.ts
+npm notice 8.6kB src/learning/make-sft.ts
+npm notice 5.1kB src/learning/pipeline-integration.ts
+npm notice 7.7kB src/learning/web-knowledge.ts
+npm notice 15.7kB src/model-catalog.ts
+npm notice 5.0kB src/model-router.ts
+npm notice 10.5kB src/ollama-client.ts
+npm notice 9.3kB src/pipeline/docker-sandbox.ts
+npm notice 5.9kB src/pipeline/index.ts
+npm notice 10.5kB src/pipeline/judge.ts
+npm notice 6.9kB src/pipeline/refine.ts
+npm notice 11.5kB src/pipeline/sandbox.ts
+npm notice 12.4kB src/pipeline/synthesize.ts
+npm notice 6.2kB src/pipeline/types.ts
+npm notice 8.5kB src/providers/base-provider.ts
+npm notice 7.2kB src/providers/groq-provider.ts
+npm notice 1.2kB src/providers/index.ts
+npm notice 5.8kB src/providers/ollama-provider.ts
+npm notice 8.2kB src/providers/together-provider.ts
+npm notice 6.6kB src/token-tracker.ts
+npm notice 463B src/types/validation.ts
+npm notice 5.1kB src/utils/agent-loop-example.ts
+npm notice 4.0kB src/utils/apply-patch.ts
+npm notice 9.6kB src/utils/code-retrieval.ts
+npm notice 10.8kB src/utils/convention-score-patch.ts
+npm notice 7.9kB src/utils/convention-score.ts
+npm notice 8.4kB src/utils/convention-tests.ts
+npm notice 6.1kB src/utils/dependency-cache.ts
+npm notice 7.2kB src/utils/diff-generator.ts
+npm notice 7.9kB src/utils/edit-constraints.ts
+npm notice 8.1kB src/utils/judge-fixer-prompts.ts
+npm notice 9.2kB src/utils/language-adapters.ts
+npm notice 9.0kB src/utils/model-manager.ts
+npm notice 4.0kB src/utils/model-warmup.ts
+npm notice 10.4kB src/utils/portable-brief-builder.ts
+npm notice 9.7kB src/utils/portable-interfaces.ts
+npm notice 14.6kB src/utils/project-brief.ts
+npm notice 9.1kB src/utils/prompt-builder.ts
+npm notice 12.5kB src/utils/repo-portable-runner.ts
+npm notice 12.1kB src/utils/repo-portable-tools.ts
+npm notice 7.5kB src/utils/repo-probe.ts
+npm notice 10.4kB src/utils/repo-tools.ts
+npm notice 8.8kB src/utils/schema-codegen.ts
+npm notice 4.7kB src/utils/stats-tracker.ts
+npm notice 9.1kB src/utils/symbol-indexer.ts
+npm notice 3.3kB test-ollama.js
+npm notice 520B tsconfig.json
+npm notice Tarball Details
+npm notice name: @robinsonai/free-agent-mcp
+npm notice version: 0.1.1
+npm notice filename: robinsonai-free-agent-mcp-0.1.1.tgz
+npm notice package size: 453.1 kB
+npm notice unpacked size: 2.0 MB
+npm notice shasum: 9c1fda2a6c050fd23359a64fcb6bb7425865a3f1
+npm notice integrity: sha512-qQFmsGAS1qVWL[...]w6FWlIwBDEzXw==
+npm notice total files: 385
+npm notice
+npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/@robinsonai%2ffree-agent-mcp - Scope not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/free-agent-mcp@0.1.1' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_38_344Z-debug-0.log
+   ❌ Failed to publish @robinsonai/free-agent-mcp: Command failed: npm publish --access public
+
+🔄 Publishing @robinsonai/paid-agent-mcp v0.2.0...
+   📝 PAID models for complex tasks
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fpaid-agent-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/paid-agent-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_47_921Z-debug-0.log
+   📋 Package not yet published
+   🚀 Publishing...
+npm warn publish npm auto-corrected some errors in your package.json when publishing.  Please run "npm pkg fix" to address these errors.
+npm warn publish errors corrected:
+npm warn publish "bin[paid-agent-mcp]" script name dist/index.js was invalid and removed
+npm warn publish "repository.url" was normalized to "git+https://github.com/robinsonai/robinsonai-mcp-servers.git"
+npm notice
+npm notice package: @robinsonai/paid-agent-mcp@0.2.0
+npm notice Tarball Contents
+npm notice 3.2kB README.md
+npm notice 1.1kB dist/db.d.ts
+npm notice 856B dist/db.d.ts.map
+npm notice 4.4kB dist/db.js
+npm notice 3.9kB dist/db.js.map
+npm notice 815B dist/index.d.ts
+npm notice 136B dist/index.d.ts.map
+npm notice 64.2kB dist/index.js
+npm notice 39.0kB dist/index.js.map
+npm notice 3.2kB dist/model-catalog.d.ts
+npm notice 1.6kB dist/model-catalog.d.ts.map
+npm notice 15.6kB dist/model-catalog.js
+npm notice 9.4kB dist/model-catalog.js.map
+npm notice 1.4kB dist/ollama-client.d.ts
+npm notice 1.0kB dist/ollama-client.d.ts.map
+npm notice 4.8kB dist/ollama-client.js
+npm notice 3.6kB dist/ollama-client.js.map
+npm notice 337B dist/policy.d.ts
+npm notice 323B dist/policy.d.ts.map
+npm notice 552B dist/policy.js
+npm notice 602B dist/policy.js.map
+npm notice 1.2kB dist/pricing.d.ts
+npm notice 586B dist/pricing.d.ts.map
+npm notice 8.0kB dist/pricing.js
+npm notice 6.2kB dist/pricing.js.map
+npm notice 433B dist/prompt-builder.d.ts
+npm notice 327B dist/prompt-builder.d.ts.map
+npm notice 5.0kB dist/prompt-builder.js
+npm notice 909B dist/prompt-builder.js.map
+npm notice 1.9kB dist/token-tracker.d.ts
+npm notice 1.5kB dist/token-tracker.d.ts.map
+npm notice 6.0kB dist/token-tracker.js
+npm notice 4.2kB dist/token-tracker.js.map
+npm notice 1.1kB package.json
+npm notice 4.6kB src/db.ts
+npm notice 53.8kB src/index.ts
+npm notice 15.8kB src/model-catalog.ts
+npm notice 4.9kB src/ollama-client.ts
+npm notice 703B src/policy.ts
+npm notice 7.6kB src/pricing.ts
+npm notice 4.9kB src/prompt-builder.ts
+npm notice 6.6kB src/token-tracker.ts
+npm notice 478B tsconfig.json
+npm notice Tarball Details
+npm notice name: @robinsonai/paid-agent-mcp
+npm notice version: 0.2.0
+npm notice filename: robinsonai-paid-agent-mcp-0.2.0.tgz
+npm notice package size: 64.2 kB
+npm notice unpacked size: 296.6 kB
+npm notice shasum: dbf9d744432efb98e62fcc30f05547aabf54dd0f
+npm notice integrity: sha512-Kl+MyYe8/DChv[...]xJA5xmsilT84g==
+npm notice total files: 43
+npm notice
+npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/@robinsonai%2fpaid-agent-mcp - Scope not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/paid-agent-mcp@0.2.0' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_48_350Z-debug-0.log
+   ❌ Failed to publish @robinsonai/paid-agent-mcp: Command failed: npm publish --access public
+
+🔄 Publishing @robinsonai/thinking-tools-mcp v1.0.0...
+   📝 24 cognitive frameworks
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fthinking-tools-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/thinking-tools-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_49_748Z-debug-0.log
+   📋 Package not yet published
+   🚀 Publishing...
+
+> @robinsonai/thinking-tools-mcp@1.0.0 prepare
+> npm run build
+
+
+> @robinsonai/thinking-tools-mcp@1.0.0 build
+> tsc
+
+npm warn publish npm auto-corrected some errors in your package.json when publishing.  Please run "npm pkg fix" to address these errors.
+npm warn publish errors corrected:
+npm warn publish "bin[thinking-tools-mcp]" script name dist/index.js was invalid and removed
+npm notice
+npm notice package: @robinsonai/thinking-tools-mcp@1.0.0
+npm notice Tarball Contents
+npm notice 203B dist/index.d.ts
+npm notice 26.0kB dist/index.js
+npm notice 787B dist/tools/blue-team.d.ts
+npm notice 8.5kB dist/tools/blue-team.js
+npm notice 539B dist/tools/brainstorming.d.ts
+npm notice 7.8kB dist/tools/brainstorming.js
+npm notice 641B dist/tools/context7.d.ts
+npm notice 4.9kB dist/tools/context7.js
+npm notice 853B dist/tools/critical-thinking.d.ts
+npm notice 7.6kB dist/tools/critical-thinking.js
+npm notice 783B dist/tools/decision-matrix.d.ts
+npm notice 7.0kB dist/tools/decision-matrix.js
+npm notice 505B dist/tools/devils-advocate.d.ts
+npm notice 8.0kB dist/tools/devils-advocate.js
+npm notice 541B dist/tools/first-principles.d.ts
+npm notice 9.5kB dist/tools/first-principles.js
+npm notice 726B dist/tools/lateral-thinking.d.ts
+npm notice 7.0kB dist/tools/lateral-thinking.js
+npm notice 739B dist/tools/mind-mapping.d.ts
+npm notice 7.1kB dist/tools/mind-mapping.js
+npm notice 215B dist/tools/parallel-thinking.d.ts
+npm notice 1.6kB dist/tools/parallel-thinking.js
+npm notice 598B dist/tools/premortem.d.ts
+npm notice 9.2kB dist/tools/premortem.js
+npm notice 783B dist/tools/red-team.d.ts
+npm notice 8.1kB dist/tools/red-team.js
+npm notice 207B dist/tools/reflective-thinking.d.ts
+npm notice 1.8kB dist/tools/reflective-thinking.js
+npm notice 527B dist/tools/root-cause.d.ts
+npm notice 7.2kB dist/tools/root-cause.js
+npm notice 666B dist/tools/scenario-planning.d.ts
+npm notice 7.7kB dist/tools/scenario-planning.js
+npm notice 231B dist/tools/sequential-thinking.d.ts
+npm notice 1.6kB dist/tools/sequential-thinking.js
+npm notice 545B dist/tools/socratic.d.ts
+npm notice 7.7kB dist/tools/socratic.js
+npm notice 521B dist/tools/swot.d.ts
+npm notice 8.3kB dist/tools/swot.js
+npm notice 873B dist/tools/systems-thinking.d.ts
+npm notice 8.3kB dist/tools/systems-thinking.js
+npm notice 788B package.json
+npm notice 21.5kB src/index.ts
+npm notice 8.7kB src/tools/blue-team.ts
+npm notice 8.0kB src/tools/brainstorming.ts
+npm notice 4.2kB src/tools/context7.ts
+npm notice 7.9kB src/tools/critical-thinking.ts
+npm notice 7.0kB src/tools/decision-matrix.ts
+npm notice 8.0kB src/tools/devils-advocate.ts
+npm notice 9.5kB src/tools/first-principles.ts
+npm notice 7.3kB src/tools/lateral-thinking.ts
+npm notice 6.8kB src/tools/mind-mapping.ts
+npm notice 1.7kB src/tools/parallel-thinking.ts
+npm notice 9.1kB src/tools/premortem.ts
+npm notice 8.2kB src/tools/red-team.ts
+npm notice 1.9kB src/tools/reflective-thinking.ts
+npm notice 6.9kB src/tools/root-cause.ts
+npm notice 7.7kB src/tools/scenario-planning.ts
+npm notice 1.7kB src/tools/sequential-thinking.ts
+npm notice 7.9kB src/tools/socratic.ts
+npm notice 8.3kB src/tools/swot.ts
+npm notice 8.5kB src/tools/systems-thinking.ts
+npm notice 404B tsconfig.json
+npm notice Tarball Details
+npm notice name: @robinsonai/thinking-tools-mcp
+npm notice version: 1.0.0
+npm notice filename: robinsonai-thinking-tools-mcp-1.0.0.tgz
+npm notice package size: 73.2 kB
+npm notice unpacked size: 318.2 kB
+npm notice shasum: dc670a892e57b72d1e22e14d2bd5f93b18f510ae
+npm notice integrity: sha512-mNnEB8D0wU0oo[...]5iNX93bY0FKgQ==
+npm notice total files: 62
+npm notice
+npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/@robinsonai%2fthinking-tools-mcp - Scope not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/thinking-tools-mcp@1.0.0' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_50_162Z-debug-0.log
+   ❌ Failed to publish @robinsonai/thinking-tools-mcp: Command failed: npm publish --access public
+
+🔄 Publishing @robinsonai/credit-optimizer-mcp v0.1.1...
+   📝 Tool discovery & templates
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fcredit-optimizer-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/credit-optimizer-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_53_273Z-debug-0.log
+   📋 Package not yet published
+   🚀 Publishing...
+
+> @robinsonai/credit-optimizer-mcp@0.1.1 prepare
+> npm run build
+
+
+> @robinsonai/credit-optimizer-mcp@0.1.1 build
+> tsc
+
+npm warn publish npm auto-corrected some errors in your package.json when publishing.  Please run "npm pkg fix" to address these errors.
+npm warn publish errors corrected:
+npm warn publish "bin[credit-optimizer-mcp]" script name dist/index.js was invalid and removed
+npm notice
+npm notice package: @robinsonai/credit-optimizer-mcp@0.1.1
+npm notice Tarball Contents
+npm notice 8.3kB README.md
+npm notice 1.6kB dist/agent-pool.d.ts
+npm notice 1.2kB dist/agent-pool.d.ts.map
+npm notice 6.2kB dist/agent-pool.js
+npm notice 5.3kB dist/agent-pool.js.map
+npm notice 3.0kB dist/autonomous-executor.d.ts
+npm notice 2.0kB dist/autonomous-executor.d.ts.map
+npm notice 16.7kB dist/autonomous-executor.js
+npm notice 12.4kB dist/autonomous-executor.js.map
+npm notice 1.6kB dist/blueprint-schema.d.ts
+npm notice 1.6kB dist/blueprint-schema.d.ts.map
+npm notice 6.4kB dist/blueprint-schema.js
+npm notice 3.4kB dist/blueprint-schema.js.map
+npm notice 2.1kB dist/cost-tracker.d.ts
+npm notice 1.6kB dist/cost-tracker.d.ts.map
+npm notice 5.5kB dist/cost-tracker.js
+npm notice 4.0kB dist/cost-tracker.js.map
+npm notice 2.8kB dist/database.d.ts
+npm notice 2.4kB dist/database.d.ts.map
+npm notice 18.2kB dist/database.js
+npm notice 11.2kB dist/database.js.map
+npm notice 425B dist/index.d.ts
+npm notice 124B dist/index.d.ts.map
+npm notice 45.2kB dist/index.js
+npm notice 29.0kB dist/index.js.map
+npm notice 1.6kB dist/parallel-executor.d.ts
+npm notice 1.3kB dist/parallel-executor.d.ts.map
+npm notice 7.4kB dist/parallel-executor.js
+npm notice 6.0kB dist/parallel-executor.js.map
+npm notice 2.1kB dist/patch-engine.d.ts
+npm notice 1.5kB dist/patch-engine.d.ts.map
+npm notice 8.1kB dist/patch-engine.js
+npm notice 6.5kB dist/patch-engine.js.map
+npm notice 1.6kB dist/pr-creator.d.ts
+npm notice 1.0kB dist/pr-creator.d.ts.map
+npm notice 5.9kB dist/pr-creator.js
+npm notice 4.4kB dist/pr-creator.js.map
+npm notice 2.3kB dist/repo-indexer.d.ts
+npm notice 1.7kB dist/repo-indexer.d.ts.map
+npm notice 8.7kB dist/repo-indexer.js
+npm notice 7.0kB dist/repo-indexer.js.map
+npm notice 435B dist/skill-packs-db.d.ts
+npm notice 401B dist/skill-packs-db.d.ts.map
+npm notice 11.0kB dist/skill-packs-db.js
+npm notice 7.6kB dist/skill-packs-db.js.map
+npm notice 1.3kB dist/template-engine.d.ts
+npm notice 1.0kB dist/template-engine.d.ts.map
+npm notice 8.8kB dist/template-engine.js
+npm notice 4.9kB dist/template-engine.js.map
+npm notice 1.5kB dist/tool-indexer.d.ts
+npm notice 901B dist/tool-indexer.d.ts.map
+npm notice 6.6kB dist/tool-indexer.js
+npm notice 5.0kB dist/tool-indexer.js.map
+npm notice 1.7kB dist/workflow-planner.d.ts
+npm notice 1.4kB dist/workflow-planner.d.ts.map
+npm notice 7.9kB dist/workflow-planner.js
+npm notice 7.1kB dist/workflow-planner.js.map
+npm notice 2.6kB dist/workplan-dsl.d.ts
+npm notice 2.3kB dist/workplan-dsl.d.ts.map
+npm notice 7.2kB dist/workplan-dsl.js
+npm notice 6.6kB dist/workplan-dsl.js.map
+npm notice 1.1kB package.json
+npm notice 6.4kB src/agent-pool.ts
+npm notice 16.1kB src/autonomous-executor.ts
+npm notice 6.8kB src/blueprint-schema.ts
+npm notice 5.8kB src/cost-tracker.ts
+npm notice 18.4kB src/database.ts
+npm notice 37.2kB src/index.ts
+npm notice 7.4kB src/parallel-executor.ts
+npm notice 7.8kB src/patch-engine.ts
+npm notice 6.4kB src/pr-creator.ts
+npm notice 9.2kB src/repo-indexer.ts
+npm notice 9.9kB src/skill-packs-db.ts
+npm notice 8.7kB src/template-engine.ts
+npm notice 6.4kB src/tool-indexer.ts
+npm notice 526B src/types.d.ts
+npm notice 8.1kB src/workflow-planner.ts
+npm notice 8.5kB src/workplan-dsl.ts
+npm notice 478B tsconfig.json
+npm notice Tarball Details
+npm notice name: @robinsonai/credit-optimizer-mcp
+npm notice version: 0.1.1
+npm notice filename: robinsonai-credit-optimizer-mcp-0.1.1.tgz
+npm notice package size: 106.2 kB
+npm notice unpacked size: 511.1 kB
+npm notice shasum: 6f1493f12549ab32e08c76538a8382124029129e
+npm notice integrity: sha512-B3VS1R7pqrFcO[...]K+LssAzpzgO+g==
+npm notice total files: 79
+npm notice
+npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/@robinsonai%2fcredit-optimizer-mcp - Scope not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/credit-optimizer-mcp@0.1.1' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_53_689Z-debug-0.log
+   ❌ Failed to publish @robinsonai/credit-optimizer-mcp: Command failed: npm publish --access public
+
+🔄 Publishing @robinsonai/github-mcp v2.0.0...
+   📝 GitHub integration (241 tools)
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fgithub-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/github-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_56_767Z-debug-0.log
+   📋 Package not yet published
+   🚀 Publishing...
+
+> @robinsonai/github-mcp@2.0.0 prepublishOnly
+> npm run build
+
+
+> @robinsonai/github-mcp@2.0.0 build
+> tsc
+
+npm warn publish npm auto-corrected some errors in your package.json when publishing.  Please run "npm pkg fix" to address these errors.
+npm warn publish errors corrected:
+npm warn publish "bin[github-mcp]" script name dist/index.js was invalid and removed
+npm notice
+npm notice package: @robinsonai/github-mcp@2.0.0
+npm notice Tarball Contents
+npm notice 7.3kB COMPLETION_SUMMARY.md
+npm notice 5.5kB FINAL_COMPLETION.md
+npm notice 5.3kB IMPLEMENTATION_STATUS.md
+npm notice 5.7kB README.md
+npm notice 786B count-tools.cjs
+npm notice 142B dist/index.d.ts
+npm notice 181.0kB dist/index.js
+npm notice 3.3kB final-verification.cjs
+npm notice 1.2kB implement-remaining.md
+npm notice 287B mcp-settings.json
+npm notice 680B package.json
+npm notice 43.6kB robinsonai-github-mcp-2.0.0.tgz
+npm notice 172.3kB src/index.ts
+npm notice 5.0kB test-real-api.cjs
+npm notice 649B test-tools.cjs
+npm notice 404B tsconfig.json
+npm notice Tarball Details
+npm notice name: @robinsonai/github-mcp
+npm notice version: 2.0.0
+npm notice filename: robinsonai-github-mcp-2.0.0.tgz
+npm notice package size: 89.3 kB
+npm notice unpacked size: 433.2 kB
+npm notice shasum: 4be15d20f26e3357ea7a96e62579d9d804a2e4a9
+npm notice integrity: sha512-z45J4cV4K3MWg[...]7TA2C8undvoyw==
+npm notice total files: 16
+npm notice
+npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/@robinsonai%2fgithub-mcp - Scope not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/github-mcp@2.0.0' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_06_57_183Z-debug-0.log
+   ❌ Failed to publish @robinsonai/github-mcp: Command failed: npm publish --access public
+
+🔄 Publishing @robinsonai/vercel-mcp v1.0.0...
+   📝 Vercel deployment integration
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fvercel-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/vercel-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_07_01_235Z-debug-0.log
+   📋 Package not yet published
+   🚀 Publishing...
+
+> @robinsonai/vercel-mcp@1.0.0 prepublishOnly
+> npm run build
+
+
+> @robinsonai/vercel-mcp@1.0.0 build
+> tsc
+
+npm warn publish npm auto-corrected some errors in your package.json when publishing.  Please run "npm pkg fix" to address these errors.
+npm warn publish errors corrected:
+npm warn publish "bin[vercel-mcp]" script name dist/index.js was invalid and removed
+npm notice
+npm notice package: @robinsonai/vercel-mcp@1.0.0
+npm notice Tarball Contents
+npm notice 6.6kB COMPLETION_STATUS.md
+npm notice 7.0kB EXPANSION_COMPLETE.md
+npm notice 2.0kB README.md
+npm notice 4.7kB count-all-tools.cjs
+npm notice 31B dist/index.d.ts
+npm notice 154.1kB dist/index.js
+npm notice 664B package.json
+npm notice 126.5kB src/index.ts
+npm notice 404B tsconfig.json
+npm notice Tarball Details
+npm notice name: @robinsonai/vercel-mcp
+npm notice version: 1.0.0
+npm notice filename: robinsonai-vercel-mcp-1.0.0.tgz
+npm notice package size: 32.0 kB
+npm notice unpacked size: 301.9 kB
+npm notice shasum: 244b122f9a78b6dfa42a75506e639823762ce8c4
+npm notice integrity: sha512-rK1GMBXHaak/E[...]0cSWTqdj4KPkQ==
+npm notice total files: 9
+npm notice
+npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/@robinsonai%2fvercel-mcp - Scope not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/vercel-mcp@1.0.0' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_07_01_633Z-debug-0.log
+   ❌ Failed to publish @robinsonai/vercel-mcp: Command failed: npm publish --access public
+
+🔄 Publishing @robinsonai/neon-mcp v2.0.0...
+   📝 Neon Postgres integration
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fneon-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/neon-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_07_04_513Z-debug-0.log
+   📋 Package not yet published
+   🚀 Publishing...
+npm warn publish npm auto-corrected some errors in your package.json when publishing.  Please run "npm pkg fix" to address these errors.
+npm warn publish errors corrected:
+npm warn publish "bin[neon-mcp]" script name dist/index.js was invalid and removed
+npm notice
+npm notice package: @robinsonai/neon-mcp@2.0.0
+npm notice Tarball Contents
+npm notice 6.7kB README.md
+npm notice 31B dist/index.d.ts
+npm notice 113.3kB dist/index.js
+npm notice 790B package.json
+npm notice 108.2kB src/index.ts
+npm notice 404B tsconfig.json
+npm notice Tarball Details
+npm notice name: @robinsonai/neon-mcp
+npm notice version: 2.0.0
+npm notice filename: robinsonai-neon-mcp-2.0.0.tgz
+npm notice package size: 32.4 kB
+npm notice unpacked size: 229.5 kB
+npm notice shasum: e0a09914f9e3b98685fa4fe1b58661394651748f
+npm notice integrity: sha512-eP9nD7oRdHE7s[...]83FgmPqfAajhA==
+npm notice total files: 6
+npm notice
+npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/@robinsonai%2fneon-mcp - Scope not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/neon-mcp@2.0.0' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_07_04_952Z-debug-0.log
+   ❌ Failed to publish @robinsonai/neon-mcp: Command failed: npm publish --access public
+
+🔄 Publishing @robinsonai/openai-mcp v1.0.0...
+   📝 Direct OpenAI API access
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@robinsonai%2fopenai-mcp - Not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/openai-mcp@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_07_06_160Z-debug-0.log
+   📋 Package not yet published
+   🚀 Publishing...
+npm warn publish npm auto-corrected some errors in your package.json when publishing.  Please run "npm pkg fix" to address these errors.
+npm warn publish errors corrected:
+npm warn publish "bin[openai-mcp]" script name dist/index.js was invalid and removed
+npm notice
+npm notice package: @robinsonai/openai-mcp@1.0.0
+npm notice Tarball Contents
+npm notice 15.8kB README.md
+npm notice 873B USAGE.md
+npm notice 5.2kB dist/cost-manager.d.ts
+npm notice 2.0kB dist/cost-manager.d.ts.map
+npm notice 13.7kB dist/cost-manager.js
+npm notice 12.0kB dist/cost-manager.js.map
+npm notice 66B dist/index.d.ts
+npm notice 104B dist/index.d.ts.map
+npm notice 452.5kB dist/index.js
+npm notice 323.6kB dist/index.js.map
+npm notice 744B package.json
+npm notice 14.0kB src/cost-manager.ts
+npm notice 378.2kB src/index.ts
+npm notice 455B tsconfig.json
+npm notice Tarball Details
+npm notice name: @robinsonai/openai-mcp
+npm notice version: 1.0.0
+npm notice filename: robinsonai-openai-mcp-1.0.0.tgz
+npm notice package size: 162.2 kB
+npm notice unpacked size: 1.2 MB
+npm notice shasum: 1ecbb9d6ca67e7536395c4c0e54d3748b85c359d
+npm notice integrity: sha512-93FdyhfBdLNbU[...]QLl48GlBUtiRg==
+npm notice total files: 14
+npm notice
+npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/@robinsonai%2fopenai-mcp - Scope not found
+npm error 404
+npm error 404  The requested resource '@robinsonai/openai-mcp@1.0.0' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\chris\AppData\Local\npm-cache\_logs\2025-11-01T19_07_06_591Z-debug-0.log
+   ❌ Failed to publish @robinsonai/openai-mcp: Command failed: npm publish --access public
+
+📊 PUBLISHING SUMMARY
+====================
+✅ Successfully published: 0 packages
+⚠️  Skipped (already published): 0 packages
+❌ Failed: 8 packages
+📦 Total: 8 packages

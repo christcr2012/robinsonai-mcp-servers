@@ -4,6 +4,8 @@
 
 ---
 
+> Windows note: When configuring stdio servers in VS Code, prefer absolute executables (e.g., `C:\nvm4w\nodejs\<bin>.cmd`) or `node.exe` + `dist/index.js`. Avoid relying on PATH, and avoid `npx` unless pinned to `C:\nvm4w\nodejs\npx.cmd`. You can generate Windows-safe JSON with `node tools/generate-augment-mcp-import.mjs`.
+
 ## ✅ METHOD 1: Import via Augment Settings UI (RECOMMENDED)
 
 ### Step 1: Open Augment Settings

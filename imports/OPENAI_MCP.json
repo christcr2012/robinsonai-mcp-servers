@@ -1,0 +1,12 @@
+[
+  {
+    "type": "stdio",
+    "name": "openai-mcp",
+    "command": "C:\\nvm4w\\nodejs\\openai-mcp.cmd",
+    "arguments": "",
+    "useShellInterpolation": true,
+    "env": {
+      "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
+    }
+  }
+]

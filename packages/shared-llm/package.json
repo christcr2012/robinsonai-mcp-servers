@@ -1,5 +1,5 @@
 {
-  "name": "@robinsonai/shared-llm",
+  "name": "@robinson_ai_systems/shared-llm",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",

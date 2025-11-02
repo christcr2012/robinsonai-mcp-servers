@@ -27,14 +27,18 @@ You should see all 4 packages listed.
 
 ## Configuration Format
 
-### Working Configuration (Verified in VS Code on Windows)
+### Recommended patterns (Windows-friendly)
+
+Use one of these for each server. Avoid relying on PATH inside the VS Code extension host.
+
+1) Absolute .cmd shim (preferred on Windows when globally linked)
 
 ```json
 {
-  "mcpServers": {
+   "mcpServers": {
       "architect-mcp": {
-         "command": "npx",
-         "args": ["architect-mcp"],
+         "command": "C:\\nvm4w\\nodejs\\architect-mcp.cmd",
+         "args": [],
          "env": {
             "OLLAMA_BASE_URL": "http://localhost:11434",
             "ARCHITECT_FAST_MODEL": "qwen2.5:3b",
@@ -42,26 +46,57 @@ You should see all 4 packages listed.
             "ARCHITECT_BIG_MODEL": "qwen2.5-coder:32b"
          }
       },
-    "autonomous-agent-mcp": {
-      "command": "npx",
-      "args": ["autonomous-agent-mcp"],
-      "env": {
-        "OLLAMA_BASE_URL": "http://localhost:11434"
-      }
-    },
-    "credit-optimizer-mcp": {
-      "command": "npx",
-      "args": ["credit-optimizer-mcp"],
-      "env": {}
-    },
+      "autonomous-agent-mcp": {
+         "command": "C:\\nvm4w\\nodejs\\autonomous-agent-mcp.cmd",
+         "args": [],
+         "env": { "OLLAMA_BASE_URL": "http://localhost:11434" }
+      },
+      "credit-optimizer-mcp": {
+         "command": "C:\\nvm4w\\nodejs\\credit-optimizer-mcp.cmd",
+         "args": [],
+         "env": { "CREDIT_OPTIMIZER_SKIP_INDEX": "1" }
+      },
       "robinsons-toolkit-mcp": {
-         "command": "npx",
-         "args": ["robinsons-toolkit-mcp"],
+         "command": "C:\\nvm4w\\nodejs\\robinsons-toolkit-mcp.cmd",
+         "args": [],
+         "env": {}
+      }
+   }
+}
+```
+
+2) Explicit node + dist entry (no global link required)
+
+```json
+{
+   "mcpServers": {
+      "architect-mcp": {
+         "command": "C:\\Program Files\\nodejs\\node.exe",
+         "args": [
+            "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\architect-mcp\\dist\\index.js"
+         ],
          "env": {
-        
+            "OLLAMA_BASE_URL": "http://localhost:11434",
+            "ARCHITECT_FAST_MODEL": "qwen2.5:3b",
+            "ARCHITECT_STD_MODEL": "deepseek-coder:33b",
+            "ARCHITECT_BIG_MODEL": "qwen2.5-coder:32b"
          }
       }
-  }
+   }
+}
+```
+
+3) npx fallback (use with caution; may emit stdout noise and be slower)
+
+```json
+{
+   "mcpServers": {
+      "architect-mcp": {
+         "command": "C:\\nvm4w\\nodejs\\npx.cmd",
+         "args": ["-y", "@robinsonai/architect-mcp"],
+         "env": { "OLLAMA_BASE_URL": "http://localhost:11434" }
+      }
+   }
 }
 ```
 
@@ -95,44 +130,53 @@ You should see tools from all 4 servers.
 
 ### ✅ DO THIS
 
-1. **Use npx with bin name in args:**
-   - `"command": "npx"` ✅
-   - `"args": ["architect-mcp"]` (bin from each package.json) ✅
-   - This is the VERIFIED WORKING format in VS Code’s Augment extension
+1. Prefer absolute executables over PATH-dependent commands:
+   - On Windows, use absolute .cmd shims (e.g., `C:\\nvm4w\\nodejs\\<bin>.cmd`) or explicit `node.exe` with a dist entrypoint.
+   - Ensure stdout is reserved for JSON-RPC only; send logs to stderr.
 
 2. **Use `"mcpServers"` (not `"augment.mcpServers"`):**
    - For Augment Settings Panel JSON import: `"mcpServers"` ✅
    - For VS Code settings.json: `"augment.mcpServers"` ✅
 
-3. **Make bins available FIRST:**
-   - Preferred: Run `npm link` in each package directory to expose the local bins globally
-   - Or: `npm i -g` for published packages (if available)
-   - Verify with `npm list -g --depth=0`
+3. **Make bins available OR use explicit entrypoints:**
+   - Option A: `npm link` each package to create shims under `C:\\nvm4w\\nodejs`.
+   - Option B: Call `node` with the built `dist/index.js` directly.
+   - Verify links with `npm list -g --depth=0`.
 
 4. **Package name in args array:**
    - `"args": ["package-name"]` ✅
    - NOT `"args": []` ❌
    - NOT `"args": ["-y", "@robinsonai/package-name"]` ❌
 
-5. **Fully reload VS Code:**
+5. **Fully reload VS Code / Augment:**
    - Close all windows
    - Reopen fresh (or run Developer: Reload Window)
 
+6. For heavy-initialization servers, keep startup cheap:
+   - Example: `CREDIT_OPTIMIZER_SKIP_INDEX=1` to disable indexing on boot.
+
 ### ❌ DON'T DO THIS
 
-1. **Don't use bin as command (without npx):**
-   - `"command": "architect-mcp"` ❌ may fail if PATH doesn't include npm global bin in the extension host
-   - Always prefer `"command": "npx"` with the bin name in args
+1. Rely on PATH inside the extension host:
+   - `"command": "architect-mcp"` ❌ often fails if the extension’s environment lacks the npm global bin path.
 
-2. **Avoid `node` with file paths:**
-   - The Augment extension expects an executable; using `node` may work but is not recommended here
+2. Emit any non-JSON output on stdout before initialization:
+   - npx and some CLIs can print banners or prompts; that breaks the MCP handshake.
 
 3. **Don't mix formats:**
    - Don't use `"augment.mcpServers"` in JSON import ❌
    - Don't use `"mcpServers"` in VS Code settings.json ❌
 
-4. **Don't skip making bins available:**
-   - Ensure bins resolve via `npm link` or global install; otherwise `npx` may fetch from registry instead of your local build
+4. Skip builds for node+dist usage:
+   - If using `node dist/index.js`, ensure you `npm run build` first.
+
+---
+
+## Why `npx <bin>` regressed
+
+- The VS Code extension host spawns processes with a restricted environment; PATH may not include npm global bins.
+- npx adds latency and may write to stdout (e.g., install notices), corrupting the MCP JSON-RPC stream.
+- Concurrent server startups amplify latency and timeouts; minimize hops and ensure clean stdout.
 
 ---
 
@@ -247,13 +291,13 @@ Each package MUST have:
 
 ## Summary
 
-Use this pattern consistently in Augment’s MCP configuration:
+Use Windows-safe, explicit commands in Augment’s MCP configuration:
 
-- `"command": "npx"`, `"args": ["<bin-name>"]` where `<bin-name>` is one of:
-   - `architect-mcp`, `autonomous-agent-mcp`, `credit-optimizer-mcp`, `robinsons-toolkit-mcp`
-- Provide required env vars (see reference above)
-- Import via Augment Settings panel using the `mcpServers` root key
-- Reload VS Code after changes
+- Prefer absolute .cmd shims or `node.exe` + `dist/index.js`.
+- Treat `npx` as a fallback only, pinned to the absolute `npx.cmd` path if used.
+- Provide required env vars (see reference above) and keep stdout clean.
+- Import via Augment Settings panel using the `mcpServers` root key.
+- Reload VS Code after changes.
 
-Tip: You can import `READY_TO_PASTE_CONFIG.json` from the repo root as a known-good starting point.
+Tip: Use `tools/generate-augment-mcp-import.mjs` to emit Windows-safe import JSONs (includes an optional secrets variant).
 

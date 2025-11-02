@@ -1,0 +1,10 @@
+[
+  {
+    "type": "stdio",
+    "name": "thinking-tools-mcp",
+    "command": "C:\\nvm4w\\nodejs\\thinking-tools-mcp.cmd",
+    "arguments": "",
+    "useShellInterpolation": true,
+    "env": {}
+  }
+]

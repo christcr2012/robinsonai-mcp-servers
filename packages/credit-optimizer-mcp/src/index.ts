@@ -71,8 +71,8 @@ class CreditOptimizerServer {
     this.parallelExecutor = new ParallelExecutionEngine();
     this.agentPool = getSharedAgentPool({ autonomousAgents: 2, openaiWorkers: 2 });
 
-    // Initialize tool index and templates
-    this.initialize();
+  // Defer heavy initialization until after server connects (and allow skipping via env)
+  // Previously this ran in the constructor and could cause startup hangs/crashes under some hosts
 
     this.setupHandlers();
   }
@@ -999,6 +999,17 @@ class CreditOptimizerServer {
     console.error('Credit Optimizer MCP server running on stdio');
     console.error('Ready to optimize Augment Code credit usage!');
 
+    // Kick off initialization asynchronously after connect, unless explicitly skipped
+    if (process.env.CREDIT_OPTIMIZER_SKIP_INDEX !== '1') {
+      setTimeout(() => {
+        this.initialize().catch((err) => {
+          console.error('Non-fatal: initialization failed:', err?.message || err);
+        });
+      }, 0);
+    } else {
+      console.error('Startup indexing skipped (CREDIT_OPTIMIZER_SKIP_INDEX=1)');
+    }
+
     // Graceful shutdown
     process.on('SIGINT', async () => {
       console.error('\n🛑 Shutting down Credit Optimizer...');
@@ -1015,8 +1026,7 @@ class CreditOptimizerServer {
 
   private async cleanup(): Promise<void> {
     try {
-      // Disconnect from Robinson's Toolkit
-      await this.toolIndexer.disconnect();
+      // No cleanup needed for static tool index
       console.error('✅ Cleanup complete');
     } catch (error) {
       console.error('❌ Cleanup error:', error);

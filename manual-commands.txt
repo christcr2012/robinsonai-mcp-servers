@@ -1,0 +1,69 @@
+# Manual Commands to Fix All Dependencies and Publish
+# Run these commands one by one in your terminal
+
+# Step 1: Publish shared-llm first (dependency for free-agent-mcp)
+cd packages/shared-llm
+npm publish --access public
+cd ../..
+
+# Step 2: Publish sequential-thinking-mcp (was missed)
+cd packages/sequential-thinking-mcp
+npm publish --access public
+cd ../..
+
+# Step 3: Republish free-agent-mcp with fixed dependency
+cd packages/free-agent-mcp
+npm version patch
+npm publish --access public
+cd ../..
+
+# Step 4: Republish all other packages with patch versions
+cd packages/paid-agent-mcp
+npm version patch
+npm publish --access public
+cd ../..
+
+cd packages/thinking-tools-mcp
+npm version patch
+npm publish --access public
+cd ../..
+
+cd packages/credit-optimizer-mcp
+npm version patch
+npm publish --access public
+cd ../..
+
+cd packages/github-mcp
+npm version patch
+npm publish --access public
+cd ../..
+
+cd packages/vercel-mcp
+npm version patch
+npm publish --access public
+cd ../..
+
+cd packages/neon-mcp
+npm version patch
+npm publish --access public
+cd ../..
+
+cd packages/openai-mcp
+npm version patch
+npm publish --access public
+cd ../..
+
+# Step 5: Test installation
+npm install -g @robinson_ai_systems/free-agent-mcp
+
+# If successful, you can install all:
+npm install -g @robinson_ai_systems/shared-llm
+npm install -g @robinson_ai_systems/sequential-thinking-mcp
+npm install -g @robinson_ai_systems/free-agent-mcp
+npm install -g @robinson_ai_systems/paid-agent-mcp
+npm install -g @robinson_ai_systems/thinking-tools-mcp
+npm install -g @robinson_ai_systems/credit-optimizer-mcp
+npm install -g @robinson_ai_systems/github-mcp
+npm install -g @robinson_ai_systems/vercel-mcp
+npm install -g @robinson_ai_systems/neon-mcp
+npm install -g @robinson_ai_systems/openai-mcp

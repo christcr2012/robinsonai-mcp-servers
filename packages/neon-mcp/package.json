@@ -1,6 +1,6 @@
 {
-  "name": "@robinsonai/neon-mcp",
-  "version": "2.0.0",
+  "name": "@robinson_ai_systems/neon-mcp",
+  "version": "2.0.1",
   "description": "Comprehensive Neon PostgreSQL MCP server with 145 tools for complete database management",
   "type": "module",
   "main": "dist/index.js",

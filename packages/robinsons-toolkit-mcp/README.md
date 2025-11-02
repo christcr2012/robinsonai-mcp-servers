@@ -1,10 +1,10 @@
 # 🛠️ Robinson's Toolkit MCP Server
 
-**556 tools across 3 integrations (GitHub, Vercel, Neon) - Augment Code's HANDS to DO things!**
+**1165+ tools across 6 integrations (GitHub, Vercel, Neon, Upstash, Google, OpenAI) - Augment Code's HANDS to DO things!**
 
 Robinson's Toolkit is a unified MCP server that consolidates all your development tools into one place, giving Augment Code the ability to actually DO things instead of just explaining them.
 
-**Status:** ✅ Currently working with GitHub (240 tools), Vercel (150 tools), and Neon (166 tools). More integrations coming soon!
+**Status:** ✅ Currently working with GitHub (241 tools), Vercel (150 tools), Neon (166 tools), Upstash Redis (157 tools), Google Workspace (192 tools), and OpenAI (259 tools)!
 
 ---
 
@@ -12,10 +12,13 @@ Robinson's Toolkit is a unified MCP server that consolidates all your developmen
 
 Robinson's Toolkit gives Augment Code direct access to:
 
-### **Currently Integrated (556 tools):**
-- **GitHub** (240 tools) ✅ - Repos, branches, PRs, issues, workflows, releases, actions
+### **Currently Integrated (1165+ tools):**
+- **GitHub** (241 tools) ✅ - Repos, branches, PRs, issues, workflows, releases, actions, security
 - **Vercel** (150 tools) ✅ - Projects, deployments, domains, env vars, logs, analytics, edge config
 - **Neon** (166 tools) ✅ - Databases, branches, SQL, roles, endpoints, monitoring, backups
+- **Upstash Redis** (157 tools) ✅ - Cache, pub/sub, streams, keys, database management
+- **Google Workspace** (192 tools) ✅ - Gmail, Drive, Calendar, Sheets, Docs, Admin
+- **OpenAI** (259 tools) ✅ - Chat, embeddings, images, audio, assistants, fine-tuning, batch API
 
 ### **Coming Soon:**
 - **Stripe** (~100 tools) - Customers, subscriptions, payments, products, webhooks
@@ -23,12 +26,10 @@ Robinson's Toolkit gives Augment Code direct access to:
 - **Resend** (~60 tools) - Emails, templates, domains, API keys
 - **Twilio** (~70 tools) - SMS, voice, verify, lookup
 - **Cloudflare** (~50 tools) - DNS, domains, zones, workers
-- **Redis** (~40 tools) - Cache, pub/sub, streams, keys
-- **OpenAI** (~30 tools) - Completions, chat, embeddings, models
-- **Google Workspace** (~80 tools) - Gmail, Drive, Calendar, Sheets, Docs, Admin
-- **Context7** (3 tools) - Documentation retrieval
+- **Context7** (8 tools) - Documentation retrieval
+- **Playwright** (33 tools) - Web automation and testing
 
-**Current Total: 556 tools | Target: ~900+ tools**
+**Current Total: 1165+ tools | Target: ~1500+ tools**
 
 ---
 

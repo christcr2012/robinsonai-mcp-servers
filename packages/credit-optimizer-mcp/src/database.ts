@@ -203,17 +203,35 @@ export class DatabaseManager {
   }
 
   searchTools(query: string, limit: number = 10): any[] {
+    // Fixed: Keywords are stored as JSON arrays, so we need to search for quoted strings
+    // e.g., ["github","create"] requires searching for %"github"% not just %github%
     const stmt = this.db.prepare(`
       SELECT t.* FROM tool_index t
-      WHERE t.tool_name LIKE ? 
+      WHERE t.tool_name LIKE ?
          OR t.description LIKE ?
          OR t.keywords LIKE ?
          OR t.use_cases LIKE ?
+      ORDER BY
+        CASE
+          WHEN t.tool_name LIKE ? THEN 1
+          WHEN t.description LIKE ? THEN 2
+          ELSE 3
+        END
       LIMIT ?
     `);
 
     const searchPattern = `%${query}%`;
-    return stmt.all(searchPattern, searchPattern, searchPattern, searchPattern, limit);
+    const jsonSearchPattern = `%"${query}"%`; // Search for quoted string in JSON array
+
+    return stmt.all(
+      searchPattern,        // tool_name
+      searchPattern,        // description
+      jsonSearchPattern,    // keywords (JSON array)
+      jsonSearchPattern,    // use_cases (JSON array)
+      searchPattern,        // ORDER BY tool_name
+      searchPattern,        // ORDER BY description
+      limit
+    );
   }
 
   getToolsByCategory(category: string): any[] {
