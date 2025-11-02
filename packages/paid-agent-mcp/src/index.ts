@@ -955,7 +955,7 @@ async function handleExecuteVersatileTask(args: any) {
     minQuality = 'standard',
     maxCost = COST_POLICY.DEFAULT_MAX_COST,
     taskComplexity = 'medium',
-    forcePaid = false,  // NEW: Force PAID OpenAI (bypass FREE Ollama)
+    forcePaid = true,  // PAID agent defaults to PAID models (set to false to use FREE Ollama)
   } = args;
 
   console.error(`[OpenAIWorker] Executing versatile task: ${taskType} - ${task}`);
