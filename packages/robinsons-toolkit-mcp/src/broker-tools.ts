@@ -110,5 +110,13 @@ export const BROKER_TOOLS: Tool[] = [
       properties: {},
     },
   },
+  {
+    name: 'toolkit_validate',
+    description: 'Validate all tools in the registry and surface invalid entries. Returns total count, invalid count, and sample of invalid tools with reasons. Use this to diagnose "NULL tools" or "invalid name" errors.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+    },
+  },
 ];
 

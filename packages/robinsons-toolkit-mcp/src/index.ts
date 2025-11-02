@@ -340,6 +340,9 @@ class UnifiedToolkit {
           case 'toolkit_health_check':
             return await this.healthCheck();
 
+          case 'toolkit_validate':
+            return await this.validateTools();
+
           default:
             // Not a broker tool, try executing as regular tool
             return await this.executeToolInternal(name, args);
@@ -378,6 +381,60 @@ class UnifiedToolkit {
       content: [{
         type: 'text',
         text: JSON.stringify(status, null, 2)
+      }]
+    };
+  }
+
+  private async validateTools() {
+    const allTools = this.getOriginalToolDefinitions();
+    const NAME_RE = /^[A-Za-z0-9._-]{1,64}$/;
+    const invalid: Array<{ index: number; name?: string; reason: string }> = [];
+    const categories: Record<string, number> = {};
+
+    allTools.forEach((t: any, i: number) => {
+      // Track categories
+      const category = t.name?.split("_")[0] || "unknown";
+      categories[category] = (categories[category] || 0) + 1;
+
+      // Validate tool
+      if (!t || typeof t !== "object") {
+        invalid.push({ index: i, name: t?.name, reason: "not an object" });
+        return;
+      }
+
+      if (!t.name || typeof t.name !== "string") {
+        invalid.push({ index: i, name: t?.name, reason: "missing or invalid name" });
+        return;
+      }
+
+      if (!NAME_RE.test(t.name)) {
+        invalid.push({ index: i, name: t.name, reason: "name doesn't match ^[A-Za-z0-9._-]{1,64}$" });
+        return;
+      }
+
+      if (!t.inputSchema || typeof t.inputSchema !== "object") {
+        invalid.push({ index: i, name: t.name, reason: "missing or invalid inputSchema" });
+        return;
+      }
+
+      if (!t.description || typeof t.description !== "string") {
+        invalid.push({ index: i, name: t.name, reason: "missing or invalid description" });
+        return;
+      }
+    });
+
+    const result = {
+      total: allTools.length,
+      valid: allTools.length - invalid.length,
+      invalid_count: invalid.length,
+      sample_invalid: invalid.slice(0, 20),
+      categories,
+    };
+
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify(result, null, 2)
       }]
     };
   }
