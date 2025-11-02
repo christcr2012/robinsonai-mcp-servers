@@ -1,15 +1,14 @@
 /**
- * Thinking operators for Robinson Thinking Tools MCP
- * Each tool:
- *  - accepts structured inputs (subject, options, evidence paths, etc.)
- *  - emits artifacts to `.robctx/thinking/*` (both JSON + Markdown)
- *  - returns a compact JSON result the agent can chain
+ * Auto-filled Thinking Tools for Robinson Thinking Tools MCP
+ * - Collects evidence paths (from collector, context engine, or user)
+ * - Heuristically extracts bullets from evidence and populates artifacts
+ * - Writes JSON + Markdown to .robctx/thinking/*
  */
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 
 type J = Record<string, any>;
-type Tool = {
+type ToolDef = {
   name: string;
   description: string;
   inputSchema: J;
@@ -17,270 +16,280 @@ type Tool = {
 };
 
 const OUT = ".robctx/thinking";
-async function ensureDir(p: string) { await fs.mkdir(p, { recursive: true }); }
-const iso = () => new Date().toISOString().replace(/[:.]/g, "-");
-const md = (s: string) => s.replace(/\r\n/g, "\n");
+const iso = () => new Date().toISOString().replace(/[:.]/g,"-");
+const clean = (s: string) => (s||"").replace(/\r\n/g,"\n");
 
-async function writeArtifacts(baseName: string, json: J, markdown: string) {
+async function ensureDir(p: string) { await fs.mkdir(p, { recursive: true }); }
+async function write(base: string, json: J, md: string) {
   await ensureDir(OUT);
-  const jsonPath = join(OUT, `${baseName}.json`);
-  const mdPath = join(OUT, `${baseName}.md`);
+  const jsonPath = join(OUT, base + ".json");
+  const mdPath   = join(OUT, base + ".md");
   await fs.writeFile(jsonPath, JSON.stringify(json, null, 2), "utf8");
-  await fs.writeFile(mdPath, md(markdown), "utf8");
+  await fs.writeFile(mdPath, clean(md), "utf8");
   return { jsonPath, mdPath };
 }
 
-/* -------------------- 1) SWOT analysis -------------------- */
-async function doSWOT(subject: string, contextNotes: string, evidence: string[]) {
-  // Heuristic "thinking scaffold" – the LLM fills the content when called by the MCP host,
-  // but we keep structure, scoring and artifacts here so it's consistent across agents.
-  // You can prompt your coding agent to populate the bullets based on evidence files.
-  const template = {
-    subject,
-    strengths: [] as { text: string; evidence?: string; confidence: number }[],
-    weaknesses: [] as { text: string; evidence?: string; confidence: number }[],
-    opportunities: [] as { text: string; evidence?: string; confidence: number }[],
-    threats: [] as { text: string; evidence?: string; confidence: number }[],
-    summary: "",
-    evidence,
-    created_at: new Date().toISOString(),
-    notes: contextNotes || ""
-  };
-  return template;
+/* -------- evidence parsing helpers (simple heuristics) -------- */
+function splitSentences(t: string): string[] {
+  return clean(t).split(/\n+/).map(s=>s.trim()).filter(Boolean);
+}
+function pick(lines: string[], needles: RegExp[], max = 8) {
+  const hits = lines.filter(l => needles.some(rx => rx.test(l)));
+  // de-dup-ish and trim
+  const uniq: string[] = [];
+  for (const h of hits) {
+    const k = h.toLowerCase();
+    if (!uniq.some(u => u.toLowerCase() === k)) uniq.push(h);
+    if (uniq.length >= max) break;
+  }
+  return uniq;
+}
+async function readEvidence(paths: string[]) {
+  const out: { path: string; text: string }[] = [];
+  for (const p of (paths||[])) {
+    try {
+      const t = await fs.readFile(p, "utf8");
+      out.push({ path: p, text: t });
+    } catch { /* ignore */ }
+  }
+  return out;
 }
 
-const swotTool: Tool = {
+/* ---------------- SWOT ---------------- */
+const RX_STRENGTH = [/success|works well|advantage|fast|reliable|passes|good/i];
+const RX_WEAKNESS = [/bug|issue|problem|slow|fragile|missing|placeholder|stub|risk/i];
+const RX_OPPORT   = [/could|opportunity|extend|improve|optimi|add|future/i];
+const RX_THREAT   = [/break|outage|security|leak|regress|downtime|attack|cost overrun/i];
+
+const think_swot: ToolDef = {
   name: "think_swot",
-  description: "Structured SWOT analysis with confidence and evidence mapping; writes .robctx/thinking artifacts.",
+  description: "Auto-populated SWOT from evidence; writes MD+JSON",
   inputSchema: {
     type: "object",
     properties: {
-      subject: { type: "string", description: "System, change, or decision to evaluate" },
-      context_notes: { type: "string" },
-      evidence_paths: { type: "array", items: { type: "string" }, description: "JSON/MD files to consult" }
+      subject: { type: "string" },
+      evidence_paths: { type: "array", items: { type: "string" } },
+      autofill: { type: "boolean", default: true }
     },
     required: ["subject"]
   },
-  handler: async (args) => {
-    const { subject, context_notes = "", evidence_paths = [] } = args;
-    const data = await doSWOT(subject, context_notes, evidence_paths);
-    const base = `swot--${subject.slice(0, 60)}--${iso()}`;
-    const mdOut =
-`# SWOT: ${subject}
+  handler: async ({ subject, evidence_paths = [], autofill = true }) => {
+    const base = `swot--${subject.slice(0,60)}--${iso()}`;
+    const ev = await readEvidence(evidence_paths);
+    const strengths:string[] = [], weaknesses:string[] = [], opportunities:string[] = [], threats:string[] = [];
+    if (autofill) {
+      for (const doc of ev) {
+        const lines = splitSentences(doc.text);
+        strengths.push(...pick(lines, RX_STRENGTH, 4));
+        weaknesses.push(...pick(lines, RX_WEAKNESS, 6));
+        opportunities.push(...pick(lines, RX_OPPORT, 6));
+        threats.push(...pick(lines, RX_THREAT, 6));
+      }
+    }
+    const json = {
+      subject, evidence_paths,
+      strengths: strengths.map(t=>({ text: t })), weaknesses: weaknesses.map(t=>({ text: t })),
+      opportunities: opportunities.map(t=>({ text: t })), threats: threats.map(t=>({ text: t })),
+      created_at: new Date().toISOString()
+    };
+    const md =
+`# SWOT — ${subject}
 
 ## Strengths
-- (to be populated)
+${strengths.map(s=>`- ${s}`).join("\n") || "- (none yet)"}
 
 ## Weaknesses
-- (to be populated)
+${weaknesses.map(s=>`- ${s}`).join("\n") || "- (none yet)"}
 
 ## Opportunities
-- (to be populated)
+${opportunities.map(s=>`- ${s}`).join("\n") || "- (none yet)"}
 
 ## Threats
-- (to be populated)
-
-### Notes
-${context_notes || "(none)"}
+${threats.map(s=>`- ${s}`).join("\n") || "- (none yet)"}
 
 ### Evidence
-${(evidence_paths || []).map((p: string)=>`- ${p}`).join("\n") || "- (none)"}
+${(evidence_paths||[]).map((p: string)=>`- ${p}`).join("\n") || "- (none)"}
 `;
-    const paths = await writeArtifacts(base, data, mdOut);
-    return { ok: true, ...paths };
+    return { ok: true, ...(await write(base, json, md)) };
   }
 };
 
-/* -------------------- 2) Devil's Advocate -------------------- */
-const devilsAdvocate: Tool = {
+/* ---------------- Devil's Advocate ---------------- */
+const RX_COUNTER = [/however|but |concern|counter|conflict|contradict|unknown|assume/i];
+const RX_TEST    = [/test|reproduce|verify|po[ck] /i];
+
+const think_devils_advocate: ToolDef = {
   name: "think_devils_advocate",
-  description: "Generate strongest counter-arguments, failure tests, and disconfirming evidence to a claim.",
+  description: "Extract counter-arguments + falsification tests from evidence.",
   inputSchema: {
     type: "object",
     properties: {
       claim: { type: "string" },
-      assumptions: { type: "array", items: { type: "string" } },
-      evidence_paths: { type: "array", items: { type: "string" } }
+      evidence_paths: { type: "array", items: { type: "string" } },
+      autofill: { type: "boolean", default: true }
     },
     required: ["claim"]
   },
-  handler: async ({ claim, assumptions = [], evidence_paths = [] }) => {
-    const out = {
-      claim,
-      assumptions,
-      counters: [] as { argument: string; test: string; severity: "low"|"med"|"high"; evidence?: string }[],
-      checks: {
-        falsification_tests: [] as string[],
-        monitoring_signals: [] as string[],
-      },
-      evidence_paths,
-      created_at: new Date().toISOString()
-    };
+  handler: async ({ claim, evidence_paths = [], autofill = true }) => {
     const base = `devils-advocate--${claim.slice(0,60)}--${iso()}`;
-    const mdOut =
-`# Devil's Advocate Review
+    const ev = await readEvidence(evidence_paths);
+    const counters:string[] = [], tests:string[] = [];
+    if (autofill) {
+      for (const doc of ev) {
+        const lines = splitSentences(doc.text);
+        counters.push(...pick(lines, RX_COUNTER, 10));
+        tests.push(...pick(lines, RX_TEST, 6));
+      }
+    }
+    const json = { claim, evidence_paths, counters, tests, created_at: new Date().toISOString() };
+    const md =
+`# Devil's Advocate — ${claim}
 
-**Claim:** ${claim}
-
-## Assumptions
-${assumptions.map((a: string)=>`- ${a}`).join("\n") || "- (none)"}
-
-## Counters (to be completed)
-- Argument: …
-  - Test: …
-  - Severity: low|med|high
-  - Evidence: (file/path)
+## Counters
+${counters.map(c=>`- ${c}`).join("\n") || "- (none yet)"}
 
 ## Falsification Tests
-- …
+${tests.map(t=>`- ${t}`).join("\n") || "- (none yet)"}
 
-## Monitoring Signals
-- …
-
-### Evidence Seen
-${evidence_paths.map((e: string)=>`- ${e}`).join("\n") || "- (none)"}
+### Evidence
+${(evidence_paths||[]).map((p: string)=>`- ${p}`).join("\n") || "- (none)"}
 `;
-    const paths = await writeArtifacts(base, out, mdOut);
-    return { ok: true, ...paths };
+    return { ok: true, ...(await write(base, json, md)) };
   }
 };
 
-/* -------------------- 3) Premortem -------------------- */
-const premortem: Tool = {
+/* ---------------- Premortem ---------------- */
+const RX_FAIL = [/fail|break|blocked|timeout|crash|null|none|misconfig|missing/i];
+const think_premortem: ToolDef = {
   name: "think_premortem",
-  description: "Imagine the project failed; enumerate failure modes, mitigations, owners, and leading indicators.",
+  description: "Premortem from evidence (failure modes, mitigations skeleton).",
   inputSchema: {
     type: "object",
     properties: {
       project: { type: "string" },
       horizon_days: { type: "number", default: 30 },
-      evidence_paths: { type: "array", items: { type: "string" } }
+      evidence_paths: { type: "array", items: { type: "string" } },
+      autofill: { type: "boolean", default: true }
     },
     required: ["project"]
   },
-  handler: async ({ project, horizon_days = 30, evidence_paths = [] }) => {
-    const data = {
-      project,
-      horizon_days,
-      failures: [] as { mode: string; impact: "low"|"med"|"high"; mitigation: string; owner?: string; indicator?: string }[],
-      evidence_paths,
-      created_at: new Date().toISOString()
-    };
+  handler: async ({ project, horizon_days = 30, evidence_paths = [], autofill = true }) => {
     const base = `premortem--${project.slice(0,60)}--${iso()}`;
-    const mdOut =
-`# Premortem: ${project} (horizon: ${horizon_days} days)
+    const ev = await readEvidence(evidence_paths);
+    const failures:string[] = [];
+    if (autofill) {
+      for (const doc of ev) failures.push(...pick(splitSentences(doc.text), RX_FAIL, 10));
+    }
+    const json = { project, horizon_days, failures: failures.map(f=>({ mode: f, impact:"med", mitigation:"" })), evidence_paths };
+    const md =
+`# Premortem — ${project} (horizon ${horizon_days}d)
 
-## Failure Modes & Mitigations (to be completed)
-- Mode: …
-  - Impact: low|med|high
-  - Mitigation: …
-  - Owner: …
-  - Early Indicator: …
+## Failure Modes (auto-extracted)
+${failures.map(f=>`- ${f}`).join("\n") || "- (none yet)"}
+
+## Mitigations
+- …
 
 ### Evidence
-${evidence_paths.map((e: string)=>`- ${e}`).join("\n") || "- (none)"}
+${(evidence_paths||[]).map((p: string)=>`- ${p}`).join("\n") || "- (none)"}
 `;
-    const paths = await writeArtifacts(base, data, mdOut);
-    return { ok: true, ...paths };
+    return { ok: true, ...(await write(base, json, md)) };
   }
 };
 
-/* -------------------- 4) Decision Matrix -------------------- */
-const decisionMatrix: Tool = {
+/* ---------------- Decision Matrix ---------------- */
+const think_decision_matrix: ToolDef = {
   name: "think_decision_matrix",
-  description: "Weighted scoring (Pugh/WSM). Returns ranking + writes CSV/MD.",
+  description: "Decision matrix skeleton (you can fill scores in CSV/JSON).",
   inputSchema: {
     type: "object",
     properties: {
       title: { type: "string" },
       options: { type: "array", items: { type: "string" } },
       criteria: { type: "array", items: { type: "string" } },
-      weights:  { type: "array", items: { type: "number" }, description: "Must sum ~1.0" }
+      weights: { type: "array", items: { type: "number" } }
     },
     required: ["title","options","criteria","weights"]
   },
   handler: async ({ title, options, criteria, weights }) => {
-    const nC = criteria.length;
-    if (weights.length !== nC) throw new Error("weights length must match criteria length");
+    if (weights.length !== criteria.length) throw new Error("weights length must equal criteria length");
     const base = `decision--${title.slice(0,60)}--${iso()}`;
-    const skeleton = {
-      title, criteria, weights,
-      // The agent should fill `scores[option][criterion] = 0..5`
-      scores: Object.fromEntries((options as string[]).map(o => [o, Object.fromEntries(criteria.map((c: string) => [c, 0]))])),
-      totals: {} as Record<string, number>,
-      recommendation: "",
-      created_at: new Date().toISOString()
-    };
-    // CSV template for quick editing
-    const header = ["option", ...criteria].join(",");
-    const csv = [header, ...options.map((o: string) => [o, ...criteria.map(()=>0)].join(","))].join("\n");
-    const mdOut =
-`# Decision Matrix: ${title}
-
-**Criteria:** ${criteria.join(", ")}
-**Weights:** ${weights.join(", ")}
-
-> Fill scores 0–5 in JSON or CSV, then re-run an analysis step to compute totals.
+    const scores = Object.fromEntries((options as string[]).map(o => [o, Object.fromEntries(criteria.map((c:string)=>[c,0]))]));
+    const json = { title, criteria, weights, scores, totals:{}, recommendation:"" };
+    const csv = ["option", ...criteria].join(",") + "\n" + (options as string[]).map(o => [o, ...criteria.map(()=>0)].join(",")).join("\n");
+    const md =
+`# Decision Matrix — ${title}
 
 \`\`\`csv
 ${csv}
 \`\`\`
 `;
-    const paths = await writeArtifacts(base, skeleton, mdOut);
-    return { ok: true, ...paths };
+    return { ok: true, ...(await write(base, json, md)) };
   }
 };
 
-/* -------------------- 5) Critique/Checklist -------------------- */
-const critique: Tool = {
+/* ---------------- Checklist ---------------- */
+const DEFAULT_CHECKS = [
+  "Purpose & scope stated",
+  "Interfaces & contracts explicit",
+  "Tests planned and runnable",
+  "No TODO/PLACEHOLDER/Stub remains",
+  "Rollback plan documented",
+  "Risks & mitigations listed"
+];
+
+const think_critique_checklist: ToolDef = {
   name: "think_critique_checklist",
-  description: "Runs a quality checklist against a draft file and emits findings.",
+  description: "Checklist over a draft file; auto-add warnings if TODO/PLACEHOLDER appear.",
   inputSchema: {
     type: "object",
     properties: {
       draft_path: { type: "string" },
-      checklist: { type: "array", items: { type: "string" }, description: "Items to verify (clarity, testability, risk, etc.)" }
+      checklist: { type: "array", items: { type: "string" } }
     },
     required: ["draft_path"]
   },
-  handler: async ({ draft_path, checklist = [] }) => {
-    const text = await fs.readFile(draft_path, "utf8").catch(()=> "");
-    const findings = (checklist.length ? checklist : [
-      "Clarity of purpose", "Inputs/Outputs explicit", "Edge-cases covered",
-      "No TODO/placeholder left", "Testability", "Risks & mitigations recorded"
-    ]).map((item: string) => ({ item, status: "unknown", notes: "" }));
+  handler: async ({ draft_path, checklist = DEFAULT_CHECKS }) => {
+    let warn = "";
+    try {
+      const t = await fs.readFile(draft_path, "utf8");
+      if (/(TODO|PLACEHOLDER|stub)/i.test(t)) warn = "Detected TODO/PLACEHOLDER/stub markers.";
+    } catch { /* ignore */ }
     const base = `critique--${draft_path.replace(/[\\/:]+/g,"-").slice(0,80)}--${iso()}`;
-    const mdOut =
-`# Checklist Review for: ${draft_path}
+    const json = { draft_path, checklist, warning: warn };
+    const md =
+`# Checklist — ${draft_path}
 
-${findings.map((f: any)=>`- [ ] ${f.item} — _notes:_`).join("\n")}
+${checklist.map((c: string)=>`- [ ] ${c}`).join("\n")}
+
+> ${warn || "No automatic warnings."}
 `;
-    const paths = await writeArtifacts(base, { draft_path, findings, bytes: text.length, created_at: new Date().toISOString() }, mdOut);
-    return { ok: true, ...paths };
+    return { ok: true, ...(await write(base, json, md)) };
   }
 };
 
-/* -------------------- 6) Composition: "think_review_change" -------------------- */
-const reviewChange: Tool = {
-  name: "think_review_change",
-  description: "Creates a review packet for a code change: SWOT + Premortem + Checklist skeletons referencing provided evidence.",
+/* ---------------- One-shot packet ---------------- */
+const think_auto_packet: ToolDef = {
+  name: "think_auto_packet",
+  description: "Create a populated review packet (SWOT + Premortem + Devil's + Checklist) from evidence.",
   inputSchema: {
     type: "object",
     properties: {
       title: { type: "string" },
-      evidence_paths: { type: "array", items: { type: "string" }, description: "Context files (repo map, diff, design doc, crawl artifacts…)" }
+      evidence_paths: { type: "array", items: { type: "string" } }
     },
     required: ["title"]
   },
   handler: async ({ title, evidence_paths = [] }) => {
-    const swot = await swotTool.handler({ subject: title, context_notes: "Change Review Packet", evidence_paths });
-    const pre  = await premortem.handler({ project: title, horizon_days: 14, evidence_paths });
-    const chk  = await critique.handler({ draft_path: evidence_paths[0] || "", checklist: [] });
-    return { ok: true, packet: { swot, premortem: pre, checklist: chk } };
+    const sw  = await think_swot.handler({ subject: title, evidence_paths, autofill: true });
+    const pm  = await think_premortem.handler({ project: title, evidence_paths, autofill: true });
+    const da  = await think_devils_advocate.handler({ claim: title, evidence_paths, autofill: true });
+    const chk = await think_critique_checklist.handler({ draft_path: evidence_paths[0] || "" });
+    return { ok: true, packet: { sw, pm, da, chk } };
   }
 };
 
-export function getCognitiveTools(): Tool[] {
-  return [ swotTool, devilsAdvocate, premortem, decisionMatrix, critique, reviewChange ];
+export function getCognitiveTools(): ToolDef[] {
+  return [think_swot, think_devils_advocate, think_premortem, think_decision_matrix, think_critique_checklist, think_auto_packet];
 }
 

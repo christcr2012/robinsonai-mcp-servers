@@ -60,6 +60,15 @@ import { getWebContextTools } from './tools/context_web.js';
 // Import Cognitive Tools
 import { getCognitiveTools } from './tools/cognitive_tools.js';
 
+// Import Evidence Collector
+import { getCollectorTools } from './tools/collect_evidence.js';
+
+// Import Validation Tools
+import { getValidationTools } from './tools/validate_artifacts.js';
+
+// Import LLM Rewrite Tools
+import { getLlmRewriteTools } from './tools/llm_rewrite.js';
+
 class ThinkingToolsMCP {
   private server: Server;
 
@@ -504,6 +513,21 @@ class ThinkingToolsMCP {
           description: tool.description,
           inputSchema: tool.inputSchema,
         })),
+        ...getCollectorTools().map(tool => ({
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+        })),
+        ...getValidationTools().map(tool => ({
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+        })),
+        ...getLlmRewriteTools().map(tool => ({
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+        })),
       ],
     }));
 
@@ -662,13 +686,41 @@ class ThinkingToolsMCP {
           case 'think_premortem':
           case 'think_decision_matrix':
           case 'think_critique_checklist':
-          case 'think_review_change':
+          case 'think_auto_packet':
             // Find the matching cognitive tool and call its handler
             const cogTool = getCognitiveTools().find(t => t.name === name);
             if (cogTool) {
               result = await cogTool.handler(args || {});
             } else {
               throw new Error(`Cognitive tool not found: ${name}`);
+            }
+            break;
+          case 'think_collect_evidence':
+            // Find the matching collector tool and call its handler
+            const collectorTool = getCollectorTools().find(t => t.name === name);
+            if (collectorTool) {
+              result = await collectorTool.handler(args || {});
+            } else {
+              throw new Error(`Collector tool not found: ${name}`);
+            }
+            break;
+          case 'think_validate_artifacts':
+            // Find the matching validation tool and call its handler
+            const validationTool = getValidationTools().find(t => t.name === name);
+            if (validationTool) {
+              result = await validationTool.handler(args || {});
+            } else {
+              throw new Error(`Validation tool not found: ${name}`);
+            }
+            break;
+          case 'think_llm_rewrite_prep':
+          case 'think_llm_apply':
+            // Find the matching LLM rewrite tool and call its handler
+            const llmTool = getLlmRewriteTools().find(t => t.name === name);
+            if (llmTool) {
+              result = await llmTool.handler(args || {});
+            } else {
+              throw new Error(`LLM rewrite tool not found: ${name}`);
             }
             break;
           default:
@@ -701,11 +753,12 @@ class ThinkingToolsMCP {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Thinking Tools MCP server running on stdio');
-    console.error('42 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools + 8 Context Engine tools + 4 Web Context tools + 6 Cognitive Operators');
+    console.error('52 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools + 8 Context Engine tools + 4 Web Context tools + 6 Cognitive Operators + 1 Evidence Collector + 1 Validator + 2 LLM Rewrite + 6 Thinking CLI');
     console.error(`Context7 API: ${process.env.CONTEXT7_API_KEY ? 'Authenticated' : 'Public access (no API key)'}`);
     console.error(`Context Engine: ${process.env.CTX_EMBED_PROVIDER || 'ollama'} embeddings @ ${process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434'}`);
     console.error(`Web Context: ${process.env.TAVILY_API_KEY || process.env.BING_SUBSCRIPTION_KEY || process.env.SERPAPI_KEY ? 'API keys configured' : 'No API keys (fetch/crawl only)'}`);
-    console.error(`Cognitive Operators: SWOT, Devil's Advocate, Premortem, Decision Matrix, Critique, Review Change`);
+    console.error(`Cognitive Operators: Auto-populated SWOT, Devil's Advocate, Premortem, Decision Matrix, Critique, Auto Packet`);
+    console.error(`Evidence & LLM: Collect evidence, Validate artifacts, LLM rewrite prep/apply`);
   }
 }
 
