@@ -16,7 +16,20 @@ const EXCLUDE = [
   '**/dist/**',
   '**/build/**',
   '**/.next/**',
-  '**/.turbo/**'
+  '**/.turbo/**',
+  '**/.venv*/**',
+  '**/venv/**',
+  '**/__pycache__/**',
+  '**/.pytest_cache/**',
+  '**/site-packages/**',
+  '**/.augment/**',
+  '**/.robinson/**',
+  '**/.backups/**',
+  '**/.training/**',
+  '**/sandbox/**',
+  '**/*.db',
+  '**/*.db-shm',
+  '**/*.db-wal'
 ];
 
 function sha(txt: string): string {
@@ -46,21 +59,24 @@ function chunkText(text: string): { start: number; end: number; text: string }[]
 
 export async function indexRepo(repoRoot = rootRepo) {
   ensureDirs();
-  
+
   const files = await fg(INCLUDE, {
     cwd: repoRoot,
     ignore: EXCLUDE,
     dot: true
   });
-  
+
+  console.log(`📁 Found ${files.length} files to index`);
+
   let n = 0, e = 0;
-  
-  for (const rel of files) {
+
+  for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+    const rel = files[fileIdx];
     const p = path.join(repoRoot, rel);
     const text = fs.readFileSync(p, 'utf8');
     const stat = fs.statSync(p);
     const sh = sha(rel + ':' + stat.mtimeMs + ':' + text.length);
-    
+
     const chunks = chunkText(text).map((c) => ({
       id: sha(rel + ':' + c.start + ':' + c.end + ':' + sh),
       source: 'repo' as const,
@@ -70,9 +86,10 @@ export async function indexRepo(repoRoot = rootRepo) {
       end: c.end,
       text: c.text
     } as Chunk));
-    
+
+    console.log(`⚡ [${fileIdx + 1}/${files.length}] Embedding ${rel} (${chunks.length} chunks)...`);
     const embs = await embedBatch(chunks.map(c => c.text));
-    
+
     for (let i = 0; i < chunks.length; i++) {
       saveChunk(chunks[i]);
       saveEmbedding({ id: chunks[i].id, vec: embs[i] });
@@ -80,15 +97,16 @@ export async function indexRepo(repoRoot = rootRepo) {
       e++;
     }
   }
-  
+
   const stats: IndexStats = {
     chunks: n,
     embeddings: e,
     sources: { repo: n },
     updatedAt: new Date().toISOString()
   };
-  
+
   saveStats(stats);
+  console.log(`✅ Indexed ${n} chunks with ${e} embeddings`);
 }
 
 // CLI support

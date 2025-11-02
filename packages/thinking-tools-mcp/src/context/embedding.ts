@@ -1,4 +1,5 @@
 import { request } from 'undici';
+import pLimit from 'p-limit';
 
 const prov = (process.env.CTX_EMBED_PROVIDER || 'ollama').toLowerCase();
 
@@ -10,20 +11,24 @@ export async function embedBatch(texts: string[]): Promise<number[][]> {
 async function ollamaEmbed(texts: string[]): Promise<number[][]> {
   const url = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434') + '/api/embeddings';
   const model = process.env.OLLAMA_EMBED_MODEL || 'nomic-embed-text';
-  const out: number[][] = [];
-  
-  for (const t of texts) {
-    const r = await request(url, {
-      method: 'POST',
-      body: JSON.stringify({ model, prompt: t }),
-      headers: { 'content-type': 'application/json' }
-    });
-    const j: any = await r.body.json();
-    if (!j?.embedding) throw new Error('Ollama embed error');
-    out.push(j.embedding);
-  }
-  
-  return out;
+  const concurrency = parseInt(process.env.OLLAMA_EMBED_CONCURRENCY || '10', 10);
+
+  const limit = pLimit(concurrency);
+
+  const promises = texts.map((text, index) =>
+    limit(async () => {
+      const r = await request(url, {
+        method: 'POST',
+        body: JSON.stringify({ model, prompt: text }),
+        headers: { 'content-type': 'application/json' }
+      });
+      const j: any = await r.body.json();
+      if (!j?.embedding) throw new Error(`Ollama embed error for text ${index}`);
+      return j.embedding;
+    })
+  );
+
+  return Promise.all(promises);
 }
 
 async function openaiEmbed(texts: string[]): Promise<number[][]> {
