@@ -45,6 +45,14 @@ secrets*
 .robinson/symbols.json
 .robinson/tmp-*
 
+# Context Engine data (contains indexed secrets)
+.robinson/context/chunks.jsonl
+.robinson/context/embeddings.jsonl
+.robinson/context/stats.json
+.robinson/context/web/
+.robinson/context/repo/
+.robinson/context/graph/
+
 # Local secrets for crawlers / services
 .env
 
