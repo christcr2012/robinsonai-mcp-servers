@@ -1,12 +1,12 @@
 {
   "name": "@robinson_ai_systems/paid-agent-mcp",
-  "version": "0.2.4",
+  "version": "0.2.8",
   "description": "Paid Agent MCP - Execute tasks using PAID models (OpenAI, Claude, etc.)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "paid-agent-mcp": "./dist/index.js"
+    "paid-agent-mcp": "./bin/paid-agent-mcp.js"
   },
   "scripts": {
     "build": "tsc",

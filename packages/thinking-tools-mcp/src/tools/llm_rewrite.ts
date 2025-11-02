@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import { join, basename, dirname, resolve } from "node:path";
+import { resolveWorkspacePath } from "@robinsonai/shared-llm";
 
 type J = Record<string, any>;
 type Tool = { name: string; description: string; inputSchema: J; handler: (args: J) => Promise<J> };
@@ -38,9 +39,13 @@ async function readMany(paths: string[]) {
   const out: { path: string; content: string }[] = [];
   for (const p of paths) {
     try {
-      const c = await fs.readFile(p, "utf8");
+      // Resolve path relative to workspace root
+      const absolutePath = resolveWorkspacePath(p);
+      const c = await fs.readFile(absolutePath, "utf8");
       out.push({ path: norm(p), content: c });
-    } catch { /* ignore unreadable */ }
+    } catch (err: any) {
+      console.error(`[readMany] Failed to read ${p}: ${err.message}`);
+    }
   }
   return out;
 }

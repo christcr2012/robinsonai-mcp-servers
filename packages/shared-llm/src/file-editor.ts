@@ -51,11 +51,39 @@ export interface DeleteFileParams {
  * Universal file editor class
  */
 export class FileEditor {
-  private workspaceRoot: string;
+  private initialWorkspaceRoot?: string;
 
   constructor(workspaceRoot?: string) {
-    // Auto-detect workspace root from environment or current directory
-    this.workspaceRoot = workspaceRoot || process.env.WORKSPACE_ROOT || process.cwd();
+    // Store the initial workspace root if provided
+    this.initialWorkspaceRoot = workspaceRoot;
+  }
+
+  /**
+   * Get the current workspace root.
+   * Checks environment variables on EVERY call to ensure we always use the latest value.
+   * This is critical because MCP servers may set WORKSPACE_ROOT after FileEditor is constructed.
+   */
+  private getWorkspaceRoot(): string {
+    // Priority order:
+    // 1. Explicitly provided workspace root (from constructor)
+    // 2. WORKSPACE_ROOT environment variable (set by wrapper scripts)
+    // 3. INIT_CWD (npm/pnpm sets this to the directory where npm was invoked)
+    // 4. PWD (current working directory from shell)
+    // 5. process.cwd() as last resort
+
+    if (this.initialWorkspaceRoot) {
+      return this.initialWorkspaceRoot;
+    }
+
+    const envVars = ['WORKSPACE_ROOT', 'INIT_CWD', 'PWD'];
+    for (const varName of envVars) {
+      const value = process.env[varName];
+      if (value) {
+        return value;
+      }
+    }
+
+    return process.cwd();
   }
 
   /**
@@ -65,7 +93,9 @@ export class FileEditor {
     if (path.isAbsolute(filePath)) {
       return filePath;
     }
-    return path.join(this.workspaceRoot, filePath);
+    // Get workspace root dynamically on every call
+    const workspaceRoot = this.getWorkspaceRoot();
+    return path.join(workspaceRoot, filePath);
   }
 
   /**

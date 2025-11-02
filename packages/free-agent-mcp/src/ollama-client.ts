@@ -315,8 +315,9 @@ export class OllamaClient {
   private async startOllama(): Promise<void> {
     console.error('🚀 Auto-starting Ollama...');
 
-    // Get configurable timeout (default: 60 seconds)
-    const timeoutSeconds = parseInt(process.env.OLLAMA_START_TIMEOUT || '60', 10);
+    // Get configurable timeout (default: 120 seconds, increased from 60)
+    const timeoutSeconds = parseInt(process.env.OLLAMA_START_TIMEOUT || '120', 10);
+    console.error(`⏱️ Using timeout: ${timeoutSeconds} seconds`);
 
     // Get Ollama path from environment or use defaults
     const ollamaPath = process.env.OLLAMA_PATH || (
@@ -328,12 +329,15 @@ export class OllamaClient {
     try {
       // First, check if Ollama is already running (might be Windows service)
       console.error('🔍 Checking if Ollama is already running...');
-      const isRunning = await pingOllama(2000);
+      console.error(`🔗 Base URL: ${this.baseUrl}`);
+      const isRunning = await pingOllama(5000); // Increased timeout for initial check
 
       if (isRunning) {
         console.error('✅ Ollama is already running!');
         return;
       }
+
+      console.error('❌ Ollama not responding, attempting to start...');
 
       console.error(`🚀 Spawning Ollama process: ${ollamaPath}`);
 
@@ -397,17 +401,31 @@ export class OllamaClient {
    * Enhanced with better health checking using pingOllama
    */
   async ensureRunning(): Promise<void> {
+    console.error(`[OllamaClient] Ensuring Ollama is running at ${this.baseUrl}...`);
+
     try {
-      // Use pingOllama for more reliable health check
-      const isRunning = await pingOllama(5000);
+      // Use pingOllama for more reliable health check with longer timeout
+      console.error('[OllamaClient] Checking Ollama health...');
+      const isRunning = await pingOllama(10000); // 10 second timeout
 
       if (isRunning) {
+        console.error('[OllamaClient] ✅ Ollama is running and healthy!');
         return; // Already running, all good!
       }
 
+      console.error('[OllamaClient] ❌ Ollama not responding');
+
       // Not running, try to start if auto-start enabled
       if (this.autoStart) {
+        console.error('[OllamaClient] Auto-start enabled, attempting to start Ollama...');
         await this.startOllama();
+
+        // Verify it started successfully
+        const isNowRunning = await pingOllama(5000);
+        if (!isNowRunning) {
+          throw new Error('Ollama started but still not responding to health checks');
+        }
+        console.error('[OllamaClient] ✅ Ollama started successfully!');
       } else {
         throw new Error(
           'Ollama is not running. Please start Ollama with: ollama serve\n' +
@@ -415,8 +433,11 @@ export class OllamaClient {
         );
       }
     } catch (error: any) {
-      // If pingOllama failed, try auto-start
-      if (this.autoStart && !error.message?.includes('auto-start')) {
+      console.error(`[OllamaClient] Error in ensureRunning: ${error.message}`);
+
+      // If pingOllama failed and we haven't tried auto-start yet, try it
+      if (this.autoStart && !error.message?.includes('auto-start') && !error.message?.includes('started but still not responding')) {
+        console.error('[OllamaClient] Ping failed, trying auto-start as fallback...');
         await this.startOllama();
       } else {
         throw error;

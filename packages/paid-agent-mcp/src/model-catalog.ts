@@ -300,7 +300,7 @@ export function selectBestModel(params: {
     minQuality = 'standard',
     maxCost = COST_POLICY.DEFAULT_MAX_COST,
     taskComplexity = 'medium',
-    preferFree = true,
+    preferFree = false,  // PAID agent defaults to PAID models (not FREE Ollama)
     preferredProvider = 'any',
   } = params;
 

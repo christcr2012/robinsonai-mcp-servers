@@ -6,6 +6,7 @@
  */
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
+import { getWorkspaceRoot, resolveWorkspacePath } from "@robinsonai/shared-llm";
 
 type J = Record<string, any>;
 type ToolDef = {
@@ -15,7 +16,7 @@ type ToolDef = {
   handler: (args: J) => Promise<J>;
 };
 
-const OUT = ".robctx/thinking";
+const OUT = join(getWorkspaceRoot(), ".robctx/thinking");
 const iso = () => new Date().toISOString().replace(/[:.]/g,"-");
 const clean = (s: string) => (s||"").replace(/\r\n/g,"\n");
 
@@ -46,11 +47,17 @@ function pick(lines: string[], needles: RegExp[], max = 8) {
 }
 async function readEvidence(paths: string[]) {
   const out: { path: string; text: string }[] = [];
+
   for (const p of (paths||[])) {
     try {
-      const t = await fs.readFile(p, "utf8");
+      // Resolve path relative to workspace root if not absolute
+      const absolutePath = resolveWorkspacePath(p);
+      const t = await fs.readFile(absolutePath, "utf8");
       out.push({ path: p, text: t });
-    } catch { /* ignore */ }
+    } catch (err: any) {
+      // Log error for debugging but continue processing other files
+      console.error(`[readEvidence] Failed to read ${p}: ${err.message}`);
+    }
   }
   return out;
 }

@@ -1,13 +1,27 @@
-export const BASE = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/+$/, '');
+export const BASE = (process.env.OLLAMA_BASE_URL || 'http://localhost:11434').replace(/\/+$/, '');
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 export async function pingOllama(timeoutMs = 1000) {
-    try {
-        const r = await fetch(`${BASE}/api/tags`, { method: 'GET', signal: AbortSignal.timeout(timeoutMs) });
-        return r.ok;
+    // Try both localhost and 127.0.0.1 for better compatibility
+    const urls = [
+        `${BASE}/api/tags`,
+        `${BASE.replace('localhost', '127.0.0.1')}/api/tags`
+    ];
+    for (const url of urls) {
+        try {
+            const r = await fetch(url, {
+                method: 'GET',
+                signal: AbortSignal.timeout(timeoutMs),
+                headers: { 'Accept': 'application/json' }
+            });
+            if (r.ok) {
+                return true;
+            }
+        } catch (error) {
+            // Continue to next URL
+            console.error(`[pingOllama] Failed to ping ${url}: ${error.message}`);
+        }
     }
-    catch {
-        return false;
-    }
+    return false;
 }
 export async function ollamaGenerate(opts) {
     const { model, prompt, format, timeoutMs = 120000, retries = 2 } = opts; // 2 minutes for cold start

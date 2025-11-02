@@ -37,9 +37,10 @@
       "command": "npx",
       "args": [
         "-y",
-        "@robinson_ai_systems/thinking-tools-mcp@1.4.0"
+        "@robinson_ai_systems/thinking-tools-mcp@latest"
       ],
       "env": {
+        "WORKSPACE_ROOT": "YOUR_WORKSPACE_ROOT_HERE",
         "OLLAMA_BASE_URL": "http://localhost:11434",
         "CTX_EMBED_PROVIDER": "ollama",
         "CONTEXT7_API_KEY": "",

@@ -20,14 +20,42 @@ export interface DevilsAdvocateOutput {
 
 export function devilsAdvocate(input: DevilsAdvocateInput): DevilsAdvocateOutput {
   const { context, goal, depth = 'quick' } = input;
-  
+
   const challenges: string[] = [];
   const risks: string[] = [];
   const counterarguments: string[] = [];
   const recommendations: string[] = [];
-  
+
   // Analyze context for common pitfalls
   const lowerContext = context.toLowerCase();
+
+  // Robinson AI MCP Server specific challenges
+  if (lowerContext.includes('mcp') || lowerContext.includes('robinson') || lowerContext.includes('augment')) {
+    challenges.push('MCP servers have complex dependency chains - one broken server affects the entire delegation system');
+    challenges.push('Local Ollama models may not have the same quality as cloud models, affecting Free Agent output');
+    challenges.push('Tool discovery systems are fragile - if search breaks, delegation fails completely');
+    challenges.push('Environment variable misconfigurations can silently break entire server categories');
+    risks.push('Over-reliance on local Ollama could fail if models are corrupted or unavailable');
+    risks.push('Database initialization failures could make tool discovery permanently broken');
+    risks.push('WSL/Windows compatibility issues could prevent proper testing and deployment');
+    counterarguments.push('Maybe the complexity of 5 MCP servers is overkill - a simpler architecture might be more reliable');
+    counterarguments.push('Direct API calls might be more reliable than the broker pattern for critical operations');
+    recommendations.push('Add comprehensive health checks for each MCP server before delegation');
+    recommendations.push('Implement fallback mechanisms when Free Agent fails (auto-switch to Paid Agent)');
+    recommendations.push('Create integration tests that verify the entire delegation chain works end-to-end');
+  }
+
+  // Cost optimization challenges
+  if (lowerContext.includes('cost') || lowerContext.includes('credit') || lowerContext.includes('free agent')) {
+    challenges.push('Free Agent quality may be inconsistent, leading to more expensive rework cycles');
+    challenges.push('Cost savings are meaningless if the output quality is poor and requires manual fixes');
+    challenges.push('Ollama model management adds operational overhead that may offset cost savings');
+    risks.push('False economy - cheap but wrong solutions cost more than expensive but correct ones');
+    risks.push('Model drift over time could degrade Free Agent performance without warning');
+    counterarguments.push('Paid Agent reliability might justify the higher cost for critical tasks');
+    recommendations.push('Implement quality gates that automatically escalate to Paid Agent when Free Agent output is poor');
+    recommendations.push('Track actual end-to-end cost including rework, not just initial generation cost');
+  }
   
   // Technology/Architecture challenges
   if (lowerContext.includes('migrate') || lowerContext.includes('rewrite')) {

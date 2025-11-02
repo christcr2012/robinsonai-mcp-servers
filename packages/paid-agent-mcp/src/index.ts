@@ -39,6 +39,7 @@ import { selectBestModel, estimateTaskCost, getModelConfig, COST_POLICY, require
 import { getSharedOllamaClient } from './ollama-client.js';
 import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinsonai/shared-llm';
 import { buildStrictSystemPrompt } from './prompt-builder.js';
+import { getWorkspaceRoot } from './lib/workspace.js';
 
 const server = new Server(
   {
@@ -386,109 +387,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['category'],
         },
       },
-      // Universal file editing tools (work in ANY MCP client: Augment, Cline, Cursor, etc.)
-      {
-        name: 'file_str_replace',
-        description: 'Replace text in a file (universal - works in any MCP client). Like Augment\'s str-replace-editor but works everywhere.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            path: {
-              type: 'string',
-              description: 'File path relative to workspace root',
-            },
-            old_str: {
-              type: 'string',
-              description: 'Text to find and replace',
-            },
-            new_str: {
-              type: 'string',
-              description: 'Replacement text',
-            },
-            old_str_start_line: {
-              type: 'number',
-              description: 'Optional: Start line number (1-based) to narrow search',
-            },
-            old_str_end_line: {
-              type: 'number',
-              description: 'Optional: End line number (1-based) to narrow search',
-            },
-          },
-          required: ['path', 'old_str', 'new_str'],
-        },
-      },
-      {
-        name: 'file_insert',
-        description: 'Insert text at a specific line in a file (universal - works in any MCP client)',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            path: {
-              type: 'string',
-              description: 'File path relative to workspace root',
-            },
-            insert_line: {
-              type: 'number',
-              description: 'Line number to insert after (0 = beginning of file)',
-            },
-            new_str: {
-              type: 'string',
-              description: 'Text to insert',
-            },
-          },
-          required: ['path', 'insert_line', 'new_str'],
-        },
-      },
-      {
-        name: 'file_save',
-        description: 'Create a new file (universal - works in any MCP client). Like Augment\'s save-file but works everywhere.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            path: {
-              type: 'string',
-              description: 'File path relative to workspace root',
-            },
-            content: {
-              type: 'string',
-              description: 'File content',
-            },
-            add_last_line_newline: {
-              type: 'boolean',
-              description: 'Add newline at end of file (default: true)',
-            },
-          },
-          required: ['path', 'content'],
-        },
-      },
-      {
-        name: 'file_delete',
-        description: 'Delete a file (universal - works in any MCP client)',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            path: {
-              type: 'string',
-              description: 'File path relative to workspace root',
-            },
-          },
-          required: ['path'],
-        },
-      },
-      {
-        name: 'file_read',
-        description: 'Read file content (universal - works in any MCP client)',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            path: {
-              type: 'string',
-              description: 'File path relative to workspace root',
-            },
-          },
-          required: ['path'],
-        },
-      },
+      // NOTE: File editing tools removed to avoid duplicates with free-agent-mcp
+      // Use free-agent-mcp for file operations: file_str_replace, file_insert, file_save, file_delete, file_read
     ],
   };
 });
@@ -529,32 +429,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'list_toolkit_tools_openai-worker-mcp':
         return await handleListToolkitTools(args);
 
-      // Universal file editing tools (work in ANY MCP client!)
-      case 'file_str_replace':
-        const strReplaceResult = await getSharedFileEditor().strReplace(args as any);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(strReplaceResult, null, 2) }],
-        };
-      case 'file_insert':
-        const insertResult = await getSharedFileEditor().insert(args as any);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(insertResult, null, 2) }],
-        };
-      case 'file_save':
-        const saveResult = await getSharedFileEditor().saveFile(args as any);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(saveResult, null, 2) }],
-        };
-      case 'file_delete':
-        const deleteResult = await getSharedFileEditor().deleteFile(args as any);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(deleteResult, null, 2) }],
-        };
-      case 'file_read':
-        const content = await getSharedFileEditor().readFile((args as any).path);
-        return {
-          content: [{ type: 'text', text: content }],
-        };
+      // NOTE: File editing tools removed to avoid duplicates with free-agent-mcp
+      // Use free-agent-mcp for file operations: file_str_replace, file_insert, file_save, file_delete, file_read
 
       default:
         throw new Error(`Unknown tool: ${name}`);
@@ -1254,8 +1130,11 @@ async function handleExecuteVersatileTask(args: any) {
 async function handleFileEditing(task: string, params: any, modelId: string, modelConfig: any): Promise<any> {
   console.error(`[PaidAgent] File editing task: ${task}`);
 
-  const fileEditor = getSharedFileEditor();
+  const workspaceRoot = getWorkspaceRoot();
+  const fileEditor = getSharedFileEditor(workspaceRoot);
   const results: any[] = [];
+
+  console.error(`[PaidAgent] Using workspace root: ${workspaceRoot}`);
 
   // STEP 1: Detect task complexity and choose strategy
   // Simple tasks: Small, targeted changes (fix typo, change variable name, update version)

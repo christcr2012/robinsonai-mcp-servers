@@ -9,4 +9,9 @@ export {
   type SaveFileParams,
   type DeleteFileParams
 } from './file-editor.js';
+export {
+  getWorkspaceRoot,
+  resolveWorkspacePath,
+  workspacePathExists
+} from './workspace.js';
 

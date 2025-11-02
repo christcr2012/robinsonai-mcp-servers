@@ -28,6 +28,51 @@ export function systemsThinking(input: SystemsThinkingInput): SystemsThinkingOut
   const emergentBehaviors: string[] = [];
   const systemArchetypes: Array<{ archetype: string; description: string; solution: string }> = [];
   
+  // Robinson AI MCP Architecture Components
+  if (combined.includes('mcp') || combined.includes('robinson') || combined.includes('augment')) {
+    components.push({
+      name: 'Augment Agent (Orchestrator)',
+      role: 'Main AI agent that receives user requests and delegates to specialized agents',
+      dependencies: ['Free Agent MCP', 'Paid Agent MCP', 'Tool Discovery', 'Task Management']
+    });
+
+    components.push({
+      name: 'Free Agent MCP',
+      role: 'Local Ollama-based agent for cost-free code generation and analysis',
+      dependencies: ['Ollama Server', 'Local Models', 'Shared LLM Library']
+    });
+
+    components.push({
+      name: 'Paid Agent MCP',
+      role: 'Cloud-based agent using OpenAI/Claude for complex tasks',
+      dependencies: ['OpenAI API', 'Anthropic API', 'Budget Tracking']
+    });
+
+    components.push({
+      name: 'Robinson\'s Toolkit MCP',
+      role: 'Broker for 906+ integration tools across platforms',
+      dependencies: ['GitHub API', 'Vercel API', 'Neon API', 'Tool Registry']
+    });
+
+    components.push({
+      name: 'Credit Optimizer MCP',
+      role: 'Tool discovery and cost optimization system',
+      dependencies: ['SQLite Database', 'Tool Index', 'Search Engine']
+    });
+
+    components.push({
+      name: 'Thinking Tools MCP',
+      role: 'Cognitive frameworks for better reasoning and planning',
+      dependencies: ['Web Search APIs', 'Context Engine', 'Semantic Search']
+    });
+
+    components.push({
+      name: 'Ollama Server',
+      role: 'Local LLM inference server',
+      dependencies: ['GPU/CPU Resources', 'Model Files', 'Network Interface']
+    });
+  }
+
   // Identify components
   if (combined.includes('api') || combined.includes('service')) {
     components.push({
@@ -69,6 +114,33 @@ export function systemsThinking(input: SystemsThinkingInput): SystemsThinkingOut
     });
   }
   
+  // Robinson AI MCP Feedback Loops
+  if (combined.includes('mcp') || combined.includes('robinson') || combined.includes('delegation')) {
+    feedbackLoops.push({
+      type: 'reinforcing',
+      description: 'Delegation Success Spiral: Successful delegation → more trust in agents → more delegation → cost savings → more resources for improvement',
+      impact: 'Positive: Success builds confidence and enables more automation'
+    });
+
+    feedbackLoops.push({
+      type: 'reinforcing',
+      description: 'Delegation Failure Spiral: Failed delegation → manual work → higher costs → less trust → more manual work',
+      impact: 'Negative: Failures erode confidence and increase costs'
+    });
+
+    feedbackLoops.push({
+      type: 'balancing',
+      description: 'Quality vs Cost Balance: Free Agent errors → escalation to Paid Agent → higher costs → pressure to use Free Agent',
+      impact: 'System naturally balances cost and quality'
+    });
+
+    feedbackLoops.push({
+      type: 'reinforcing',
+      description: 'Tool Discovery Breakdown: Search fails → manual tool selection → slower development → less tool usage → search index degrades',
+      impact: 'Negative: Discovery failures compound over time'
+    });
+  }
+
   // Identify feedback loops
   if (combined.includes('cache')) {
     feedbackLoops.push({
@@ -76,7 +148,7 @@ export function systemsThinking(input: SystemsThinkingInput): SystemsThinkingOut
       description: 'Cache Hit Spiral: More cache hits → faster responses → more users → more cache hits',
       impact: 'Positive: System gets faster as it\'s used more'
     });
-    
+
     feedbackLoops.push({
       type: 'balancing',
       description: 'Cache Invalidation: More writes → more cache invalidations → more cache misses → slower responses → fewer writes',

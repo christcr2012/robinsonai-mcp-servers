@@ -696,6 +696,9 @@ class ThinkingToolsMCP {
             }
             break;
           case 'think_collect_evidence':
+          case 'think_auto_packet':
+          case 'thinking_tools_health_check':
+          case 'thinking_tools_validate':
             // Find the matching collector tool and call its handler
             const collectorTool = getCollectorTools().find(t => t.name === name);
             if (collectorTool) {
