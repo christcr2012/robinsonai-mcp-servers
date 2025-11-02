@@ -58,3 +58,23 @@ export function isValidTool(t: any): boolean {
   return true;
 }
 
+/**
+ * Validate and sanitize an array of tools
+ * - Normalizes each tool
+ * - Removes duplicates by name
+ * - Filters out invalid tools
+ */
+export function validateTools(arr: any[], vendor = "tool"): Tool[] {
+  const seen = new Set<string>();
+  const out: Tool[] = [];
+
+  for (const r of (arr || [])) {
+    const t = normalizeTool(r, vendor);
+    if (!t) continue;
+    if (seen.has(t.name)) continue;
+    seen.add(t.name);
+    out.push(t);
+  }
+
+  return out;
+}
