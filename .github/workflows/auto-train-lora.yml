@@ -1,0 +1,86 @@
+name: Auto-Train LoRA Adapter
+
+on:
+  push:
+    paths:
+      - '.agent/sft/*.jsonl'
+  workflow_dispatch:
+    inputs:
+      role:
+        description: 'Role to train (coder, fixer, judge)'
+        required: true
+        default: 'coder'
+        type: choice
+        options:
+          - coder
+          - fixer
+          - judge
+
+jobs:
+  check-and-train:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check if training is needed
+        id: check
+        run: |
+          # Check if SFT files have enough examples
+          for role in coder fixer judge; do
+            sft_file=".agent/sft/${role}_sft.jsonl"
+            if [ -f "$sft_file" ]; then
+              count=$(wc -l < "$sft_file")
+              echo "${role}_count=$count" >> $GITHUB_OUTPUT
+              
+              if [ $count -ge 500 ]; then
+                echo "${role}_ready=true" >> $GITHUB_OUTPUT
+                echo "✅ $role has $count examples (>= 500) - ready to train!"
+              else
+                echo "${role}_ready=false" >> $GITHUB_OUTPUT
+                echo "⏳ $role has $count examples (< 500) - not ready yet"
+              fi
+            else
+              echo "${role}_ready=false" >> $GITHUB_OUTPUT
+              echo "❌ $role SFT file not found"
+            fi
+          done
+      
+      - name: Train Coder LoRA (if ready)
+        if: steps.check.outputs.coder_ready == 'true'
+        uses: ./.github/actions/train-lora-colab
+        with:
+          role: coder
+          sft_file: .agent/sft/coder_sft.jsonl
+          base_model: qwen2.5-coder:7b
+          colab_token: ${{ secrets.COLAB_TOKEN }}
+      
+      - name: Train Fixer LoRA (if ready)
+        if: steps.check.outputs.fixer_ready == 'true'
+        uses: ./.github/actions/train-lora-colab
+        with:
+          role: fixer
+          sft_file: .agent/sft/fixer_sft.jsonl
+          base_model: qwen2.5-coder:7b
+          colab_token: ${{ secrets.COLAB_TOKEN }}
+      
+      - name: Train Judge LoRA (if ready)
+        if: steps.check.outputs.judge_ready == 'true'
+        uses: ./.github/actions/train-lora-colab
+        with:
+          role: judge
+          sft_file: .agent/sft/judge_sft.jsonl
+          base_model: qwen2.5-coder:7b
+          colab_token: ${{ secrets.COLAB_TOKEN }}
+      
+      - name: Commit trained adapters
+        if: steps.check.outputs.coder_ready == 'true' || steps.check.outputs.fixer_ready == 'true' || steps.check.outputs.judge_ready == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .agent/lora/
+          git add .agent/Modelfile.*
+          git commit -m "chore: Auto-trained LoRA adapters" || echo "No changes to commit"
+          git push
+

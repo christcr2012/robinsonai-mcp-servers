@@ -1,0 +1,12 @@
+[
+  {
+    "type": "stdio",
+    "name": "free-agent-mcp",
+    "command": "C:\\nvm4w\\nodejs\\free-agent-mcp.cmd",
+    "arguments": "",
+    "useShellInterpolation": true,
+    "env": {
+      "OLLAMA_BASE_URL": "http://localhost:11434"
+    }
+  }
+]

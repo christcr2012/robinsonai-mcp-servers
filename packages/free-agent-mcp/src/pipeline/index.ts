@@ -25,6 +25,7 @@ import { runSandboxPipeline } from './sandbox.js';
 import { judgeCode } from './judge.js';
 import { generateCodeAndTests } from './synthesize.js';
 import { applyFixPlan } from './refine.js';
+import { isDockerAvailable, runDockerSandboxPipeline } from './docker-sandbox.js';
 
 /**
  * Run the full pipeline for a task
@@ -36,20 +37,30 @@ export async function iterateTask(
   const maxAttempts = config.maxAttempts ?? DEFAULT_PIPELINE_CONFIG.maxAttempts;
   let attempt = 0;
   let best: { score: number; files: GenResult['files']; verdict?: JudgeVerdict } | null = null;
-  
+
   let currentSpec = spec;
   let previousVerdict: JudgeVerdict | undefined;
-  
+
+  // Check if Docker is available once at the start
+  const dockerAvailable = await isDockerAvailable();
+  if (dockerAvailable) {
+    console.log('🐳 Docker sandbox available - using hermetic isolation');
+  } else {
+    console.log('⚠️  Docker not available - using local sandbox (less secure)');
+  }
+
   while (attempt++ < maxAttempts) {
     console.log(`\n🔄 Attempt ${attempt}/${maxAttempts}`);
-    
+
     // 1. SYNTHESIZE: Generate code + tests
     console.log('  📝 Synthesizing code and tests...');
     const genResult = await generateCodeAndTests(currentSpec, config, previousVerdict);
-    
-    // 2. EXECUTE: Run in sandbox
+
+    // 2. EXECUTE: Run in sandbox (Docker if available, local otherwise)
     console.log('  🏃 Executing in sandbox...');
-    const report = await runSandboxPipeline(genResult, config);
+    const report = dockerAvailable
+      ? await runDockerSandboxPipeline(genResult, config)
+      : await runSandboxPipeline(genResult, config);
     
     // 3. CRITIQUE: Judge the results
     console.log('  ⚖️  Judging quality...');

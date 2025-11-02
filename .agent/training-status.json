@@ -1,0 +1,20 @@
+[
+  {
+    "role": "coder",
+    "exampleCount": 0,
+    "ready": false,
+    "lastCheck": "2025-10-31T11:33:14.799Z"
+  },
+  {
+    "role": "fixer",
+    "exampleCount": 0,
+    "ready": false,
+    "lastCheck": "2025-10-31T11:33:14.799Z"
+  },
+  {
+    "role": "judge",
+    "exampleCount": 0,
+    "ready": false,
+    "lastCheck": "2025-10-31T11:33:14.799Z"
+  }
+]

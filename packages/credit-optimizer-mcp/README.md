@@ -97,14 +97,47 @@ npm run build
 
 ### **2. Configure Augment Code**
 
-Add to your Augment Code MCP settings:
+Add to your Augment Code MCP settings. Prefer one of these Windows-safe options:
+
+Option A: Absolute .cmd shim (requires `npm link`)
 
 ```json
 {
   "mcpServers": {
     "credit-optimizer": {
-      "command": "node",
-      "args": ["c:/Users/chris/Git Local/robinsonai-mcp-servers/packages/credit-optimizer-mcp/dist/index.ts"]
+      "command": "C:\\nvm4w\\nodejs\\credit-optimizer-mcp.cmd",
+      "args": [],
+      "env": { "CREDIT_OPTIMIZER_SKIP_INDEX": "1" }
+    }
+  }
+}
+```
+
+Option B: Explicit node + dist entry (no link required)
+
+```json
+{
+  "mcpServers": {
+    "credit-optimizer": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\dist\\index.js"
+      ],
+      "env": { "CREDIT_OPTIMIZER_SKIP_INDEX": "1" }
+    }
+  }
+}
+```
+
+Option C (fallback): npx via absolute shim
+
+```json
+{
+  "mcpServers": {
+    "credit-optimizer": {
+      "command": "C:\\nvm4w\\nodejs\\npx.cmd",
+      "args": ["-y", "@robinsonai/credit-optimizer-mcp"],
+      "env": { "CREDIT_OPTIMIZER_SKIP_INDEX": "1" }
     }
   }
 }

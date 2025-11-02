@@ -1,6 +1,6 @@
 {
-  "name": "@robinsonai/github-mcp",
-  "version": "2.0.0",
+  "name": "@robinson_ai_systems/github-mcp",
+  "version": "2.0.1",
   "description": "Comprehensive GitHub MCP server with 199 tools - 8.6x more than official GitHub MCP",
   "type": "module",
   "bin": {

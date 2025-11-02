@@ -44,6 +44,36 @@ npm link
 }
 ```
 
+Windows (VS Code Augment) – prefer absolute executables:
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "C:\\nvm4w\\nodejs\\context7-mcp.cmd",
+      "args": [],
+      "env": { "CONTEXT7_API_KEY": "your-api-key-here" }
+    }
+  }
+}
+```
+
+Or explicit node + dist entry:
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\context7-mcp\\dist\\index.js"
+      ],
+      "env": { "CONTEXT7_API_KEY": "your-api-key-here" }
+    }
+  }
+}
+```
+
 ## 📖 Usage Examples
 
 ### Resolve Library ID

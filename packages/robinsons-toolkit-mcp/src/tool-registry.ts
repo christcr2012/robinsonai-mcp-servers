@@ -75,6 +75,14 @@ export class ToolRegistry {
       toolCount: 0, // Will be updated after registration
       enabled: true,
     });
+
+    this.categories.set('openai', {
+      name: 'openai',
+      displayName: 'OpenAI',
+      description: 'OpenAI API tools for chat, embeddings, images, audio, assistants, fine-tuning, and more',
+      toolCount: 0, // Will be updated after registration
+      enabled: true,
+    });
   }
 
   /**

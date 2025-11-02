@@ -1,0 +1,143 @@
+version: '3.8'
+
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        - NODE_VERSION=20
+        - PYTHON_VERSION=3.11
+    volumes:
+      # Mount workspace
+      - ..:/workspace:cached
+      
+      # Named volumes for better performance
+      - node_modules:/workspace/node_modules
+      - python_packages:/home/node/.local
+      - cargo_registry:/home/node/.cargo/registry
+      - cargo_git:/home/node/.cargo/git
+      - go_pkg:/home/node/go/pkg
+      
+      # SSH and Git config (read-only)
+      - ~/.ssh:/home/node/.ssh:ro
+      - ~/.gitconfig:/home/node/.gitconfig:ro
+    
+    command: sleep infinity
+    
+    environment:
+      # Ollama
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - MAX_OLLAMA_CONCURRENCY=5
+      
+      # Postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mcp_dev
+      
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      
+      # Node
+      - NODE_ENV=development
+      
+      # Python
+      - PYTHONUNBUFFERED=1
+    
+    networks:
+      - mcp-network
+    
+    depends_on:
+      - ollama
+      - postgres
+      - redis
+    
+    # Enable Docker-in-Docker for sandbox testing
+    privileged: true
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mcp-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    # Uncomment if you have NVIDIA GPU
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: mcp-postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mcp_dev
+      POSTGRES_USER: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: mcp-redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
+volumes:
+  # Named volumes for better performance
+  node_modules:
+    driver: local
+  python_packages:
+    driver: local
+  cargo_registry:
+    driver: local
+  cargo_git:
+    driver: local
+  go_pkg:
+    driver: local
+  
+  # Data volumes
+  ollama_data:
+    driver: local
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  mcp-network:
+    driver: bridge
+    name: mcp-network
+

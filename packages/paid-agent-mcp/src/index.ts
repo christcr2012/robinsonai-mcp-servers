@@ -96,6 +96,49 @@ function releaseJobSlot(): void {
   }
 }
 
+// Budget alerts (only alert once per threshold)
+const alertsSent = new Set<string>();
+
+/**
+ * Check budget and send alerts at 50%, 80%, 90%, 95% thresholds
+ */
+function checkBudgetAlerts(): void {
+  const policy = getPolicy();
+  const monthlySpend = getMonthlySpend();
+  const percentage = (monthlySpend / policy.MONTHLY_BUDGET) * 100;
+
+  if (percentage >= 95 && !alertsSent.has('95%')) {
+    console.error('');
+    console.error('🚨 CRITICAL: 95% of monthly budget used!');
+    console.error(`   Spent: $${monthlySpend.toFixed(4)} / $${policy.MONTHLY_BUDGET}`);
+    console.error(`   Remaining: $${(policy.MONTHLY_BUDGET - monthlySpend).toFixed(4)}`);
+    console.error('   Consider switching to FREE agent (Ollama) to avoid budget overrun.');
+    console.error('');
+    alertsSent.add('95%');
+  } else if (percentage >= 90 && !alertsSent.has('90%')) {
+    console.error('');
+    console.error('🚨 WARNING: 90% of monthly budget used!');
+    console.error(`   Spent: $${monthlySpend.toFixed(4)} / $${policy.MONTHLY_BUDGET}`);
+    console.error(`   Remaining: $${(policy.MONTHLY_BUDGET - monthlySpend).toFixed(4)}`);
+    console.error('');
+    alertsSent.add('90%');
+  } else if (percentage >= 80 && !alertsSent.has('80%')) {
+    console.error('');
+    console.error('⚠️  WARNING: 80% of monthly budget used!');
+    console.error(`   Spent: $${monthlySpend.toFixed(4)} / $${policy.MONTHLY_BUDGET}`);
+    console.error(`   Remaining: $${(policy.MONTHLY_BUDGET - monthlySpend).toFixed(4)}`);
+    console.error('');
+    alertsSent.add('80%');
+  } else if (percentage >= 50 && !alertsSent.has('50%')) {
+    console.error('');
+    console.error('ℹ️  NOTICE: 50% of monthly budget used.');
+    console.error(`   Spent: $${monthlySpend.toFixed(4)} / $${policy.MONTHLY_BUDGET}`);
+    console.error(`   Remaining: $${(policy.MONTHLY_BUDGET - monthlySpend).toFixed(4)}`);
+    console.error('');
+    alertsSent.add('50%');
+  }
+}
+
 /**
  * Agent configurations (pricing loaded dynamically from pricing.ts)
  */
@@ -591,6 +634,7 @@ async function handleRunJob(args: any) {
 
     // Record spend
     recordSpend(totalCost);
+    checkBudgetAlerts(); // Check for budget alerts
 
     // Track token usage
     const tracker = getTokenTracker();
@@ -1091,6 +1135,7 @@ async function handleExecuteVersatileTask(args: any) {
 
           // Record spend
           recordSpend(actualCost, `versatile_task_${modelConfig.model}`);
+          checkBudgetAlerts(); // Check for budget alerts
 
           return {
             content: [
@@ -1146,6 +1191,7 @@ async function handleExecuteVersatileTask(args: any) {
 
           // Record spend
           recordSpend(actualCost, `versatile_task_${modelConfig.model}`);
+          checkBudgetAlerts(); // Check for budget alerts
 
           return {
             content: [
@@ -1353,6 +1399,7 @@ Respond ONLY with the JSON array, no other text.`;
         estimatedOutputTokens: anthropicResponse.usage.output_tokens,
       });
       recordSpend(actualCost, `file_editing_${modelConfig.model}`);
+      checkBudgetAlerts(); // Check for budget alerts
     } else {
       // OpenAI
       const openaiResponse = await openai.chat.completions.create({
@@ -1369,6 +1416,7 @@ Respond ONLY with the JSON array, no other text.`;
         estimatedOutputTokens: usage?.completion_tokens || 0,
       });
       recordSpend(actualCost, `file_editing_${modelConfig.model}`);
+      checkBudgetAlerts(); // Check for budget alerts
     }
 
     // Parse the response
@@ -1557,6 +1605,7 @@ Generate the modified section now:`;
         estimatedOutputTokens: anthropicResponse.usage.output_tokens,
       });
       recordSpend(actualCost, `complex_file_editing_${modelConfig.model}`);
+      checkBudgetAlerts(); // Check for budget alerts
     } else {
       // OpenAI
       const openaiResponse = await openai.chat.completions.create({
@@ -1574,6 +1623,7 @@ Generate the modified section now:`;
         estimatedOutputTokens: usage?.completion_tokens || 0,
       });
       recordSpend(actualCost, `complex_file_editing_${modelConfig.model}`);
+      checkBudgetAlerts(); // Check for budget alerts
     }
 
     // Clean up the generated code (remove markdown if present)

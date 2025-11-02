@@ -1,5 +1,5 @@
 {
-  "name": "@robinsonai/openai-mcp",
+  "name": "@robinson_ai_systems/openai-mcp",
   "version": "1.0.0",
   "description": "Comprehensive OpenAI MCP server with API and Agents SDK support",
   "type": "module",

@@ -9,6 +9,7 @@
 import { Ollama } from 'ollama';
 import { spawn } from 'child_process';
 import { ollamaGenerate as sharedGenerate, pingOllama } from '@robinsonai/shared-llm';
+import { getModelManager, type ModelSelectionCriteria } from './utils/model-manager.js';
 
 export interface ModelConfig {
   name: string;
@@ -104,38 +105,49 @@ export class OllamaClient {
   /**
    * Select the best model for the task
    */
-  selectModel(options: GenerateOptions): string {
-    // If model explicitly specified, use it
+  async selectModel(options: GenerateOptions): Promise<string> {
+    const modelManager = getModelManager(this.baseUrl);
+
+    // If model explicitly specified, use it (but verify it exists)
     if (options.model && options.model !== 'auto') {
       const modelMap: Record<string, string> = {
         'router': 'qwen2.5:3b',
         'router-alt': 'llama3.2:3b',
-        'deepseek-coder': 'deepseek-coder:33b',
-        'qwen-coder': 'qwen2.5-coder:32b',
-        'codellama': 'codellama:34b',
+        'deepseek-coder': 'deepseek-coder:1.3b',
+        'qwen-coder': 'qwen2.5-coder:7b',
+        'codellama': 'qwen2.5-coder:7b',
       };
-      return modelMap[options.model] || 'codellama:34b';
+      const requestedModel = modelMap[options.model] || options.model;
+
+      // Check if model exists
+      const modelInfo = modelManager.getModelInfo(requestedModel);
+      if (modelInfo) {
+        return requestedModel;
+      }
+
+      // Fall through to auto-selection if model doesn't exist
+      console.warn(`[OllamaClient] Requested model ${requestedModel} not found, auto-selecting...`);
     }
 
-    // Auto-select based on complexity
-    const complexity = options.complexity || 'medium';
+    // Auto-select using ModelManager
+    const criteria: ModelSelectionCriteria = {
+      task: 'code', // Default to code task
+      complexity: (options.complexity as any) || 'simple',
+      preferSpeed: options.complexity === 'simple',
+      requiredCapabilities: ['code'],
+    };
 
-    switch (complexity) {
-      case 'simple':
-        // Use fast 3B router model for simple tasks (10x faster!)
-        return 'qwen2.5:3b';
-      case 'complex':
-        // Use best quality 33B model for complex tasks
-        return 'deepseek-coder:33b';
-      case 'medium':
-      default:
-        // Use balanced 34B model for medium tasks
-        return 'codellama:34b';
+    const selectedModel = await modelManager.selectModel(criteria);
+
+    if (!selectedModel) {
+      throw new Error('No Ollama models available. Please pull at least one model.');
     }
+
+    return selectedModel;
   }
 
   /**
-   * Generate text using Ollama (with auto-start and shared client!)
+   * Generate text using Ollama (with auto-start, dynamic model selection, and adaptive timeouts!)
    */
   async generate(prompt: string, options: GenerateOptions = {}): Promise<{
     text: string;
@@ -148,20 +160,36 @@ export class OllamaClient {
     // Auto-start Ollama if needed (saves Augment credits!)
     await this.ensureRunning();
 
-    const model = this.selectModel(options);
+    const modelManager = getModelManager(this.baseUrl);
+
+    // Discover models if not done yet
+    await modelManager.discoverModels();
+
+    // Select best model
+    const model = await this.selectModel(options);
     const startTime = Date.now();
 
+    // Get adaptive timeout based on model size
+    // Don't assume cold start - models are usually warm after first use
+    const isColdStart = false;
+    const timeout = await modelManager.getAdaptiveTimeout(model, isColdStart);
+
+    console.error(`[OllamaClient] Using model: ${model} (timeout: ${timeout}ms)`);
+    console.error(`[OllamaClient] Prompt length: ${prompt.length} chars`);
+
     try {
-      // Use shared client with timeout/retry for reliability
+      // Use shared client with adaptive timeout and retry
+      console.error('[OllamaClient] Calling sharedGenerate...');
       const text = await sharedGenerate({
         model,
         prompt,
         format: 'text',
-        timeoutMs: 120000,  // 2 minutes for cold start
+        timeoutMs: timeout,
         retries: 2
       });
 
       const timeMs = Date.now() - startTime;
+      console.error(`[OllamaClient] sharedGenerate completed in ${timeMs}ms`);
 
       // Estimate tokens (rough approximation: 1 token ≈ 4 chars)
       const tokensInput = Math.ceil(prompt.length / 4);
@@ -176,10 +204,48 @@ export class OllamaClient {
         timeMs,
       };
     } catch (error: any) {
-      // If model not found, suggest pulling it
-      if (error.message?.includes('not found')) {
+      // If model not found, try fallback
+      if (error.message?.includes('not found') || error.message?.includes('404')) {
+        console.warn(`[OllamaClient] Model ${model} failed, trying fallback...`);
+
+        const criteria: ModelSelectionCriteria = {
+          task: 'code',
+          complexity: (options.complexity as any) || 'simple',
+        };
+
+        const fallbackChain = await modelManager.getFallbackChain(model, criteria);
+
+        // Try first fallback
+        if (fallbackChain.length > 1) {
+          const fallbackModel = fallbackChain[1];
+          console.error(`[OllamaClient] Retrying with fallback model: ${fallbackModel}`);
+
+          const fallbackTimeout = await modelManager.getAdaptiveTimeout(fallbackModel, isColdStart);
+
+          const text = await sharedGenerate({
+            model: fallbackModel,
+            prompt,
+            format: 'text',
+            timeoutMs: fallbackTimeout,
+            retries: 1
+          });
+
+          const timeMs = Date.now() - startTime;
+          const tokensInput = Math.ceil(prompt.length / 4);
+          const tokensGenerated = Math.ceil(text.length / 4);
+
+          return {
+            text,
+            model: fallbackModel,
+            tokensGenerated,
+            tokensInput,
+            tokensTotal: tokensInput + tokensGenerated,
+            timeMs,
+          };
+        }
+
         throw new Error(
-          `Model ${model} not found. Please run: ollama pull ${model}`
+          `No available models found. Please pull at least one model: ollama pull qwen2.5:3b`
         );
       }
       throw error;
@@ -244,15 +310,33 @@ export class OllamaClient {
 
   /**
    * Auto-start Ollama if not running (saves Augment credits!)
+   * Enhanced with better detection, configurable timeout, and exponential backoff
    */
   private async startOllama(): Promise<void> {
     console.error('🚀 Auto-starting Ollama...');
 
-    const ollamaPath = process.platform === 'win32'
-      ? 'C:\\Users\\chris\\AppData\\Local\\Programs\\Ollama\\ollama.exe'
-      : 'ollama';
+    // Get configurable timeout (default: 60 seconds)
+    const timeoutSeconds = parseInt(process.env.OLLAMA_START_TIMEOUT || '60', 10);
+
+    // Get Ollama path from environment or use defaults
+    const ollamaPath = process.env.OLLAMA_PATH || (
+      process.platform === 'win32'
+        ? 'C:\\Users\\chris\\AppData\\Local\\Programs\\Ollama\\ollama.exe'
+        : 'ollama'
+    );
 
     try {
+      // First, check if Ollama is already running (might be Windows service)
+      console.error('🔍 Checking if Ollama is already running...');
+      const isRunning = await pingOllama(2000);
+
+      if (isRunning) {
+        console.error('✅ Ollama is already running!');
+        return;
+      }
+
+      console.error(`🚀 Spawning Ollama process: ${ollamaPath}`);
+
       this.ollamaProcess = spawn(ollamaPath, ['serve'], {
         detached: true,
         stdio: 'ignore',
@@ -262,39 +346,95 @@ export class OllamaClient {
       this.ollamaProcess.unref();
       this.startedByUs = true;
 
-      console.error('⏳ Waiting for Ollama to be ready...');
+      console.error(`⏳ Waiting for Ollama to be ready (timeout: ${timeoutSeconds}s)...`);
 
-      // Wait up to 30 seconds
-      for (let i = 0; i < 30; i++) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      // Exponential backoff: 1s, 2s, 4s, 8s, then 1s intervals
+      const delays = [1000, 2000, 4000, 8000];
+      let totalWait = 0;
+      let attemptCount = 0;
+
+      while (totalWait < timeoutSeconds * 1000) {
+        const delay = attemptCount < delays.length ? delays[attemptCount] : 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        totalWait += delay;
+        attemptCount++;
+
         try {
-          await this.ollama.list();
-          console.error('✅ Ollama ready!');
-          return;
+          const ready = await pingOllama(2000);
+          if (ready) {
+            console.error(`✅ Ollama ready after ${totalWait}ms!`);
+            return;
+          }
         } catch {
-          // Not ready yet
+          // Not ready yet, continue waiting
+          console.error(`⏳ Still waiting... (${Math.floor(totalWait / 1000)}s / ${timeoutSeconds}s)`);
         }
       }
 
-      throw new Error('Ollama started but not ready within 30 seconds');
+      throw new Error(`Ollama started but not ready within ${timeoutSeconds} seconds. Try increasing OLLAMA_START_TIMEOUT.`);
     } catch (error: any) {
+      // Better error messages
+      if (error.code === 'ENOENT') {
+        throw new Error(
+          `Ollama not found at: ${ollamaPath}\n` +
+          `Please install Ollama from https://ollama.com or set OLLAMA_PATH environment variable.`
+        );
+      }
+
+      if (error.code === 'EADDRINUSE' || error.message?.includes('address already in use')) {
+        throw new Error(
+          `Port 11434 is already in use. Another Ollama instance may be running.\n` +
+          `Try: pkill ollama (Linux/Mac) or taskkill /F /IM ollama.exe (Windows)`
+        );
+      }
+
       throw new Error(`Failed to auto-start Ollama: ${error.message}`);
     }
   }
 
   /**
    * Ensure Ollama is running (auto-start if needed)
+   * Enhanced with better health checking using pingOllama
    */
   async ensureRunning(): Promise<void> {
     try {
-      // Quick health check
-      await this.ollama.list();
-    } catch (error) {
-      // Ollama not running
+      // Use pingOllama for more reliable health check
+      const isRunning = await pingOllama(5000);
+
+      if (isRunning) {
+        return; // Already running, all good!
+      }
+
+      // Not running, try to start if auto-start enabled
       if (this.autoStart) {
         await this.startOllama();
       } else {
-        throw new Error('Ollama is not running. Please start Ollama with: ollama serve');
+        throw new Error(
+          'Ollama is not running. Please start Ollama with: ollama serve\n' +
+          'Or enable auto-start by setting autoStart=true in constructor.'
+        );
+      }
+    } catch (error: any) {
+      // If pingOllama failed, try auto-start
+      if (this.autoStart && !error.message?.includes('auto-start')) {
+        await this.startOllama();
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Cleanup spawned Ollama process on shutdown
+   */
+  async cleanup(): Promise<void> {
+    if (this.ollamaProcess && this.startedByUs) {
+      console.error('🧹 Cleaning up spawned Ollama process...');
+      try {
+        this.ollamaProcess.kill();
+        console.error('✅ Ollama process terminated');
+      } catch (error: any) {
+        console.error(`⚠️ Failed to kill Ollama process: ${error.message}`);
       }
     }
   }

@@ -1,6 +1,6 @@
 {
-  "name": "@robinsonai/free-agent-mcp",
-  "version": "0.1.1",
+  "name": "@robinson_ai_systems/free-agent-mcp",
+  "version": "0.1.6",
   "description": "Free Agent MCP - Execute tasks using FREE models (Ollama, etc.)",
   "type": "module",
   "main": "dist/index.js",
@@ -10,9 +10,11 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:sandbox": "docker build -t free-agent-sandbox:latest .docker",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test": "echo \"Tests coming soon\"",
+    "check-training": "node dist/learning/auto-train-monitor.js check",
     "prepare": "npm run build"
   },
   "keywords": [
@@ -29,13 +31,17 @@
   "author": "Robinson AI",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.4",
-    "@robinsonai/shared-llm": "^0.1.0",
-    "@types/better-sqlite3": "^7.6.13",
-    "better-sqlite3": "^11.10.0",
-    "handlebars": "^4.7.8",
-    "ollama": "^0.5.9",
     "@anthropic-ai/sdk": "^0.32.1",
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@robinson_ai_systems/shared-llm": "^0.1.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/diff": "^7.0.2",
+    "@types/jsdom": "^27.0.0",
+    "better-sqlite3": "^11.10.0",
+    "diff": "^4.0.2",
+    "handlebars": "^4.7.8",
+    "jsdom": "^27.1.0",
+    "ollama": "^0.5.9",
     "openai": "^4.77.3"
   },
   "devDependencies": {

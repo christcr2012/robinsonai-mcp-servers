@@ -1,6 +1,6 @@
 {
-  "name": "@robinsonai/credit-optimizer-mcp",
-  "version": "0.1.1",
+  "name": "@robinson_ai_systems/credit-optimizer-mcp",
+  "version": "0.1.6",
   "description": "MCP server that optimizes Augment Code credit usage through tool discovery, templates, caching, and autonomous workflows",
   "type": "module",
   "main": "dist/index.js",
@@ -40,4 +40,3 @@
     "handlebars": "^4.7.8"
   }
 }
-

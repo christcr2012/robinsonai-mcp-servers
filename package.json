@@ -8,14 +8,17 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "build:vercel": "npm run build -w @robinsonai/vercel-mcp",
-    "build:neon": "npm run build -w @robinsonai/neon-mcp",
-    "build:redis": "npm run build -w @robinsonai/redis-mcp",
-    "build:github": "npm run build -w @robinsonai/github-mcp",
+    "build:vercel": "npm run build -w @robinson_ai_systems/vercel-mcp",
+    "build:neon": "npm run build -w @robinson_ai_systems/neon-mcp",
+    "build:redis": "npm run build -w @robinson_ai_systems/redis-mcp",
+    "build:github": "npm run build -w @robinson_ai_systems/github-mcp",
     "link:all": "npm run link --workspaces --if-present",
     "qa": "node scripts/qa.mjs",
     "accept": "node scripts/accept.mjs",
-    "precommit": "npm run qa"
+    "precommit": "npm run qa",
+    "check-training": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js check",
+    "watch-training": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js watch",
+    "train-colab": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js open"
   },
   "keywords": [
     "mcp",
