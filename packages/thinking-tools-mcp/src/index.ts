@@ -57,6 +57,9 @@ import { contextCLITools } from './context-cli-tools.js';
 // Import Web Context tools
 import { getWebContextTools } from './tools/context_web.js';
 
+// Import Cognitive Tools
+import { getCognitiveTools } from './tools/cognitive_tools.js';
+
 class ThinkingToolsMCP {
   private server: Server;
 
@@ -496,6 +499,11 @@ class ThinkingToolsMCP {
           description: tool.description,
           inputSchema: tool.inputSchema,
         })),
+        ...getCognitiveTools().map(tool => ({
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+        })),
       ],
     }));
 
@@ -649,6 +657,20 @@ class ThinkingToolsMCP {
               throw new Error(`Web context tool not found: ${name}`);
             }
             break;
+          case 'think_swot':
+          case 'think_devils_advocate':
+          case 'think_premortem':
+          case 'think_decision_matrix':
+          case 'think_critique_checklist':
+          case 'think_review_change':
+            // Find the matching cognitive tool and call its handler
+            const cogTool = getCognitiveTools().find(t => t.name === name);
+            if (cogTool) {
+              result = await cogTool.handler(args || {});
+            } else {
+              throw new Error(`Cognitive tool not found: ${name}`);
+            }
+            break;
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -679,10 +701,11 @@ class ThinkingToolsMCP {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Thinking Tools MCP server running on stdio');
-    console.error('36 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools + 8 Context Engine tools + 4 Web Context tools');
+    console.error('42 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools + 8 Context Engine tools + 4 Web Context tools + 6 Cognitive Operators');
     console.error(`Context7 API: ${process.env.CONTEXT7_API_KEY ? 'Authenticated' : 'Public access (no API key)'}`);
     console.error(`Context Engine: ${process.env.CTX_EMBED_PROVIDER || 'ollama'} embeddings @ ${process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434'}`);
     console.error(`Web Context: ${process.env.TAVILY_API_KEY || process.env.BING_SUBSCRIPTION_KEY || process.env.SERPAPI_KEY ? 'API keys configured' : 'No API keys (fetch/crawl only)'}`);
+    console.error(`Cognitive Operators: SWOT, Devil's Advocate, Premortem, Decision Matrix, Critique, Review Change`);
   }
 }
 

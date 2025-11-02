@@ -66,7 +66,7 @@ const config = {
     },
     "Thinking Tools MCP": {
       command: "npx",
-      args: ["-y", "@robinson_ai_systems/thinking-tools-mcp@1.2.1"],
+      args: ["-y", "@robinson_ai_systems/thinking-tools-mcp@1.3.0"],
       env: {
         OLLAMA_BASE_URL: env.OLLAMA_BASE_URL || "http://localhost:11434",
         CTX_EMBED_PROVIDER: "ollama",
@@ -123,7 +123,7 @@ console.log('');
 console.log('📋 Configuration Summary:');
 console.log('   - Free Agent MCP: v0.1.6 (Ollama)');
 console.log('   - Paid Agent MCP: v0.2.3 (OpenAI/Claude)');
-console.log('   - Thinking Tools MCP: v1.2.1 (36 tools + Web Context)');
+console.log('   - Thinking Tools MCP: v1.3.0 (42 tools + Cognitive Operators)');
 console.log('   - Credit Optimizer MCP: v0.1.6');
 console.log('   - Robinson\'s Toolkit MCP: v1.0.5');
 console.log('');
