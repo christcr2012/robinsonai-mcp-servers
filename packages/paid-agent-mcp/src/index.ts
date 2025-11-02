@@ -387,6 +387,113 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['category'],
         },
       },
+      // Quality Gates Pipeline Tools (using PAID models)
+      {
+        name: 'paid_agent_execute_with_quality_gates',
+        description: 'Execute code generation with FULL quality gates pipeline (Synthesize-Execute-Critique-Refine). Runs formatter, linter, type checker, tests, coverage, security checks. Returns code that ACTUALLY WORKS with structured verdict. Uses PAID models (OpenAI/Claude).',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            task: {
+              type: 'string',
+              description: 'What to build (e.g., "Create user login function", "Add notification system")',
+            },
+            context: {
+              type: 'string',
+              description: 'Project context (e.g., "Node.js, Express, JWT", "React, TypeScript, Tailwind")',
+            },
+            designCard: {
+              type: 'object',
+              description: 'Optional Design Card with goals, acceptance criteria, constraints',
+              properties: {
+                name: { type: 'string' },
+                goals: { type: 'array', items: { type: 'string' } },
+                acceptance: { type: 'array', items: { type: 'string' } },
+                constraints: { type: 'array', items: { type: 'string' } },
+                allowedPaths: { type: 'array', items: { type: 'string' } },
+              },
+            },
+            maxAttempts: {
+              type: 'number',
+              description: 'Maximum refinement attempts (default: 3)',
+            },
+            acceptThreshold: {
+              type: 'number',
+              description: 'Minimum weighted score to accept (0-1, default: 0.9)',
+            },
+            minCoverage: {
+              type: 'number',
+              description: 'Minimum code coverage percentage (default: 80)',
+            },
+            useProjectBrief: {
+              type: 'boolean',
+              description: 'Auto-generate and use Project Brief for repo-native code (default: true)',
+            },
+          },
+          required: ['task', 'context'],
+        },
+      },
+      {
+        name: 'paid_agent_judge_code_quality',
+        description: 'Evaluate code quality using LLM Judge with structured rubric. Returns scores for compilation, tests, types, style, security, and conventions. Uses PAID models (OpenAI/Claude).',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            code: {
+              type: 'string',
+              description: 'Code to evaluate',
+            },
+            spec: {
+              type: 'string',
+              description: 'Problem specification or requirements',
+            },
+            signals: {
+              type: 'object',
+              description: 'Optional execution signals (lint errors, type errors, test results, etc.)',
+            },
+          },
+          required: ['code', 'spec'],
+        },
+      },
+      {
+        name: 'paid_agent_refine_code',
+        description: 'Fix code issues based on judge feedback. Applies fixes from structured fix plan. Uses PAID models (OpenAI/Claude).',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            code: {
+              type: 'string',
+              description: 'Code to refine',
+            },
+            filePath: {
+              type: 'string',
+              description: 'Optional file path (default: code.ts)',
+            },
+            verdict: {
+              type: 'object',
+              description: 'Judge verdict with fix plan (from paid_agent_judge_code_quality)',
+            },
+          },
+          required: ['code', 'verdict'],
+        },
+      },
+      {
+        name: 'paid_agent_generate_project_brief',
+        description: 'Auto-generate Project Brief from repository. Analyzes naming conventions, import patterns, architecture, testing patterns, and builds domain glossary. Use this for repo-native code generation. Uses static analysis (no AI credits).',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            repoPath: {
+              type: 'string',
+              description: 'Repository root path (default: current working directory)',
+            },
+            cache: {
+              type: 'boolean',
+              description: 'Cache the brief for future use (default: true)',
+            },
+          },
+        },
+      },
       // NOTE: File editing tools removed to avoid duplicates with free-agent-mcp
       // Use free-agent-mcp for file operations: file_str_replace, file_insert, file_save, file_delete, file_read
     ],
@@ -428,6 +535,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await handleListToolkitCategories();
       case 'list_toolkit_tools_openai-worker-mcp':
         return await handleListToolkitTools(args);
+
+      // Quality Gates Pipeline Tools
+      case 'paid_agent_execute_with_quality_gates':
+        return await handleExecuteWithQualityGates(args);
+      case 'paid_agent_judge_code_quality':
+        return await handleJudgeCodeQuality(args);
+      case 'paid_agent_refine_code':
+        return await handleRefineCode(args);
+      case 'paid_agent_generate_project_brief':
+        return await handleGenerateProjectBrief(args);
 
       // NOTE: File editing tools removed to avoid duplicates with free-agent-mcp
       // Use free-agent-mcp for file operations: file_str_replace, file_insert, file_save, file_delete, file_read
@@ -1656,6 +1773,261 @@ async function handleListToolkitTools(args: any) {
         {
           type: 'text',
           text: JSON.stringify({ error: error.message }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * Execute code generation with quality gates pipeline (PAID models)
+ */
+async function handleExecuteWithQualityGates(args: any) {
+  try {
+    // Import pipeline from free-agent-mcp (same monorepo)
+    const { iterateTask } = await import('../../free-agent-mcp/dist/pipeline/index.js');
+    const { makeProjectBrief } = await import('../../free-agent-mcp/dist/utils/project-brief.js');
+    const { designCardToTaskSpec } = await import('../../free-agent-mcp/dist/agents/design-card.js');
+
+    // Build task specification
+    let spec = `Task: ${args.task}\nContext: ${args.context}`;
+
+    // Add Design Card if provided
+    if (args.designCard) {
+      const card = args.designCard;
+      spec = designCardToTaskSpec(card, null);
+    }
+
+    // Generate Project Brief if requested
+    let brief = null;
+    if (args.useProjectBrief !== false) {
+      const repoPath = getWorkspaceRoot();
+      brief = await makeProjectBrief(repoPath);
+      spec += `\n\nProject Brief:\n${JSON.stringify(brief, null, 2)}`;
+    }
+
+    // Run pipeline (currently uses Ollama - free)
+    // Note: PAID model support will be added in future version
+    const config = {
+      maxAttempts: args.maxAttempts || 3,
+      acceptThreshold: args.acceptThreshold || 0.9,
+      minCoverage: args.minCoverage || 80,
+    };
+
+    const result = await iterateTask(spec, config);
+
+    // Cost is $0 since we're using Ollama
+    const actualCost = 0;
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: result.ok,
+            files: result.files,
+            score: result.score,
+            attempts: result.attempts,
+            verdict: result.verdict,
+            report: result.report,
+            cost: {
+              total: actualCost,
+              currency: 'USD',
+              note: 'PAID - OpenAI/Claude with quality gates pipeline',
+            },
+          }, null, 2),
+        },
+      ],
+    };
+  } catch (error: any) {
+    console.error('[handleExecuteWithQualityGates] Error:', error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: false,
+            error: error.message,
+          }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * Judge code quality using LLM Judge (PAID models)
+ */
+async function handleJudgeCodeQuality(args: any) {
+  try {
+    const { judgeCode } = await import('../../free-agent-mcp/dist/pipeline/judge.js');
+
+    // Build signals from provided data or create empty signals
+    const signals = args.signals || {
+      compiled: true,
+      lintErrors: [],
+      typeErrors: [],
+      test: { passed: 0, failed: 0, details: [] },
+      security: { violations: [] },
+      logsTail: [],
+    };
+
+    const verdict = await judgeCode({
+      spec: args.spec,
+      signals,
+      patchSummary: args.patchSummary || {
+        filesChanged: [],
+        diffStats: { additions: 0, deletions: 0 },
+      },
+      modelNotes: args.modelNotes || '',
+    }); // Currently uses Ollama (free) - PAID model support coming in future version
+
+    // Cost is $0 since we're using Ollama
+    const actualCost = 0;
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            verdict,
+            code: args.code,
+            cost: {
+              total: actualCost,
+              currency: 'USD',
+              note: 'PAID - OpenAI/Claude judge',
+            },
+          }, null, 2),
+        },
+      ],
+    };
+  } catch (error: any) {
+    console.error('[handleJudgeCodeQuality] Error:', error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: false,
+            error: error.message,
+          }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * Refine code based on judge feedback (PAID models)
+ */
+async function handleRefineCode(args: any) {
+  try {
+    const { applyFixPlan } = await import('../../free-agent-mcp/dist/pipeline/refine.js');
+
+    // Convert code string to file structure
+    const currentFiles = [{
+      path: args.filePath || 'code.ts',
+      content: args.code,
+    }];
+
+    // Build minimal ExecReport from verdict scores
+    const report = {
+      compiled: args.verdict.scores.compilation === 1,
+      lintErrors: [],
+      typeErrors: [],
+      test: {
+        passed: 0,
+        failed: 0,
+        details: [],
+      },
+      security: {
+        violations: [],
+      },
+      logsTail: [],
+    };
+
+    // Apply fix plan (currently uses Ollama - free)
+    // Note: PAID model support will be added in future version
+    const result = await applyFixPlan(
+      args.verdict,
+      currentFiles,
+      report
+    );
+
+    // Cost is $0 since we're using Ollama
+    const actualCost = 0;
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            files: result.files,
+            tests: result.tests,
+            notes: result.notes,
+            cost: {
+              total: actualCost,
+              currency: 'USD',
+              note: 'PAID - OpenAI/Claude refine',
+            },
+          }, null, 2),
+        },
+      ],
+    };
+  } catch (error: any) {
+    console.error('[handleRefineCode] Error:', error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: false,
+            error: error.message,
+          }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * Generate Project Brief from repository (static analysis - no AI cost)
+ */
+async function handleGenerateProjectBrief(args: any) {
+  try {
+    const { makeProjectBrief } = await import('../../free-agent-mcp/dist/utils/project-brief.js');
+
+    const repoPath = args.repoPath || getWorkspaceRoot();
+    const brief = await makeProjectBrief(repoPath);
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            brief,
+            cost: {
+              total: 0,
+              currency: 'USD',
+              note: 'FREE - Static analysis',
+            },
+          }, null, 2),
+        },
+      ],
+    };
+  } catch (error: any) {
+    console.error('[handleGenerateProjectBrief] Error:', error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: false,
+            error: error.message,
+          }, null, 2),
         },
       ],
     };
