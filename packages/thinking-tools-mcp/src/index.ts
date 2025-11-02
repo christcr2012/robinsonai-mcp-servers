@@ -640,6 +640,7 @@ class ThinkingToolsMCP {
           case 'ctx_web_search':
           case 'ctx_web_fetch':
           case 'ctx_web_crawl_step':
+          case 'ctx_web_debug_url':
             // Find the matching web context tool and call its handler
             const webTool = getWebContextTools().find(t => t.name === name);
             if (webTool) {
@@ -678,7 +679,7 @@ class ThinkingToolsMCP {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Thinking Tools MCP server running on stdio');
-    console.error('35 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools + 8 Context Engine tools + 3 Web Context tools');
+    console.error('36 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools + 8 Context Engine tools + 4 Web Context tools');
     console.error(`Context7 API: ${process.env.CONTEXT7_API_KEY ? 'Authenticated' : 'Public access (no API key)'}`);
     console.error(`Context Engine: ${process.env.CTX_EMBED_PROVIDER || 'ollama'} embeddings @ ${process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434'}`);
     console.error(`Web Context: ${process.env.TAVILY_API_KEY || process.env.BING_SUBSCRIPTION_KEY || process.env.SERPAPI_KEY ? 'API keys configured' : 'No API keys (fetch/crawl only)'}`);
