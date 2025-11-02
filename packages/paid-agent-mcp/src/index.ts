@@ -1793,10 +1793,10 @@ async function handleListToolkitTools(args: any) {
  */
 async function handleExecuteWithQualityGates(args: any) {
   try {
-    // Import pipeline from free-agent-mcp (same monorepo)
-    const { iterateTask } = await import('../../free-agent-mcp/dist/pipeline/index.js');
-    const { makeProjectBrief } = await import('../../free-agent-mcp/dist/utils/project-brief.js');
-    const { designCardToTaskSpec } = await import('../../free-agent-mcp/dist/agents/design-card.js');
+    // Import pipeline from free-agent-mcp npm package
+    const { iterateTask } = await import('@robinson_ai_systems/free-agent-mcp/dist/pipeline/index.js');
+    const { makeProjectBrief } = await import('@robinson_ai_systems/free-agent-mcp/dist/utils/project-brief.js');
+    const { designCardToTaskSpec } = await import('@robinson_ai_systems/free-agent-mcp/dist/agents/design-card.js');
 
     // Build task specification
     let spec = `Task: ${args.task}\nContext: ${args.context}`;
