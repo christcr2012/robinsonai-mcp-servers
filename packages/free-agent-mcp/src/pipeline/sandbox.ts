@@ -139,6 +139,7 @@ async function initializeProject(sandboxDir: string): Promise<any> {
         typecheck: 'tsc --noEmit',
       },
       devDependencies: {
+        '@jest/globals': '^29.0.0',
         '@types/jest': '^29.5.0',
         '@types/node': '^20.0.0',
         '@typescript-eslint/eslint-plugin': '^6.0.0',
