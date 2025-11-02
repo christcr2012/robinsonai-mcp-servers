@@ -68,6 +68,9 @@ SIGN_INTO_AUGMENT_NOW.md
 # Context audit reports (generated)
 reports/
 
+# Robinson Context Engine artifacts (generated)
+.robctx/
+
 # Local Augment MCP import with secrets (do not commit)
 MCP_SERVERS_IMPORT.secrets.json
 
