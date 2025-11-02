@@ -253,7 +253,7 @@ export const DEFAULT_PIPELINE_CONFIG: Required<PipelineConfig> = {
     // Common safe libraries
     'lodash', 'axios', 'express', 'react', 'vue', 'next',
     // Testing
-    'jest', 'vitest', 'mocha', 'chai',
+    'jest', '@jest/globals', 'vitest', 'mocha', 'chai',
     // TypeScript
     'typescript', '@types/*',
   ],
