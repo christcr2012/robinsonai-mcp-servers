@@ -54,6 +54,9 @@ import { getPaths, loadChunks, loadEmbeddings } from './context/store.js';
 // Import Context CLI tools
 import { contextCLITools } from './context-cli-tools.js';
 
+// Import Web Context tools
+import { getWebContextTools } from './tools/context_web.js';
+
 class ThinkingToolsMCP {
   private server: Server;
 
@@ -488,6 +491,11 @@ class ThinkingToolsMCP {
           description: tool.description,
           inputSchema: tool.inputSchema,
         })),
+        ...getWebContextTools().map(tool => ({
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+        })),
       ],
     }));
 
@@ -629,6 +637,17 @@ class ThinkingToolsMCP {
               throw new Error(`CLI tool not found: ${name}`);
             }
             break;
+          case 'ctx_web_search':
+          case 'ctx_web_fetch':
+          case 'ctx_web_crawl_step':
+            // Find the matching web context tool and call its handler
+            const webTool = getWebContextTools().find(t => t.name === name);
+            if (webTool) {
+              result = await webTool.handler(args || {});
+            } else {
+              throw new Error(`Web context tool not found: ${name}`);
+            }
+            break;
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -659,9 +678,10 @@ class ThinkingToolsMCP {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Thinking Tools MCP server running on stdio');
-    console.error('32 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools + 8 Context Engine tools');
+    console.error('35 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools + 8 Context Engine tools + 3 Web Context tools');
     console.error(`Context7 API: ${process.env.CONTEXT7_API_KEY ? 'Authenticated' : 'Public access (no API key)'}`);
     console.error(`Context Engine: ${process.env.CTX_EMBED_PROVIDER || 'ollama'} embeddings @ ${process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434'}`);
+    console.error(`Web Context: ${process.env.TAVILY_API_KEY || process.env.BING_SUBSCRIPTION_KEY || process.env.SERPAPI_KEY ? 'API keys configured' : 'No API keys (fetch/crawl only)'}`);
   }
 }
 
