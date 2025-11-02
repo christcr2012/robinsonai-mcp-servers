@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/paid-agent-mcp",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Paid Agent MCP - Execute tasks using PAID models (OpenAI, Claude, etc.)",
   "type": "module",
   "main": "dist/index.js",
@@ -29,7 +29,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "@robinson_ai_systems/shared-llm": "^0.1.3",
+    "@robinson_ai_systems/shared-llm": "^0.1.4",
     "better-sqlite3": "^11.10.0",
     "openai": "^4.77.3"
   },

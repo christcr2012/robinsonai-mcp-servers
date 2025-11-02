@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/shared-llm",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,9 +8,24 @@
     "build": "tsc -p tsconfig.json",
     "prepare": "npm run build"
   },
-  "dependencies": {},
+  "dependencies": {
+    "openai": "^4.77.3",
+    "@anthropic-ai/sdk": "^0.32.1"
+  },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "openai": "^4.0.0",
+    "@anthropic-ai/sdk": "^0.30.0"
+  },
+  "peerDependenciesMeta": {
+    "openai": {
+      "optional": true
+    },
+    "@anthropic-ai/sdk": {
+      "optional": true
+    }
   }
 }
