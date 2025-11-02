@@ -66,7 +66,19 @@ const config = {
     },
     "Thinking Tools MCP": {
       command: "npx",
-      args: ["-y", "@robinson_ai_systems/thinking-tools-mcp@1.1.2"]
+      args: ["-y", "@robinson_ai_systems/thinking-tools-mcp@1.2.0"],
+      env: {
+        OLLAMA_BASE_URL: env.OLLAMA_BASE_URL || "http://localhost:11434",
+        CTX_EMBED_PROVIDER: "ollama",
+        CONTEXT7_API_KEY: env.CONTEXT7_API_KEY || "",
+        CTX_WEB_ENABLE: env.CTX_WEB_ENABLE || "1",
+        CTX_WEB_CONCURRENCY: env.CTX_WEB_CONCURRENCY || "3",
+        CTX_WEB_DELAY_MS: env.CTX_WEB_DELAY_MS || "350",
+        FETCH_UA: env.FETCH_UA || "Robinson-Context/1.0",
+        TAVILY_API_KEY: env.TAVILY_API_KEY || "",
+        BING_SUBSCRIPTION_KEY: env.BING_SUBSCRIPTION_KEY || "",
+        SERPAPI_KEY: env.SERPAPI_KEY || ""
+      }
     },
     "Credit Optimizer MCP": {
       command: "npx",
@@ -111,9 +123,9 @@ console.log('');
 console.log('📋 Configuration Summary:');
 console.log('   - Free Agent MCP: v0.1.6 (Ollama)');
 console.log('   - Paid Agent MCP: v0.2.3 (OpenAI/Claude)');
-console.log('   - Thinking Tools MCP: latest');
+console.log('   - Thinking Tools MCP: v1.2.0 (35 tools + Web Context)');
 console.log('   - Credit Optimizer MCP: v0.1.6');
-console.log('   - Robinson\'s Toolkit MCP: v1.0.2');
+console.log('   - Robinson\'s Toolkit MCP: v1.0.5');
 console.log('');
 console.log('🔑 Environment Variables Loaded:');
 console.log(`   - OLLAMA_BASE_URL: ${env.OLLAMA_BASE_URL || 'http://localhost:11434'}`);
@@ -124,6 +136,11 @@ console.log(`   - VERCEL_TOKEN: ${env.VERCEL_TOKEN ? '✅ Set' : '❌ Missing'}`
 console.log(`   - NEON_API_KEY: ${env.NEON_API_KEY ? '✅ Set' : '❌ Missing'}`);
 console.log(`   - UPSTASH_API_KEY: ${env.UPSTASH_API_KEY ? '✅ Set' : '❌ Missing'}`);
 console.log(`   - GOOGLE_SERVICE_ACCOUNT_KEY: ${env.GOOGLE_SERVICE_ACCOUNT_KEY ? '✅ Set' : '❌ Missing'}`);
+console.log('');
+console.log('🌐 Web Context (Thinking Tools MCP):');
+console.log(`   - TAVILY_API_KEY: ${env.TAVILY_API_KEY ? '✅ Set' : '❌ Missing'}`);
+console.log(`   - SERPAPI_KEY: ${env.SERPAPI_KEY ? '✅ Set' : '❌ Missing'}`);
+console.log(`   - BING_SUBSCRIPTION_KEY: ${env.BING_SUBSCRIPTION_KEY ? '✅ Set' : '❌ Missing (optional)'}`);
 console.log('');
 console.log('🚀 Next Steps:');
 console.log('   1. Import augment-mcp-config.json into Augment');
