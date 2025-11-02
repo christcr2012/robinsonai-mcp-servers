@@ -22,6 +22,9 @@ WORKING_AUGMENT_CONFIG.json
 WORK_COMPLETED_SUMMARY.md
 COPY_PASTE_THIS_INTO_AUGMENT.json
 
+# Main Augment MCP config with secrets (DO NOT COMMIT)
+augment-mcp-config.json
+
 # Secrets and runtime artifacts
 update-vscode-settings.ps1
 *.db

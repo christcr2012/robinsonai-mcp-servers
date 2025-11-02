@@ -1,0 +1,100 @@
+{
+  "mcpServers": {
+    "Free Agent MCP": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@robinson_ai_systems/free-agent-mcp@latest"
+      ],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "MAX_OLLAMA_CONCURRENCY": "15",
+        "DEFAULT_OLLAMA_MODEL": "qwen2.5-coder:7b",
+        "OLLAMA_START_TIMEOUT": "120",
+        "FAST_MODEL": "qwen2.5:3b",
+        "MEDIUM_MODEL": "qwen2.5-coder:7b",
+        "COMPLEX_MODEL": "deepseek-coder:33b",
+        "ENABLE_LEARNING": "1",
+        "AUTO_TRAIN": "0"
+      }
+    },
+    "Paid Agent MCP": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@robinson_ai_systems/paid-agent-mcp@latest"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY_HERE",
+        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
+        "MONTHLY_BUDGET": "25",
+        "MAX_OPENAI_CONCURRENCY": "15",
+        "ENABLE_BUDGET_TRACKING": "1",
+        "COST_OPTIMIZATION": "1"
+      }
+    },
+    "Thinking Tools MCP": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@robinson_ai_systems/thinking-tools-mcp@1.4.0"
+      ],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "CTX_EMBED_PROVIDER": "ollama",
+        "CONTEXT7_API_KEY": "",
+        "CTX_WEB_ENABLE": "1",
+        "CTX_WEB_CONCURRENCY": "3",
+        "CTX_WEB_DELAY_MS": "350",
+        "FETCH_UA": "Robinson-Context/1.0 (+https://robinsonaisystems.com)",
+        "TAVILY_API_KEY": "YOUR_TAVILY_API_KEY_HERE_OR_LEAVE_EMPTY",
+        "BING_SUBSCRIPTION_KEY": "",
+        "SERPAPI_KEY": "YOUR_SERPAPI_KEY_HERE_OR_LEAVE_EMPTY",
+        "CTX_ENABLE_SEMANTIC_SEARCH": "1",
+        "CTX_AUTO_INDEX": "1"
+      }
+    },
+    "Credit Optimizer MCP": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@robinson_ai_systems/credit-optimizer-mcp@latest"
+      ],
+      "env": {
+        "CREDIT_OPTIMIZER_SKIP_INDEX": "0",
+        "ENABLE_AUTONOMOUS_WORKFLOWS": "1",
+        "ENABLE_TEMPLATE_SCAFFOLDING": "1",
+        "ENABLE_TOOL_DISCOVERY": "1"
+      }
+    },
+    "Robinson's Toolkit MCP": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@robinson_ai_systems/robinsons-toolkit-mcp@latest"
+      ],
+      "env": {
+        "GITHUB_TOKEN": "YOUR_GITHUB_TOKEN_HERE",
+        "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE",
+        "NEON_API_KEY": "YOUR_NEON_API_KEY_HERE",
+        "UPSTASH_API_KEY": "YOUR_UPSTASH_API_KEY_HERE",
+        "UPSTASH_EMAIL": "YOUR_UPSTASH_EMAIL_HERE",
+        "UPSTASH_REDIS_REST_URL": "YOUR_UPSTASH_REDIS_REST_URL_HERE",
+        "UPSTASH_REDIS_REST_TOKEN": "YOUR_UPSTASH_REDIS_REST_TOKEN_HERE",
+        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY_HERE",
+        "GOOGLE_SERVICE_ACCOUNT_KEY": "C:\\\\Users\\\\YOUR_USERNAME\\\\.config\\\\google-workspace-mcp\\\\service-account.json",
+        "GOOGLE_USER_EMAIL": "YOUR_GOOGLE_USER_EMAIL_HERE",
+        "STRIPE_SECRET_KEY": "YOUR_STRIPE_SECRET_KEY_HERE",
+        "SUPABASE_URL": "YOUR_SUPABASE_URL_HERE",
+        "SUPABASE_KEY": "YOUR_SUPABASE_KEY_HERE",
+        "RESEND_API_KEY": "YOUR_RESEND_API_KEY_HERE",
+        "TWILIO_ACCOUNT_SID": "YOUR_TWILIO_ACCOUNT_SID_HERE",
+        "TWILIO_AUTH_TOKEN": "YOUR_TWILIO_AUTH_TOKEN_HERE",
+        "CLOUDFLARE_API_TOKEN": "YOUR_CLOUDFLARE_API_TOKEN_HERE",
+        "ENABLE_LAZY_LOADING": "1",
+        "BROKER_MODE": "1"
+      }
+    }
+  }
+}
+
