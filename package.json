@@ -34,9 +34,22 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "zod": "^3.25.76"
   },
   "dependencies": {
-    "openai": "^6.5.0"
-  }
+    "@mozilla/readability": "^0.4.4",
+    "diff": "^5.2.0",
+    "fast-glob": "^3.3.3",
+    "jsdom": "^22.1.0",
+    "micromatch": "^4.0.8",
+    "node-fetch": "^3.3.2",
+    "openai": "^6.5.0",
+    "p-limit": "^4.0.0",
+    "remark": "^15.0.1",
+    "remark-parse": "^11.0.0",
+    "undici": "^6.22.0",
+    "unified": "^11.0.5"
+  },
+  "type": "module"
 }

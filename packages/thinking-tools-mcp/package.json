@@ -10,7 +10,9 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "ctx:index": "node ./dist/context/indexer.js",
+    "ctx:reset": "node -e \"const fs=require('fs');const files=['.robinson/context/chunks.jsonl','.robinson/context/embeddings.jsonl'];files.forEach(f=>{try{fs.unlinkSync(f)}catch{}});console.log('reset ok')\""
   },
   "keywords": [
     "mcp",
@@ -26,10 +28,22 @@
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.1",
-    "axios": "^1.12.2"
+    "@mozilla/readability": "^0.4.4",
+    "axios": "^1.12.2",
+    "diff": "^5.2.0",
+    "fast-glob": "^3.3.2",
+    "jsdom": "^22.1.0",
+    "micromatch": "^4.0.8",
+    "node-fetch": "^3.3.2",
+    "p-limit": "^4.0.0",
+    "remark": "^15.0.1",
+    "remark-parse": "^11.0.0",
+    "undici": "^6.22.1",
+    "unified": "^11.0.5"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "zod": "^3.24.1"
   }
 }

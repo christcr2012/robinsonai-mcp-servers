@@ -43,6 +43,14 @@ import {
   context7GetMigrationGuide,
 } from './tools/context7.js';
 
+// Import Context Engine modules
+import { indexRepo } from './context/indexer.js';
+import { hybridQuery } from './context/search.js';
+import { ingestUrls, ddg } from './context/web.js';
+import { buildImportGraph } from './context/graph.js';
+import { summarizeDiff } from './context/diff.js';
+import { getPaths, loadChunks, loadEmbeddings } from './context/store.js';
+
 class ThinkingToolsMCP {
   private server: Server;
 
@@ -385,6 +393,93 @@ class ThinkingToolsMCP {
             required: ['libraryId', 'fromVersion', 'toVersion'],
           },
         },
+        {
+          name: 'context_index_repo',
+          description: 'Index current repo into Context Engine (chunks + embeddings).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              repo_root: { type: 'string', description: 'Optional: repository root path' },
+            },
+            required: [],
+          },
+        },
+        {
+          name: 'context_query',
+          description: 'Hybrid search across repo, knowledge, and web cache.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Search query' },
+              top_k: { type: 'number', description: 'Number of results to return (default: 8)' },
+            },
+            required: ['query'],
+          },
+        },
+        {
+          name: 'context_web_search',
+          description: 'DuckDuckGo HTML fallback search (no API key). Returns URL candidates.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              q: { type: 'string', description: 'Search query' },
+              k: { type: 'number', description: 'Number of results (default: 5)' },
+            },
+            required: ['q'],
+          },
+        },
+        {
+          name: 'context_ingest_urls',
+          description: 'Fetch URL(s), extract main content, chunk, embed, and cache.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              urls: { type: 'array', items: { type: 'string' }, description: 'URLs to ingest' },
+              tags: { type: 'array', items: { type: 'string' }, description: 'Optional tags' },
+            },
+            required: ['urls'],
+          },
+        },
+        {
+          name: 'context_stats',
+          description: 'Return basic index stats and file counts.',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+            required: [],
+          },
+        },
+        {
+          name: 'context_reset',
+          description: 'Delete JSONL stores (chunks/embeddings) to allow fresh rebuild.',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+            required: [],
+          },
+        },
+        {
+          name: 'context_neighborhood',
+          description: 'Return import/mention neighborhood for a file (quick graph).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              file: { type: 'string', description: 'File path to analyze' },
+            },
+            required: ['file'],
+          },
+        },
+        {
+          name: 'context_summarize_diff',
+          description: 'Summarize code changes for a git range (e.g., HEAD~1..HEAD).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              range: { type: 'string', description: 'Git range (default: HEAD~1..HEAD)' },
+            },
+            required: [],
+          },
+        },
       ],
     }));
 
@@ -468,6 +563,54 @@ class ThinkingToolsMCP {
           case 'context7_get_migration_guide':
             result = await context7GetMigrationGuide(args as any);
             break;
+          case 'context_index_repo':
+            await indexRepo((args as any)?.repo_root);
+            result = { ok: true, paths: getPaths() };
+            break;
+          case 'context_query':
+            const hits = await hybridQuery((args as any).query, (args as any).top_k || parseInt(process.env.CTX_TOP_K || '8', 10));
+            result = {
+              hits: hits.map(h => ({
+                score: h.score,
+                path: h.chunk.path,
+                start: h.chunk.start,
+                end: h.chunk.end,
+                text: h.chunk.text.slice(0, 800)
+              }))
+            };
+            break;
+          case 'context_web_search':
+            const urls = await ddg((args as any).q, (args as any).k || 5);
+            result = { urls };
+            break;
+          case 'context_ingest_urls':
+            result = await ingestUrls((args as any).urls, (args as any).tags || []);
+            break;
+          case 'context_stats':
+            const chunks = loadChunks().length;
+            const embeds = loadEmbeddings().length;
+            result = { chunks, embeddings: embeds, paths: getPaths() };
+            break;
+          case 'context_reset':
+            const p = getPaths();
+            const fs = await import('fs');
+            for (const f of [p.chunks, p.embeds]) {
+              try {
+                fs.unlinkSync(f as any);
+              } catch {
+                // ignore if file doesn't exist
+              }
+            }
+            result = { ok: true };
+            break;
+          case 'context_neighborhood':
+            const g = buildImportGraph();
+            const n = g.filter(e => e.from.endsWith((args as any).file) || e.to.endsWith((args as any).file));
+            result = { edges: n.slice(0, 200) };
+            break;
+          case 'context_summarize_diff':
+            result = summarizeDiff((args as any)?.range || 'HEAD~1..HEAD');
+            break;
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -498,8 +641,9 @@ class ThinkingToolsMCP {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Thinking Tools MCP server running on stdio');
-    console.error('24 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools');
+    console.error('32 tools available: 15 cognitive frameworks + 3 reasoning modes + 6 Context7 API tools + 8 Context Engine tools');
     console.error(`Context7 API: ${process.env.CONTEXT7_API_KEY ? 'Authenticated' : 'Public access (no API key)'}`);
+    console.error(`Context Engine: ${process.env.CTX_EMBED_PROVIDER || 'ollama'} embeddings @ ${process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434'}`);
   }
 }
 
