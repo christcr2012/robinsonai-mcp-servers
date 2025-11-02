@@ -77,7 +77,7 @@ const config = {
     },
     "Robinson's Toolkit MCP": {
       command: "npx",
-      args: ["-y", "@robinson_ai_systems/robinsons-toolkit-mcp@1.0.4"],
+      args: ["-y", "@robinson_ai_systems/robinsons-toolkit-mcp@1.0.5"],
       env: {
         GITHUB_TOKEN: env.GITHUB_TOKEN,
         VERCEL_TOKEN: env.VERCEL_TOKEN,
