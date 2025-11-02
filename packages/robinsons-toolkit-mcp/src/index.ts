@@ -28,6 +28,7 @@ import { chromium, Browser, Page, BrowserContext } from 'playwright';
 import Stripe from 'stripe';
 import { BROKER_TOOLS } from './broker-tools.js';
 import { ToolRegistry } from './tool-registry.js';
+import { validateTools } from './util/sanitizeTool.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -297,10 +298,11 @@ class UnifiedToolkit {
 
           case 'toolkit_list_tools':
             const tools = this.registry.listToolsInCategory(args.category);
+            const tools_validated = validateTools(tools);
             return {
               content: [{
                 type: 'text',
-                text: JSON.stringify(tools, null, 2)
+                text: JSON.stringify(tools_validated, null, 2)
               }]
             };
 

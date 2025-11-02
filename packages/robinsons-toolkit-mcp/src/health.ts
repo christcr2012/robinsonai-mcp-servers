@@ -1,11 +1,9 @@
 /**
  * Toolkit Health Check
- * 
+ *
  * Validates that all tools in the toolkit have valid names and schemas.
  * Helps diagnose "NULL tools" and "invalid name" errors.
  */
-
-import { isValidTool } from "./util/sanitizeTool.js";
 
 const NAME_RE = /^[A-Za-z0-9._-]{1,64}$/;
 
