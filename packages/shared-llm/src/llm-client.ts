@@ -34,6 +34,8 @@ export interface LLMGenerateResult {
 export async function llmGenerate(options: LLMGenerateOptions): Promise<LLMGenerateResult> {
   const { provider, model, prompt, format, timeoutMs, retries, temperature, maxTokens } = options;
 
+  console.error(`[LLM Client] Using provider: ${provider}, model: ${model}`);
+
   if (provider === 'ollama') {
     // Use Ollama (FREE)
     const response = await ollamaGenerate({
