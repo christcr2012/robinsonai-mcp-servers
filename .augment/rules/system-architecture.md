@@ -11,8 +11,8 @@ Augment Agent (YOU) ← Orchestrator
      ↓
      ├─→ FREE Agent MCP (Ollama) ← 0 credits, does most work
      ├─→ PAID Agent MCP (OpenAI/Claude) ← Use sparingly
-     ├─→ Robinson's Toolkit MCP ← 906 integration tools
-     ├─→ Thinking Tools MCP ← 24 cognitive frameworks
+     ├─→ Robinson's Toolkit MCP ← 1165 integration tools
+     ├─→ Thinking Tools MCP ← 32 tools (24 frameworks + 8 Context Engine)
      └─→ Credit Optimizer MCP ← Tool discovery, templates
 ```
 
@@ -81,9 +81,9 @@ Augment Agent (YOU) ← Orchestrator
 
 ### 3. Robinson's Toolkit MCP (Integration Broker)
 **Package:** `@robinsonai/robinsons-toolkit-mcp`  
-**Command:** `robinsons-toolkit-mcp`  
-**Cost:** ~100 credits per tool call  
-**Tools:** 906 tools across 5 categories (exposed via 5 broker tools)
+**Command:** `robinsons-toolkit-mcp`
+**Cost:** ~100 credits per tool call
+**Tools:** 1165 tools across 6 categories (exposed via 6 broker tools)
 
 **Purpose:** Integrate with external services
 
@@ -142,7 +142,7 @@ toolkit_call_robinsons-toolkit-mcp({
 ```
 
 **Why Broker Pattern?**
-- Avoids loading 906 tool definitions into context
+- Avoids loading 1165 tool definitions into context
 - Saves tokens and credits
 - Dynamic discovery of tools
 - Only loads what you need

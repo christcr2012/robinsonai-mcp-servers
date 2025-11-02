@@ -66,7 +66,7 @@ const config = {
     },
     "Thinking Tools MCP": {
       command: "npx",
-      args: ["-y", "@robinson_ai_systems/thinking-tools-mcp@1.1.1"]
+      args: ["-y", "@robinson_ai_systems/thinking-tools-mcp@1.1.2"]
     },
     "Credit Optimizer MCP": {
       command: "npx",

@@ -62,6 +62,12 @@ augment-console-log.txt
 AUGMENT_FIX_SUMMARY.md
 SIGN_INTO_AUGMENT_NOW.md
 
+# Archived documentation (obsolete/outdated)
+.archive/
+
+# Context audit reports (generated)
+reports/
+
 # Local Augment MCP import with secrets (do not commit)
 MCP_SERVERS_IMPORT.secrets.json
 

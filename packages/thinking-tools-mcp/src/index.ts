@@ -51,6 +51,9 @@ import { buildImportGraph } from './context/graph.js';
 import { summarizeDiff } from './context/diff.js';
 import { getPaths, loadChunks, loadEmbeddings } from './context/store.js';
 
+// Import Context CLI tools
+import { contextCLITools } from './context-cli-tools.js';
+
 class ThinkingToolsMCP {
   private server: Server;
 
@@ -480,6 +483,11 @@ class ThinkingToolsMCP {
             required: [],
           },
         },
+        ...contextCLITools.map(tool => ({
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+        })),
       ],
     }));
 
@@ -610,6 +618,16 @@ class ThinkingToolsMCP {
             break;
           case 'context_summarize_diff':
             result = summarizeDiff((args as any)?.range || 'HEAD~1..HEAD');
+            break;
+          case 'context_preview':
+          case 'context_audit':
+            // Find the matching CLI tool and call its handler
+            const cliTool = contextCLITools.find(t => t.name === name);
+            if (cliTool) {
+              result = await cliTool.handler();
+            } else {
+              throw new Error(`CLI tool not found: ${name}`);
+            }
             break;
           default:
             throw new Error(`Unknown tool: ${name}`);

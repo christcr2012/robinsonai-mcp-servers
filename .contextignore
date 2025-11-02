@@ -1,0 +1,83 @@
+# Robinson Context Engine - Ignore Patterns
+# Files and directories to exclude from context indexing
+
+# Dependencies
+**/node_modules/**
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+
+# Build output
+**/dist/**
+**/build/**
+**/out/**
+**/.next/**
+**/.turbo/**
+**/*.tsbuildinfo
+
+# Git
+**/.git/**
+**/.gitignore
+
+# Environment and secrets
+**/.env
+**/.env.*
+**/secrets*
+**/*.key
+**/*.pem
+**/*.crt
+**/*.p12
+**/*.jks
+
+# Databases
+**/*.db
+**/*.db-shm
+**/*.db-wal
+
+# Backups and archives
+**/.backups/**
+**/.archive/**
+**/backup/**
+**/backups/**
+
+# Context Engine data
+**/.robinson/context/**
+**/.robinson/inbox/**
+**/.robinson/outbox/**
+
+# Reports (generated)
+**/reports/**
+
+# IDE and editor
+**/.vscode/**
+**/.idea/**
+**/*.swp
+**/*.swo
+**/*~
+
+# Logs
+**/*.log
+**/logs/**
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+**/desktop.ini
+
+# Test coverage
+**/coverage/**
+**/.nyc_output/**
+
+# Python
+**/__pycache__/**
+**/.pytest_cache/**
+**/venv/**
+**/.venv*/**
+**/site-packages/**
+
+# Temporary files
+**/tmp/**
+**/temp/**
+**/.tmp/**
+**/.temp/**
+
