@@ -208,6 +208,47 @@ async function initializeProject(sandboxDir: string): Promise<any> {
     fs.writeFileSync(jestConfigPath, jestConfig);
   }
 
+  // Create .eslintrc.json
+  const eslintConfigPath = path.join(sandboxDir, '.eslintrc.json');
+  if (!fs.existsSync(eslintConfigPath)) {
+    const eslintConfig = {
+      parser: '@typescript-eslint/parser',
+      extends: [
+        'eslint:recommended',
+        'plugin:@typescript-eslint/recommended',
+      ],
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
+      env: {
+        node: true,
+        es2022: true,
+        jest: true,
+      },
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'warn',
+        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      },
+    };
+
+    fs.writeFileSync(eslintConfigPath, JSON.stringify(eslintConfig, null, 2));
+  }
+
+  // Create .prettierrc
+  const prettierConfigPath = path.join(sandboxDir, '.prettierrc');
+  if (!fs.existsSync(prettierConfigPath)) {
+    const prettierConfig = {
+      semi: true,
+      trailingComma: 'es5',
+      singleQuote: true,
+      printWidth: 100,
+      tabWidth: 2,
+    };
+
+    fs.writeFileSync(prettierConfigPath, JSON.stringify(prettierConfig, null, 2));
+  }
+
   return packageJson;
 }
 
