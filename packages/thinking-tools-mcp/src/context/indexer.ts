@@ -2,6 +2,7 @@ import fg from 'fast-glob';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { execSync } from 'child_process';
 import { embedBatch } from './embedding.js';
 import { ensureDirs, saveChunk, saveEmbedding, saveStats } from './store.js';
 import { Chunk, IndexStats } from './types.js';

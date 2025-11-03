@@ -31,6 +31,7 @@ export type IndexMeta = {
   dimensions?: number;
   indexedAt: string;
   totalCost?: number;
+  fileHashes?: { [path: string]: { hash: string; mtime: number; size: number } };
 };
 
 export class RCEStore {
@@ -141,6 +142,22 @@ export class RCEStore {
       };
     } catch {
       return { sizeBytes: 0, chunkCount: 0 };
+    }
+  }
+
+  /**
+   * Remove chunks for specific files (for incremental indexing)
+   */
+  async removeChunksForFiles(files: string[]) {
+    const chunks = await this.loadAll();
+    const fileSet = new Set(files);
+    const remaining = chunks.filter(c => !fileSet.has(c.uri));
+
+    if (remaining.length < chunks.length) {
+      // Rewrite file without removed chunks
+      await fs.unlink(this.chunksPath);
+      await this.writeChunks(remaining);
+      console.log(`[RCEStore] Removed chunks for ${chunks.length - remaining.length} files`);
     }
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/robinsons-context-engine",
-  "version": "1.0.1",
+  "version": "1.1.2",
   "description": "Production-grade context engine with hybrid search, multiple embedding providers, and intelligent model selection",
   "type": "module",
   "main": "dist/index.js",
@@ -20,6 +20,14 @@
     "./store": {
       "types": "./dist/store.d.ts",
       "import": "./dist/store.js"
+    },
+    "./symbol-aware": {
+      "types": "./dist/symbol-aware.d.ts",
+      "import": "./dist/symbol-aware.js"
+    },
+    "./import-graph": {
+      "types": "./dist/import-graph.d.ts",
+      "import": "./dist/import-graph.js"
     }
   },
   "scripts": {
@@ -40,6 +48,7 @@
   "author": "Robinson AI Systems",
   "license": "MIT",
   "dependencies": {
+    "@robinson_ai_systems/free-agent-mcp": "^0.1.29",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {

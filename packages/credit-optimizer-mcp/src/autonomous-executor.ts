@@ -36,19 +36,25 @@ export interface WorkflowResult {
   timeMs: number;
 }
 
-// SQLite for persisting large results
+// SQLite for persisting large results (optional - gracefully degrade if not available)
 const DB_PATH = process.env.CREDIT_OPTIMIZER_DB || path.join(process.cwd(), 'credit-optimizer.db');
-const db = new Database(DB_PATH);
-(db as any).pragma('journal_mode = WAL');
-db.exec(`
-CREATE TABLE IF NOT EXISTS workflow_results (
-  result_id TEXT PRIMARY KEY,
-  workflow_name TEXT,
-  result_json TEXT NOT NULL,
-  created_at INTEGER NOT NULL
-);
-CREATE INDEX IF NOT EXISTS idx_results_created ON workflow_results(created_at);
-`);
+let db: any = null;
+try {
+  db = new Database(DB_PATH);
+  (db as any).pragma('journal_mode = WAL');
+  db.exec(`
+  CREATE TABLE IF NOT EXISTS workflow_results (
+    result_id TEXT PRIMARY KEY,
+    workflow_name TEXT,
+    result_json TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_results_created ON workflow_results(created_at);
+  `);
+} catch (error) {
+  console.error('[CREDIT-OPTIMIZER] Warning: Could not initialize database (better-sqlite3 not available). Large result persistence disabled.');
+  console.error('[CREDIT-OPTIMIZER] Error:', error instanceof Error ? error.message : String(error));
+}
 
 export class AutonomousExecutor {
   private costTracker: CostTracker;
@@ -209,8 +215,10 @@ export class AutonomousExecutor {
         .digest('hex')
         .slice(0, 16);
 
-      db.prepare(`INSERT INTO workflow_results(result_id, workflow_name, result_json, created_at) VALUES (?,?,?,?)`)
-        .run(result_id, 'autonomous_workflow', JSON.stringify(result), Date.now());
+      if (db) {
+        db.prepare(`INSERT INTO workflow_results(result_id, workflow_name, result_json, created_at) VALUES (?,?,?,?)`)
+          .run(result_id, 'autonomous_workflow', JSON.stringify(result), Date.now());
+      }
 
       return {
         result_id,
@@ -229,6 +237,7 @@ export class AutonomousExecutor {
    * Retrieve workflow result by ID
    */
   getWorkflowResult(result_id: string): WorkflowResult | null {
+    if (!db) return null;
     const row = db.prepare(`SELECT result_json FROM workflow_results WHERE result_id=?`).get(result_id) as any;
     if (!row) return null;
     return JSON.parse(row.result_json);

@@ -1,10 +1,96 @@
 {
   "name": "@robinson_ai_systems/free-agent-mcp",
-  "version": "0.1.26",
+  "version": "0.1.30",
   "description": "Free Agent MCP - Execute tasks using FREE models (Ollama, etc.)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./utils/symbol-indexer": {
+      "types": "./dist/utils/symbol-indexer.d.ts",
+      "import": "./dist/utils/symbol-indexer.js"
+    },
+    "./utils/symbol-indexer.js": {
+      "types": "./dist/utils/symbol-indexer.d.ts",
+      "import": "./dist/utils/symbol-indexer.js"
+    },
+    "./utils/code-retrieval": {
+      "types": "./dist/utils/code-retrieval.d.ts",
+      "import": "./dist/utils/code-retrieval.js"
+    },
+    "./utils/code-retrieval.js": {
+      "types": "./dist/utils/code-retrieval.d.ts",
+      "import": "./dist/utils/code-retrieval.js"
+    },
+    "./utils/project-brief": {
+      "types": "./dist/utils/project-brief.d.ts",
+      "import": "./dist/utils/project-brief.js"
+    },
+    "./utils/project-brief.js": {
+      "types": "./dist/utils/project-brief.d.ts",
+      "import": "./dist/utils/project-brief.js"
+    },
+    "./dist/utils/symbol-indexer": {
+      "types": "./dist/utils/symbol-indexer.d.ts",
+      "import": "./dist/utils/symbol-indexer.js"
+    },
+    "./dist/utils/symbol-indexer.js": {
+      "types": "./dist/utils/symbol-indexer.d.ts",
+      "import": "./dist/utils/symbol-indexer.js"
+    },
+    "./dist/utils/code-retrieval": {
+      "types": "./dist/utils/code-retrieval.d.ts",
+      "import": "./dist/utils/code-retrieval.js"
+    },
+    "./dist/utils/code-retrieval.js": {
+      "types": "./dist/utils/code-retrieval.d.ts",
+      "import": "./dist/utils/code-retrieval.js"
+    },
+    "./dist/utils/project-brief": {
+      "types": "./dist/utils/project-brief.d.ts",
+      "import": "./dist/utils/project-brief.js"
+    },
+    "./dist/utils/project-brief.js": {
+      "types": "./dist/utils/project-brief.d.ts",
+      "import": "./dist/utils/project-brief.js"
+    },
+    "./pipeline/index": {
+      "types": "./dist/pipeline/index.d.ts",
+      "import": "./dist/pipeline/index.js"
+    },
+    "./pipeline/index.js": {
+      "types": "./dist/pipeline/index.d.ts",
+      "import": "./dist/pipeline/index.js"
+    },
+    "./dist/pipeline/index": {
+      "types": "./dist/pipeline/index.d.ts",
+      "import": "./dist/pipeline/index.js"
+    },
+    "./dist/pipeline/index.js": {
+      "types": "./dist/pipeline/index.d.ts",
+      "import": "./dist/pipeline/index.js"
+    },
+    "./agents/design-card": {
+      "types": "./dist/agents/design-card.d.ts",
+      "import": "./dist/agents/design-card.js"
+    },
+    "./agents/design-card.js": {
+      "types": "./dist/agents/design-card.d.ts",
+      "import": "./dist/agents/design-card.js"
+    },
+    "./dist/agents/design-card": {
+      "types": "./dist/agents/design-card.d.ts",
+      "import": "./dist/agents/design-card.js"
+    },
+    "./dist/agents/design-card.js": {
+      "types": "./dist/agents/design-card.d.ts",
+      "import": "./dist/agents/design-card.js"
+    }
+  },
   "bin": {
     "free-agent-mcp": "./bin/free-agent-mcp.js"
   },

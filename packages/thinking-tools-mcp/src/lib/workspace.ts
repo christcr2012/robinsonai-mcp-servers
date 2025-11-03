@@ -48,3 +48,9 @@ export function getWorkspaceRoot(): string {
   return resolveWorkspaceRoot();
 }
 
+// Resolve a path relative to workspace root
+export function resolveWorkspacePath(relativePath: string): string {
+  const root = resolveWorkspaceRoot();
+  return resolve(root, relativePath);
+}
+

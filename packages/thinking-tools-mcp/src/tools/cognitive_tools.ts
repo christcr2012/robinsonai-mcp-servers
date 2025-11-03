@@ -6,7 +6,7 @@
  */
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
-import { getWorkspaceRoot, resolveWorkspacePath } from "@robinsonai/shared-llm";
+import { getWorkspaceRoot, resolveWorkspacePath } from "../lib/workspace.js";
 
 type J = Record<string, any>;
 type ToolDef = {

@@ -1,5 +1,6 @@
 // packages/thinking-tools-mcp/src/tools/ctx_web_crawl_step.ts
 import { request } from "undici";
+// @ts-ignore - jsdom types not available
 import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
 import crypto from "crypto";

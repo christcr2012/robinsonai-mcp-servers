@@ -91,6 +91,12 @@ import {
   context7AdapterDescriptor,
 } from './tools/context7_adapter.js';
 
+// Import Advanced Context Tools
+import { contextNeighborhoodTool } from './tools/context_neighborhood.js';
+import { contextRetrieveCodeTool } from './tools/context_retrieve_code.js';
+import { contextFindSymbolTool } from './tools/context_find_symbol.js';
+import { contextFindCallersTool } from './tools/context_find_callers.js';
+
 class ThinkingToolsMCP {
   private server: Server;
 
@@ -506,13 +512,50 @@ class ThinkingToolsMCP {
         },
         {
           name: 'context_neighborhood',
-          description: 'Return import/mention neighborhood for a file (quick graph).',
+          description: 'Return import/mention neighborhood for a file (imports + importers + symbols).',
           inputSchema: {
             type: 'object',
             properties: {
               file: { type: 'string', description: 'File path to analyze' },
             },
             required: ['file'],
+          },
+        },
+        {
+          name: 'context_retrieve_code',
+          description: 'Retrieve code context using FREE Agent\'s code-aware retrieval (finds related files, tests, types).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              targetFile: { type: 'string', description: 'Target file path' },
+              targetFunction: { type: 'string', description: 'Target function name' },
+              targetClass: { type: 'string', description: 'Target class name' },
+              targetInterface: { type: 'string', description: 'Target interface name' },
+              keywords: { type: 'array', items: { type: 'string' }, description: 'Keywords to search for' },
+            },
+            required: [],
+          },
+        },
+        {
+          name: 'context_find_symbol',
+          description: 'Find symbol definition in codebase (function, class, interface, type, const).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              symbolName: { type: 'string', description: 'Symbol name to find' },
+            },
+            required: ['symbolName'],
+          },
+        },
+        {
+          name: 'context_find_callers',
+          description: 'Find all callers of a function (heuristic-based).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              functionName: { type: 'string', description: 'Function name to find callers for' },
+            },
+            required: ['functionName'],
           },
         },
         {
@@ -657,18 +700,36 @@ class ThinkingToolsMCP {
             result = await context7GetMigrationGuide(args as any);
             break;
           case 'context_index_repo':
-            await indexRepo((args as any)?.repo_root);
-            result = { ok: true, paths: getPaths() };
+            try {
+              await ctx.ctx.ensureIndexed();
+              const stats = await ctx.ctx.stats();
+              result = {
+                ok: true,
+                files: stats.sources,
+                chunks: stats.chunks,
+                vectors: stats.vectors,
+                embeddings: stats.vectors,
+                mode: stats.mode,
+                model: stats.model,
+                dimensions: stats.dimensions,
+                totalCost: stats.totalCost,
+                indexedAt: stats.indexedAt,
+                paths: getPaths()
+              };
+            } catch (error: any) {
+              result = { ok: false, chunks: 0, embeddings: 0, files: 0, error: error.message };
+            }
             break;
           case 'context_query':
-            const hits = await hybridQuery((args as any).query, (args as any).top_k || parseInt(process.env.CTX_TOP_K || '8', 10));
+            const hits = await ctx.ctx.search((args as any).query, (args as any).top_k || 12);
             result = {
               hits: hits.map(h => ({
                 score: h.score,
-                path: h.chunk.path,
-                start: h.chunk.start,
-                end: h.chunk.end,
-                text: h.chunk.text.slice(0, 800)
+                path: h.uri,
+                title: h.title,
+                snippet: h.snippet,
+                method: h._method,
+                provider: h._provider
               }))
             };
             break;
@@ -680,58 +741,43 @@ class ThinkingToolsMCP {
             result = await ingestUrls((args as any).urls, (args as any).tags || []);
             break;
           case 'context_stats':
-            // Count chunks and embeddings without loading all data into memory
-            let chunkCount = 0;
-            let embedCount = 0;
-
             try {
-              // Count chunks by reading line by line
-              for (const _ of readJSONL(getPaths().chunks)) {
-                chunkCount++;
-              }
-
-              // Count embeddings by reading line by line
-              for (const _ of readJSONL(getPaths().embeds)) {
-                embedCount++;
-              }
+              const stats = await ctx.ctx.stats();
+              result = {
+                ok: true,
+                chunks: stats.chunks,
+                embeddings: stats.vectors,
+                sources: stats.sources,
+                mode: stats.mode,
+                model: stats.model,
+                dimensions: stats.dimensions,
+                totalCost: stats.totalCost,
+                updatedAt: stats.indexedAt,
+                contextRoot: getPaths().chunks.replace('/chunks.jsonl', '')
+              };
             } catch (error: any) {
-              console.error('[context_stats] Error counting:', error);
+              result = { ok: false, error: error.message };
             }
-
-            // Load stats file if it exists
-            let stats: any = {};
-            try {
-              const statsPath = getPaths().stats;
-              if (fs.existsSync(statsPath)) {
-                stats = JSON.parse(fs.readFileSync(statsPath, 'utf8'));
-              }
-            } catch (error: any) {
-              console.error('[context_stats] Error loading stats:', error);
-            }
-
-            result = {
-              chunks: chunkCount,
-              embeddings: embedCount,
-              sources: stats.sources || {},
-              updatedAt: stats.updatedAt || null,
-              contextRoot: getPaths().chunks.replace('/chunks.jsonl', '')
-            };
             break;
           case 'context_reset':
-            const p = getPaths();
-            for (const f of [p.chunks, p.embeds]) {
-              try {
-                fs.unlinkSync(f);
-              } catch {
-                // ignore if file doesn't exist
-              }
+            try {
+              await ctx.ctx.reset();
+              result = { ok: true };
+            } catch (error: any) {
+              result = { ok: false, error: error.message };
             }
-            result = { ok: true };
             break;
           case 'context_neighborhood':
-            const g = buildImportGraph();
-            const n = g.filter(e => e.from.endsWith((args as any).file) || e.to.endsWith((args as any).file));
-            result = { edges: n.slice(0, 200) };
+            result = await contextNeighborhoodTool(args as any, ctx);
+            break;
+          case 'context_retrieve_code':
+            result = await contextRetrieveCodeTool(args as any, ctx);
+            break;
+          case 'context_find_symbol':
+            result = await contextFindSymbolTool(args as any, ctx);
+            break;
+          case 'context_find_callers':
+            result = await contextFindCallersTool(args as any, ctx);
             break;
           case 'context_summarize_diff':
             result = summarizeDiff((args as any)?.range || 'HEAD~1..HEAD');

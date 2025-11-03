@@ -41,7 +41,7 @@ import { CodeGenerator } from './agents/code-generator.js';
 import { CodeAnalyzer } from './agents/code-analyzer.js';
 import { CodeRefactor } from './agents/code-refactor.js';
 import { StatsTracker } from './utils/stats-tracker.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinsonai/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinson_ai_systems/shared-llm';
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, getModelConfig, estimateTaskCost } from './model-catalog.js';
 import { warmupAvailableModels } from './utils/model-warmup.js';
@@ -100,10 +100,21 @@ class AutonomousAgentServer {
     this.codeRefactor = new CodeRefactor(this.ollama);
     this.stats = new StatsTracker();
 
-    // Initialize feedback capture with learning database
-    const learningDbPath = join(homedir(), '.robinsonai', 'free-agent-learning.db');
-    const learningDb = new Database(learningDbPath);
-    this.feedbackCapture = new FeedbackCapture(learningDb);
+    // Initialize feedback capture with learning database (optional - gracefully degrade if SQLite fails)
+    try {
+      const learningDbPath = join(homedir(), '.robinsonai', 'free-agent-learning.db');
+      const learningDb = new Database(learningDbPath);
+      this.feedbackCapture = new FeedbackCapture(learningDb);
+    } catch (error) {
+      console.error('[FREE-AGENT] Warning: Could not initialize learning database (better-sqlite3 not available). Learning features disabled.');
+      console.error('[FREE-AGENT] Error:', error instanceof Error ? error.message : String(error));
+      // Create a no-op feedback capture
+      this.feedbackCapture = {
+        recordFeedback: () => {},
+        recordTaskCompletion: () => {},
+        getRecentFeedback: () => [],
+      } as any;
+    }
 
     // Configurable concurrency: 1-15 concurrent Ollama jobs
     // Default: 1 (safe), Max: 15 (if your PC can handle it)
@@ -607,7 +618,7 @@ Respond ONLY with the JSON array, no other text.`;
 
     try {
       // Use Ollama to analyze and plan file operations
-      const { ollamaGenerate } = await import('@robinsonai/shared-llm');
+      const { ollamaGenerate } = await import('@robinson_ai_systems/shared-llm');
       const response = await ollamaGenerate({
         model: process.env.DEFAULT_OLLAMA_MODEL || 'qwen2.5-coder:7b',
         prompt: analysisPrompt,
@@ -767,7 +778,7 @@ INSTRUCTIONS:
 
 Generate the modified section now:`;
 
-      const { ollamaGenerate } = await import('@robinsonai/shared-llm');
+      const { ollamaGenerate } = await import('@robinson_ai_systems/shared-llm');
       let newCode = await ollamaGenerate({
         model: process.env.DEFAULT_OLLAMA_MODEL || 'qwen2.5-coder:7b',
         prompt: codeGenPrompt,

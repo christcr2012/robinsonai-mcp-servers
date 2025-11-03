@@ -37,7 +37,7 @@ import { initializePricing, getModelPricing, getPricingInfo, refreshPricing } fr
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, estimateTaskCost, getModelConfig, COST_POLICY, requiresApproval, withinBudget } from './model-catalog.js';
 import { getSharedOllamaClient } from './ollama-client.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinsonai/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinson_ai_systems/shared-llm';
 import { buildStrictSystemPrompt } from './prompt-builder.js';
 import { getWorkspaceRoot } from './lib/workspace.js';
 
@@ -81,8 +81,13 @@ function getAnthropic(): Anthropic {
   return anthropic;
 }
 
-// Initialize database and pricing
-initDatabase();
+// Initialize database and pricing (gracefully degrade if SQLite fails)
+try {
+  initDatabase();
+} catch (error) {
+  console.error('[PAID-AGENT] Warning: Could not initialize database (better-sqlite3 not available). Job tracking disabled.');
+  console.error('[PAID-AGENT] Error:', error instanceof Error ? error.message : String(error));
+}
 initializePricing(); // Non-blocking, starts with fallback
 
 // Concurrency control
@@ -1400,7 +1405,7 @@ Respond ONLY with the JSON array, no other text.`;
 
     // Use selected model (Ollama or OpenAI/Claude)
     if (modelConfig.provider === 'ollama') {
-      const { ollamaGenerate } = await import('@robinsonai/shared-llm');
+      const { ollamaGenerate } = await import('@robinson_ai_systems/shared-llm');
       response = await ollamaGenerate({
         model: modelId,
         prompt: analysisPrompt,
@@ -1606,7 +1611,7 @@ Generate the modified section now:`;
 
     // Use selected model (Ollama or OpenAI/Claude)
     if (modelConfig.provider === 'ollama') {
-      const { ollamaGenerate } = await import('@robinsonai/shared-llm');
+      const { ollamaGenerate } = await import('@robinson_ai_systems/shared-llm');
       newCode = await ollamaGenerate({
         model: modelId,
         prompt: codeGenPrompt,

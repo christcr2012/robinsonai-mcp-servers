@@ -10,8 +10,8 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\README.md": "d7e44f50ac98c99a78064ee87e107225ad95537f",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\RCE_IMPLEMENTATION_COMPLETE.md": "531d18239597e2c5da277851c50df3983aa7d7af",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\CONTEXT_ENGINE_FINAL_SUMMARY.md": "fe7dfb06f5977f9342bb4183dfcc18f0ce16d936",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\package-lock.json": "cd703476f996c6a5fc29f9c5ba343397876b5f0a",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\augment-mcp-config.json": "3b09faa6b632455eae4a7131a2bceeb39d93a8e4",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\package-lock.json": "579fd23db2e1a5e16420781d62f8e4df886b5aa4",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\augment-mcp-config.json": "e84fbf34196e39c8b220feb02d8e13efb16f107e",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\EMBEDDING_CONFIGURATION.md": "5c80e40f8ea0b051a65a2e1cbfa47cc026e084a0",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\src\\model-selector.ts": "a46710e458151154cd40f3149e9407e751de7d99",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\INTELLIGENT_MODEL_SELECTION.md": "4ae2ac7ae324431f4f9f1d1cf4e8ca052fe4fb8b",
@@ -20,10 +20,11 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\package.json": "f80c1248fefc8a36bd348727b7d16760c58e25f0",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\model-selector.ts": "97606249e5c822ab2c72bbe9434b2de8bb24282f",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\embeddings-new.ts": "e766bd3f6ec5ffeee7fe00716552a24a160a5ba0",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\package.json": "cc94bf1343d5984147a7bc3d85961350ba10d2d4",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\package.json": "53036ca447756c43c8bdc44d1c7986a0f7a7d3aa",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\INTELLIGENT_LLM_SELECTION_COMPLETE.md": "25c2edae92d960b4bbfbf054608c46fa526c367f",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\data\\openai-worker.db-shm": "93d0a9d739134d9b45d181daaddfe9ed8d11ffeb",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\data\\openai-worker.db-wal": "d4d123928b9a6fce1fe37935e957f4c02da53172",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\data\\openai-worker.db-wal": "2ecfac53f270f39e105af0e266ad6d82abbc6caf",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\FINAL_INTELLIGENT_SELECTION_SUMMARY.md": "a314c607c7a39d146abab4a093b545c8f39e2bf9",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\CONTEXT_ENGINE_COMPARISON_SUMMARY.md": "58a9d4fa5b21f06fd8411cda080bc7671b15d850"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\CONTEXT_ENGINE_COMPARISON_SUMMARY.md": "58a9d4fa5b21f06fd8411cda080bc7671b15d850",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-context-comparison.md": "f7e615f9d93b2dae0914d8323110351769f244ec"
 }

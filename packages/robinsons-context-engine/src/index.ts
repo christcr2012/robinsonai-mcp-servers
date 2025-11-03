@@ -1,15 +1,25 @@
 /**
  * Robinson's Context Engine (RCE)
- * 
+ *
  * Production-grade context engine with:
  * - Hybrid search (vector + lexical BM25)
+ * - Symbol-aware search (boosts code symbols)
+ * - Import graph tracking (dependency analysis)
+ * - Incremental indexing (fast re-indexing)
  * - Multiple embedding providers (OpenAI, Claude/Voyage, Ollama)
  * - Intelligent model selection (best quality for best price)
  * - Graceful degradation (works without API keys)
  * - Cost tracking and optimization
- * 
+ *
  * @author Robinson AI Systems
  */
+
+// Re-export all public APIs
+export * from './embeddings.js';
+export * from './store.js';
+export * from './symbol-aware.js';
+export * from './import-graph.js';
+export * from './incremental.js';
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -17,6 +27,11 @@ import * as crypto from 'node:crypto';
 import { makeEmbedder, estimateEmbeddingCost, type Embedder, type EmbedderConfig } from './embeddings.js';
 import { RCEStore, type StoredChunk, type IndexMeta } from './store.js';
 import { selectModelForTask, detectTaskType, estimateComplexity, type TaskContext } from './model-selector.js';
+import { buildSymbolIndexForRepo, applySymbolBoosting, retrieveCodeContextForQuery, getFileNeighborhood, findSymbolDefinition, findCallers, type SymbolAwareSearchOptions } from './symbol-aware.js';
+import { buildImportGraph, getImporters, getImports, getDependencyChain, getDependents, type ImportGraph } from './import-graph.js';
+import { incrementalIndex, needsReindexing, type IncrementalIndexResult } from './incremental.js';
+import type { SymbolIndex } from '@robinson_ai_systems/free-agent-mcp/dist/utils/symbol-indexer';
+import type { RetrievalResult } from '@robinson_ai_systems/free-agent-mcp/dist/utils/code-retrieval';
 
 export type RCEStats = {
   sources: number;
@@ -43,6 +58,8 @@ export class RobinsonsContextEngine {
   private docs: { uri: string; text: string; title: string }[] = [];
   private store: RCEStore;
   private embedderConfig: EmbedderConfig;
+  private symbolIndex: SymbolIndex | null = null;
+  private importGraph: ImportGraph | null = null;
 
   constructor(private root: string, embedderConfig: EmbedderConfig = {}) {
     this.store = new RCEStore(root);
@@ -266,12 +283,12 @@ export class RobinsonsContextEngine {
   }
 
   /**
-   * Hybrid search: Vector similarity + Lexical BM25
+   * Hybrid search: Vector similarity + Lexical BM25 + Symbol-aware boosting
    * Always returns results (graceful degradation to lexical if no vectors)
    */
-  async search(q: string, k = 12): Promise<RCESearchHit[]> {
+  async search(q: string, k = 12, options: SymbolAwareSearchOptions = {}): Promise<RCESearchHit[]> {
     await this.ensureIndexed();
-    
+
     const chunks = await this.store.loadAll();
     if (chunks.length === 0) {
       console.warn('[RCE] No chunks in index');
@@ -280,13 +297,18 @@ export class RobinsonsContextEngine {
 
     // Tokenize query
     const terms = tokenize(q);
-    
+
     // Lexical scoring (BM25-ish)
     let scored = chunks.map(c => ({ c, s: bm25Score(terms, c.text) }));
 
+    // Apply symbol-aware boosting if symbol index is available
+    if (this.symbolIndex) {
+      scored = applySymbolBoosting(scored, q, this.symbolIndex, options);
+    }
+
     // Check if we have vectors
     const hasVectors = scored.some(x => Array.isArray(x.c.vec) && x.c.vec.length > 0);
-    
+
     let method: 'vector' | 'lexical' | 'hybrid' = 'lexical';
 
     if (hasVectors) {
@@ -342,7 +364,136 @@ export class RobinsonsContextEngine {
     await this.store.clear();
     this.indexed = false;
     this.docs = [];
+    this.symbolIndex = null;
+    this.importGraph = null;
     console.log('[RCE] Index reset');
+  }
+
+  /**
+   * Build symbol index (enables symbol-aware search)
+   */
+  async buildSymbolIndex(): Promise<void> {
+    console.log('[RCE] Building symbol index...');
+    this.symbolIndex = await buildSymbolIndexForRepo(this.root, {
+      exts: ['.ts', '.tsx', '.js', '.jsx'],
+      maxFiles: 2000,
+      exclude: ['node_modules', 'dist', 'build', '.next', 'coverage', '__generated__'],
+    });
+    console.log(`[RCE] Symbol index built: ${this.symbolIndex?.symbols.length ?? 0} symbols`);
+  }
+
+  /**
+   * Build import graph (enables dependency tracking)
+   */
+  async buildImportGraph(files: string[]): Promise<void> {
+    console.log('[RCE] Building import graph...');
+    this.importGraph = await buildImportGraph(files, this.root);
+    console.log(`[RCE] Import graph built: ${this.importGraph.imports.size} files`);
+  }
+
+  /**
+   * Get file neighborhood (imports + importers + symbols)
+   */
+  getNeighborhood(file: string): ReturnType<typeof getFileNeighborhood> | null {
+    if (!this.symbolIndex) {
+      console.warn('[RCE] Symbol index not built, call buildSymbolIndex() first');
+      return null;
+    }
+    return getFileNeighborhood(file, this.symbolIndex);
+  }
+
+  /**
+   * Find symbol definition
+   */
+  findSymbol(symbolName: string): ReturnType<typeof findSymbolDefinition> {
+    if (!this.symbolIndex) {
+      console.warn('[RCE] Symbol index not built, call buildSymbolIndex() first');
+      return null;
+    }
+    return findSymbolDefinition(symbolName, this.symbolIndex);
+  }
+
+  /**
+   * Find all callers of a function
+   */
+  findCallersOf(functionName: string): ReturnType<typeof findCallers> {
+    if (!this.symbolIndex) {
+      console.warn('[RCE] Symbol index not built, call buildSymbolIndex() first');
+      return [];
+    }
+    return findCallers(functionName, this.symbolIndex);
+  }
+
+  /**
+   * Retrieve code context (delegates to FREE Agent's code-aware retrieval)
+   */
+  async retrieveCodeContext(query: {
+    targetFile?: string;
+    targetFunction?: string;
+    targetClass?: string;
+    targetInterface?: string;
+    keywords?: string[];
+  }): Promise<RetrievalResult> {
+    return retrieveCodeContextForQuery(this.root, query);
+  }
+
+  /**
+   * Get files that import a given file
+   */
+  getImporters(file: string): string[] {
+    if (!this.importGraph) {
+      console.warn('[RCE] Import graph not built, call buildImportGraph() first');
+      return [];
+    }
+    return getImporters(file, this.importGraph);
+  }
+
+  /**
+   * Get files imported by a given file
+   */
+  getImports(file: string): string[] {
+    if (!this.importGraph) {
+      console.warn('[RCE] Import graph not built, call buildImportGraph() first');
+      return [];
+    }
+    return getImports(file, this.importGraph);
+  }
+
+  /**
+   * Get dependency chain for a file
+   */
+  getDependencyChain(file: string, maxDepth = 3): Set<string> {
+    if (!this.importGraph) {
+      console.warn('[RCE] Import graph not built, call buildImportGraph() first');
+      return new Set();
+    }
+    return getDependencyChain(file, this.importGraph, maxDepth);
+  }
+
+  /**
+   * Get dependents of a file (reverse dependency chain)
+   */
+  getDependents(file: string, maxDepth = 3): Set<string> {
+    if (!this.importGraph) {
+      console.warn('[RCE] Import graph not built, call buildImportGraph() first');
+      return new Set();
+    }
+    return getDependents(file, this.importGraph, maxDepth);
+  }
+
+  /**
+   * Perform incremental indexing (only re-index changed files)
+   */
+  async incrementalIndex(files: string[]): Promise<IncrementalIndexResult> {
+    const embedder = makeEmbedder(this.embedderConfig);
+    return incrementalIndex(this.root, files, this.store, embedder);
+  }
+
+  /**
+   * Check if re-indexing is needed
+   */
+  async needsReindexing(files: string[]): Promise<boolean> {
+    return needsReindexing(files, this.root, this.store);
   }
 }
 

@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import { join, basename, dirname, resolve } from "node:path";
-import { resolveWorkspacePath } from "@robinsonai/shared-llm";
+import { resolveWorkspacePath } from "../lib/workspace.js";
 
 type J = Record<string, any>;
 type Tool = { name: string; description: string; inputSchema: J; handler: (args: J) => Promise<J> };

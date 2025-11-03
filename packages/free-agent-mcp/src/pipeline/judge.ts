@@ -6,7 +6,7 @@
  */
 
 import type { JudgeInput, JudgeVerdict, ExecReport, GenResult, PipelineConfig } from './types.js';
-import { ollamaGenerate, llmGenerate } from '@robinsonai/shared-llm';
+import { ollamaGenerate, llmGenerate } from '@robinson_ai_systems/shared-llm';
 import { calculateConventionScore } from '../utils/convention-score.js';
 import { makeProjectBrief } from '../utils/project-brief.js';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';

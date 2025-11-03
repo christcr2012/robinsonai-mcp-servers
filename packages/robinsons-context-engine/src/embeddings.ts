@@ -123,7 +123,7 @@ class OpenAIEmbedder implements Embedder {
         throw new Error(`OpenAI embeddings error ${res.status}: ${error}`);
       }
 
-      const json = await res.json();
+      const json = await res.json() as any;
       return (json.data ?? []).map((d: any) => d.embedding as number[]);
     } catch (error: any) {
       console.error(`[RCE] OpenAI embedding failed:`, error.message);
@@ -191,7 +191,7 @@ class VoyageEmbedder implements Embedder {
         throw new Error(`Voyage embeddings error ${res.status}: ${error}`);
       }
 
-      const json = await res.json();
+      const json = await res.json() as any;
       return (json.data ?? []).map((d: any) => d.embedding as number[]);
     } catch (error: any) {
       console.error(`[RCE] Voyage embedding failed:`, error.message);
@@ -240,7 +240,7 @@ class OllamaEmbedder implements Embedder {
           throw new Error(`Ollama embeddings error ${res.status}`);
         }
 
-        const json = await res.json();
+        const json = await res.json() as any;
         out.push(json.embedding as number[]);
       } catch (error: any) {
         console.error(`[RCE] Ollama embedding failed for text ${out.length}:`, error.message);

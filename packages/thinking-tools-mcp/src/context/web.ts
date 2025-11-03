@@ -1,3 +1,4 @@
+// @ts-ignore - jsdom types not available
 import { JSDOM } from 'jsdom';
 import { Readability } from '@mozilla/readability';
 import { request } from 'undici';
