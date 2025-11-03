@@ -51,12 +51,31 @@ export async function runSandboxPipeline(
     // Install dependencies (with caching for speed)
     installAndCacheDependencies(sandboxDir, packageJson);
 
-    // Run pipeline stages
+    // Run pipeline stages with detailed logging
+    console.log('[Sandbox] Running formatter...');
     const formatResult = await runFormatter(sandboxDir);
+    console.log('[Sandbox] Format result:', formatResult.success ? 'PASS' : `FAIL (${formatResult.errors.length} errors)`);
+    if (!formatResult.success) console.log('[Sandbox] Format errors:', formatResult.errors.slice(0, 3));
+
+    console.log('[Sandbox] Running linter...');
     const lintResult = await runLinter(sandboxDir);
+    console.log('[Sandbox] Lint result:', lintResult.errors.length === 0 ? 'PASS' : `FAIL (${lintResult.errors.length} errors)`);
+    if (lintResult.errors.length > 0) console.log('[Sandbox] Lint errors:', lintResult.errors.slice(0, 3));
+
+    console.log('[Sandbox] Running type checker...');
     const typeResult = await runTypeChecker(sandboxDir);
+    console.log('[Sandbox] Type check result:', typeResult.success ? 'PASS' : `FAIL (${typeResult.errors.length} errors)`);
+    if (!typeResult.success) console.log('[Sandbox] Type errors:', typeResult.errors.slice(0, 5));
+
+    console.log('[Sandbox] Running tests...');
     const testResult = await runTests(sandboxDir, config);
+    console.log('[Sandbox] Test result:', `${testResult.passed} passed, ${testResult.failed} failed`);
+    if (testResult.failed > 0) console.log('[Sandbox] Test details:', testResult.details.slice(0, 3));
+
+    console.log('[Sandbox] Running security checks...');
     const securityResult = await runSecurityChecks(sandboxDir, config);
+    console.log('[Sandbox] Security result:', securityResult.violations.length === 0 ? 'PASS' : `FAIL (${securityResult.violations.length} violations)`);
+    if (securityResult.violations.length > 0) console.log('[Sandbox] Security violations:', securityResult.violations.slice(0, 3));
 
     // Run repo tools (boundaries, custom rules)
     const filePaths = genResult.files.map(f => f.path);

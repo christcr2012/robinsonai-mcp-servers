@@ -53,15 +53,33 @@ const server = new Server(
   }
 );
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy-initialize OpenAI client (only when needed)
+let openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY environment variable is required for OpenAI models');
+    }
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+}
 
-// Initialize Anthropic (Claude) client
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
+// Lazy-initialize Anthropic (Claude) client (only when needed)
+let anthropic: Anthropic | null = null;
+function getAnthropic(): Anthropic {
+  if (!anthropic) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY environment variable is required for Claude models');
+    }
+    anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+  }
+  return anthropic;
+}
 
 // Initialize database and pricing
 initDatabase();
@@ -609,7 +627,7 @@ async function handleRunJob(args: any) {
     // Execute with OpenAI
     const maxTokens = caps.max_tokens || agentConfig.max_tokens;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: agentConfig.model,
       messages: [
         {
@@ -1111,7 +1129,7 @@ async function handleExecuteVersatileTask(args: any) {
           // Use PAID Claude (Anthropic)
           const systemPrompt = buildStrictSystemPrompt(taskType, params.context);
 
-          const response = await anthropic.messages.create({
+          const response = await getAnthropic().messages.create({
             model: modelConfig.model,
             max_tokens: params.maxTokens || modelConfig.maxTokens || 4096,
             temperature: params.temperature || 0.7,
@@ -1174,7 +1192,7 @@ async function handleExecuteVersatileTask(args: any) {
             },
           ];
 
-          const response = await openai.chat.completions.create({
+          const response = await getOpenAI().chat.completions.create({
             model: modelConfig.model,
             messages,
             temperature: params.temperature || 0.7,
@@ -1389,7 +1407,7 @@ Respond ONLY with the JSON array, no other text.`;
       });
       response = response.trim();
     } else if (modelConfig.provider === 'claude') {
-      const anthropicResponse = await anthropic.messages.create({
+      const anthropicResponse = await getAnthropic().messages.create({
         model: modelConfig.model,
         max_tokens: 4096,
         temperature: 0.1,
@@ -1407,7 +1425,7 @@ Respond ONLY with the JSON array, no other text.`;
       checkBudgetAlerts(); // Check for budget alerts
     } else {
       // OpenAI
-      const openaiResponse = await openai.chat.completions.create({
+      const openaiResponse = await getOpenAI().chat.completions.create({
         model: modelConfig.model,
         messages: [{ role: 'user', content: analysisPrompt }],
         temperature: 0.1,
@@ -1595,7 +1613,7 @@ Generate the modified section now:`;
       });
       newCode = newCode.trim();
     } else if (modelConfig.provider === 'claude') {
-      const anthropicResponse = await anthropic.messages.create({
+      const anthropicResponse = await getAnthropic().messages.create({
         model: modelConfig.model,
         max_tokens: 8192,
         temperature: 0.1,
@@ -1613,7 +1631,7 @@ Generate the modified section now:`;
       checkBudgetAlerts(); // Check for budget alerts
     } else {
       // OpenAI
-      const openaiResponse = await openai.chat.completions.create({
+      const openaiResponse = await getOpenAI().chat.completions.create({
         model: modelConfig.model,
         messages: [{ role: 'user', content: codeGenPrompt }],
         temperature: 0.1,
