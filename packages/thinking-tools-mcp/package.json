@@ -44,7 +44,7 @@
     "@extractus/article-extractor": "^8.0.20",
     "@modelcontextprotocol/sdk": "^1.20.1",
     "@mozilla/readability": "^0.4.4",
-    "@robinson_ai_systems/robinsons-context-engine": "^0.1.0",
+    "@robinson_ai_systems/robinsons-context-engine": "^1.2.0",
     "axios": "^1.12.2",
     "cheerio": "^1.1.2",
     "chokidar": "^3.3.1",
