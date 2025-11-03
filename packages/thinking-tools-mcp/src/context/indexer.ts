@@ -34,15 +34,17 @@ function resolveWorkspaceRoot(): string {
                   process.env.VSCODE_WORKSPACE ||
                   process.env.INIT_CWD;
 
-  if (envRoot && fs.existsSync(envRoot)) {
-    console.log(`[indexer] Using workspace root from env: ${envRoot}`);
-    return envRoot;
+  if (envRoot) {
+    // Normalize path (convert forward slashes to platform-specific)
+    const normalized = path.resolve(envRoot);
+
+    if (fs.existsSync(normalized)) {
+      return normalized;
+    }
   }
 
   // Fallback to process.cwd() (works in CLI, breaks in MCP)
-  const cwd = process.cwd();
-  console.log(`[indexer] Using process.cwd(): ${cwd}`);
-  return cwd;
+  return process.cwd();
 }
 
 // Don't resolve at module load time - env vars might not be set yet!
