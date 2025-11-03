@@ -56,7 +56,8 @@ import { hybridQuery } from './context/search.js';
 import { ingestUrls, ddg } from './context/web.js';
 import { buildImportGraph } from './context/graph.js';
 import { summarizeDiff } from './context/diff.js';
-import { getPaths, loadChunks, loadEmbeddings } from './context/store.js';
+import { getPaths, loadChunks, loadEmbeddings, readJSONL } from './context/store.js';
+import fs from 'fs';
 
 // Import Context CLI tools
 import { contextCLITools } from './context-cli-tools.js';
@@ -679,16 +680,48 @@ class ThinkingToolsMCP {
             result = await ingestUrls((args as any).urls, (args as any).tags || []);
             break;
           case 'context_stats':
-            const chunks = loadChunks().length;
-            const embeds = loadEmbeddings().length;
-            result = { chunks, embeddings: embeds, paths: getPaths() };
+            // Count chunks and embeddings without loading all data into memory
+            let chunkCount = 0;
+            let embedCount = 0;
+
+            try {
+              // Count chunks by reading line by line
+              for (const _ of readJSONL(getPaths().chunks)) {
+                chunkCount++;
+              }
+
+              // Count embeddings by reading line by line
+              for (const _ of readJSONL(getPaths().embeds)) {
+                embedCount++;
+              }
+            } catch (error: any) {
+              console.error('[context_stats] Error counting:', error);
+            }
+
+            // Load stats file if it exists
+            let stats: any = {};
+            try {
+              const statsPath = getPaths().stats;
+              if (fs.existsSync(statsPath)) {
+                stats = JSON.parse(fs.readFileSync(statsPath, 'utf8'));
+              }
+            } catch (error: any) {
+              console.error('[context_stats] Error loading stats:', error);
+            }
+
+            result = {
+              chunks: chunkCount,
+              embeddings: embedCount,
+              sources: stats.sources || {},
+              updatedAt: stats.updatedAt || null,
+              contextRoot: getPaths().chunks.replace('/chunks.jsonl', '')
+            };
             break;
           case 'context_reset':
             const p = getPaths();
-            const fs = await import('fs');
             for (const f of [p.chunks, p.embeds]) {
               try {
-                fs.unlinkSync(f as any);
+                fs.unlinkSync(f);
               } catch {
                 // ignore if file doesn't exist
               }
