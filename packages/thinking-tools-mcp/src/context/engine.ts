@@ -22,6 +22,7 @@ export class ContextEngine {
   }
 
   private _indexed = false;
+  private _graph: Array<{ from: string; to: string }> = [];
   public evidence: EvidenceStore;
 
   private constructor(private root: string) {
@@ -33,10 +34,10 @@ export class ContextEngine {
    */
   async ensureIndexed(): Promise<void> {
     if (this._indexed) return;
-    
+
     try {
       await indexRepo(this.root);
-      await buildImportGraph(this.root);
+      this._graph = buildImportGraph(this.root);
       this._indexed = true;
     } catch (error) {
       console.error('[ContextEngine] Indexing failed:', error);
@@ -55,11 +56,11 @@ export class ContextEngine {
 
   /**
    * Get import graph for the repository
+   * Returns array of edges with {from, to} structure
    */
-  async getGraph(): Promise<any> {
+  async getGraph(): Promise<Array<{ from: string; to: string }>> {
     await this.ensureIndexed();
-    // Return graph data - implementation depends on graph.ts structure
-    return {}; // TODO: Implement based on graph.ts exports
+    return this._graph;
   }
 
   /**
