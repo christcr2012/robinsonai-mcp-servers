@@ -3,7 +3,7 @@
  * Indexes repository for semantic search
  */
 
-import { getPaths } from '../context/store.js';
+import path from 'node:path';
 import type { ServerContext } from '../lib/context.js';
 
 export const contextIndexRepoDescriptor = {
@@ -32,7 +32,8 @@ export async function contextIndexRepoTool(args: any, ctx: ServerContext) {
       dimensions: stats.dimensions,
       totalCost: stats.totalCost,
       indexedAt: stats.indexedAt,
-      paths: getPaths()
+      // Report the actual RCE location users should inspect:
+      rceIndexDir: path.join(ctx.workspaceRoot, '.rce_index')
     };
   } catch (error: any) {
     throw new Error(`Indexing failed: ${error.message}`);

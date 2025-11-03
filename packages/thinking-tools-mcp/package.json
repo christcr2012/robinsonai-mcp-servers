@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/thinking-tools-mcp",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Comprehensive Thinking Tools MCP - 24 cognitive frameworks + Context Engine with semantic search",
   "type": "module",
   "main": "dist/index.js",
@@ -21,7 +21,9 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "tsc -p tsconfig.json",
-    "start": "node bin/thinking-tools-mcp.js"
+    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs",
+    "start": "node bin/thinking-tools-mcp.js",
+    "smoke": "node scripts/handshake-smoke.mjs"
   },
   "engines": {
     "node": ">=18.18.0"
@@ -42,7 +44,7 @@
     "@extractus/article-extractor": "^8.0.20",
     "@modelcontextprotocol/sdk": "^1.20.1",
     "@mozilla/readability": "^0.4.4",
-    "@robinson_ai_systems/robinsons-context-engine": "^1.1.5",
+    "@robinson_ai_systems/robinsons-context-engine": "^0.1.0",
     "axios": "^1.12.2",
     "cheerio": "^1.1.2",
     "chokidar": "^3.3.1",

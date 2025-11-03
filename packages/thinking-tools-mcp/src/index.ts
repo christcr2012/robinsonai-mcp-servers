@@ -602,7 +602,7 @@ for (const tool of getLlmRewriteTools()) {
 // Create and configure server WITH CAPABILITIES (fixes 'does not support tools/list')
 const server = new Server({
   name: 'thinking-tools-mcp',
-  version: '1.8.0',
+  version: '1.8.2',
   capabilities: {
     tools: {}  // REQUIRED for tools/list
   }
