@@ -328,9 +328,33 @@ export class RobinsonsContextEngine {
     let method: 'vector' | 'lexical' | 'hybrid' = 'lexical';
 
     if (hasVectors) {
-      // TODO: Add vector similarity scoring
-      // For now, use lexical as primary with vector boost
-      method = 'hybrid';
+      // Generate query embedding for vector similarity
+      try {
+        const embedder = makeEmbedder(this.embedderConfig);
+        if (!embedder) {
+          console.warn('[RCE] No embedder available, falling back to lexical search');
+          method = 'lexical';
+        } else {
+          const qvec = await embedder.embed([q]);
+          const queryVector = qvec[0];
+
+          // Compute vector similarity for each chunk
+          scored = scored.map(({ c, s }) => {
+            if (c.vec && c.vec.length > 0) {
+              const vecScore = cosineSimilarity(queryVector, c.vec);
+              // Hybrid: 70% vector, 30% lexical
+              return { c, s: 0.7 * vecScore + 0.3 * s };
+            }
+            // Penalize chunks without vectors (fallback to lexical only)
+            return { c, s: s * 0.3 };
+          });
+
+          method = 'hybrid';
+        }
+      } catch (error: any) {
+        console.warn('[RCE] Vector search failed, falling back to lexical:', error.message);
+        method = 'lexical';
+      }
     }
 
     // Sort by score
@@ -570,5 +594,28 @@ function detectLanguage(filePath: string): string {
     '.mdx': 'markdown'
   };
   return langMap[ext] || 'unknown';
+}
+
+/**
+ * Cosine similarity between two vectors
+ * Returns a value between 0 (completely dissimilar) and 1 (identical)
+ */
+function cosineSimilarity(a: number[], b: number[]): number {
+  if (!a || !b || a.length !== b.length || a.length === 0) {
+    return 0;
+  }
+
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
+
+  for (let i = 0; i < a.length; i++) {
+    dotProduct += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+
+  const denominator = Math.sqrt(normA) * Math.sqrt(normB);
+  return denominator === 0 ? 0 : dotProduct / denominator;
 }
 
