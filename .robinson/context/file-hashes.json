@@ -11,7 +11,7 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\RCE_IMPLEMENTATION_COMPLETE.md": "531d18239597e2c5da277851c50df3983aa7d7af",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\CONTEXT_ENGINE_FINAL_SUMMARY.md": "fe7dfb06f5977f9342bb4183dfcc18f0ce16d936",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\package-lock.json": "4ad3133af1c35b1b90c1a97e24a0b1d7a908d58b",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\augment-mcp-config.json": "e84fbf34196e39c8b220feb02d8e13efb16f107e",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\augment-mcp-config.json": "fde0e31b3362ccb80bc9804a6362956a435deef6",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\EMBEDDING_CONFIGURATION.md": "5c80e40f8ea0b051a65a2e1cbfa47cc026e084a0",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\src\\model-selector.ts": "a46710e458151154cd40f3149e9407e751de7d99",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\INTELLIGENT_MODEL_SELECTION.md": "4ae2ac7ae324431f4f9f1d1cf4e8ca052fe4fb8b",
@@ -263,5 +263,6 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\types.ts": "3d598eb10c61b6608f1c11ef32aefbd266968af5",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\web.ts": "2d9db9eef517003d4279773def8346464449590c",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\tools\\context_index_repo.ts": "2b05af692f25a968f2f5907a7b75e2ab6a891bc5",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\tools\\context_stats.ts": "06b115a880a952aa66174732515ec39b2847fd72"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\tools\\context_stats.ts": "06b115a880a952aa66174732515ec39b2847fd72",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\skill-packs.db-wal": "985c9dce2c1618c4ee45ed2befcb92eb5d4d3103"
 }
