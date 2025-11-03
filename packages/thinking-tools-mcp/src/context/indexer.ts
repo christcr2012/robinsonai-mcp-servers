@@ -163,13 +163,12 @@ export async function indexRepo(
 }> {
   try {
     const start = Date.now();
+    console.log(`[indexRepo] Starting ${opts.quick ? 'incremental' : 'full'} indexing for: ${repoRoot}`);
+    ensureDirs();
 
     // DEBUG: Write workspace root to file for inspection
     fs.writeFileSync(path.join(repoRoot, '.robinson', 'context', 'debug-workspace-root.txt'),
       `repoRoot: ${repoRoot}\nprocess.cwd(): ${process.cwd()}\nWORKSPACE_ROOT: ${process.env.WORKSPACE_ROOT}\nAUGMENT_WORKSPACE_ROOT: ${process.env.AUGMENT_WORKSPACE_ROOT}\n`);
-
-    console.log(`[indexRepo] Starting ${opts.quick ? 'incremental' : 'full'} indexing for: ${repoRoot}`);
-    ensureDirs();
 
     const meta = getStats();
     const filesMap = loadFileMap();
@@ -199,24 +198,34 @@ export async function indexRepo(
 
     console.log(`📁 Found ${allFiles.length} total files`);
 
-    // Detect changes via git
-    const ch = await gitChangesSince(repoRoot, (meta as any)?.head);
-    let added = ch.added.concat(ch.untracked);
-    let modified = ch.modified;
-    let deleted = ch.deleted;
+    // If force flag is set, process ALL files (full reindex)
+    let changed: string[];
+    let removed: string[];
 
-    // Fallback to mtime if git didn't detect changes
-    if (!ch.head || (!added.length && !modified.length && !deleted.length)) {
-      console.log(`📊 Using mtime fallback for change detection`);
-      const diff = await fsDiffFallback(repoRoot, allFiles, filesMap);
-      added = diff.added;
-      modified = diff.modified;
-      deleted = diff.deleted;
+    if (opts.force) {
+      console.log(`🔄 Force flag set - processing ALL ${allFiles.length} files`);
+      changed = allFiles;
+      removed = [];
+    } else {
+      // Detect changes via git
+      const ch = await gitChangesSince(repoRoot, (meta as any)?.head);
+      let added = ch.added.concat(ch.untracked);
+      let modified = ch.modified;
+      let deleted = ch.deleted;
+
+      // Fallback to mtime if git didn't detect changes
+      if (!ch.head || (!added.length && !modified.length && !deleted.length)) {
+        console.log(`📊 Using mtime fallback for change detection`);
+        const diff = await fsDiffFallback(repoRoot, allFiles, filesMap);
+        added = diff.added;
+        modified = diff.modified;
+        deleted = diff.deleted;
+      }
+
+      // Cap changed files to keep responses snappy
+      changed = Array.from(new Set([...added, ...modified])).slice(0, MAX_CHANGED);
+      removed = deleted;
     }
-
-    // Cap changed files to keep responses snappy
-    const changed = Array.from(new Set([...added, ...modified])).slice(0, MAX_CHANGED);
-    const removed = deleted;
 
     console.log(`🔄 Changes: +${added.length} ~${modified.length} -${removed.length} (processing ${changed.length})`);
 

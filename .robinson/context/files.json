@@ -1,10 +1,10 @@
 {
-  ".robinson/context/file-hashes.json": {
-    "mtimeMs": 1762213574573.17,
-    "size": 128,
-    "contentSha": "415411baf2d498396e7b38ec5855f76542b272cc",
+  ".robinson/context/files.json": {
+    "mtimeMs": 1762214052329.229,
+    "size": 2,
+    "contentSha": "bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f",
     "chunkIds": [
-      "415411baf2d498396e7b38ec5855f76542b272cc:0"
+      "bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f:0"
     ]
   }
 }
