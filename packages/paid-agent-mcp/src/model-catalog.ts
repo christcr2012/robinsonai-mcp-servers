@@ -13,7 +13,15 @@
  * - maxCost: budget limit
  * - taskComplexity: simple|medium|complex|expert
  * - minQuality: basic|standard|premium|best
+ *
+ * NEW: Intelligent task-based selection (v0.3.0+)
+ * - Dynamically switches between OpenAI and Claude based on task
+ * - Task-aware: code generation, analysis, refactoring, testing, etc.
+ * - Language-aware: TypeScript, Python, Go, etc.
+ * - Quality-first with cost optimization
  */
+
+import { selectLLMForTask, type LLMTaskContext, type LLMRecommendation } from './llm-selector.js';
 
 export interface ModelConfig {
   provider: 'ollama' | 'openai' | 'claude';
@@ -295,6 +303,10 @@ export function selectBestModel(params: {
   taskComplexity?: 'simple' | 'medium' | 'complex' | 'expert';
   preferFree?: boolean;
   preferredProvider?: 'ollama' | 'openai' | 'claude' | 'any';
+  taskType?: 'code_generation' | 'code_analysis' | 'refactoring' | 'test_generation' | 'documentation' | 'debugging';
+  language?: string;
+  framework?: string;
+  useIntelligentSelection?: boolean;
 }): string {
   const {
     minQuality = 'standard',
@@ -302,6 +314,10 @@ export function selectBestModel(params: {
     taskComplexity = 'medium',
     preferFree = false,  // PAID agent defaults to PAID models (not FREE Ollama)
     preferredProvider = 'any',
+    taskType = 'code_generation',
+    language,
+    framework,
+    useIntelligentSelection = true,  // NEW: Enable intelligent selection by default
   } = params;
 
   // If maxCost is 0, MUST use FREE Ollama
@@ -330,7 +346,29 @@ export function selectBestModel(params: {
     return selectOpenAIModel(taskComplexity, maxCost);
   }
 
-  // Otherwise, select best PAID model based on budget and complexity
+  // NEW: Use intelligent task-based selection
+  if (useIntelligentSelection && (preferredProvider === 'any')) {
+    const taskContext: LLMTaskContext = {
+      type: taskType,
+      complexity: taskComplexity,
+      language,
+      framework,
+      preferQuality: minQuality === 'best' || minQuality === 'premium',
+      maxCostPer1M: maxCost,
+      requiresReasoning: taskType === 'debugging' || taskComplexity === 'expert'
+    };
+
+    const recommendation = selectLLMForTask(taskContext);
+
+    if (recommendation) {
+      const modelId = `${recommendation.provider}/${recommendation.model}`;
+      console.error(`[ModelCatalog] 🎯 Intelligent Selection: ${modelId}`);
+      console.error(`[ModelCatalog] Reasoning: ${recommendation.reasoning}`);
+      return modelId;
+    }
+  }
+
+  // Fallback: select best PAID model based on budget and complexity
   console.error(`[ModelCatalog] Selecting PAID model: complexity=${taskComplexity}, maxCost=$${maxCost}`);
   return selectPaidModel(taskComplexity, maxCost, minQuality);
 }

@@ -7,7 +7,30 @@ import { ensureDirs, saveChunk, saveEmbedding, saveStats } from './store.js';
 import { Chunk, IndexStats } from './types.js';
 
 const MAXCH = parseInt(process.env.CTX_MAX_CHARS_PER_CHUNK || '1200', 10);
-const rootRepo = process.cwd();
+
+/**
+ * Resolve workspace root (MCP-aware)
+ * In MCP environment, process.cwd() returns VS Code install dir, not workspace!
+ */
+function resolveWorkspaceRoot(): string {
+  // Try environment variables first (set by MCP config)
+  const envRoot = process.env.WORKSPACE_ROOT ||
+                  process.env.AUGMENT_WORKSPACE_ROOT ||
+                  process.env.VSCODE_WORKSPACE ||
+                  process.env.INIT_CWD;
+
+  if (envRoot && fs.existsSync(envRoot)) {
+    console.log(`[indexer] Using workspace root from env: ${envRoot}`);
+    return envRoot;
+  }
+
+  // Fallback to process.cwd() (works in CLI, breaks in MCP)
+  const cwd = process.cwd();
+  console.log(`[indexer] Using process.cwd(): ${cwd}`);
+  return cwd;
+}
+
+const rootRepo = resolveWorkspaceRoot();
 
 const INCLUDE = ['**/*.{ts,tsx,js,jsx,md,mdx,json,yml,yaml,sql,py,sh,ps1}'];
 const EXCLUDE = [
@@ -57,56 +80,101 @@ function chunkText(text: string): { start: number; end: number; text: string }[]
   return out;
 }
 
-export async function indexRepo(repoRoot = rootRepo) {
-  ensureDirs();
+export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chunks: number; embeddings: number; files: number; error?: string }> {
+  try {
+    console.log(`[indexRepo] Starting indexing for: ${repoRoot}`);
+    ensureDirs();
 
-  const files = await fg(INCLUDE, {
-    cwd: repoRoot,
-    ignore: EXCLUDE,
-    dot: true
-  });
+    const files = await fg(INCLUDE, {
+      cwd: repoRoot,
+      ignore: EXCLUDE,
+      dot: true
+    });
 
-  console.log(`📁 Found ${files.length} files to index`);
+    console.log(`📁 Found ${files.length} files to index`);
 
-  let n = 0, e = 0;
-
-  for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
-    const rel = files[fileIdx];
-    const p = path.join(repoRoot, rel);
-    const text = fs.readFileSync(p, 'utf8');
-    const stat = fs.statSync(p);
-    const sh = sha(rel + ':' + stat.mtimeMs + ':' + text.length);
-
-    const chunks = chunkText(text).map((c) => ({
-      id: sha(rel + ':' + c.start + ':' + c.end + ':' + sh),
-      source: 'repo' as const,
-      path: rel,
-      sha: sh,
-      start: c.start,
-      end: c.end,
-      text: c.text
-    } as Chunk));
-
-    console.log(`⚡ [${fileIdx + 1}/${files.length}] Embedding ${rel} (${chunks.length} chunks)...`);
-    const embs = await embedBatch(chunks.map(c => c.text));
-
-    for (let i = 0; i < chunks.length; i++) {
-      saveChunk(chunks[i]);
-      saveEmbedding({ id: chunks[i].id, vec: embs[i] });
-      n++;
-      e++;
+    if (files.length === 0) {
+      console.warn(`⚠️ No files found to index in ${repoRoot}`);
+      return { ok: false, chunks: 0, embeddings: 0, files: 0, error: 'No files found' };
     }
+
+    let n = 0, e = 0;
+    let errors = 0;
+
+    for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+      try {
+        const rel = files[fileIdx];
+        const p = path.join(repoRoot, rel);
+
+        if (!fs.existsSync(p)) {
+          console.warn(`⚠️ File not found: ${p}`);
+          continue;
+        }
+
+        const text = fs.readFileSync(p, 'utf8');
+        const stat = fs.statSync(p);
+        const sh = sha(rel + ':' + stat.mtimeMs + ':' + text.length);
+
+        const chunks = chunkText(text).map((c) => ({
+          id: sha(rel + ':' + c.start + ':' + c.end + ':' + sh),
+          source: 'repo' as const,
+          path: rel,
+          sha: sh,
+          start: c.start,
+          end: c.end,
+          text: c.text
+        } as Chunk));
+
+        if (chunks.length === 0) {
+          console.warn(`⚠️ No chunks created for ${rel}`);
+          continue;
+        }
+
+        console.log(`⚡ [${fileIdx + 1}/${files.length}] Embedding ${rel} (${chunks.length} chunks)...`);
+
+        try {
+          const embs = await embedBatch(chunks.map(c => c.text));
+
+          if (!embs || embs.length !== chunks.length) {
+            console.error(`❌ Embedding mismatch for ${rel}: expected ${chunks.length}, got ${embs?.length || 0}`);
+            errors++;
+            continue;
+          }
+
+          for (let i = 0; i < chunks.length; i++) {
+            saveChunk(chunks[i]);
+            saveEmbedding({ id: chunks[i].id, vec: embs[i] });
+            n++;
+            e++;
+          }
+        } catch (embedError: any) {
+          console.error(`❌ Embedding failed for ${rel}:`, embedError.message);
+          errors++;
+          continue;
+        }
+      } catch (fileError: any) {
+        console.error(`❌ Error processing file ${files[fileIdx]}:`, fileError.message);
+        errors++;
+        continue;
+      }
+    }
+
+    const stats: IndexStats = {
+      chunks: n,
+      embeddings: e,
+      sources: { repo: n },
+      updatedAt: new Date().toISOString()
+    };
+
+    saveStats(stats);
+    console.log(`✅ Indexed ${n} chunks with ${e} embeddings (${errors} errors)`);
+
+    return { ok: true, chunks: n, embeddings: e, files: files.length };
+  } catch (error: any) {
+    console.error(`❌ Fatal indexing error:`, error.message);
+    console.error(error.stack);
+    return { ok: false, chunks: 0, embeddings: 0, files: 0, error: error.message };
   }
-
-  const stats: IndexStats = {
-    chunks: n,
-    embeddings: e,
-    sources: { repo: n },
-    updatedAt: new Date().toISOString()
-  };
-
-  saveStats(stats);
-  console.log(`✅ Indexed ${n} chunks with ${e} embeddings`);
 }
 
 // CLI support

@@ -3,8 +3,15 @@ import pLimit from 'p-limit';
 
 const prov = (process.env.CTX_EMBED_PROVIDER || 'ollama').toLowerCase();
 
+/**
+ * Embed batch of texts using configured provider
+ * Supports: ollama (free), openai (paid), claude/voyage (paid)
+ */
 export async function embedBatch(texts: string[]): Promise<number[][]> {
+  console.log(`[embedBatch] Using provider: ${prov} for ${texts.length} texts`);
+
   if (prov === 'openai') return openaiEmbed(texts);
+  if (prov === 'claude' || prov === 'voyage') return voyageEmbed(texts);
   return ollamaEmbed(texts);
 }
 
@@ -34,7 +41,7 @@ async function ollamaEmbed(texts: string[]): Promise<number[][]> {
 async function openaiEmbed(texts: string[]): Promise<number[][]> {
   const key = process.env.OPENAI_API_KEY;
   if (!key) throw new Error('OPENAI_API_KEY missing');
-  
+
   const model = process.env.OPENAI_EMBED_MODEL || 'text-embedding-3-small';
   const r = await request('https://api.openai.com/v1/embeddings', {
     method: 'POST',
@@ -44,7 +51,25 @@ async function openaiEmbed(texts: string[]): Promise<number[][]> {
     },
     body: JSON.stringify({ model, input: texts })
   });
-  
+
+  const j: any = await r.body.json();
+  return j.data.map((d: any) => d.embedding);
+}
+
+async function voyageEmbed(texts: string[]): Promise<number[][]> {
+  const key = process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY;
+  if (!key) throw new Error('VOYAGE_API_KEY or ANTHROPIC_API_KEY missing');
+
+  const model = process.env.VOYAGE_EMBED_MODEL || 'voyage-code-2';
+  const r = await request('https://api.voyageai.com/v1/embeddings', {
+    method: 'POST',
+    headers: {
+      'authorization': `Bearer ${key}`,
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({ model, input: texts, input_type: 'document' })
+  });
+
   const j: any = await r.body.json();
   return j.data.map((d: any) => d.embedding);
 }
