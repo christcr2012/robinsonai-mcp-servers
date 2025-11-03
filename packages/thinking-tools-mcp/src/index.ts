@@ -101,7 +101,21 @@ const registry: Record<string, Entry> = {
     ...contextStatsDescriptor,
     handler: contextStatsTool,
   },
-  
+
+  // Context7 integration tools
+  [ctxImportEvidenceDescriptor.name]: {
+    ...ctxImportEvidenceDescriptor,
+    handler: ctxImportEvidenceTool,
+  },
+  [ctxMergeConfigDescriptor.name]: {
+    ...ctxMergeConfigDescriptor,
+    handler: ctxMergeConfigTool,
+  },
+  [context7AdapterDescriptor.name]: {
+    ...context7AdapterDescriptor,
+    handler: context7AdapterTool,
+  },
+
   // Healthcheck
   healthcheck: {
     description: 'Return ok + workspace root (server wiring test)',
@@ -602,7 +616,7 @@ for (const tool of getLlmRewriteTools()) {
 // Create and configure server WITH CAPABILITIES (fixes 'does not support tools/list')
 const server = new Server({
   name: 'thinking-tools-mcp',
-  version: '1.8.2',
+  version: '1.8.3',
   capabilities: {
     tools: {}  // REQUIRED for tools/list
   }
