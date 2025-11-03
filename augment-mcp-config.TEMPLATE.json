@@ -1,4 +1,5 @@
 {
+  "_comment": "⚠️ TEMPLATE FILE - DO NOT MODIFY VERSION NUMBERS! Always use @latest for templates. Copy to augment-mcp-config.json and customize there.",
   "mcpServers": {
     "Free Agent MCP": {
       "command": "npx",
