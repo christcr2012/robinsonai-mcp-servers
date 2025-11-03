@@ -1,62 +1,76 @@
-/**
- * Sequential Thinking Tool
- * Break down complex problems into sequential thought steps
- * Supports revisions, branching, and dynamic thought adjustment
- */
+// packages/thinking-tools-mcp/src/tools/sequential_thinking.ts
+import type { ServerContext } from "../lib/context.js";
+import { webSearchAll } from "../lib/websearch.js";
 
-interface ThoughtStep {
-  thoughtNumber: number;
-  thought: string;
-  nextThoughtNeeded: boolean;
-  isRevision?: boolean;
-  revisesThought?: number;
-  branchId?: string;
-  branchFromThought?: number;
-}
+export const sequentialThinkingDescriptor = {
+  name: "sequential_thinking",
+  description: "Structured multi-step analysis that blends repo + external context and emits a rich report.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      goal: { type:"string", description:"What to analyze or decide"},
+      k: { type:"number", default: 8 },
+      useWeb: { type:"boolean", default: false }
+    },
+    required:["goal"]
+  }
+};
 
-// Global state for thought history (persists across calls)
-const thoughtHistory: ThoughtStep[] = [];
-const branches: Map<string, ThoughtStep[]> = new Map();
+export async function sequentialThinkingTool(args:{goal:string; k?:number; useWeb?:boolean}, ctx: ServerContext){
+  const K = Math.max(4, Math.min(16, Number(args.k ?? 8)));
+  const q = args.goal;
 
-export async function sequentialThinking(args: any): Promise<any> {
-  const step: ThoughtStep = {
-    thoughtNumber: args.thoughtNumber,
-    thought: args.thought,
-    nextThoughtNeeded: args.nextThoughtNeeded,
-    isRevision: args.isRevision,
-    revisesThought: args.revisesThought,
-    branchId: args.branchId,
-    branchFromThought: args.branchFromThought,
-  };
+  // 1) gather (multi-query expansion)
+  const variants = Array.from(new Set([
+    q,
+    q.replace(/\b(impl|implementation|method)\b/gi, "function"),
+    q.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+  ]));
+  const hits:any[] = [];
+  for (const v of variants) hits.push(...await ctx.blendedSearch(v, Math.ceil(K/variants.length)));
 
-  thoughtHistory.push(step);
-
-  // If this is a branch, track it separately
-  if (args.branchId) {
-    if (!branches.has(args.branchId)) {
-      branches.set(args.branchId, []);
-    }
-    branches.get(args.branchId)!.push(step);
+  // 2) optional web evidence
+  if (args.useWeb) {
+    const res = await webFetch(ctx, q, Math.ceil(K/2));
+    hits.push(...res);
   }
 
-  const response = {
-    thoughtNumber: step.thoughtNumber,
-    totalThoughts: args.totalThoughts,
-    nextThoughtNeeded: step.nextThoughtNeeded,
-    thoughtHistoryLength: thoughtHistory.length,
-    branches: Array.from(branches.keys()),
-    isRevision: step.isRevision,
-    revisesThought: step.revisesThought,
-    summary: `Thought ${step.thoughtNumber}/${args.totalThoughts} recorded. ${step.nextThoughtNeeded ? 'Continue thinking.' : 'Thinking complete.'}`,
-  };
+  // 3) categorize
+  const code = hits.filter(h => /\.(ts|tsx|js|jsx|py|go|java|rs)$/i.test(String(h.uri||"")));
+  const docs = hits.filter(h => !/\.(ts|tsx|js|jsx|py|go|java|rs)$/i.test(String(h.uri||"")));
 
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify(response, null, 2),
-      },
-    ],
-  };
+  // 4) outline
+  const outline = [
+    "Executive Summary",
+    "Context & Assumptions",
+    "Options Considered",
+    "Risks & Gaps",
+    "Recommendations",
+    "Evidence"
+  ];
+
+  const md = [
+    `# Sequential Analysis`,
+    `**Goal:** ${q}`,
+    `**Found:** ${hits.length} items (${code.length} code, ${docs.length} docs)\n`,
+    `## ${outline[0]}\n- _Fill in with the agent's model using the evidence below._`,
+    `## ${outline[1]}\n- Repo signals + imported evidence.`,
+    `## ${outline[2]}\n- Summarize alternative approaches if present in evidence.`,
+    `## ${outline[3]}\n- Note uncertainties, TODOs, missing tests.`,
+    `## ${outline[4]}\n- Concrete next actions.\n`,
+    `## ${outline[5]}\n${hits.slice(0,K).map((h,i)=>`- [${h.title || h.uri}](${h.uri||""})`).join("\n")}`
+  ].join("\n");
+
+  return { content: [{ type:"text", text: md }] };
+
+  async function webFetch(ctx: ServerContext, query: string, k: number){
+    // call our web search to keep everything in evidence
+    try {
+      const r = await webSearchAll(query);
+      return (Array.isArray(r) ? r.slice(0,k) : []);
+    } catch {
+      return [];
+    }
+  }
 }
 

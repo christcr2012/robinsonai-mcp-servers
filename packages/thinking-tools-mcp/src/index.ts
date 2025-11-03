@@ -88,6 +88,11 @@ import { docsDupesTool, docsDupesDescriptor } from './tools/docs_duplicates.js';
 import { docsMarkDeprecatedTool, docsMarkDeprecatedDescriptor } from './tools/docs_mark_deprecated.js';
 import { docsGraphTool, docsGraphDescriptor } from './tools/docs_graph.js';
 
+// New web search and sequential thinking tools
+import { webSearchTool, webSearchDescriptor, webSearchAndImportTool, webSearchAndImportDescriptor } from './tools/context_web_search.js';
+import { sequentialThinkingTool as sequentialThinkingToolNew, sequentialThinkingDescriptor } from './tools/sequential-thinking.js';
+import { healthTool, healthDescriptor } from './tools/health_check.js';
+
 // Tool registry entry type
 type Entry = {
   description: string;
@@ -155,7 +160,29 @@ const registry: Record<string, Entry> = {
     handler: docsGraphTool,
   },
 
-  // Healthcheck
+  // Web search tools
+  [webSearchDescriptor.name]: {
+    ...webSearchDescriptor,
+    handler: webSearchTool,
+  },
+  [webSearchAndImportDescriptor.name]: {
+    ...webSearchAndImportDescriptor,
+    handler: webSearchAndImportTool,
+  },
+
+  // Sequential thinking (upgraded)
+  [sequentialThinkingDescriptor.name]: {
+    ...sequentialThinkingDescriptor,
+    handler: sequentialThinkingToolNew,
+  },
+
+  // Health check (comprehensive)
+  [healthDescriptor.name]: {
+    ...healthDescriptor,
+    handler: async (args, ctx) => healthTool(args, ctx, Object.keys(registry)),
+  },
+
+  // Healthcheck (legacy)
   healthcheck: {
     description: 'Return ok + workspace root (server wiring test)',
     inputSchema: { type: 'object', properties: {} },

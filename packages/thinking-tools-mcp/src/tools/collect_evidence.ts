@@ -26,25 +26,6 @@ export const collect_evidence_tool: Tool = {
   handler: async (args) => think_collect_evidence(args)
 };
 
-// Health check tool
-export const health_check_tool: Tool = {
-  name: safeName("thinking_tools_health_check", "thinking_tools_health_check"),
-  description: "Get thinking tools health status. Returns ok, count, names.",
-  inputSchema: {
-    type: "object",
-    properties: {}
-  },
-  handler: async () => {
-    const tools = getCollectorTools();
-    return {
-      ok: true,
-      count: tools.length,
-      names: tools.map(t => t.name),
-      message: "Toolkit is healthy"
-    };
-  }
-};
-
 // Validation tool
 export const validate_tools_tool: Tool = {
   name: safeName("thinking_tools_validate", "thinking_tools_validate"),
@@ -68,7 +49,6 @@ export const validate_tools_tool: Tool = {
 export function getCollectorTools(): Tool[] {
   return [
     collect_evidence_tool,
-    health_check_tool,
     validate_tools_tool
   ];
 }

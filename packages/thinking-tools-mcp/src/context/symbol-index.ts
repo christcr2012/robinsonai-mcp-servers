@@ -200,13 +200,37 @@ export function getFileNeighborhood(file: string, index: SymbolIndex): {
   importedBy: string[];
 } {
   const symbols = getFileSymbols(file, index);
-  
-  // TODO: Extract imports from file
+
+  // Extract imports: find symbols used in this file that are defined elsewhere
   const imports: string[] = [];
-  
-  // TODO: Find files that import this file
+  const symbolsInFile = new Set(symbols.map(s => s.name));
+
+  // Look through all symbols in the index
+  for (const symbol of index.symbols) {
+    // If this symbol is used in our file but defined elsewhere, it's an import
+    if (symbol.file !== file && symbolsInFile.has(symbol.name)) {
+      imports.push(symbol.file);
+    }
+  }
+
+  // Find files that import this file: look for symbols defined here used elsewhere
   const importedBy: string[] = [];
-  
-  return { symbols, imports, importedBy };
+  const symbolsDefinedHere = symbols.filter(s => s.isExported);
+
+  for (const definedSymbol of symbolsDefinedHere) {
+    // Find all occurrences of this symbol in other files
+    const symbolOccurrences = index.byName.get(definedSymbol.name) || [];
+    for (const occurrence of symbolOccurrences) {
+      if (occurrence.file !== file) {
+        importedBy.push(occurrence.file);
+      }
+    }
+  }
+
+  return {
+    symbols,
+    imports: Array.from(new Set(imports)),
+    importedBy: Array.from(new Set(importedBy))
+  };
 }
 

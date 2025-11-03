@@ -1,15 +1,7 @@
 {
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\rankers\\code_first.ts": "f65cec2601089add9fc11577d3d8ed67291e3a59",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\symbols.ts": "53f7f33e1d1fe4534b5761f6e95ab09d997c4d4c",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\rankers\\cross_encoder.ts": "cd56229dc344c1d0856239982faf2f4b8be101f6",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\indexer.ts": "bef4329f47c5a7322f28c960bb34fa9115f27724",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\types.ts": "15e27bf5bf569474b32f0931185a0ea62e92f5d7",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\engine.ts": "9624f00815e8830ec2561548e51fc75200485f4b",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\package.json": "4030cfe20639f90eb3dabbe5bc5d738534d5ffd7",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\augment-mcp-config.json": "8a04d9f75d88d186f9c7b175a68e1d21deefe065",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\git\\changes.ts": "a9293b47351c1d51e51077b877c752fcc299bdea",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\store.ts": "622647ccfb4bfaef48722380630324f8bb951730",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\tools\\ensure_fresh_index.ts": "916383186eaf89cccd78956a5e1e4827512f28a6",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\tools\\context_index_full.ts": "60d27083a7c601bec873eef63d9ac0c6510cfbda",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\index.ts": "997c09eed53797fee59229b041e88dad3f5916ef"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\indexer.ts": "8c1ef749ed08d4f610784f9d78a72e62b4c3c84e",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\package.json": "3482a770b37ece86951c3635f5992dd5bacba902",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\architect.db": "eacafe05ccc8631c5b27b9173c728832dd66f8c6",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\augment-mcp-config.json": "7cd9d31b70f2519ec0a328da9b5342a62bdaac80",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\architect.db-shm": "ba4c3a3ae590837e4ea367cfccf7df448720e772"
 }

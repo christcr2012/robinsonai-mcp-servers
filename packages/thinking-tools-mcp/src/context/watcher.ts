@@ -197,6 +197,34 @@ export class FileWatcher {
   }
 
   /**
+   * Handle file deletion
+   */
+  private handleFileDelete(filePath: string): void {
+    // Remove chunks for this file from the store
+    // Load all chunks from the JSONL file
+    const chunks: Chunk[] = loadChunks();
+    const chunksToRemove = chunks.filter((chunk: Chunk) => chunk.path === filePath || chunk.uri === filePath);
+
+    if (chunksToRemove.length > 0) {
+      // Rewrite the chunks file without the deleted file's chunks
+      const remainingChunks = chunks.filter((chunk: Chunk) => chunk.path !== filePath && chunk.uri !== filePath);
+
+      // Clear and rewrite chunks.jsonl
+      const paths = getPaths();
+      fs.writeFileSync(paths.chunks, '', 'utf8');
+      for (const chunk of remainingChunks) {
+        saveChunk(chunk);
+      }
+    }
+
+    // Remove file hash
+    this.fileHashes.delete(filePath);
+    this.saveFileHashes();
+
+    console.log(`[FileWatcher] Removed ${chunksToRemove.length} chunks for deleted file: ${filePath}`);
+  }
+
+  /**
    * Start watching for file changes
    */
   start(): void {
@@ -242,7 +270,7 @@ export class FileWatcher {
       })
       .on('unlink', (filePath) => {
         console.log(`[FileWatcher] File removed: ${filePath}`);
-        // TODO: Remove chunks for deleted file
+        this.handleFileDelete(filePath);
       })
       .on('error', (error) => {
         console.error('[FileWatcher] Watcher error:', error);
