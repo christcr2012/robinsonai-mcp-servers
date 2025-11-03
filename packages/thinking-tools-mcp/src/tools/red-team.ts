@@ -1,12 +1,17 @@
 /**
  * Red Team Thinking Tool
  * Attack the plan/design to find vulnerabilities and weaknesses
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface RedTeamInput {
   plan: string;
   context?: string;
   focus?: 'security' | 'reliability' | 'performance' | 'all';
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface RedTeamOutput {
@@ -194,7 +199,7 @@ export function redTeam(input: RedTeamInput): RedTeamOutput {
   recommendations.push('Implement audit logging for all sensitive operations');
   
   const confidence = 75;
-  
+
   return {
     attackVectors,
     exploits,
@@ -205,4 +210,12 @@ export function redTeam(input: RedTeamInput): RedTeamOutput {
     reasoning: `Red team analysis identified ${attackVectors.length} attack vectors, ${exploits.length} specific exploits, ${edgeCases.length} edge cases, and ${stressTests.length} stress test scenarios.`
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const redTeamEnhanced = withContext(
+  redTeam,
+  (input) => `${input.plan} ${input.context || ''}`.slice(0, 200)
+);
 

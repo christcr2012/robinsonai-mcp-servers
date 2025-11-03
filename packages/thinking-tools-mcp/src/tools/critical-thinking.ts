@@ -1,12 +1,17 @@
 /**
  * Critical Thinking Tool
  * Evaluate arguments, evidence, and logical reasoning
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface CriticalThinkingInput {
   argument: string;
   context?: string;
   depth?: 'quick' | 'deep';
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface CriticalThinkingOutput {
@@ -204,4 +209,12 @@ export function criticalThinking(input: CriticalThinkingInput): CriticalThinking
     reasoning: `Analyzed argument for logical structure, evidence quality, and assumptions. Found ${logicalFallacies.length} potential fallacies, ${assumptions.length} assumptions, and ${evidence.length} evidence claims.`
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const criticalThinkingEnhanced = withContext(
+  criticalThinking,
+  (input) => `${input.argument} ${input.context || ''}`.slice(0, 200)
+);
 

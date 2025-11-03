@@ -1,11 +1,16 @@
 /**
  * Systems Thinking Tool
  * Understand interconnections, feedback loops, and emergent behavior
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface SystemsThinkingInput {
   system: string;
   context?: string;
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface SystemsThinkingOutput {
@@ -286,7 +291,7 @@ export function systemsThinking(input: SystemsThinkingInput): SystemsThinkingOut
   });
   
   const confidence = 70;
-  
+
   return {
     components,
     feedbackLoops,
@@ -297,4 +302,12 @@ export function systemsThinking(input: SystemsThinkingInput): SystemsThinkingOut
     reasoning: `Analyzed system structure with ${components.length} components, ${feedbackLoops.length} feedback loops, ${leveragePoints.length} leverage points, ${emergentBehaviors.length} emergent behaviors, and ${systemArchetypes.length} system archetypes.`
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const systemsThinkingEnhanced = withContext(
+  systemsThinking,
+  (input) => `${input.system} ${input.context || ''}`.slice(0, 200)
+);
 

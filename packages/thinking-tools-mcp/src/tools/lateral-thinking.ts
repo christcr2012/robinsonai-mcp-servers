@@ -1,12 +1,17 @@
 /**
  * Lateral Thinking Tool
  * Generate creative, non-obvious solutions by thinking "outside the box"
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface LateralThinkingInput {
   problem: string;
   context?: string;
   constraints?: string[];
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface LateralThinkingOutput {
@@ -166,4 +171,12 @@ export function lateralThinking(input: LateralThinkingInput): LateralThinkingOut
     reasoning: `Generated ${unconventionalApproaches.length} unconventional approaches, ${analogies.length} cross-domain analogies, ${reversals.length} reversals, and ${provocativeIdeas.length} provocative ideas to stimulate creative thinking.`
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const lateralThinkingEnhanced = withContext(
+  lateralThinking,
+  (input) => `${input.problem} ${input.context || ''}`.slice(0, 200)
+);
 

@@ -1,12 +1,17 @@
 /**
  * Decision Matrix Tool
  * Weighted decision-making framework for comparing options
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface DecisionMatrixInput {
   options: string[];
   criteria?: string[];
   context?: string;
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface DecisionMatrixOutput {
@@ -179,7 +184,7 @@ export function decisionMatrix(input: DecisionMatrixInput): DecisionMatrixOutput
   }
   
   const confidence = winner.totalScore >= 70 ? 80 : winner.totalScore >= 60 ? 65 : 50;
-  
+
   return {
     matrix,
     recommendation,
@@ -188,4 +193,12 @@ export function decisionMatrix(input: DecisionMatrixInput): DecisionMatrixOutput
     reasoning: `Evaluated ${options.length} options across ${detectedCriteria.length} criteria with weighted scoring. Top option scored ${winner.totalScore.toFixed(1)}/100.`
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const decisionMatrixEnhanced = withContext(
+  decisionMatrix,
+  (input) => `${input.options.join(' ')} ${input.context || ''}`.slice(0, 200)
+);
 

@@ -1,12 +1,17 @@
 /**
  * Premortem Analysis Tool
  * Imagines project has failed and works backward to identify risks
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface PremortemInput {
   project: string;
   timeline?: string;
   stakeholders?: string[];
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface PremortemOutput {
@@ -245,4 +250,12 @@ export function premortemAnalysis(input: PremortemInput): PremortemOutput {
     reasoning
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const premortemAnalysisEnhanced = withContext(
+  premortemAnalysis,
+  (input) => `${input.project} ${input.timeline || ''}`.slice(0, 200)
+);
 

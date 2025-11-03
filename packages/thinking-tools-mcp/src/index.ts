@@ -143,16 +143,20 @@ const registry: Record<string, Entry> = {
   },
   
   first_principles: {
-    description: 'Break down complex problems to fundamental truths',
+    description: 'Break down complex problems to fundamental truths. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         problem: { type: 'string', description: 'The problem to analyze' },
         domain: { type: 'string', description: 'Problem domain' },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['problem'],
     },
-    handler: async (args, ctx) => firstPrinciples(args),
+    handler: async (args, ctx) => {
+      const { firstPrinciplesEnhanced } = await import('./tools/first-principles.js');
+      return firstPrinciplesEnhanced(args, ctx);
+    },
   },
   
   root_cause: {
@@ -191,127 +195,163 @@ const registry: Record<string, Entry> = {
   },
   
   premortem_analysis: {
-    description: 'Imagine project failure and work backward',
+    description: 'Imagine project failure and work backward. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         project: { type: 'string', description: 'The project or initiative' },
         context: { type: 'string', description: 'Additional context' },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['project'],
     },
-    handler: async (args, ctx) => premortemAnalysis(args),
+    handler: async (args, ctx) => {
+      const { premortemAnalysisEnhanced } = await import('./tools/premortem.js');
+      return premortemAnalysisEnhanced(args, ctx);
+    },
   },
   
   critical_thinking: {
-    description: 'Evaluate arguments, evidence, and logical reasoning',
+    description: 'Evaluate arguments, evidence, and logical reasoning. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         argument: { type: 'string', description: 'The argument to evaluate' },
         context: { type: 'string', description: 'Additional context' },
         depth: { type: 'string', enum: ['quick', 'deep'] },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['argument'],
     },
-    handler: async (args, ctx) => criticalThinking(args),
+    handler: async (args, ctx) => {
+      const { criticalThinkingEnhanced } = await import('./tools/critical-thinking.js');
+      return criticalThinkingEnhanced(args, ctx);
+    },
   },
-  
+
   lateral_thinking: {
-    description: 'Generate creative, non-obvious solutions',
+    description: 'Generate creative, non-obvious solutions. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         problem: { type: 'string', description: 'The problem to solve creatively' },
         context: { type: 'string', description: 'Additional context' },
         constraints: { type: 'array', items: { type: 'string' } },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['problem'],
     },
-    handler: async (args, ctx) => lateralThinking(args),
+    handler: async (args, ctx) => {
+      const { lateralThinkingEnhanced } = await import('./tools/lateral-thinking.js');
+      return lateralThinkingEnhanced(args, ctx);
+    },
   },
   
   red_team: {
-    description: 'Attack the plan/design to find vulnerabilities',
+    description: 'Attack the plan/design to find vulnerabilities. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         plan: { type: 'string', description: 'The plan or design to attack' },
         context: { type: 'string', description: 'Additional context' },
         focus: { type: 'string', enum: ['security', 'reliability', 'performance', 'all'] },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['plan'],
     },
-    handler: async (args, ctx) => redTeam(args),
+    handler: async (args, ctx) => {
+      const { redTeamEnhanced } = await import('./tools/red-team.js');
+      return redTeamEnhanced(args, ctx);
+    },
   },
-  
+
   blue_team: {
-    description: 'Defend against attacks and strengthen the plan',
+    description: 'Defend against attacks and strengthen the plan. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         plan: { type: 'string', description: 'The plan or design to defend' },
         threats: { type: 'array', items: { type: 'string' } },
         context: { type: 'string', description: 'Additional context' },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['plan'],
     },
-    handler: async (args, ctx) => blueTeam(args),
+    handler: async (args, ctx) => {
+      const { blueTeamEnhanced } = await import('./tools/blue-team.js');
+      return blueTeamEnhanced(args, ctx);
+    },
   },
   
   decision_matrix: {
-    description: 'Weighted decision-making for comparing options',
+    description: 'Weighted decision-making for comparing options. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         options: { type: 'array', items: { type: 'string' } },
         criteria: { type: 'array', items: { type: 'string' } },
         context: { type: 'string', description: 'Additional context' },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['options'],
     },
-    handler: async (args, ctx) => decisionMatrix(args),
+    handler: async (args, ctx) => {
+      const { decisionMatrixEnhanced } = await import('./tools/decision-matrix.js');
+      return decisionMatrixEnhanced(args, ctx);
+    },
   },
-  
+
   socratic_questioning: {
-    description: 'Deep inquiry through probing questions',
+    description: 'Deep inquiry through probing questions. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         topic: { type: 'string', description: 'The topic to explore' },
         context: { type: 'string', description: 'Additional context' },
         depth: { type: 'string', enum: ['quick', 'deep'] },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['topic'],
     },
-    handler: async (args, ctx) => socratic(args),
+    handler: async (args, ctx) => {
+      const { socraticQuestioningEnhanced } = await import('./tools/socratic.js');
+      return socraticQuestioningEnhanced(args, ctx);
+    },
   },
   
   systems_thinking: {
-    description: 'Understand interconnections and feedback loops',
+    description: 'Understand interconnections and feedback loops. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         system: { type: 'string', description: 'The system to analyze' },
         context: { type: 'string', description: 'Additional context' },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['system'],
     },
-    handler: async (args, ctx) => systemsThinking(args),
+    handler: async (args, ctx) => {
+      const { systemsThinkingEnhanced } = await import('./tools/systems-thinking.js');
+      return systemsThinkingEnhanced(args, ctx);
+    },
   },
-  
+
   scenario_planning: {
-    description: 'Explore multiple possible futures',
+    description: 'Explore multiple possible futures. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         situation: { type: 'string', description: 'The current situation' },
         timeframe: { type: 'string', description: 'Time horizon' },
         context: { type: 'string', description: 'Additional context' },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['situation'],
     },
-    handler: async (args, ctx) => scenarioPlanning(args),
+    handler: async (args, ctx) => {
+      const { scenarioPlanningEnhanced } = await import('./tools/scenario-planning.js');
+      return scenarioPlanningEnhanced(args, ctx);
+    },
   },
   
   brainstorming: {
@@ -629,7 +669,7 @@ for (const tool of getLlmRewriteTools()) {
 const server = new Server(
   {
     name: 'thinking-tools-mcp',
-    version: '1.9.0',
+    version: '1.10.0',
   },
   {
     capabilities: {

@@ -1,12 +1,17 @@
 /**
  * Socratic Questioning Tool
  * Deep inquiry through probing questions
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface SocraticInput {
   topic: string;
   context?: string;
   depth?: 'quick' | 'deep';
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface SocraticOutput {
@@ -166,7 +171,7 @@ export function socratic(input: SocraticInput): SocraticOutput {
   }
   
   const confidence = 70;
-  
+
   return {
     clarifyingQuestions,
     assumptionQuestions,
@@ -178,4 +183,12 @@ export function socratic(input: SocraticInput): SocraticOutput {
     reasoning: `Generated ${clarifyingQuestions.length} clarifying, ${assumptionQuestions.length} assumption, ${reasoningQuestions.length} reasoning, ${perspectiveQuestions.length} perspective, ${implicationQuestions.length} implication, and ${metaQuestions.length} meta questions for deep inquiry.`
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const socraticQuestioningEnhanced = withContext(
+  socraticQuestioning,
+  (input) => `${input.topic} ${input.context || ''}`.slice(0, 200)
+);
 

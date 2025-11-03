@@ -1,12 +1,17 @@
 /**
  * Scenario Planning Tool
  * Explore multiple possible futures and prepare for uncertainty
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface ScenarioPlanningInput {
   situation: string;
   timeframe?: string;
   context?: string;
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface ScenarioPlanningOutput {
@@ -218,9 +223,9 @@ export function scenarioPlanning(input: ScenarioPlanningInput): ScenarioPlanning
   commonPreparations.push('Keep architecture flexible and modular');
   commonPreparations.push('Build strong relationships with stakeholders');
   commonPreparations.push('Regularly review and update plans');
-  
+
   const confidence = 65;
-  
+
   return {
     scenarios,
     criticalUncertainties,
@@ -229,4 +234,12 @@ export function scenarioPlanning(input: ScenarioPlanningInput): ScenarioPlanning
     reasoning: `Generated ${scenarios.length} distinct scenarios across ${criticalUncertainties.length} critical uncertainties. Identified ${commonPreparations.length} robust preparations that work across multiple scenarios.`
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const scenarioPlanningEnhanced = withContext(
+  scenarioPlanning,
+  (input) => `${input.situation} ${input.context || ''}`.slice(0, 200)
+);
 

@@ -1,12 +1,17 @@
 /**
  * Blue Team Thinking Tool
  * Defend against attacks and strengthen the plan/design
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface BlueTeamInput {
   plan: string;
   threats?: string[];
   context?: string;
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface BlueTeamOutput {
@@ -204,7 +209,7 @@ export function blueTeam(input: BlueTeamInput): BlueTeamOutput {
   });
   
   const confidence = 80;
-  
+
   return {
     defenses,
     monitoringStrategy,
@@ -215,4 +220,12 @@ export function blueTeam(input: BlueTeamInput): BlueTeamOutput {
     reasoning: `Blue team defense strategy includes ${defenses.length} specific defenses, ${monitoringStrategy.length} monitoring metrics, ${incidentResponse.length} incident response plans, ${hardeningSteps.length} hardening steps, and ${resilienceImprovements.length} resilience improvements.`
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const blueTeamEnhanced = withContext(
+  blueTeam,
+  (input) => `${input.plan} ${input.context || ''}`.slice(0, 200)
+);
 

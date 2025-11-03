@@ -1,12 +1,17 @@
 /**
  * First Principles Thinking Tool
  * Breaks down complex problems to fundamental truths and builds up from there
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface FirstPrinciplesInput {
   problem: string;
   domain?: string;
   depth?: 'quick' | 'deep';
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface FirstPrinciplesOutput {
@@ -178,9 +183,9 @@ export function firstPrinciples(input: FirstPrinciplesInput): FirstPrinciplesOut
   }
   
   const confidence = fundamentals.length >= 3 ? 0.9 : 0.7;
-  
+
   const reasoning = `Broke down problem into ${fundamentals.length} fundamental truths, identified ${assumptions.length} assumptions, derived ${derivedInsights.length} insights, and found ${alternativeApproaches.length} alternative approaches.`;
-  
+
   return {
     fundamentals,
     assumptions,
@@ -190,4 +195,12 @@ export function firstPrinciples(input: FirstPrinciplesInput): FirstPrinciplesOut
     reasoning
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const firstPrinciplesEnhanced = withContext(
+  firstPrinciples,
+  (input) => `${input.problem} ${input.domain || ''}`.slice(0, 200)
+);
 
