@@ -15,6 +15,16 @@ import {
   InitializeRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
+// Import server context
+import { buildServerContext, ServerContext } from './lib/context.js';
+
+// Import real stateful thinking tool implementations
+import {
+  sequentialThinkingTool,
+  parallelThinkingTool,
+  reflectiveThinkingTool,
+} from './tools/sequential-thinking-impl.js';
+
 // Import all thinking tools
 import { devilsAdvocate } from './tools/devils-advocate.js';
 import { firstPrinciples } from './tools/first-principles.js';
@@ -31,9 +41,6 @@ import { systemsThinking } from './tools/systems-thinking.js';
 import { scenarioPlanning } from './tools/scenario-planning.js';
 import { brainstorming } from './tools/brainstorming.js';
 import { mindMapping } from './tools/mind-mapping.js';
-import { sequentialThinking } from './tools/sequential-thinking.js';
-import { parallelThinking } from './tools/parallel-thinking.js';
-import { reflectiveThinking } from './tools/reflective-thinking.js';
 import {
   context7ResolveLibraryId,
   context7GetLibraryDocs,
@@ -289,7 +296,7 @@ class ThinkingToolsMCP {
         },
         {
           name: 'sequential_thinking',
-          description: 'Break down complex problems into sequential thought steps. Supports revisions, branching, and dynamic thought adjustment.',
+          description: 'Break down complex problems into sequential thought steps. Supports revisions, branching, and dynamic thought adjustment. Stateful - maintains history across calls.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -302,13 +309,15 @@ class ThinkingToolsMCP {
               branchFromThought: { type: 'integer', description: 'Branching point thought number', minimum: 1 },
               branchId: { type: 'string', description: 'Branch identifier' },
               needsMoreThoughts: { type: 'boolean', description: 'If more thoughts are needed' },
+              convoId: { type: 'string', description: 'Conversation ID for session persistence (optional, defaults to "default")' },
+              workspaceRoot: { type: 'string', description: 'Workspace root path (optional, auto-detected)' },
             },
             required: ['thought', 'nextThoughtNeeded', 'thoughtNumber', 'totalThoughts'],
           },
         },
         {
           name: 'parallel_thinking',
-          description: 'Explore multiple solution paths simultaneously. Create branches to evaluate different approaches in parallel.',
+          description: 'Explore multiple solution paths simultaneously. Create branches to evaluate different approaches in parallel. Stateful - maintains branch history.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -318,13 +327,15 @@ class ThinkingToolsMCP {
               thoughtNumber: { type: 'integer', description: 'Thought number within this branch', minimum: 1 },
               nextThoughtNeeded: { type: 'boolean', description: 'Whether more thoughts needed in this branch' },
               conclusion: { type: 'string', description: 'Final conclusion for this branch (if complete)' },
+              convoId: { type: 'string', description: 'Conversation ID for session persistence (optional)' },
+              workspaceRoot: { type: 'string', description: 'Workspace root path (optional, auto-detected)' },
             },
             required: ['branchId', 'description', 'thought', 'thoughtNumber', 'nextThoughtNeeded'],
           },
         },
         {
           name: 'reflective_thinking',
-          description: 'Review and critique previous thoughts and decisions. Identify improvements and assess confidence.',
+          description: 'Review and critique previous thoughts and decisions. Identify improvements and assess confidence. Stateful - tracks reflections.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -332,6 +343,8 @@ class ThinkingToolsMCP {
               reflection: { type: 'string', description: 'Your reflection on this thought' },
               improvements: { type: 'array', items: { type: 'string' }, description: 'Suggested improvements' },
               confidence: { type: 'number', description: 'Confidence level (0-1)', minimum: 0, maximum: 1 },
+              convoId: { type: 'string', description: 'Conversation ID for session persistence (optional)' },
+              workspaceRoot: { type: 'string', description: 'Workspace root path (optional, auto-detected)' },
             },
             required: ['thoughtNumber', 'reflection', 'improvements', 'confidence'],
           },
@@ -536,6 +549,8 @@ class ThinkingToolsMCP {
       const { name, arguments: args } = request.params;
 
       try {
+        // Build server context for stateful tools
+        const ctx = buildServerContext(args);
         let result: any;
 
         switch (name) {
@@ -585,13 +600,13 @@ class ThinkingToolsMCP {
             result = mindMapping(args as any);
             break;
           case 'sequential_thinking':
-            result = await sequentialThinking(args as any);
+            result = await sequentialThinkingTool(args as any, ctx);
             break;
           case 'parallel_thinking':
-            result = await parallelThinking(args as any);
+            result = await parallelThinkingTool(args as any, ctx);
             break;
           case 'reflective_thinking':
-            result = await reflectiveThinking(args as any);
+            result = await reflectiveThinkingTool(args as any, ctx);
             break;
           case 'context7_resolve_library_id':
             result = await context7ResolveLibraryId(args as any);
