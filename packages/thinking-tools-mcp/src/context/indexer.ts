@@ -8,7 +8,6 @@ import {
   ensureDirs, saveChunk, saveEmbedding, saveStats, saveDocs,
   loadFileMap, saveFileMap, deleteChunksForFile,
   getCachedVec, putCachedVec, sha, getStats,
-  loadChunks, loadEmbeddings,
   type StoredDoc
 } from './store.js';
 import { Chunk, IndexStats } from './types.js';
@@ -34,21 +33,18 @@ function resolveWorkspaceRoot(): string {
                   process.env.VSCODE_WORKSPACE ||
                   process.env.INIT_CWD;
 
-  if (envRoot) {
-    // Normalize path (convert forward slashes to platform-specific)
-    const normalized = path.resolve(envRoot);
-
-    if (fs.existsSync(normalized)) {
-      return normalized;
-    }
+  if (envRoot && fs.existsSync(envRoot)) {
+    console.log(`[indexer] Using workspace root from env: ${envRoot}`);
+    return envRoot;
   }
 
   // Fallback to process.cwd() (works in CLI, breaks in MCP)
-  return process.cwd();
+  const cwd = process.cwd();
+  console.log(`[indexer] Using process.cwd(): ${cwd}`);
+  return cwd;
 }
 
-// Don't resolve at module load time - env vars might not be set yet!
-// const rootRepo = resolveWorkspaceRoot();
+const rootRepo = resolveWorkspaceRoot();
 
 const INCLUDE = ['**/*.{ts,tsx,js,jsx,md,mdx,json,yml,yaml,sql,py,sh,ps1}'];
 const EXCLUDE = process.env.RCE_IGNORE
@@ -151,7 +147,7 @@ function chunkByHeuristics(filePath: string, text: string): { start: number; end
 }
 
 export async function indexRepo(
-  repoRoot?: string,
+  repoRoot = rootRepo,
   opts: { quick?: boolean; force?: boolean } = {}
 ): Promise<{
   ok: boolean;
@@ -166,11 +162,6 @@ export async function indexRepo(
   error?: string;
 }> {
   try {
-    // Resolve workspace root at call time, not module load time
-    if (!repoRoot) {
-      repoRoot = resolveWorkspaceRoot();
-    }
-
     const start = Date.now();
     console.log(`[indexRepo] Starting ${opts.quick ? 'incremental' : 'full'} indexing for: ${repoRoot}`);
     ensureDirs();
@@ -203,37 +194,26 @@ export async function indexRepo(
 
     console.log(`📁 Found ${allFiles.length} total files`);
 
-    // Determine which files to process
-    let filesToProcess: string[];
-    let removed: string[] = [];
+    // Detect changes via git
+    const ch = await gitChangesSince(repoRoot, (meta as any)?.head);
+    let added = ch.added.concat(ch.untracked);
+    let modified = ch.modified;
+    let deleted = ch.deleted;
 
-    if (opts.force || !meta || Object.keys(filesMap).length === 0) {
-      // Full index: process ALL files
-      console.log(`🔄 Full index mode: processing all ${allFiles.length} files`);
-      filesToProcess = allFiles;
-    } else {
-      // Incremental index: detect changes via git
-      const ch = await gitChangesSince(repoRoot, (meta as any)?.head);
-      let added = ch.added.concat(ch.untracked);
-      let modified = ch.modified;
-      let deleted = ch.deleted;
-
-      // Fallback to mtime if git didn't detect changes
-      if (!ch.head || (!added.length && !modified.length && !deleted.length)) {
-        console.log(`📊 Using mtime fallback for change detection`);
-        const diff = await fsDiffFallback(repoRoot, allFiles, filesMap);
-        added = diff.added;
-        modified = diff.modified;
-        deleted = diff.deleted;
-      }
-
-      // Cap changed files to keep responses snappy
-      const changed = Array.from(new Set([...added, ...modified])).slice(0, MAX_CHANGED);
-      removed = deleted;
-
-      console.log(`🔄 Changes: +${added.length} ~${modified.length} -${removed.length} (processing ${changed.length})`);
-      filesToProcess = changed;
+    // Fallback to mtime if git didn't detect changes
+    if (!ch.head || (!added.length && !modified.length && !deleted.length)) {
+      console.log(`📊 Using mtime fallback for change detection`);
+      const diff = await fsDiffFallback(repoRoot, allFiles, filesMap);
+      added = diff.added;
+      modified = diff.modified;
+      deleted = diff.deleted;
     }
+
+    // Cap changed files to keep responses snappy
+    const changed = Array.from(new Set([...added, ...modified])).slice(0, MAX_CHANGED);
+    const removed = deleted;
+
+    console.log(`🔄 Changes: +${added.length} ~${modified.length} -${removed.length} (processing ${changed.length})`);
 
     // Apply deletions
     for (const f of removed) {
@@ -245,10 +225,10 @@ export async function indexRepo(
     let errors = 0;
     const docsBatch: StoredDoc[] = [];
 
-    // Process files
-    for (let fileIdx = 0; fileIdx < filesToProcess.length; fileIdx++) {
+    // Process changed files only
+    for (let fileIdx = 0; fileIdx < changed.length; fileIdx++) {
       try {
-        const rel = filesToProcess[fileIdx];
+        const rel = changed[fileIdx];
         const p = path.join(repoRoot, rel);
 
         if (!fs.existsSync(p)) {
@@ -261,8 +241,8 @@ export async function indexRepo(
         const ext = path.extname(rel).toLowerCase();
         const isDoc = ['.md', '.mdx', '.rst', '.txt'].includes(ext);
 
-        // Delete old chunks for this file (if it exists in the map)
-        if (filesMap[rel]) {
+        // Delete old chunks for this file (if modified)
+        if (modified.includes(rel)) {
           deleteChunksForFile(rel);
         }
 
@@ -276,7 +256,7 @@ export async function indexRepo(
         const parts = chunkByHeuristics(rel, text);
         const chunkIds: string[] = [];
 
-        console.log(`⚡ [${fileIdx + 1}/${filesToProcess.length}] Processing ${rel} (${parts.length} chunks)...`);
+        console.log(`⚡ [${fileIdx + 1}/${changed.length}] Processing ${rel} (${parts.length} chunks)...`);
 
         for (const part of parts) {
           const contentSha = sha(part.text);
@@ -338,7 +318,7 @@ export async function indexRepo(
         };
 
       } catch (fileError: any) {
-        console.error(`❌ Error processing file ${filesToProcess[fileIdx]}:`, fileError.message);
+        console.error(`❌ Error processing file ${changed[fileIdx]}:`, fileError.message);
         errors++;
         continue;
       }
@@ -353,14 +333,11 @@ export async function indexRepo(
     // Save updated file map
     saveFileMap(filesMap);
 
-    // Update stats - count TOTAL chunks and embeddings, not just new ones
-    const totalChunks = loadChunks().length;
-    const totalEmbeddings = loadEmbeddings().length;
-
+    // Update stats
     const stats: IndexStats = {
-      chunks: totalChunks,
-      embeddings: totalEmbeddings,
-      vectors: totalEmbeddings,
+      chunks: n,
+      embeddings: e,
+      vectors: e,
       sources: { repo: Object.keys(filesMap).length },
       mode: process.env.EMBED_PROVIDER || 'ollama',
       model: EMBED_MODEL,
@@ -370,18 +347,22 @@ export async function indexRepo(
       updatedAt: new Date().toISOString()
     };
 
+    // Add git head to stats
+    if (ch.head) {
+      (stats as any).head = ch.head;
+    }
+
     saveStats(stats);
 
     const tookMs = Date.now() - start;
-    const mode = opts.force || !meta || Object.keys(filesMap).length === 0 ? 'Full' : 'Incremental';
-    console.log(`✅ ${mode} index complete: ${n} chunks, ${e} embeddings, ${docsBatch.length} docs (${filesToProcess.length} processed, ${removed.length} removed, ${errors} errors) in ${tookMs}ms`);
+    console.log(`✅ Incremental index complete: ${n} chunks, ${e} embeddings, ${docsBatch.length} docs (${changed.length} changed, ${removed.length} removed, ${errors} errors) in ${tookMs}ms`);
 
     return {
       ok: true,
-      chunks: totalChunks,
-      embeddings: totalEmbeddings,
+      chunks: n,
+      embeddings: e,
       files: Object.keys(filesMap).length,
-      changed: filesToProcess.length,
+      changed: changed.length,
       removed: removed.length,
       tookMs
     };
