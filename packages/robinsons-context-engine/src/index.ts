@@ -102,17 +102,33 @@ export class RobinsonsContextEngine {
         for (const e of ents) {
           const full = path.join(p, e.name);
           if (e.isDirectory()) {
-            // Skip common ignore patterns
+            // Comprehensive ignore list for directories
+            const IGNORE_DIRS = [
+              'node_modules',
+              'dist',
+              'build',
+              '.next',
+              '.turbo',
+              'coverage',
+              '__pycache__',
+              '.pytest_cache',
+              'venv',
+              '.venv',
+              '.venv-learning',
+              '.venv-prod',
+              '.venv-dev',
+              'site-packages',
+              '.augment',
+              '.robinson',
+              '.backups',
+              'sandbox'
+            ];
+
+            // Skip if directory name matches ignore list or starts with .git or .venv
             if (
               e.name.startsWith('.git') ||
-              e.name === 'node_modules' ||
-              e.name === 'dist' ||
-              e.name === 'build' ||
-              e.name === '.next' ||
-              e.name === 'coverage' ||
-              e.name === '__pycache__' ||
-              e.name === 'venv' ||
-              e.name === '.venv'
+              e.name.startsWith('.venv') ||
+              IGNORE_DIRS.includes(e.name)
             ) {
               continue;
             }
