@@ -37,7 +37,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@robinson_ai_systems/thinking-tools-mcp@1.6.1"
+        "@robinson_ai_systems/thinking-tools-mcp@latest"
       ],
       "env": {
         "WORKSPACE_ROOT": "YOUR_WORKSPACE_ROOT_HERE",
