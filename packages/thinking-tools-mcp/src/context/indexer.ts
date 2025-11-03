@@ -7,6 +7,7 @@ import { embedBatch } from './embedding.js';
 import { ensureDirs, saveChunk, saveEmbedding, saveStats, saveDocs, type StoredDoc } from './store.js';
 import { Chunk, IndexStats } from './types.js';
 import { extractDocRecord } from './docs/extract.js';
+import { extractSymbols } from './symbols.js';
 
 const MAXCH = parseInt(process.env.CTX_MAX_CHARS_PER_CHUNK || '1200', 10);
 
@@ -63,95 +64,73 @@ function sha(txt: string): string {
 
 /**
  * Code-aware chunking that keeps method/function bodies intact
- *
- * For code files: splits at top-level declarations, keeping implementations together
- * For markdown/docs: splits on paragraphs with windowing for long sections
+ * "Stickier" version - tries harder to keep implementations together
  */
 function chunkByHeuristics(filePath: string, text: string): { start: number; end: number; text: string }[] {
   const ext = path.extname(filePath).toLowerCase();
   const isCode = ['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.java', '.rs'].includes(ext);
 
   if (isCode) {
-    // Keep function/method bodies intact (fast heuristic)
-    const lines = text.split(/\r?\n/);
     const out: { start: number; end: number; text: string }[] = [];
+    const lines = text.split(/\r?\n/);
     let buf: string[] = [];
     let bufStart = 1;
-    let depth = 0;
+    let depth = 0, hard = 0;
 
     const flush = () => {
-      if (buf.length > 0) {
+      if (buf.length) {
         out.push({
           start: bufStart,
           end: bufStart + buf.length - 1,
           text: buf.join('\n')
         });
         buf = [];
+        hard = 0;
       }
     };
 
     for (let i = 0; i < lines.length; i++) {
       const ln = lines[i];
 
-      // Track brace depth
-      if (/{/.test(ln)) depth++;
-      if (/}/.test(ln)) depth = Math.max(0, depth - 1);
-
-      // Start new buffer if this is the first line
-      if (buf.length === 0) {
-        bufStart = i + 1;
-      }
+      if (buf.length === 0) bufStart = i + 1;
 
       buf.push(ln);
+      if (/{/.test(ln)) depth++;
+      if (/}/.test(ln)) depth = Math.max(0, depth - 1);
+      hard++;
 
-      // Split at end of top-level declarations or every ~120 lines
-      const isTopLevelDecl = depth === 0 && /^\s*(export\s+)?(async\s+)?(function|class|const|let|interface|type)\b/.test(ln);
-      const isTooLong = buf.length >= 120;
+      const decl = /^\s*(export\s+)?(async\s+)?(function|class|const|let)\b/.test(ln);
+      const softLimit = 140, hardLimit = 220;
 
-      if ((isTopLevelDecl || isTooLong) && buf.length > 0) {
+      // try to end at decl boundaries; otherwise hard cap
+      if ((depth === 0 && decl && buf.length >= 24) || hard >= hardLimit || (depth === 0 && hard >= softLimit)) {
         flush();
       }
     }
-
-    // Flush remaining
     flush();
-
-    return out.filter(chunk => chunk.text.trim().length > 0);
+    return out.filter(s => s.text.trim().length > 0);
   }
 
-  // Markdown / everything else – paragraph / windowed
+  // docs: paragraph/windowed
   const paragraphs = text.split(/\n{2,}/);
   const out: { start: number; end: number; text: string }[] = [];
   let lineNum = 1;
 
   for (const para of paragraphs) {
     const paraLines = para.split(/\r?\n/).length;
-
     if (para.length > 1400) {
-      // Split long paragraphs into ~1200 char windows
       const windows = para.match(/[\s\S]{1,1200}/g) || [];
       for (const win of windows) {
         const winLines = win.split(/\r?\n/).length;
-        out.push({
-          start: lineNum,
-          end: lineNum + winLines - 1,
-          text: win
-        });
+        out.push({ start: lineNum, end: lineNum + winLines - 1, text: win });
         lineNum += winLines;
       }
     } else if (para.trim().length > 0) {
-      out.push({
-        start: lineNum,
-        end: lineNum + paraLines - 1,
-        text: para
-      });
+      out.push({ start: lineNum, end: lineNum + paraLines - 1, text: para });
       lineNum += paraLines;
     }
-
-    // Account for paragraph separator
     lineNum += 2;
   }
-
   return out.filter(chunk => chunk.text.trim().length > 0);
 }
 
@@ -209,7 +188,12 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
           sha: sh,
           start: c.start,
           end: c.end,
-          text: c.text
+          text: c.text,
+          meta: {
+            symbols: extractSymbols(ext, c.text),
+            lang: ext,
+            lines: c.text.split(/\r?\n/).length
+          }
         } as Chunk));
 
         if (chunks.length === 0) {

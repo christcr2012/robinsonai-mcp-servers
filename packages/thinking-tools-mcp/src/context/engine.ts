@@ -125,8 +125,8 @@ export class ContextEngine {
     }
 
     // Code-first path: hybrid search with code-first reranking
-    // Get larger shortlist for reranking (250 candidates)
-    const shortlistSize = Math.max(250, k * 20);
+    // Get larger shortlist for reranking (300 candidates)
+    const shortlistSize = Math.max(300, k * 25);
     const results: Hit[] = await hybridQuery(query, shortlistSize);
 
     if (results.length === 0) {
@@ -143,17 +143,26 @@ export class ContextEngine {
       title: r.chunk.title || r.chunk.uri,
       text: r.chunk.text,
       vec: r.chunk.vec, // Include chunk vector if available
-      lexScore: r.score // Pass hybrid score as lexical score
+      lexScore: r.score, // Pass hybrid score as lexical score
+      meta: r.chunk.meta // Include symbol metadata
     }));
 
     // Rerank with code-first heuristics
-    const reranked = rerankCodeFirst(query, candidates, qVec).slice(0, k);
+    const top50 = rerankCodeFirst(query, candidates, qVec).slice(0, 50);
+
+    // Optional: cross-encoder rerank on top-50 (only if COHERE_API_KEY is set)
+    const { ceRerankIfAvailable } = await import('./rankers/cross_encoder.js');
+    const ce = await ceRerankIfAvailable(query, top50.map(t => ({ text: t.text })));
+    const final = ce
+      ? [...top50].sort((a, b) => (ce.find((x: any) => x.idx === top50.indexOf(b))?.score ?? 0) -
+                                   (ce.find((x: any) => x.idx === top50.indexOf(a))?.score ?? 0))
+      : top50;
 
     // Format results
-    return reranked.map(r => ({
+    return final.slice(0, k).map(r => ({
       uri: r.uri,
       title: r.title,
-      snippet: r.text.substring(0, 480), // Longer snippets for better context
+      snippet: r.text.substring(0, 620), // Longer snippets for better context
       score: r.score
     }));
   }
