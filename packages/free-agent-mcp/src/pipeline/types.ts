@@ -207,6 +207,9 @@ export interface PipelineResult {
     judge: number;
     refine: number;
   };
+
+  /** Execution report from final attempt (for debugging) */
+  execReport?: ExecReport;
 }
 
 /**

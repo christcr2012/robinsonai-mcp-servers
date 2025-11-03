@@ -115,7 +115,7 @@ export async function iterateTask(
         score,
         attempts: attempt,
         verdict,
-        report,
+        execReport: report,
         totalCost,
         costBreakdown,
       };
@@ -134,12 +134,18 @@ export async function iterateTask(
   console.log(`  📊 Best score: ${(best!.score * 100).toFixed(1)}%`);
   console.log(`  💰 Total cost: $${totalCost.toFixed(4)}`);
 
+  // Run one final sandbox execution to get the latest report
+  const finalReport = dockerAvailable
+    ? await runDockerSandboxPipeline({ files: best?.files ?? [], tests: [] }, config)
+    : await runSandboxPipeline({ files: best?.files ?? [], tests: [] }, config);
+
   return {
     ok: false,
     files: best?.files ?? [],
     score: best?.score ?? 0,
     attempts: maxAttempts,
     verdict: best?.verdict,
+    execReport: finalReport,
     totalCost,
     costBreakdown,
   };
