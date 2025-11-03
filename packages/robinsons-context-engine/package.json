@@ -1,39 +1,27 @@
 {
   "name": "@robinson_ai_systems/robinsons-context-engine",
-  "version": "1.1.2",
-  "description": "Production-grade context engine with hybrid search, multiple embedding providers, and intelligent model selection",
+  "version": "0.1.0",
+  "description": "Robinson's Context Engine (repo-agnostic)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "publishConfig": {
-    "access": "public"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./embeddings": {
-      "types": "./dist/embeddings.d.ts",
-      "import": "./dist/embeddings.js"
-    },
-    "./store": {
-      "types": "./dist/store.d.ts",
-      "import": "./dist/store.js"
-    },
-    "./symbol-aware": {
-      "types": "./dist/symbol-aware.d.ts",
-      "import": "./dist/symbol-aware.js"
-    },
-    "./import-graph": {
-      "types": "./dist/import-graph.d.ts",
-      "import": "./dist/import-graph.js"
+      "default": "./dist/index.js"
     }
   },
+  "files": [
+    "dist/"
+  ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist",
+    "build": "tsc -p tsconfig.json",
+    "prepack": "node ../../scripts/ensure-no-workspace.mjs && npm run build",
+    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs && npm run build"
+  },
+  "engines": {
+    "node": ">=18.18.0"
   },
   "keywords": [
     "context-engine",
@@ -47,12 +35,12 @@
   ],
   "author": "Robinson AI Systems",
   "license": "MIT",
-  "dependencies": {
-    "@robinson_ai_systems/free-agent-mcp": "^0.1.29",
-    "node-fetch": "^3.3.2"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "typescript": "^5.3.3"
+    "rimraf": "^6.0.0",
+    "typescript": "^5.6.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

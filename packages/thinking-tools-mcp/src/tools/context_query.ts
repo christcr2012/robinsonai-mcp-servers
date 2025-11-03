@@ -1,0 +1,34 @@
+/**
+ * Context Query Tool
+ * Query indexed code semantically
+ */
+
+import type { ServerContext } from '../lib/context.js';
+
+export const contextQueryDescriptor = {
+  name: 'context_query',
+  description: 'Query indexed code semantically. Returns ranked search results.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'Search query' },
+      top_k: { type: 'number', description: 'Number of results to return (default: 12)' },
+    },
+    required: ['query'],
+  },
+};
+
+export async function contextQueryTool(args: any, ctx: ServerContext) {
+  const hits = await ctx.ctx.search(args.query, args.top_k || 12);
+  return {
+    hits: hits.map((h: any) => ({
+      score: h.score,
+      path: h.uri,
+      title: h.title,
+      snippet: h.snippet,
+      method: h._method,
+      provider: h._provider
+    }))
+  };
+}
+

@@ -1,18 +1,30 @@
 {
   "name": "@robinson_ai_systems/thinking-tools-mcp",
-  "version": "1.7.8",
+  "version": "1.8.1",
   "description": "Comprehensive Thinking Tools MCP - 24 cognitive frameworks + Context Engine with semantic search",
   "type": "module",
   "main": "dist/index.js",
-  "bin": {
-    "thinking-tools-mcp": "./bin/thinking-tools-mcp.js"
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
+  "bin": {
+    "thinking-tools-mcp": "bin/thinking-tools-mcp.js"
+  },
+  "files": [
+    "dist/",
+    "bin/"
+  ],
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "prepare": "npm run build",
-    "ctx:index": "node ./dist/context/indexer.js",
-    "ctx:reset": "node -e \"const fs=require('fs');const files=['.robinson/context/chunks.jsonl','.robinson/context/embeddings.jsonl'];files.forEach(f=>{try{fs.unlinkSync(f)}catch{}});console.log('reset ok')\""
+    "clean": "rimraf dist",
+    "build": "tsc -p tsconfig.json",
+    "start": "node bin/thinking-tools-mcp.js"
+  },
+  "engines": {
+    "node": ">=18.18.0"
   },
   "keywords": [
     "mcp",
@@ -30,7 +42,7 @@
     "@extractus/article-extractor": "^8.0.20",
     "@modelcontextprotocol/sdk": "^1.20.1",
     "@mozilla/readability": "^0.4.4",
-    "@robinson_ai_systems/robinsons-context-engine": "^1.1.2",
+    "@robinson_ai_systems/robinsons-context-engine": "^1.1.5",
     "axios": "^1.12.2",
     "cheerio": "^1.1.2",
     "chokidar": "^3.3.1",
@@ -54,7 +66,11 @@
   },
   "devDependencies": {
     "@types/node": "^22.18.13",
+    "rimraf": "^6.0.0",
     "typescript": "^5.7.3",
     "zod": "^3.25.76"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
