@@ -7,6 +7,8 @@ import { indexRepo } from './indexer.js';
 import { hybridQuery } from './search.js';
 import { buildImportGraph } from './graph.js';
 import { EvidenceStore } from './evidence.js';
+import { FileWatcher } from './watcher.js';
+import { getQueryCache } from './cache.js';
 
 export class ContextEngine {
   private static byRoot = new Map<string, ContextEngine>();
@@ -24,9 +26,16 @@ export class ContextEngine {
   private _indexed = false;
   private _graph: Array<{ from: string; to: string }> = [];
   public evidence: EvidenceStore;
+  private watcher?: FileWatcher;
 
   private constructor(private root: string) {
     this.evidence = new EvidenceStore(this.root);
+
+    // Start file watcher if enabled
+    const autoWatch = process.env.CTX_AUTO_WATCH === '1' || process.env.CTX_AUTO_WATCH === 'true';
+    if (autoWatch) {
+      this.startWatcher();
+    }
   }
 
   /**
@@ -68,6 +77,40 @@ export class ContextEngine {
    */
   reset(): void {
     this._indexed = false;
+    // Invalidate cache when index is reset
+    getQueryCache().invalidate();
+  }
+
+  /**
+   * Start file watcher for real-time indexing
+   */
+  startWatcher(): void {
+    if (this.watcher?.isRunning()) {
+      console.log('[ContextEngine] File watcher already running');
+      return;
+    }
+
+    this.watcher = new FileWatcher(this.root);
+    this.watcher.start();
+    console.log('[ContextEngine] ✅ File watcher started');
+  }
+
+  /**
+   * Stop file watcher
+   */
+  async stopWatcher(): Promise<void> {
+    if (this.watcher) {
+      await this.watcher.stop();
+      this.watcher = undefined;
+      console.log('[ContextEngine] ✅ File watcher stopped');
+    }
+  }
+
+  /**
+   * Check if file watcher is running
+   */
+  isWatcherRunning(): boolean {
+    return this.watcher?.isRunning() ?? false;
   }
 }
 

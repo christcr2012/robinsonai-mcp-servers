@@ -1,6 +1,7 @@
 import { readJSONL, getPaths } from './store.js';
 import { cosine } from './embedding.js';
 import { Hit, Chunk, Embedding } from './types.js';
+import { getQueryCache } from './cache.js';
 
 export function lexicalRank(query: string, text: string): number {
   const q = query.toLowerCase().split(/\W+/).filter(Boolean);
@@ -16,6 +17,14 @@ export function lexicalRank(query: string, text: string): number {
 }
 
 export async function hybridQuery(query: string, topK = 8): Promise<Hit[]> {
+  // Check cache first
+  const cache = getQueryCache();
+  const cached = cache.get(query, topK);
+  if (cached) {
+    console.log(`[hybridQuery] Cache hit for "${query}"`);
+    return cached;
+  }
+
   // Stream chunks and embeddings instead of loading all into memory
   const paths = getPaths();
 
@@ -48,6 +57,11 @@ export async function hybridQuery(query: string, topK = 8): Promise<Hit[]> {
 
   if (!scored.length) return [];
 
-  return scored.sort((a, b) => b.score - a.score).slice(0, topK);
+  const results = scored.sort((a, b) => b.score - a.score).slice(0, topK);
+
+  // Cache the results
+  cache.set(query, topK, results);
+
+  return results;
 }
 
