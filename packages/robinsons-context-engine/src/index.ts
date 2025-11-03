@@ -322,6 +322,9 @@ export class RobinsonsContextEngine {
       scored = applySymbolBoosting(scored, q, this.symbolIndex, options);
     }
 
+    // Apply language-aware boosting (boost TypeScript, penalize tests and Python)
+    scored = applyLanguageBoosting(scored, 'typescript');
+
     // Check if we have vectors
     const hasVectors = scored.some(x => Array.isArray(x.c.vec) && x.c.vec.length > 0);
 
@@ -617,5 +620,62 @@ function cosineSimilarity(a: number[], b: number[]): number {
 
   const denominator = Math.sqrt(normA) * Math.sqrt(normB);
   return denominator === 0 ? 0 : dotProduct / denominator;
+}
+
+/**
+ * Apply language-aware boosting to search results
+ * Boosts TypeScript/JavaScript files, heavily penalizes test files and Python files
+ */
+function applyLanguageBoosting(
+  chunks: Array<{ c: StoredChunk; s: number }>,
+  projectLanguage: 'typescript' | 'python' | 'mixed' = 'typescript'
+): Array<{ c: StoredChunk; s: number }> {
+  return chunks.map(({ c, s }) => {
+    let boostedScore = s;
+    const uri = c.uri.toLowerCase();
+
+    // Boost TypeScript/JavaScript files in TypeScript projects
+    if (projectLanguage === 'typescript' || projectLanguage === 'mixed') {
+      if (uri.endsWith('.ts') || uri.endsWith('.tsx') || uri.endsWith('.js') || uri.endsWith('.jsx')) {
+        boostedScore *= 2.0;
+      }
+    }
+
+    // Boost Python files in Python projects
+    if (projectLanguage === 'python' && uri.endsWith('.py')) {
+      boostedScore *= 2.0;
+    }
+
+    // Heavy penalty for test files (90% reduction)
+    if (
+      uri.includes('/tests/') ||
+      uri.includes('\\tests\\') ||
+      uri.includes('/test/') ||
+      uri.includes('\\test\\') ||
+      uri.includes('test_') ||
+      uri.includes('.test.') ||
+      uri.includes('.spec.') ||
+      uri.includes('__tests__')
+    ) {
+      boostedScore *= 0.1;
+    }
+
+    // Penalty for Python files in TypeScript projects (80% reduction)
+    if (projectLanguage === 'typescript' && uri.endsWith('.py')) {
+      boostedScore *= 0.2;
+    }
+
+    // Heavy penalty for files in site-packages or venv (95% reduction)
+    if (uri.includes('site-packages') || uri.includes('venv') || uri.includes('.venv')) {
+      boostedScore *= 0.05;
+    }
+
+    // Boost source files over config/build files
+    if (uri.includes('/src/') || uri.includes('\\src\\')) {
+      boostedScore *= 1.5;
+    }
+
+    return { c, s: boostedScore };
+  });
 }
 
