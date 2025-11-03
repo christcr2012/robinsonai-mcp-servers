@@ -73,6 +73,7 @@ reports/
 
 # Robinson Context Engine artifacts (generated)
 .robctx/
+.rce_index/
 
 # Local Augment MCP import with secrets (do not commit)
 MCP_SERVERS_IMPORT.secrets.json
