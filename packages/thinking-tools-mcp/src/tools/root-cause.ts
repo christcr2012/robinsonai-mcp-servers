@@ -1,12 +1,17 @@
 /**
  * Root Cause Analysis Tool
  * Uses 5 Whys technique to find underlying causes of problems
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface RootCauseInput {
   problem: string;
   context?: string;
   depth?: number;
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface RootCauseOutput {
@@ -164,7 +169,7 @@ export function rootCauseAnalysis(input: RootCauseInput): RootCauseOutput {
   const confidence = whyChain.length >= 3 ? 0.8 : 0.6;
   
   const reasoning = `Applied 5 Whys technique with ${whyChain.length} iterations. Identified ${rootCauses.length} root causes and ${contributingFactors.length} contributing factors. Proposed ${solutions.length} solutions.`;
-  
+
   return {
     whyChain,
     rootCauses,
@@ -174,4 +179,12 @@ export function rootCauseAnalysis(input: RootCauseInput): RootCauseOutput {
     reasoning
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const rootCauseAnalysisEnhanced = withContext(
+  rootCauseAnalysis,
+  (input) => `${input.problem} ${input.context || ''}`.slice(0, 200)
+);
 

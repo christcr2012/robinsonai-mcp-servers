@@ -1,12 +1,17 @@
 /**
  * SWOT Analysis Tool
  * Analyzes Strengths, Weaknesses, Opportunities, and Threats
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { withContext } from '../lib/context-enhancer.js';
 
 export interface SWOTInput {
   subject: string;
   context?: string;
   perspective?: 'technical' | 'business' | 'product' | 'team';
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface SWOTOutput {
@@ -208,9 +213,9 @@ export function swotAnalysis(input: SWOTInput): SWOTOutput {
   strategicRecommendations.push('Document decision rationale for future reference');
   
   const confidence = (strengths.length + weaknesses.length + opportunities.length + threats.length) > 8 ? 0.85 : 0.7;
-  
+
   const reasoning = `Analyzed ${subject} from ${perspective} perspective. Found ${strengths.length} strengths, ${weaknesses.length} weaknesses, ${opportunities.length} opportunities, ${threats.length} threats.`;
-  
+
   return {
     strengths,
     weaknesses,
@@ -221,4 +226,12 @@ export function swotAnalysis(input: SWOTInput): SWOTOutput {
     reasoning
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const swotAnalysisEnhanced = withContext(
+  swotAnalysis,
+  (input) => `${input.subject} ${input.context || ''}`.slice(0, 200)
+);
 

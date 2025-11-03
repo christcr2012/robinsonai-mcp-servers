@@ -125,17 +125,21 @@ const registry: Record<string, Entry> = {
   
   // Cognitive framework tools (existing pattern)
   devils_advocate: {
-    description: 'Challenge assumptions and find flaws in plans',
+    description: 'Challenge assumptions and find flaws in plans. Enhanced with optional context search to find relevant code/docs.',
     inputSchema: {
       type: 'object',
       properties: {
         context: { type: 'string', description: 'The plan or idea to challenge' },
         goal: { type: 'string', description: 'What you\'re trying to achieve' },
         depth: { type: 'string', enum: ['quick', 'deep'] },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['context'],
     },
-    handler: async (args, ctx) => devilsAdvocate(args),
+    handler: async (args, ctx) => {
+      const { devilsAdvocateEnhanced } = await import('./tools/devils-advocate.js');
+      return devilsAdvocateEnhanced(args, ctx);
+    },
   },
   
   first_principles: {
@@ -152,30 +156,38 @@ const registry: Record<string, Entry> = {
   },
   
   root_cause: {
-    description: 'Use 5 Whys technique to find underlying causes',
+    description: 'Use 5 Whys technique to find underlying causes. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         problem: { type: 'string', description: 'The problem to analyze' },
         context: { type: 'string', description: 'Additional context' },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['problem'],
     },
-    handler: async (args, ctx) => rootCauseAnalysis(args),
+    handler: async (args, ctx) => {
+      const { rootCauseAnalysisEnhanced } = await import('./tools/root-cause.js');
+      return rootCauseAnalysisEnhanced(args, ctx);
+    },
   },
   
   swot_analysis: {
-    description: 'Analyze Strengths, Weaknesses, Opportunities, Threats',
+    description: 'Analyze Strengths, Weaknesses, Opportunities, Threats. Enhanced with optional context search.',
     inputSchema: {
       type: 'object',
       properties: {
         subject: { type: 'string', description: 'What to analyze' },
         context: { type: 'string', description: 'Additional context' },
         perspective: { type: 'string', enum: ['technical', 'business', 'product', 'team'] },
+        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
       },
       required: ['subject'],
     },
-    handler: async (args, ctx) => swotAnalysis(args),
+    handler: async (args, ctx) => {
+      const { swotAnalysisEnhanced } = await import('./tools/swot.js');
+      return swotAnalysisEnhanced(args, ctx);
+    },
   },
   
   premortem_analysis: {
@@ -617,7 +629,7 @@ for (const tool of getLlmRewriteTools()) {
 const server = new Server(
   {
     name: 'thinking-tools-mcp',
-    version: '1.8.4',
+    version: '1.9.0',
   },
   {
     capabilities: {

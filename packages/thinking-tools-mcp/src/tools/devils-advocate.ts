@@ -1,12 +1,18 @@
 /**
  * Devil's Advocate Tool
  * Challenges assumptions and finds flaws in plans, ideas, or arguments
+ * Enhanced with context search to find relevant code/docs
  */
+
+import { ServerContext } from '../lib/context.js';
+import { withContext, formatWithContext } from '../lib/context-enhancer.js';
 
 export interface DevilsAdvocateInput {
   context: string;
   goal?: string;
   depth?: 'quick' | 'deep';
+  useContext?: boolean;
+  contextQuery?: string;
 }
 
 export interface DevilsAdvocateOutput {
@@ -18,6 +24,9 @@ export interface DevilsAdvocateOutput {
   reasoning: string;
 }
 
+/**
+ * Core devils advocate logic (sync)
+ */
 export function devilsAdvocate(input: DevilsAdvocateInput): DevilsAdvocateOutput {
   const { context, goal, depth = 'quick' } = input;
 
@@ -189,7 +198,7 @@ export function devilsAdvocate(input: DevilsAdvocateInput): DevilsAdvocateOutput
   }
   
   const confidence = challenges.length > 3 ? 0.85 : 0.65;
-  
+
   const reasoning = `Analyzed context for common pitfalls in: ${
     lowerContext.includes('migrate') ? 'migrations, ' : ''
   }${
@@ -199,7 +208,7 @@ export function devilsAdvocate(input: DevilsAdvocateInput): DevilsAdvocateOutput
   }${
     lowerContext.includes('auth') ? 'security, ' : ''
   }technology decisions, and team dynamics. Found ${challenges.length} challenges, ${risks.length} risks.`;
-  
+
   return {
     challenges,
     risks,
@@ -209,4 +218,12 @@ export function devilsAdvocate(input: DevilsAdvocateInput): DevilsAdvocateOutput
     reasoning
   };
 }
+
+/**
+ * Enhanced version with context search
+ */
+export const devilsAdvocateEnhanced = withContext(
+  devilsAdvocate,
+  (input) => `${input.context} ${input.goal || ''}`.slice(0, 200)
+);
 
