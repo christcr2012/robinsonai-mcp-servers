@@ -1,8 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 import { Chunk, Embedding, IndexStats } from './types.js';
+import { resolveWorkspaceRoot } from '../lib/workspace.js';
 
-const root = process.env.CTX_ROOT || '.robinson/context';
+// Resolve paths relative to workspace root, not process.cwd()
+function getContextRoot(): string {
+  if (process.env.CTX_ROOT) {
+    return path.isAbsolute(process.env.CTX_ROOT)
+      ? process.env.CTX_ROOT
+      : path.join(resolveWorkspaceRoot(), process.env.CTX_ROOT);
+  }
+  return path.join(resolveWorkspaceRoot(), '.robinson/context');
+}
+
+const root = getContextRoot();
 
 const P = {
   chunks: path.join(root, 'chunks.jsonl'),
