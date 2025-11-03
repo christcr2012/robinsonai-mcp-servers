@@ -60,25 +60,98 @@ function sha(txt: string): string {
   return crypto.createHash('sha1').update(txt).digest('hex');
 }
 
-function chunkText(text: string): { start: number; end: number; text: string }[] {
-  const lines = text.split(/\r?\n/);
-  const out: { start: number; end: number; text: string }[] = [];
-  let buf: string[] = [];
-  let start = 1;
-  
-  for (let i = 0; i < lines.length; i++) {
-    const ln = lines[i];
-    buf.push(ln);
-    const cur = buf.join('\n');
-    
-    if (cur.length >= MAXCH || i === lines.length - 1) {
-      out.push({ start, end: i + 1, text: cur });
-      buf = [];
-      start = i + 2;
+/**
+ * Code-aware chunking that keeps method/function bodies intact
+ *
+ * For code files: splits at top-level declarations, keeping implementations together
+ * For markdown/docs: splits on paragraphs with windowing for long sections
+ */
+function chunkByHeuristics(filePath: string, text: string): { start: number; end: number; text: string }[] {
+  const ext = path.extname(filePath).toLowerCase();
+  const isCode = ['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.java', '.rs'].includes(ext);
+
+  if (isCode) {
+    // Keep function/method bodies intact (fast heuristic)
+    const lines = text.split(/\r?\n/);
+    const out: { start: number; end: number; text: string }[] = [];
+    let buf: string[] = [];
+    let bufStart = 1;
+    let depth = 0;
+
+    const flush = () => {
+      if (buf.length > 0) {
+        out.push({
+          start: bufStart,
+          end: bufStart + buf.length - 1,
+          text: buf.join('\n')
+        });
+        buf = [];
+      }
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+      const ln = lines[i];
+
+      // Track brace depth
+      if (/{/.test(ln)) depth++;
+      if (/}/.test(ln)) depth = Math.max(0, depth - 1);
+
+      // Start new buffer if this is the first line
+      if (buf.length === 0) {
+        bufStart = i + 1;
+      }
+
+      buf.push(ln);
+
+      // Split at end of top-level declarations or every ~120 lines
+      const isTopLevelDecl = depth === 0 && /^\s*(export\s+)?(async\s+)?(function|class|const|let|interface|type)\b/.test(ln);
+      const isTooLong = buf.length >= 120;
+
+      if ((isTopLevelDecl || isTooLong) && buf.length > 0) {
+        flush();
+      }
     }
+
+    // Flush remaining
+    flush();
+
+    return out.filter(chunk => chunk.text.trim().length > 0);
   }
-  
-  return out;
+
+  // Markdown / everything else – paragraph / windowed
+  const paragraphs = text.split(/\n{2,}/);
+  const out: { start: number; end: number; text: string }[] = [];
+  let lineNum = 1;
+
+  for (const para of paragraphs) {
+    const paraLines = para.split(/\r?\n/).length;
+
+    if (para.length > 1400) {
+      // Split long paragraphs into ~1200 char windows
+      const windows = para.match(/[\s\S]{1,1200}/g) || [];
+      for (const win of windows) {
+        const winLines = win.split(/\r?\n/).length;
+        out.push({
+          start: lineNum,
+          end: lineNum + winLines - 1,
+          text: win
+        });
+        lineNum += winLines;
+      }
+    } else if (para.trim().length > 0) {
+      out.push({
+        start: lineNum,
+        end: lineNum + paraLines - 1,
+        text: para
+      });
+      lineNum += paraLines;
+    }
+
+    // Account for paragraph separator
+    lineNum += 2;
+  }
+
+  return out.filter(chunk => chunk.text.trim().length > 0);
 }
 
 export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chunks: number; embeddings: number; files: number; error?: string }> {
@@ -116,7 +189,7 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
         const stat = fs.statSync(p);
         const sh = sha(rel + ':' + stat.mtimeMs + ':' + text.length);
 
-        const chunks = chunkText(text).map((c) => ({
+        const chunks = chunkByHeuristics(rel, text).map((c) => ({
           id: sha(rel + ':' + c.start + ':' + c.end + ':' + sh),
           source: 'repo' as const,
           path: rel,
@@ -160,6 +233,13 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
         errors++;
         continue;
       }
+    }
+
+    // Fail hard if we found files but created 0 chunks
+    if (files.length > 0 && n === 0) {
+      const errorMsg = `Indexing created 0 chunks from ${files.length} files. Check filters, read permissions, or binary files incorrectly included.`;
+      console.error(`❌ ${errorMsg}`);
+      throw new Error(errorMsg);
     }
 
     const stats: IndexStats = {

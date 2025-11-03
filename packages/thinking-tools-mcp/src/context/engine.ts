@@ -18,6 +18,7 @@ import {
   type SymbolIndex
 } from './symbol-index.js';
 import type { Chunk, IndexStats, Hit } from './types.js';
+import { rerankCodeFirst, type Candidate } from './rankers/code_first.js';
 
 // Import graph type
 type ImportGraph = Array<{ from: string; to: string }>;
@@ -92,20 +93,46 @@ export class ContextEngine {
   }
 
   /**
-   * Hybrid search across repository
-   * Combines vector similarity + BM25
+   * Hybrid search across repository with code-first reranking
+   *
+   * Pipeline:
+   * 1. Hybrid BM25 + vector search (shortlist top 250)
+   * 2. Code-first reranking with priors and RRF fusion
+   * 3. Return top k results
    */
   async search(query: string, k: number = 12): Promise<any[]> {
     await this.ensureIndexed();
 
-    // Use built-in hybrid search
-    const results: Hit[] = await hybridQuery(query, k);
+    // Get larger shortlist for reranking (250 candidates)
+    const shortlistSize = Math.max(250, k * 20);
+    const results: Hit[] = await hybridQuery(query, shortlistSize);
 
-    return results.map((r: Hit) => ({
+    if (results.length === 0) {
+      return [];
+    }
+
+    // Get query embedding for reranker
+    const { embedBatch } = await import('./embedding.js');
+    const [qVec] = await embedBatch([query]);
+
+    // Convert to reranker format
+    const candidates: Candidate[] = results.map(r => ({
       uri: r.chunk.uri,
       title: r.chunk.title || r.chunk.uri,
-      snippet: r.chunk.text?.substring(0, 200) || '',
-      score: r.score || 0
+      text: r.chunk.text,
+      vec: r.chunk.vec, // Include chunk vector if available
+      lexScore: r.score // Pass hybrid score as lexical score
+    }));
+
+    // Rerank with code-first heuristics
+    const reranked = rerankCodeFirst(query, candidates, qVec).slice(0, k);
+
+    // Format results
+    return reranked.map(r => ({
+      uri: r.uri,
+      title: r.title,
+      snippet: r.text.substring(0, 480), // Longer snippets for better context
+      score: r.score
     }));
   }
 

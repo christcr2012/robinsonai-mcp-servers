@@ -12,6 +12,7 @@ export interface Chunk {
   text: string;
   tokens?: number;
   tags?: string[];
+  vec?: number[];  // Optional embedding vector (for reranking)
 }
 
 export interface Embedding {

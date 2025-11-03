@@ -49,7 +49,11 @@ export async function hybridQuery(query: string, topK = 8): Promise<Hit[]> {
       const v = embMap.get(chunk.id);
       let s = v ? cosine(qvec, v) : 0;
       s = 0.80 * s + 0.20 * lexicalRank(query, chunk.text);
-      scored.push({ score: s, chunk, id: chunk.id });
+
+      // Attach vector to chunk for reranking
+      const chunkWithVec = v ? { ...chunk, vec: v } : chunk;
+
+      scored.push({ score: s, chunk: chunkWithVec, id: chunk.id });
     }
   } catch (error: any) {
     console.error('[hybridQuery] Error loading chunks:', error);
