@@ -201,16 +201,22 @@ export async function indexRepo(
     // If force flag is set, process ALL files (full reindex)
     let changed: string[];
     let removed: string[];
+    let added: string[];
+    let modified: string[];
+    let ch: any;
 
     if (opts.force) {
       console.log(`🔄 Force flag set - processing ALL ${allFiles.length} files`);
       changed = allFiles;
       removed = [];
+      added = [];
+      modified = allFiles; // Treat all as modified for force reindex
+      ch = { head: null };
     } else {
       // Detect changes via git
-      const ch = await gitChangesSince(repoRoot, (meta as any)?.head);
-      let added = ch.added.concat(ch.untracked);
-      let modified = ch.modified;
+      ch = await gitChangesSince(repoRoot, (meta as any)?.head);
+      added = ch.added.concat(ch.untracked);
+      modified = ch.modified;
       let deleted = ch.deleted;
 
       // Fallback to mtime if git didn't detect changes
