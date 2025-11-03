@@ -23,6 +23,8 @@ process.on('uncaughtException', e => console.error('[uncaughtException]', e));
 import { contextIndexRepoTool, contextIndexRepoDescriptor } from './tools/context_index_repo.js';
 import { contextQueryTool, contextQueryDescriptor } from './tools/context_query.js';
 import { contextStatsTool, contextStatsDescriptor } from './tools/context_stats.js';
+import { ensureFreshIndexTool, ensureFreshIndexDescriptor } from './tools/ensure_fresh_index.js';
+import { contextIndexFullTool, contextIndexFullDescriptor } from './tools/context_index_full.js';
 
 // Import all other tool modules (keeping existing imports)
 import { devilsAdvocate } from './tools/devils-advocate.js';
@@ -99,6 +101,14 @@ const registry: Record<string, Entry> = {
   [contextIndexRepoDescriptor.name]: {
     ...contextIndexRepoDescriptor,
     handler: contextIndexRepoTool,
+  },
+  [ensureFreshIndexDescriptor.name]: {
+    ...ensureFreshIndexDescriptor,
+    handler: ensureFreshIndexTool,
+  },
+  [contextIndexFullDescriptor.name]: {
+    ...contextIndexFullDescriptor,
+    handler: contextIndexFullTool,
   },
   [contextQueryDescriptor.name]: {
     ...contextQueryDescriptor,

@@ -4,12 +4,23 @@ import path from 'path';
 import crypto from 'crypto';
 import { execSync } from 'child_process';
 import { embedBatch } from './embedding.js';
-import { ensureDirs, saveChunk, saveEmbedding, saveStats, saveDocs, type StoredDoc } from './store.js';
+import {
+  ensureDirs, saveChunk, saveEmbedding, saveStats, saveDocs,
+  loadFileMap, saveFileMap, deleteChunksForFile,
+  getCachedVec, putCachedVec, sha, getStats,
+  type StoredDoc
+} from './store.js';
 import { Chunk, IndexStats } from './types.js';
 import { extractDocRecord } from './docs/extract.js';
 import { extractSymbols } from './symbols.js';
+import { gitChangesSince, fsDiffFallback } from './git/changes.js';
 
 const MAXCH = parseInt(process.env.CTX_MAX_CHARS_PER_CHUNK || '1200', 10);
+
+// Incremental indexing configuration
+const TTL_MIN = Number(process.env.RCE_INDEX_TTL_MINUTES ?? 20);
+const MAX_CHANGED = Number(process.env.RCE_MAX_CHANGED_PER_RUN ?? 800);
+const EMBED_MODEL = process.env.RCE_EMBED_MODEL || process.env.EMBED_MODEL || 'nomic-embed-text';
 
 /**
  * Resolve workspace root (MCP-aware)
@@ -36,31 +47,32 @@ function resolveWorkspaceRoot(): string {
 const rootRepo = resolveWorkspaceRoot();
 
 const INCLUDE = ['**/*.{ts,tsx,js,jsx,md,mdx,json,yml,yaml,sql,py,sh,ps1}'];
-const EXCLUDE = [
-  '**/node_modules/**',
-  '**/.git/**',
-  '**/dist/**',
-  '**/build/**',
-  '**/.next/**',
-  '**/.turbo/**',
-  '**/.venv*/**',
-  '**/venv/**',
-  '**/__pycache__/**',
-  '**/.pytest_cache/**',
-  '**/site-packages/**',
-  '**/.augment/**',
-  '**/.robinson/**',
-  '**/.backups/**',
-  '**/.training/**',
-  '**/sandbox/**',
-  '**/*.db',
-  '**/*.db-shm',
-  '**/*.db-wal'
-];
+const EXCLUDE = process.env.RCE_IGNORE
+  ? process.env.RCE_IGNORE.split(',').map(s => s.trim())
+  : [
+      '**/node_modules/**',
+      '**/.git/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.next/**',
+      '**/.turbo/**',
+      '**/.venv*/**',
+      '**/venv/**',
+      '**/__pycache__/**',
+      '**/.pytest_cache/**',
+      '**/site-packages/**',
+      '**/.augment/**',
+      '**/.robinson/**',
+      '**/.backups/**',
+      '**/.training/**',
+      '**/sandbox/**',
+      '**/*.db',
+      '**/*.db-shm',
+      '**/*.db-wal',
+      '**/.rce_index/**'
+    ];
 
-function sha(txt: string): string {
-  return crypto.createHash('sha1').update(txt).digest('hex');
-}
+// sha() is now imported from store.js
 
 /**
  * Code-aware chunking that keeps method/function bodies intact
@@ -134,31 +146,89 @@ function chunkByHeuristics(filePath: string, text: string): { start: number; end
   return out.filter(chunk => chunk.text.trim().length > 0);
 }
 
-export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chunks: number; embeddings: number; files: number; error?: string }> {
+export async function indexRepo(
+  repoRoot = rootRepo,
+  opts: { quick?: boolean; force?: boolean } = {}
+): Promise<{
+  ok: boolean;
+  skipped?: boolean;
+  reason?: string;
+  chunks: number;
+  embeddings: number;
+  files: number;
+  changed?: number;
+  removed?: number;
+  tookMs?: number;
+  error?: string;
+}> {
   try {
-    console.log(`[indexRepo] Starting indexing for: ${repoRoot}`);
+    const start = Date.now();
+    console.log(`[indexRepo] Starting ${opts.quick ? 'incremental' : 'full'} indexing for: ${repoRoot}`);
     ensureDirs();
 
-    const files = await fg(INCLUDE, {
+    const meta = getStats();
+    const filesMap = loadFileMap();
+
+    // TTL gate (skip if index is fresh and quick mode)
+    if (opts.quick && !opts.force && meta?.updatedAt) {
+      const age = Date.now() - new Date(meta.updatedAt).getTime();
+      if (age < TTL_MIN * 60 * 1000) {
+        console.log(`⏭️ Index is fresh (${Math.round(age / 1000)}s old), skipping`);
+        return {
+          ok: true,
+          skipped: true,
+          reason: 'ttl',
+          chunks: meta.chunks || 0,
+          embeddings: meta.embeddings || 0,
+          files: Object.keys(filesMap).length
+        };
+      }
+    }
+
+    // List all candidate files
+    const allFiles = await fg(INCLUDE, {
       cwd: repoRoot,
       ignore: EXCLUDE,
       dot: true
     });
 
-    console.log(`📁 Found ${files.length} files to index`);
+    console.log(`📁 Found ${allFiles.length} total files`);
 
-    if (files.length === 0) {
-      console.warn(`⚠️ No files found to index in ${repoRoot}`);
-      return { ok: false, chunks: 0, embeddings: 0, files: 0, error: 'No files found' };
+    // Detect changes via git
+    const ch = await gitChangesSince(repoRoot, (meta as any)?.head);
+    let added = ch.added.concat(ch.untracked);
+    let modified = ch.modified;
+    let deleted = ch.deleted;
+
+    // Fallback to mtime if git didn't detect changes
+    if (!ch.head || (!added.length && !modified.length && !deleted.length)) {
+      console.log(`📊 Using mtime fallback for change detection`);
+      const diff = await fsDiffFallback(repoRoot, allFiles, filesMap);
+      added = diff.added;
+      modified = diff.modified;
+      deleted = diff.deleted;
+    }
+
+    // Cap changed files to keep responses snappy
+    const changed = Array.from(new Set([...added, ...modified])).slice(0, MAX_CHANGED);
+    const removed = deleted;
+
+    console.log(`🔄 Changes: +${added.length} ~${modified.length} -${removed.length} (processing ${changed.length})`);
+
+    // Apply deletions
+    for (const f of removed) {
+      delete filesMap[f];
+      deleteChunksForFile(f);
     }
 
     let n = 0, e = 0;
     let errors = 0;
     const docsBatch: StoredDoc[] = [];
 
-    for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+    // Process changed files only
+    for (let fileIdx = 0; fileIdx < changed.length; fileIdx++) {
       try {
-        const rel = files[fileIdx];
+        const rel = changed[fileIdx];
         const p = path.join(repoRoot, rel);
 
         if (!fs.existsSync(p)) {
@@ -168,63 +238,87 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
 
         const text = fs.readFileSync(p, 'utf8');
         const stat = fs.statSync(p);
-        const sh = sha(rel + ':' + stat.mtimeMs + ':' + text.length);
-
-        // Extract documentation records for .md/.mdx/.rst/.txt files
         const ext = path.extname(rel).toLowerCase();
         const isDoc = ['.md', '.mdx', '.rst', '.txt'].includes(ext);
+
+        // Delete old chunks for this file (if modified)
+        if (modified.includes(rel)) {
+          deleteChunksForFile(rel);
+        }
+
+        // Extract documentation records
         if (isDoc) {
           const docRec = extractDocRecord(rel, text);
           docsBatch.push(docRec);
-          // Continue to chunk docs for searchability
         }
 
-        const chunks = chunkByHeuristics(rel, text).map((c) => ({
-          id: sha(rel + ':' + c.start + ':' + c.end + ':' + sh),
-          source: 'repo' as const,
-          path: rel,
-          uri: rel,  // Alias for path
-          title: rel,  // Use path as title
-          sha: sh,
-          start: c.start,
-          end: c.end,
-          text: c.text,
-          meta: {
-            symbols: extractSymbols(ext, c.text),
-            lang: ext,
-            lines: c.text.split(/\r?\n/).length
-          }
-        } as Chunk));
+        // Chunk the file
+        const parts = chunkByHeuristics(rel, text);
+        const chunkIds: string[] = [];
 
-        if (chunks.length === 0) {
-          console.warn(`⚠️ No chunks created for ${rel}`);
-          continue;
-        }
+        console.log(`⚡ [${fileIdx + 1}/${changed.length}] Processing ${rel} (${parts.length} chunks)...`);
 
-        console.log(`⚡ [${fileIdx + 1}/${files.length}] Embedding ${rel} (${chunks.length} chunks)...`);
+        for (const part of parts) {
+          const contentSha = sha(part.text);
 
-        try {
-          const embs = await embedBatch(chunks.map(c => c.text));
+          // Try to reuse cached embedding
+          let vec = getCachedVec(EMBED_MODEL, contentSha);
 
-          if (!embs || embs.length !== chunks.length) {
-            console.error(`❌ Embedding mismatch for ${rel}: expected ${chunks.length}, got ${embs?.length || 0}`);
-            errors++;
-            continue;
-          }
-
-          for (let i = 0; i < chunks.length; i++) {
-            saveChunk(chunks[i]);
-            saveEmbedding({ id: chunks[i].id, vec: embs[i] });
-            n++;
+          if (!vec) {
+            // Need to embed this chunk
+            try {
+              const embs = await embedBatch([part.text]);
+              if (embs && embs.length > 0) {
+                vec = embs[0];
+                // Cache for future use
+                putCachedVec(EMBED_MODEL, contentSha, vec);
+                e++;
+              }
+            } catch (embedError: any) {
+              console.error(`❌ Embedding failed for ${rel}:`, embedError.message);
+              errors++;
+            }
+          } else {
+            // Reused cached embedding
             e++;
           }
-        } catch (embedError: any) {
-          console.error(`❌ Embedding failed for ${rel}:`, embedError.message);
-          errors++;
-          continue;
+
+          const chunk: Chunk = {
+            id: `${contentSha}:${parts.indexOf(part)}`,
+            source: 'repo' as const,
+            path: rel,
+            uri: rel,
+            title: path.basename(rel),
+            sha: contentSha,
+            start: part.start,
+            end: part.end,
+            text: part.text,
+            vec,
+            meta: isDoc ? undefined : {
+              symbols: extractSymbols(ext, part.text),
+              lang: ext,
+              lines: part.text.split(/\r?\n/).length
+            }
+          };
+
+          saveChunk(chunk);
+          if (vec) {
+            saveEmbedding({ id: chunk.id, vec });
+          }
+          chunkIds.push(chunk.id);
+          n++;
         }
+
+        // Update file map
+        filesMap[rel] = {
+          mtimeMs: stat.mtimeMs,
+          size: stat.size,
+          contentSha: sha(text),
+          chunkIds
+        };
+
       } catch (fileError: any) {
-        console.error(`❌ Error processing file ${files[fileIdx]}:`, fileError.message);
+        console.error(`❌ Error processing file ${changed[fileIdx]}:`, fileError.message);
         errors++;
         continue;
       }
@@ -236,30 +330,42 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
       console.log(`📄 Extracted ${docsBatch.length} documentation records`);
     }
 
-    // Fail hard if we found files but created 0 chunks
-    if (files.length > 0 && n === 0) {
-      const errorMsg = `Indexing created 0 chunks from ${files.length} files. Check filters, read permissions, or binary files incorrectly included.`;
-      console.error(`❌ ${errorMsg}`);
-      throw new Error(errorMsg);
-    }
+    // Save updated file map
+    saveFileMap(filesMap);
 
+    // Update stats
     const stats: IndexStats = {
       chunks: n,
       embeddings: e,
-      vectors: e,  // Same as embeddings
-      sources: { repo: n },
+      vectors: e,
+      sources: { repo: Object.keys(filesMap).length },
       mode: process.env.EMBED_PROVIDER || 'ollama',
-      model: process.env.EMBED_MODEL || 'nomic-embed-text',
-      dimensions: 768,  // Default for nomic-embed-text
-      totalCost: 0,  // Free with Ollama
-      indexedAt: new Date().toISOString(),
+      model: EMBED_MODEL,
+      dimensions: 768,
+      totalCost: 0,
+      indexedAt: meta?.indexedAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
-    saveStats(stats);
-    console.log(`✅ Indexed ${n} chunks with ${e} embeddings, ${docsBatch.length} docs (${errors} errors)`);
+    // Add git head to stats
+    if (ch.head) {
+      (stats as any).head = ch.head;
+    }
 
-    return { ok: true, chunks: n, embeddings: e, files: files.length };
+    saveStats(stats);
+
+    const tookMs = Date.now() - start;
+    console.log(`✅ Incremental index complete: ${n} chunks, ${e} embeddings, ${docsBatch.length} docs (${changed.length} changed, ${removed.length} removed, ${errors} errors) in ${tookMs}ms`);
+
+    return {
+      ok: true,
+      chunks: n,
+      embeddings: e,
+      files: Object.keys(filesMap).length,
+      changed: changed.length,
+      removed: removed.length,
+      tookMs
+    };
   } catch (error: any) {
     console.error(`❌ Fatal indexing error:`, error.message);
     console.error(error.stack);
