@@ -118,7 +118,48 @@ export async function generateCodeAndTests(
 
     const result = parseCoderResponse(llmResult.text);
     result.cost = llmResult.cost || 0;
-    console.log(`[Synthesize] Success! Cost: $${llmResult.cost?.toFixed(4) || '0.0000'}`);
+
+    // Validate that tests were generated
+    if (!result.tests || result.tests.length === 0) {
+      console.warn('[Synthesize] No tests generated! Generating tests separately...');
+
+      // Generate tests using a separate call
+      const testPrompt = `Generate comprehensive tests for this code:
+
+FILES:
+${result.files.map(f => `${f.path}:\n${f.content}`).join('\n\n')}
+
+SPECIFICATION:
+${spec}
+
+Return ONLY valid JSON:
+{
+  "tests": [
+    {"path": "src/__tests__/example.test.ts", "content": "...full test content..."}
+  ]
+}
+
+Tests must cover:
+- Basic functionality (happy path)
+- Edge cases (empty, null, undefined, large values)
+- Error cases (invalid input, exceptions)
+
+Use @jest/globals for imports. Make tests independent and deterministic.`;
+
+      const testLlmResult = await llmGenerate({
+        provider,
+        model,
+        prompt: testPrompt,
+        format: 'json',
+        timeoutMs: provider === 'ollama' ? 120000 : 30000,
+      });
+
+      const testResult = JSON.parse(testLlmResult.text);
+      result.tests = testResult.tests || [];
+      result.cost += testLlmResult.cost || 0;
+    }
+
+    console.log(`[Synthesize] Success! Files: ${result.files.length}, Tests: ${result.tests.length}, Cost: $${result.cost?.toFixed(4) || '0.0000'}`);
     return result;
   } catch (error) {
     // If using Ollama and primary model fails, try fallback
