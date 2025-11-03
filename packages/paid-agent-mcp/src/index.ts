@@ -1862,7 +1862,7 @@ async function handleExecuteWithQualityGates(args: any) {
             score: result.score,
             attempts: result.attempts,
             verdict: result.verdict,
-            report: result.report,
+            execReport: result.execReport,
             cost: {
               total: actualCost,
               currency: 'USD',
