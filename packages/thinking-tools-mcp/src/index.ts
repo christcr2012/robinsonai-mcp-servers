@@ -76,6 +76,20 @@ import { getValidationTools } from './tools/validate_artifacts.js';
 // Import LLM Rewrite Tools
 import { getLlmRewriteTools } from './tools/llm_rewrite.js';
 
+// Import Context Integration Tools
+import {
+  ctxImportEvidenceTool,
+  ctxImportEvidenceDescriptor,
+} from './tools/ctx_import_evidence.js';
+import {
+  ctxMergeConfigTool,
+  ctxMergeConfigDescriptor,
+} from './tools/ctx_merge_config.js';
+import {
+  context7AdapterTool,
+  context7AdapterDescriptor,
+} from './tools/context7_adapter.js';
+
 class ThinkingToolsMCP {
   private server: Server;
 
@@ -541,6 +555,21 @@ class ThinkingToolsMCP {
           description: tool.description,
           inputSchema: tool.inputSchema,
         })),
+        {
+          name: ctxImportEvidenceDescriptor.name,
+          description: ctxImportEvidenceDescriptor.description,
+          inputSchema: ctxImportEvidenceDescriptor.inputSchema,
+        },
+        {
+          name: ctxMergeConfigDescriptor.name,
+          description: ctxMergeConfigDescriptor.description,
+          inputSchema: ctxMergeConfigDescriptor.inputSchema,
+        },
+        {
+          name: context7AdapterDescriptor.name,
+          description: context7AdapterDescriptor.description,
+          inputSchema: context7AdapterDescriptor.inputSchema,
+        },
       ],
     }));
 
@@ -740,6 +769,15 @@ class ThinkingToolsMCP {
             } else {
               throw new Error(`LLM rewrite tool not found: ${name}`);
             }
+            break;
+          case 'ctx_import_evidence':
+            result = await ctxImportEvidenceTool(args as any, ctx);
+            break;
+          case 'ctx_merge_config':
+            result = await ctxMergeConfigTool(args as any, ctx);
+            break;
+          case 'context7_adapter':
+            result = await context7AdapterTool(args as any, ctx);
             break;
           default:
             throw new Error(`Unknown tool: ${name}`);
