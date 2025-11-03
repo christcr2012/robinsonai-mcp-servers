@@ -4,8 +4,9 @@ import path from 'path';
 import crypto from 'crypto';
 import { execSync } from 'child_process';
 import { embedBatch } from './embedding.js';
-import { ensureDirs, saveChunk, saveEmbedding, saveStats } from './store.js';
+import { ensureDirs, saveChunk, saveEmbedding, saveStats, saveDocs, type StoredDoc } from './store.js';
 import { Chunk, IndexStats } from './types.js';
+import { extractDocRecord } from './docs/extract.js';
 
 const MAXCH = parseInt(process.env.CTX_MAX_CHARS_PER_CHUNK || '1200', 10);
 
@@ -174,6 +175,7 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
 
     let n = 0, e = 0;
     let errors = 0;
+    const docsBatch: StoredDoc[] = [];
 
     for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
       try {
@@ -188,6 +190,15 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
         const text = fs.readFileSync(p, 'utf8');
         const stat = fs.statSync(p);
         const sh = sha(rel + ':' + stat.mtimeMs + ':' + text.length);
+
+        // Extract documentation records for .md/.mdx/.rst/.txt files
+        const ext = path.extname(rel).toLowerCase();
+        const isDoc = ['.md', '.mdx', '.rst', '.txt'].includes(ext);
+        if (isDoc) {
+          const docRec = extractDocRecord(rel, text);
+          docsBatch.push(docRec);
+          // Continue to chunk docs for searchability
+        }
 
         const chunks = chunkByHeuristics(rel, text).map((c) => ({
           id: sha(rel + ':' + c.start + ':' + c.end + ':' + sh),
@@ -235,6 +246,12 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
       }
     }
 
+    // Save docs batch
+    if (docsBatch.length > 0) {
+      saveDocs(docsBatch);
+      console.log(`📄 Extracted ${docsBatch.length} documentation records`);
+    }
+
     // Fail hard if we found files but created 0 chunks
     if (files.length > 0 && n === 0) {
       const errorMsg = `Indexing created 0 chunks from ${files.length} files. Check filters, read permissions, or binary files incorrectly included.`;
@@ -256,7 +273,7 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
     };
 
     saveStats(stats);
-    console.log(`✅ Indexed ${n} chunks with ${e} embeddings (${errors} errors)`);
+    console.log(`✅ Indexed ${n} chunks with ${e} embeddings, ${docsBatch.length} docs (${errors} errors)`);
 
     return { ok: true, chunks: n, embeddings: e, files: files.length };
   } catch (error: any) {

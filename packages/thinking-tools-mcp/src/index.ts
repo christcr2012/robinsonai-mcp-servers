@@ -79,6 +79,13 @@ import { getPaths } from './context/store.js';
 import { ddg, ingestUrls } from './context/web.js';
 import { summarizeDiff } from './context/diff.js';
 
+// Documentation intelligence tools
+import { docsFindTool, docsFindDescriptor } from './tools/docs_find.js';
+import { docsAuditTool, docsAuditDescriptor } from './tools/docs_audit_repo.js';
+import { docsDupesTool, docsDupesDescriptor } from './tools/docs_duplicates.js';
+import { docsMarkDeprecatedTool, docsMarkDeprecatedDescriptor } from './tools/docs_mark_deprecated.js';
+import { docsGraphTool, docsGraphDescriptor } from './tools/docs_graph.js';
+
 // Tool registry entry type
 type Entry = {
   description: string;
@@ -114,6 +121,28 @@ const registry: Record<string, Entry> = {
   [context7AdapterDescriptor.name]: {
     ...context7AdapterDescriptor,
     handler: context7AdapterTool,
+  },
+
+  // Documentation intelligence tools
+  [docsFindDescriptor.name]: {
+    ...docsFindDescriptor,
+    handler: docsFindTool,
+  },
+  [docsAuditDescriptor.name]: {
+    ...docsAuditDescriptor,
+    handler: docsAuditTool,
+  },
+  [docsDupesDescriptor.name]: {
+    ...docsDupesDescriptor,
+    handler: docsDupesTool,
+  },
+  [docsMarkDeprecatedDescriptor.name]: {
+    ...docsMarkDeprecatedDescriptor,
+    handler: docsMarkDeprecatedTool,
+  },
+  [docsGraphDescriptor.name]: {
+    ...docsGraphDescriptor,
+    handler: docsGraphTool,
   },
 
   // Healthcheck

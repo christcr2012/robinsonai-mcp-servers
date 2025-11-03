@@ -19,6 +19,8 @@ import {
 } from './symbol-index.js';
 import type { Chunk, IndexStats, Hit } from './types.js';
 import { rerankCodeFirst, type Candidate } from './rankers/code_first.js';
+import { docHints, rerankDocs } from './rankers/doc_first.js';
+import { loadDocs } from './store.js';
 
 // Import graph type
 type ImportGraph = Array<{ from: string; to: string }>;
@@ -93,16 +95,36 @@ export class ContextEngine {
   }
 
   /**
-   * Hybrid search across repository with code-first reranking
+   * Hybrid search across repository with intelligent reranking
    *
    * Pipeline:
-   * 1. Hybrid BM25 + vector search (shortlist top 250)
-   * 2. Code-first reranking with priors and RRF fusion
-   * 3. Return top k results
+   * 1. Detect query intent (docs vs code)
+   * 2. If docs query: use doc-first reranker on doc records
+   * 3. If code query: hybrid BM25 + vector search → code-first reranking
+   * 4. Return top k results
    */
   async search(query: string, k: number = 12): Promise<any[]> {
     await this.ensureIndexed();
 
+    // Detect query intent
+    const { wantsDocs } = docHints(query);
+
+    // Doc-first path: search documentation records
+    if (wantsDocs) {
+      const docs = loadDocs();
+      const top = rerankDocs(query, docs, k * 2); // list more docs
+
+      // Return doc-shaped hits
+      return top.slice(0, k).map(d => ({
+        uri: d.uri,
+        title: `${d.type.toUpperCase()}: ${d.title}`,
+        snippet: d.summary ?? '',
+        score: 1,
+        meta: { type: d.type, status: d.status, date: d.date, tasks: d.tasks?.length, links: d.links?.length }
+      }));
+    }
+
+    // Code-first path: hybrid search with code-first reranking
     // Get larger shortlist for reranking (250 candidates)
     const shortlistSize = Math.max(250, k * 20);
     const results: Hit[] = await hybridQuery(query, shortlistSize);

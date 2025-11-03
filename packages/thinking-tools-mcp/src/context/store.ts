@@ -3,6 +3,9 @@ import path from 'path';
 import { Chunk, Embedding, IndexStats } from './types.js';
 import { resolveWorkspaceRoot } from '../lib/workspace.js';
 
+// Import doc types
+export type StoredDoc = import('./docs/types.js').DocRecord;
+
 // Resolve paths relative to workspace root, not process.cwd()
 function getContextRoot(): string {
   if (process.env.CTX_ROOT) {
@@ -18,7 +21,8 @@ const root = getContextRoot();
 const P = {
   chunks: path.join(root, 'chunks.jsonl'),
   embeds: path.join(root, 'embeddings.jsonl'),
-  stats: path.join(root, 'stats.json')
+  stats: path.join(root, 'stats.json'),
+  docs: path.join(root, 'docs.jsonl')
 };
 
 export function ensureDirs() {
@@ -76,5 +80,16 @@ export function getStats(): IndexStats | null {
 
 export function getPaths() {
   return P;
+}
+
+// Document storage functions
+export function saveDocs(docs: StoredDoc[]) {
+  for (const d of docs) {
+    appendJSONL(P.docs, d);
+  }
+}
+
+export function loadDocs(): StoredDoc[] {
+  return Array.from(readJSONL<StoredDoc>(P.docs));
 }
 
