@@ -163,6 +163,11 @@ export async function indexRepo(
 }> {
   try {
     const start = Date.now();
+
+    // DEBUG: Write workspace root to file for inspection
+    fs.writeFileSync(path.join(repoRoot, '.robinson', 'context', 'debug-workspace-root.txt'),
+      `repoRoot: ${repoRoot}\nprocess.cwd(): ${process.cwd()}\nWORKSPACE_ROOT: ${process.env.WORKSPACE_ROOT}\nAUGMENT_WORKSPACE_ROOT: ${process.env.AUGMENT_WORKSPACE_ROOT}\n`);
+
     console.log(`[indexRepo] Starting ${opts.quick ? 'incremental' : 'full'} indexing for: ${repoRoot}`);
     ensureDirs();
 
