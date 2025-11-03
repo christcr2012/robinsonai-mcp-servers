@@ -1369,7 +1369,7 @@ Generate the modified section now:`;
         score: result.score,
         attempts: result.attempts,
         verdict: result.verdict,
-        report: result.report,
+        execReport: result.execReport,
         augmentCreditsUsed: 0,
         creditsSaved: 5000, // Saved by using FREE Ollama + quality gates
         cost: {
