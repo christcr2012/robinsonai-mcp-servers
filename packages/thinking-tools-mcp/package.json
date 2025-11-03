@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/thinking-tools-mcp",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Comprehensive Thinking Tools MCP - 24 cognitive frameworks + Context Engine with semantic search",
   "type": "module",
   "main": "dist/index.js",
@@ -44,7 +44,6 @@
     "@extractus/article-extractor": "^8.0.20",
     "@modelcontextprotocol/sdk": "^1.20.1",
     "@mozilla/readability": "^0.4.4",
-    "@robinson_ai_systems/robinsons-context-engine": "^1.2.0",
     "axios": "^1.12.2",
     "cheerio": "^1.1.2",
     "chokidar": "^3.3.1",

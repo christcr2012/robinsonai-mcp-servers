@@ -120,6 +120,8 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
           id: sha(rel + ':' + c.start + ':' + c.end + ':' + sh),
           source: 'repo' as const,
           path: rel,
+          uri: rel,  // Alias for path
+          title: rel,  // Use path as title
           sha: sh,
           start: c.start,
           end: c.end,
@@ -163,7 +165,13 @@ export async function indexRepo(repoRoot = rootRepo): Promise<{ ok: boolean; chu
     const stats: IndexStats = {
       chunks: n,
       embeddings: e,
+      vectors: e,  // Same as embeddings
       sources: { repo: n },
+      mode: process.env.EMBED_PROVIDER || 'ollama',
+      model: process.env.EMBED_MODEL || 'nomic-embed-text',
+      dimensions: 768,  // Default for nomic-embed-text
+      totalCost: 0,  // Free with Ollama
+      indexedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 

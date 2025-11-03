@@ -188,7 +188,7 @@ export function socratic(input: SocraticInput): SocraticOutput {
  * Enhanced version with context search
  */
 export const socraticQuestioningEnhanced = withContext(
-  socraticQuestioning,
+  socratic,
   (input) => `${input.topic} ${input.context || ''}`.slice(0, 200)
 );
 

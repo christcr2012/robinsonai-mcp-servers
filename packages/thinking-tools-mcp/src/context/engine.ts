@@ -1,28 +1,26 @@
 /**
  * Context Engine - Unified context management for thinking tools
- * Provides singleton access to Robinson's Context Engine + evidence store
+ * Built-in context engine with semantic search, symbol indexing, and evidence store
  */
 
-import { RobinsonsContextEngine } from '@robinson_ai_systems/robinsons-context-engine';
-
-// Re-export types
-type SymbolIndex = any;
-type ImportGraph = any;
-
-// Stub functions - these will be replaced when RCE exports are fixed
-const buildSymbolIndexForRepo = async (root: string, opts: any) => ({ symbols: [], files: [] });
-const getFileNeighborhood = (file: string, symbolIndex: any) => ({ symbols: [], imports: [], importers: [] });
-const findSymbolDefinition = (name: string, index: any) => null;
-const findCallers = () => [];
-const retrieveCodeContextForQuery = async (root: string, query: any, index: any) => ({ chunks: [] });
-const buildImportGraph = async (files: string[], root: string) => ({ edges: new Map() });
-const getImporters = (file: string, graph: any) => [];
-const getImports = (file: string, graph: any) => [];
-const getDependencyChain = (file: string, graph: any, maxDepth?: number) => new Set();
-const getDependents = (file: string, graph: any, maxDepth?: number) => new Set();
+import { indexRepo } from './indexer.js';
+import { hybridQuery } from './search.js';
+import { getStats, loadChunks } from './store.js';
 import { EvidenceStore } from './evidence.js';
 import { FileWatcher } from './watcher.js';
 import { getQueryCache } from './cache.js';
+import { buildImportGraph } from './graph.js';
+import {
+  buildSymbolIndex,
+  findSymbolDefinition,
+  findCallers,
+  getFileNeighborhood,
+  type SymbolIndex
+} from './symbol-index.js';
+import type { Chunk, IndexStats, Hit } from './types.js';
+
+// Import graph type
+type ImportGraph = Array<{ from: string; to: string }>;
 
 export class ContextEngine {
   private static byRoot = new Map<string, ContextEngine>();
@@ -37,21 +35,13 @@ export class ContextEngine {
     return this.byRoot.get(root)!;
   }
 
-  private rce: RobinsonsContextEngine;
   public evidence: EvidenceStore;
   private watcher?: FileWatcher;
   private symbolIndex: SymbolIndex | null = null;
   private importGraph: ImportGraph | null = null;
+  private indexed: boolean = false;
 
   private constructor(private root: string) {
-    // Initialize Robinson's Context Engine with intelligent model selection
-    this.rce = new RobinsonsContextEngine(root, {
-      provider: (process.env.EMBED_PROVIDER as any) || 'auto',
-      model: process.env.EMBED_MODEL,
-      preferQuality: process.env.EMBED_PREFER_QUALITY === 'true',
-      maxCostPer1M: process.env.EMBED_MAX_COST_PER_1M ? parseFloat(process.env.EMBED_MAX_COST_PER_1M) : undefined,
-    });
-
     this.evidence = new EvidenceStore(this.root);
 
     // Start file watcher if enabled
@@ -62,29 +52,39 @@ export class ContextEngine {
   }
 
   /**
-   * Ensure repository is indexed (embeddings + BM25 + symbol index + import graph)
+   * Ensure repository is indexed (embeddings + BM25 + symbols)
    */
   async ensureIndexed(): Promise<void> {
-    const stats = await this.rce.stats();
-    if (stats.chunks > 0) {
-      console.log(`[ContextEngine] Already indexed: ${stats.chunks} chunks, ${stats.vectors} vectors`);
+    if (this.indexed) {
       return;
     }
 
     try {
+      const stats = await getStats();
+      if (stats && stats.chunks > 0) {
+        console.log(`[ContextEngine] Already indexed: ${stats.chunks} chunks`);
+        this.indexed = true;
+
+        // Build symbol index if not already built
+        if (!this.symbolIndex) {
+          console.log('[ContextEngine] Building symbol index...');
+          this.symbolIndex = await buildSymbolIndex(this.root);
+          console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
+        }
+
+        return;
+      }
+
       console.log('[ContextEngine] Indexing repository...');
-      const result = await this.rce.indexRepo(this.root);
-      console.log(`[ContextEngine] ✅ Indexed: ${result.files} files, ${result.chunks} chunks, ${result.vectors} vectors`);
+      const result = await indexRepo();
+      console.log(`[ContextEngine] ✅ Indexed: ${result.files} files, ${result.chunks} chunks`);
 
       // Build symbol index
-      this.symbolIndex = await buildSymbolIndexForRepo(this.root, {
-        exts: ['.ts', '.tsx', '.js', '.jsx'],
-        maxFiles: 2000,
-        exclude: ['node_modules', 'dist', 'build', '.next', 'coverage', '__generated__'],
-      });
+      console.log('[ContextEngine] Building symbol index...');
+      this.symbolIndex = await buildSymbolIndex(this.root);
       console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
 
-      // Import graph will be built on-demand when needed
+      this.indexed = true;
     } catch (error: any) {
       console.error('[ContextEngine] Indexing failed:', error.message);
       // Don't throw - allow tools to work without full index
@@ -93,15 +93,20 @@ export class ContextEngine {
 
   /**
    * Hybrid search across repository
-   * Combines vector similarity + BM25 + symbol boosting
+   * Combines vector similarity + BM25
    */
   async search(query: string, k: number = 12): Promise<any[]> {
     await this.ensureIndexed();
 
-    // Use Robinson's Context Engine (symbol boosting applied internally if symbol index exists)
-    const results = await this.rce.search(query, k);
+    // Use built-in hybrid search
+    const results: Hit[] = await hybridQuery(query, k);
 
-    return results;
+    return results.map((r: Hit) => ({
+      uri: r.chunk.uri,
+      title: r.chunk.title || r.chunk.uri,
+      snippet: r.chunk.text?.substring(0, 200) || '',
+      score: r.score || 0
+    }));
   }
 
   /**
@@ -112,31 +117,64 @@ export class ContextEngine {
     await this.ensureIndexed();
 
     // Build import graph if not already built
-    // (This is a simplified version - full implementation would cache the graph)
-    const edges: Array<{ from: string; to: string }> = [];
+    if (!this.importGraph) {
+      console.log('[ContextEngine] Building import graph...');
+      this.importGraph = buildImportGraph(this.root);
+      console.log(`[ContextEngine] ✅ Import graph built: ${this.importGraph.length} edges`);
+    }
 
-    // TODO: Convert RCE's import graph to edge format
-    // For now, return empty array
-    return edges;
+    return this.importGraph;
   }
 
   /**
-   * Get import graph (Robinson's format)
+   * Get import graph (Robinson's format with helper methods)
    */
   async getImportGraph() {
     await this.ensureIndexed();
 
-    // Build import graph if not already built
-    if (!this.importGraph) {
-      const files: string[] = []; // TODO: Get list of files from RCE
-      this.importGraph = await buildImportGraph(files, this.root);
-    }
+    const graph = await this.getGraph();
 
     return {
-      getImporters: (file: string) => getImporters(file, this.importGraph!),
-      getImports: (file: string) => getImports(file, this.importGraph!),
-      getDependencyChain: (file: string, maxDepth?: number) => getDependencyChain(file, this.importGraph!, maxDepth),
-      getDependents: (file: string, maxDepth?: number) => getDependents(file, this.importGraph!, maxDepth),
+      getImporters: (file: string) => {
+        return graph.filter(e => e.to === file).map(e => e.from);
+      },
+      getImports: (file: string) => {
+        return graph.filter(e => e.from === file).map(e => e.to);
+      },
+      getDependencyChain: (file: string, maxDepth: number = 10) => {
+        const visited = new Set<string>();
+        const queue: Array<{ file: string; depth: number }> = [{ file, depth: 0 }];
+
+        while (queue.length > 0) {
+          const { file: current, depth } = queue.shift()!;
+          if (visited.has(current) || depth >= maxDepth) continue;
+          visited.add(current);
+
+          const imports = graph.filter(e => e.from === current).map(e => e.to);
+          for (const imp of imports) {
+            queue.push({ file: imp, depth: depth + 1 });
+          }
+        }
+
+        return visited;
+      },
+      getDependents: (file: string, maxDepth: number = 10) => {
+        const visited = new Set<string>();
+        const queue: Array<{ file: string; depth: number }> = [{ file, depth: 0 }];
+
+        while (queue.length > 0) {
+          const { file: current, depth } = queue.shift()!;
+          if (visited.has(current) || depth >= maxDepth) continue;
+          visited.add(current);
+
+          const importers = graph.filter(e => e.to === current).map(e => e.from);
+          for (const importer of importers) {
+            queue.push({ file: importer, depth: depth + 1 });
+          }
+        }
+
+        return visited;
+      },
     };
   }
 
@@ -148,7 +186,7 @@ export class ContextEngine {
     if (!this.symbolIndex) {
       throw new Error('Symbol index not built');
     }
-    return getFileNeighborhood(file, this.symbolIndex, this.importGraph);
+    return getFileNeighborhood(file, this.symbolIndex);
   }
 
   /**
@@ -170,11 +208,11 @@ export class ContextEngine {
     if (!this.symbolIndex) {
       throw new Error('Symbol index not built');
     }
-    return findCallers(functionName, this.symbolIndex);
+    return findCallers(functionName, this.symbolIndex, this.root);
   }
 
   /**
-   * Retrieve code context (delegates to FREE Agent's code-aware retrieval)
+   * Retrieve code context (search-based retrieval)
    */
   async retrieveCodeContext(query: {
     targetFile?: string;
@@ -185,29 +223,59 @@ export class ContextEngine {
   }) {
     await this.ensureIndexed();
 
-    // Ensure symbol index is built
-    if (!this.symbolIndex) {
-      throw new Error('Symbol index not built');
-    }
+    // Build search query from parameters
+    const searchTerms = [
+      query.targetFile,
+      query.targetFunction,
+      query.targetClass,
+      query.targetInterface,
+      ...(query.keywords || [])
+    ].filter(Boolean).join(' ');
 
-    return retrieveCodeContextForQuery(this.root, query, this.symbolIndex);
+    // Use search to find relevant code
+    const results = await this.search(searchTerms, 10);
+
+    // Return in expected format
+    return {
+      targetFile: query.targetFile || '',
+      similarFiles: results.map(r => r.uri),
+      relatedTests: [],
+      relatedTypes: [],
+      snippets: results.map(r => ({
+        file: r.uri,
+        content: r.snippet,
+        reason: 'Search result'
+      }))
+    };
   }
 
   /**
    * Reset index (force re-indexing)
    */
   async reset(): Promise<void> {
-    await this.rce.reset();
+    this.indexed = false;
     // Invalidate cache when index is reset
     getQueryCache().invalidate();
-    console.log('[ContextEngine] ✅ Index reset');
+    console.log('[ContextEngine] ✅ Index reset (will re-index on next search)');
   }
 
   /**
    * Get index statistics
    */
-  async stats() {
-    return this.rce.stats();
+  async stats(): Promise<IndexStats> {
+    const stats = await getStats();
+    return stats || {
+      chunks: 0,
+      embeddings: 0,
+      vectors: 0,
+      sources: {},
+      mode: 'none',
+      model: 'none',
+      dimensions: 0,
+      totalCost: 0,
+      indexedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
   }
 
   /**

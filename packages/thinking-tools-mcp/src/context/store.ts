@@ -52,6 +52,17 @@ export function saveStats(s: IndexStats) {
   writeJSON(P.stats, s);
 }
 
+export function getStats(): IndexStats | null {
+  if (!fs.existsSync(P.stats)) return null;
+  try {
+    const content = fs.readFileSync(P.stats, 'utf8');
+    return JSON.parse(content) as IndexStats;
+  } catch (error) {
+    console.error('[getStats] Error reading stats:', error);
+    return null;
+  }
+}
+
 export function getPaths() {
   return P;
 }

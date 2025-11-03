@@ -4,6 +4,8 @@ export interface Chunk {
   id: string;
   source: SourceKind;
   path: string;
+  uri: string;  // Alias for path (for compatibility)
+  title?: string;  // Optional title
   sha: string;
   start: number;
   end: number;
@@ -26,7 +28,13 @@ export interface Hit {
 export interface IndexStats {
   chunks: number;
   embeddings: number;
-  sources: Record<string, number>;
+  vectors: number;  // Same as embeddings
+  sources: Record<string, number> | number;  // Can be object or number
+  mode?: string;  // Embedding mode (ollama, voyage, etc.)
+  model?: string;  // Model name
+  dimensions?: number;  // Vector dimensions
+  totalCost?: number;  // Total cost
+  indexedAt?: string;  // When indexed
   updatedAt: string;
 }
 

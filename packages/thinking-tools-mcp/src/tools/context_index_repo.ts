@@ -25,15 +25,15 @@ export async function contextIndexRepoTool(args: any, ctx: ServerContext) {
       ok: true,
       files: stats.sources,
       chunks: stats.chunks,
-      vectors: stats.vectors,
-      embeddings: stats.vectors,
-      mode: stats.mode,
-      model: stats.model,
-      dimensions: stats.dimensions,
-      totalCost: stats.totalCost,
-      indexedAt: stats.indexedAt,
+      vectors: stats.vectors || stats.embeddings || 0,
+      embeddings: stats.vectors || stats.embeddings || 0,
+      mode: stats.mode || 'unknown',
+      model: stats.model || 'unknown',
+      dimensions: stats.dimensions || 0,
+      totalCost: stats.totalCost || 0,
+      indexedAt: stats.indexedAt || stats.updatedAt,
       // Report the actual RCE location users should inspect:
-      rceIndexDir: path.join(ctx.workspaceRoot, '.rce_index')
+      rceIndexDir: path.join(ctx.workspaceRoot, '.robinson/context')
     };
   } catch (error: any) {
     throw new Error(`Indexing failed: ${error.message}`);

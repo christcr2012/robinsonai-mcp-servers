@@ -83,22 +83,25 @@ export async function ingestUrls(urls: string[], tags: string[] = []): Promise<{
         id,
         source: 'web',
         path: u,
+        uri: u,  // Add uri field
+        title: art?.title || u,  // Add title field
         sha: idbase,
         start: chunks[i].start,
         end: chunks[i].end,
         text: chunks[i].text,
         tags
       });
-      
+
       saveEmbedding({ id, vec: embs[i] });
       n++;
     }
   }
-  
+
   // stats refresh cheap; indexer will overwrite
   saveStats({
     chunks: 0,
     embeddings: 0,
+    vectors: 0,  // Add vectors field
     sources: {},
     updatedAt: new Date().toISOString()
   });

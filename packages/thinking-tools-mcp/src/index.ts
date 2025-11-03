@@ -393,7 +393,7 @@ registry.sequential_thinking = {
     },
     required: ['problem'],
   },
-  handler: async (args, ctx) => sequentialThinkingTool(args),
+  handler: async (args, ctx) => sequentialThinkingTool(args, ctx),
 };
 
 registry.parallel_thinking = {
@@ -406,7 +406,7 @@ registry.parallel_thinking = {
     },
     required: ['problem'],
   },
-  handler: async (args, ctx) => parallelThinkingTool(args),
+  handler: async (args, ctx) => parallelThinkingTool(args, ctx),
 };
 
 registry.reflective_thinking = {
@@ -418,7 +418,7 @@ registry.reflective_thinking = {
     },
     required: ['reasoning'],
   },
-  handler: async (args, ctx) => reflectiveThinkingTool(args),
+  handler: async (args, ctx) => reflectiveThinkingTool(args, ctx),
 };
 
 // Context7 tools
