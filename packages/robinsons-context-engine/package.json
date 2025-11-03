@@ -1,7 +1,7 @@
 {
   "name": "@robinson_ai_systems/robinsons-context-engine",
-  "version": "0.1.0",
-  "description": "Robinson's Context Engine (repo-agnostic)",
+  "version": "1.2.0",
+  "description": "Robinson's Context Engine - Production-grade hybrid search with vector similarity, language-aware ranking, and intelligent file filtering",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

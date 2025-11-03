@@ -4,8 +4,8 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\embedding.ts": "64e69cd1783030928b2bfe35751704c0f96809d6",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\src\\embeddings.ts": "1661ffd9682a3ae69df160f605477ad3a07de012",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\src\\store.ts": "13dcc9eea533e41f8d6ade833e4be9aac771dd36",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\src\\index.ts": "1cb92f6463056555bf8a76725c5ee59a44641eeb",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\package.json": "d39123c3c5cf9fd25cc701a44038867e963b4826",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\src\\index.ts": "dac3c49fe3d022be986e249efccb6777b0737eaf",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\package.json": "434b3eb1772f84cd95e915b8ea4a81b9e09659c6",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\tsconfig.json": "217ba30fb52f227e6205c3316ea2768437c11e4b",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\README.md": "d7e44f50ac98c99a78064ee87e107225ad95537f",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\RCE_IMPLEMENTATION_COMPLETE.md": "531d18239597e2c5da277851c50df3983aa7d7af",
@@ -26,5 +26,10 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\data\\openai-worker.db-wal": "2ecfac53f270f39e105af0e266ad6d82abbc6caf",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\FINAL_INTELLIGENT_SELECTION_SUMMARY.md": "a314c607c7a39d146abab4a093b545c8f39e2bf9",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\CONTEXT_ENGINE_COMPARISON_SUMMARY.md": "58a9d4fa5b21f06fd8411cda080bc7671b15d850",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-context-comparison.md": "f7e615f9d93b2dae0914d8323110351769f244ec"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-context-comparison.md": "f7e615f9d93b2dae0914d8323110351769f244ec",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\CONTEXT_ENGINE_COMPARISON_RESULTS.md": "fc2856663490933b3029c40a95228c724f665a6e",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\RCE_FIX_PLAN_COMPREHENSIVE.md": "ec2eccd84db824a7e2204826c677d38da7c682c0",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-rce-fixes.mjs": "4192ef9e14001b6a821f0a38e6b6750bf42a5294",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\RCE_FIX_RESULTS.md": "ad19e40d72f080ea960666aa5b646981883be764",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-context-engine\\robinson_ai_systems-robinsons-context-engine-0.2.0.tgz": "3d3bb369ef949358c520cf092283732c07e96325"
 }
