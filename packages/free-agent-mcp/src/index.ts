@@ -46,9 +46,9 @@ import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, getModelConfig, estimateTaskCost } from './model-catalog.js';
 import { warmupAvailableModels } from './utils/model-warmup.js';
 import { FeedbackCapture, FeedbackSource } from './learning/feedback-capture.js';
-import Database from 'better-sqlite3';
 import { join } from 'path';
 import { homedir } from 'os';
+import { loadBetterSqlite } from './utils/sqlite.js';
 
 /**
  * Main Autonomous Agent MCP Server
@@ -101,14 +101,26 @@ class AutonomousAgentServer {
     this.stats = new StatsTracker();
 
     // Initialize feedback capture with learning database (optional - gracefully degrade if SQLite fails)
-    try {
-      const learningDbPath = join(homedir(), '.robinsonai', 'free-agent-learning.db');
-      const learningDb = new Database(learningDbPath);
-      this.feedbackCapture = new FeedbackCapture(learningDb);
-    } catch (error) {
-      console.error('[FREE-AGENT] Warning: Could not initialize learning database (better-sqlite3 not available). Learning features disabled.');
-      console.error('[FREE-AGENT] Error:', error instanceof Error ? error.message : String(error));
-      // Create a no-op feedback capture
+    const { Database, error: sqliteError } = loadBetterSqlite();
+    if (Database) {
+      try {
+        const learningDbPath = join(homedir(), '.robinsonai', 'free-agent-learning.db');
+        const learningDb = new Database(learningDbPath);
+        this.feedbackCapture = new FeedbackCapture(learningDb);
+      } catch (error) {
+        console.error('[FREE-AGENT] Warning: Could not initialize learning database. Features disabled.');
+        console.error('[FREE-AGENT] Error:', error instanceof Error ? error.message : String(error));
+        this.feedbackCapture = {
+          recordFeedback: () => {},
+          recordTaskCompletion: () => {},
+          getRecentFeedback: () => [],
+        } as any;
+      }
+    } else {
+      console.error('[FREE-AGENT] better-sqlite3 unavailable. Learning features disabled.');
+      if (sqliteError) {
+        console.error('[FREE-AGENT] Error:', sqliteError.message);
+      }
       this.feedbackCapture = {
         recordFeedback: () => {},
         recordTaskCompletion: () => {},

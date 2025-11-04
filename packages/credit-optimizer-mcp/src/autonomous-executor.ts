@@ -10,7 +10,6 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { glob } from 'glob';
-import Database from 'better-sqlite3';
 import crypto from 'crypto';
 import { CostTracker } from './cost-tracker.js';
 import { DatabaseManager } from './database.js';
@@ -38,31 +37,19 @@ export interface WorkflowResult {
 
 // SQLite for persisting large results (optional - gracefully degrade if not available)
 const DB_PATH = process.env.CREDIT_OPTIMIZER_DB || path.join(process.cwd(), 'credit-optimizer.db');
-let db: any = null;
-try {
-  db = new Database(DB_PATH);
-  (db as any).pragma('journal_mode = WAL');
-  db.exec(`
-  CREATE TABLE IF NOT EXISTS workflow_results (
-    result_id TEXT PRIMARY KEY,
-    workflow_name TEXT,
-    result_json TEXT NOT NULL,
-    created_at INTEGER NOT NULL
-  );
-  CREATE INDEX IF NOT EXISTS idx_results_created ON workflow_results(created_at);
-  `);
-} catch (error) {
-  console.error('[CREDIT-OPTIMIZER] Warning: Could not initialize database (better-sqlite3 not available). Large result persistence disabled.');
-  console.error('[CREDIT-OPTIMIZER] Error:', error instanceof Error ? error.message : String(error));
-}
 
 export class AutonomousExecutor {
   private costTracker: CostTracker;
+  private dbManager: DatabaseManager;
 
   constructor() {
     // Initialize cost tracker with shared database
-    const dbManager = new DatabaseManager(DB_PATH);
-    this.costTracker = new CostTracker(dbManager);
+    this.dbManager = new DatabaseManager(DB_PATH);
+    this.costTracker = new CostTracker(this.dbManager);
+
+    if (this.dbManager.storageMode !== 'sqlite') {
+      console.error('[CREDIT-OPTIMIZER] Using portable JSON storage (better-sqlite3 unavailable). Large result persistence will be limited to local JSON file.');
+    }
   }
 
   /**
@@ -215,10 +202,11 @@ export class AutonomousExecutor {
         .digest('hex')
         .slice(0, 16);
 
-      if (db) {
-        db.prepare(`INSERT INTO workflow_results(result_id, workflow_name, result_json, created_at) VALUES (?,?,?,?)`)
-          .run(result_id, 'autonomous_workflow', JSON.stringify(result), Date.now());
-      }
+      this.dbManager.saveWorkflowResult({
+        resultId: result_id,
+        workflowName: options.taskType || 'autonomous_workflow',
+        resultJson: JSON.stringify(result),
+      });
 
       return {
         result_id,
@@ -237,10 +225,9 @@ export class AutonomousExecutor {
    * Retrieve workflow result by ID
    */
   getWorkflowResult(result_id: string): WorkflowResult | null {
-    if (!db) return null;
-    const row = db.prepare(`SELECT result_json FROM workflow_results WHERE result_id=?`).get(result_id) as any;
-    if (!row) return null;
-    return JSON.parse(row.result_json);
+    const payload = this.dbManager.getWorkflowResult(result_id);
+    if (!payload) return null;
+    return JSON.parse(payload);
   }
 
   /**
