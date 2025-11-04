@@ -49,6 +49,52 @@ import { FeedbackCapture, FeedbackSource } from './learning/feedback-capture.js'
 import { join } from 'path';
 import { homedir } from 'os';
 import { loadBetterSqlite } from './utils/sqlite.js';
+import { formatGMCode, formatUnifiedDiffs, type OutputFile } from './utils/output-format.js';
+
+type VersatileTaskType =
+  | 'code_generation'
+  | 'code_analysis'
+  | 'refactoring'
+  | 'test_generation'
+  | 'documentation'
+  | 'toolkit_call'
+  | 'thinking_tool_call'
+  | 'file_editing';
+
+const TOOLKIT_CATEGORY_HINTS: Array<{ regex: RegExp; category: string }> = [
+  { regex: /\bgithub|pull request|merge|branch|commit|repo\b/i, category: 'github' },
+  { regex: /\bvercel|deploy|preview|production|edge\b/i, category: 'vercel' },
+  { regex: /\bpostgres|database|sql|schema|migration|neon|db\b/i, category: 'neon' },
+  { regex: /\bredis|cache|queue|upstash|ratelimit\b/i, category: 'upstash' },
+  { regex: /\bstripe|payment|checkout|billing\b/i, category: 'stripe' },
+  { regex: /\bemail|smtp|resend|mailgun|newsletter\b/i, category: 'resend' },
+  { regex: /\bslack|channel|message|workspace\b/i, category: 'slack' },
+  { regex: /\bnotion|wiki|knowledge|documentation\b/i, category: 'notion' },
+  { regex: /\bgoogle|calendar|sheet|drive|workspace\b/i, category: 'google' },
+];
+
+const THINKING_TOOL_HINTS: Array<{ regex: RegExp; name: string; aliases?: string[] }> = [
+  { regex: /devil'?s? advocate|challenge/i, name: 'devils_advocate', aliases: ['challenge', 'counterargument'] },
+  { regex: /first principles?|fundamental/i, name: 'first_principles' },
+  { regex: /root cause|5 whys?|five whys?/i, name: 'root_cause_analysis', aliases: ['why'] },
+  { regex: /swot/i, name: 'swot_analysis' },
+  { regex: /pre-?mortem/i, name: 'premortem_analysis' },
+  { regex: /critical thinking|fallacy|argument/i, name: 'critical_thinking' },
+  { regex: /lateral thinking|creative/i, name: 'lateral_thinking' },
+  { regex: /red team|attack|penetration/i, name: 'red_team' },
+  { regex: /blue team|defend|mitigat/i, name: 'blue_team' },
+  { regex: /decision matrix|trade[- ]?off|compare options/i, name: 'decision_matrix' },
+  { regex: /socratic|question/i, name: 'socratic_questioning' },
+  { regex: /systems thinking|feedback loop|holistic/i, name: 'systems_thinking' },
+  { regex: /scenario planning|future state/i, name: 'scenario_planning' },
+  { regex: /brainstorm/i, name: 'brainstorming' },
+  { regex: /mind map|concept map/i, name: 'mind_mapping' },
+  { regex: /context engine|index repo/i, name: 'context_index_repo' },
+  { regex: /context query|retrieve code|search context/i, name: 'context_query' },
+  { regex: /context stats|index status|coverage/i, name: 'context_stats' },
+  { regex: /context merge|config merge/i, name: 'ctx_merge_config' },
+  { regex: /evidence|ingest/i, name: 'ctx_import_evidence' },
+];
 
 /**
  * Main Autonomous Agent MCP Server
@@ -419,13 +465,15 @@ class AutonomousAgentServer {
    */
   private async executeVersatileTask(args: {
     task: string;
-    taskType: 'code_generation' | 'code_analysis' | 'refactoring' | 'test_generation' | 'documentation' | 'toolkit_call' | 'thinking_tool_call' | 'file_editing';
+    taskType?: VersatileTaskType;
     params?: any;
     forcePaid?: boolean;  // NEW: If true, return error (Autonomous Agent is FREE only)
   }): Promise<any> {
     const { task, taskType, params = {}, forcePaid = false } = args;
 
-    console.error(`[AutonomousAgent] Executing versatile task: ${taskType} - ${task}`);
+    const resolvedTaskType = this.inferTaskType(task, taskType, params);
+
+    console.error(`[AutonomousAgent] Executing versatile task: ${resolvedTaskType} - ${task}`);
 
     // Autonomous Agent is FREE only - if forcePaid=true, reject the request
     if (forcePaid) {
@@ -440,7 +488,7 @@ class AutonomousAgentServer {
       };
     }
 
-    switch (taskType) {
+    switch (resolvedTaskType) {
       case 'code_generation':
         return await this.codeGenerator.generate({
           task,
@@ -485,63 +533,150 @@ class AutonomousAgentServer {
         // NEW: Direct file editing using universal file tools
         return await this.handleFileEditing(task, params);
 
-      case 'toolkit_call':
-        // Call Robinson's Toolkit for DB setup, deployment, account management, etc.
+      case 'toolkit_call': {
         const toolkitClient = getSharedToolkitClient();
+        const suggestions = await this.discoverToolkitSuggestions(task, params?.discoverLimit || 5);
+        let category = this.inferToolkitCategory(task, params);
+        let toolName: string | undefined = params.tool_name;
+
+        if (!toolName && suggestions.length > 0) {
+          const suggestion = suggestions[0];
+          toolName = suggestion?.tool?.name;
+          category = category || suggestion?.category;
+        }
+
+        if (!toolName) {
+          return {
+            success: false,
+            error: 'TOOL_SELECTION_REQUIRED',
+            message: 'Specify toolkit tool_name or clarify the task so a tool can be selected automatically.',
+            suggestions,
+            inferredCategory: category,
+            augmentCreditsUsed: 0,
+            creditsSaved: 0,
+          };
+        }
+
+        if (!category) {
+          category = toolName.split('_')[0] || '';
+        }
+
+        if (!category) {
+          return {
+            success: false,
+            error: 'CATEGORY_REQUIRED',
+            message: `Unable to infer toolkit category for ${toolName}.`,
+            suggestions,
+            augmentCreditsUsed: 0,
+            creditsSaved: 0,
+          };
+        }
 
         const toolkitParams: ToolkitCallParams = {
-          category: params.category || '',
-          tool_name: params.tool_name || '',
+          category,
+          tool_name: toolName,
           arguments: params.arguments || {},
         };
 
-        const toolkitResult = await toolkitClient.callTool(toolkitParams);
+        try {
+          const toolkitResult = await toolkitClient.callTool(toolkitParams);
 
-        if (!toolkitResult.success) {
-          throw new Error(`Toolkit call failed: ${toolkitResult.error}`);
+          if (!toolkitResult.success) {
+            throw new Error(`Toolkit call failed: ${toolkitResult.error}`);
+          }
+
+          return {
+            success: true,
+            result: toolkitResult.result,
+            augmentCreditsUsed: 100,
+            creditsSaved: 500,
+            cost: {
+              total: 0,
+              currency: 'USD',
+              note: 'FREE - Robinson\'s Toolkit call',
+            },
+            category,
+            tool: toolName,
+            suggestions,
+            argumentsUsed: toolkitParams.arguments,
+          };
+        } catch (error: any) {
+          return {
+            success: false,
+            error: 'TOOLKIT_CALL_FAILED',
+            message: error.message,
+            suggestions,
+            augmentCreditsUsed: 0,
+            creditsSaved: 0,
+          };
+        }
+      }
+
+      case 'thinking_tool_call': {
+        const thinkingClient = getSharedThinkingClient();
+        const inference = await this.inferThinkingTool(task, params.tool_name);
+        const toolName = inference.toolName;
+        const suggestions = inference.suggestions;
+
+        if (!toolName) {
+          return {
+            success: false,
+            error: 'THINKING_TOOL_NOT_FOUND',
+            message: 'Provide tool_name or clarify the thinking task so an appropriate cognitive tool can be selected.',
+            suggestions,
+            augmentCreditsUsed: 0,
+            creditsSaved: 0,
+          };
         }
 
-        return {
-          success: true,
-          result: toolkitResult.result,
-          augmentCreditsUsed: 100, // Just for orchestration
-          creditsSaved: 500, // Saved by using toolkit instead of AI
-          cost: {
-            total: 0,
-            currency: 'USD',
-            note: 'FREE - Robinson\'s Toolkit call',
-          },
-        };
-
-      case 'thinking_tool_call':
-        // Call Thinking Tools MCP for cognitive frameworks, context engine, etc.
-        const thinkingClient = getSharedThinkingClient();
+        const toolArguments = { ...(params.arguments || {}) };
+        if (!toolArguments.context) {
+          toolArguments.context = params.context || task;
+        }
+        if (!toolArguments.prompt && !toolArguments.question) {
+          toolArguments.prompt = task;
+        }
 
         const thinkingParams: ThinkingToolCallParams = {
-          tool_name: params.tool_name || '',
-          arguments: params.arguments || {},
+          tool_name: toolName,
+          arguments: toolArguments,
         };
 
-        const thinkingResult = await thinkingClient.callTool(thinkingParams);
+        try {
+          const thinkingResult = await thinkingClient.callTool(thinkingParams);
 
-        if (!thinkingResult.success) {
-          throw new Error(`Thinking tool call failed: ${thinkingResult.error}`);
+          if (!thinkingResult.success) {
+            throw new Error(`Thinking tool call failed: ${thinkingResult.error}`);
+          }
+
+          return {
+            success: true,
+            result: thinkingResult.result,
+            augmentCreditsUsed: 50,
+            creditsSaved: 300,
+            cost: {
+              total: 0,
+              currency: 'USD',
+              note: 'FREE - Thinking Tools MCP call',
+            },
+            tool: toolName,
+            suggestions,
+            argumentsUsed: toolArguments,
+          };
+        } catch (error: any) {
+          return {
+            success: false,
+            error: 'THINKING_TOOL_CALL_FAILED',
+            message: error.message,
+            suggestions,
+            augmentCreditsUsed: 0,
+            creditsSaved: 0,
+          };
         }
-
-        return {
-          success: true,
-          result: thinkingResult.result,
-          augmentCreditsUsed: 50, // Just for orchestration
-          creditsSaved: 300, // Saved by using thinking tools instead of AI
-          cost: {
-            total: 0,
-            currency: 'USD',
-            note: 'FREE - Thinking Tools MCP call',
-          },
-        };
+      }
 
       default:
-        throw new Error(`Unknown task type: ${taskType}`);
+        throw new Error(`Unknown task type: ${resolvedTaskType}`);
     }
   }
 
@@ -1579,6 +1714,105 @@ Generate the modified section now:`;
         creditsSaved: 0,
       };
     }
+  }
+
+  /**
+   * Infer task type from task description if not explicitly provided
+   */
+  private inferTaskType(task: string, taskType?: VersatileTaskType, params?: any): VersatileTaskType {
+    if (taskType) return taskType;
+
+    // Infer from task description
+    if (/generate|create|write|build|implement/i.test(task)) return 'code_generation';
+    if (/analyze|review|check|audit|inspect/i.test(task)) return 'code_analysis';
+    if (/refactor|restructure|reformat|improve|clean/i.test(task)) return 'refactoring';
+    if (/test|spec|coverage|unit test/i.test(task)) return 'test_generation';
+    if (/document|doc|comment|explain|describe/i.test(task)) return 'documentation';
+    if (/github|vercel|database|deploy|toolkit/i.test(task)) return 'toolkit_call';
+    if (/think|analyze|swot|decision|framework/i.test(task)) return 'thinking_tool_call';
+    if (/edit|modify|change|update|fix/i.test(task)) return 'file_editing';
+
+    return 'code_generation'; // Default
+  }
+
+  /**
+   * Infer toolkit category from task description
+   */
+  private inferToolkitCategory(task: string, params?: any): string {
+    // Check if category is explicitly provided
+    if (params?.category) return params.category;
+
+    // Try to match against hints
+    for (const hint of TOOLKIT_CATEGORY_HINTS) {
+      if (hint.regex.test(task)) {
+        return hint.category;
+      }
+    }
+
+    return ''; // No category inferred
+  }
+
+  /**
+   * Discover toolkit suggestions based on task description
+   */
+  private async discoverToolkitSuggestions(task: string, limit: number = 5): Promise<any[]> {
+    try {
+      const toolkitClient = getSharedToolkitClient();
+
+      // Extract keywords from task
+      const keywords = task
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(w => w.length > 3 && !/^(the|and|for|with|from|that|this|what|when|where|why|how)$/.test(w))
+        .slice(0, 5);
+
+      // Try to discover tools for each keyword
+      const suggestions: any[] = [];
+      for (const keyword of keywords) {
+        try {
+          const result = await toolkitClient.discoverTools(keyword, limit);
+          if (result.success && result.result) {
+            suggestions.push(...(Array.isArray(result.result) ? result.result : [result.result]));
+          }
+        } catch (e) {
+          // Silently skip failed discoveries
+        }
+      }
+
+      // Deduplicate and limit
+      const seen = new Set<string>();
+      return suggestions
+        .filter(s => {
+          const key = `${s.category}:${s.tool?.name}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .slice(0, limit);
+    } catch (error) {
+      console.error('[FREE-AGENT] Error discovering toolkit suggestions:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Infer thinking tool from task description
+   */
+  private async inferThinkingTool(task: string, toolName?: string): Promise<{ toolName: string; suggestions: any[] }> {
+    // If tool name is explicitly provided, use it
+    if (toolName) {
+      return { toolName, suggestions: [] };
+    }
+
+    // Try to match against hints
+    for (const hint of THINKING_TOOL_HINTS) {
+      if (hint.regex.test(task)) {
+        return { toolName: hint.name, suggestions: [] };
+      }
+    }
+
+    // No tool inferred
+    return { toolName: '', suggestions: [] };
   }
 
   async run(): Promise<void> {
