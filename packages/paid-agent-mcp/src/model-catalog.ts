@@ -554,8 +554,25 @@ function selectOpenAIModel(
 function selectVoyageModel(
   taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
   maxCost: number,
-  minQuality: 'basic' | 'standard' | 'premium' | 'best'
+  minQuality: 'basic' | 'standard' | 'premium' | 'best',
+  taskType?: string
 ): string {
+  // Task-specific model selection: voyage-code-2 is optimized for code tasks
+  if (taskType && /code|refactor|test|debug|generate/i.test(taskType)) {
+    if (taskComplexity === 'expert' || taskComplexity === 'complex') {
+      if (maxCost >= 0.3) {
+        return 'voyage/voyage-code-2'; // Optimized for code
+      }
+    }
+    if (taskComplexity === 'medium' && maxCost >= 0.2) {
+      return 'voyage/voyage-code-2';
+    }
+    if (taskComplexity === 'simple' && maxCost >= 0.15) {
+      return 'voyage/voyage-code-2';
+    }
+  }
+
+  // General task selection
   if (taskComplexity === 'expert' || taskComplexity === 'complex') {
     if (maxCost >= 0.5) {
       return 'voyage/voyage-3';
@@ -581,7 +598,8 @@ function selectProviderModel(
   provider: ModelConfig['provider'],
   taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
   maxCost: number,
-  minQuality: 'basic' | 'standard' | 'premium' | 'best'
+  minQuality: 'basic' | 'standard' | 'premium' | 'best',
+  taskType?: string
 ): string {
   switch (provider) {
     case 'ollama':
@@ -591,7 +609,7 @@ function selectProviderModel(
     case 'claude':
       return selectClaudeModel(taskComplexity, maxCost);
     case 'voyage':
-      return selectVoyageModel(taskComplexity, maxCost, minQuality);
+      return selectVoyageModel(taskComplexity, maxCost, minQuality, taskType);
     default:
       return selectFreeModel(minQuality);
   }
@@ -604,6 +622,7 @@ function resolveAvailableModel(
     taskComplexity: 'simple' | 'medium' | 'complex' | 'expert';
     maxCost: number;
     preferFree: boolean;
+    taskType?: string;
   }
 ): string {
   const config = MODEL_CATALOG[modelId];
@@ -617,7 +636,7 @@ function resolveAvailableModel(
 
   for (const provider of order) {
     if (!isProviderAvailable(provider)) continue;
-    return selectProviderModel(provider, context.taskComplexity, context.maxCost, context.minQuality);
+    return selectProviderModel(provider, context.taskComplexity, context.maxCost, context.minQuality, context.taskType);
   }
 
   // As a last resort, use free model even if provider unavailable (will throw later if unreachable)

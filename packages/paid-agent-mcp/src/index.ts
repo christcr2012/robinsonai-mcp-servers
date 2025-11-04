@@ -88,6 +88,7 @@ async function callVoyageChatCompletion(params: {
   messages: VoyageChatMessage[];
   temperature?: number;
   maxTokens?: number;
+  maxRetries?: number;
 }): Promise<{ content: string; usage: { promptTokens: number; completionTokens: number } }> {
   const apiKey = process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -95,36 +96,67 @@ async function callVoyageChatCompletion(params: {
   }
 
   const baseUrl = (process.env.VOYAGE_BASE_URL || 'https://api.voyageai.com/v1').replace(/\/$/, '');
-  const response = await fetch(`${baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: params.model,
-      messages: params.messages,
-      temperature: params.temperature ?? 0.7,
-      max_output_tokens: params.maxTokens ?? 4096,
-    }),
-  });
+  const maxRetries = params.maxRetries ?? 3;
+  let lastError: Error | null = null;
 
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => 'Unknown error');
-    throw new Error(`Voyage request failed: HTTP ${response.status} ${errorText}`);
+  // Retry logic with exponential backoff for transient failures
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: params.model,
+          messages: params.messages,
+          temperature: params.temperature ?? 0.7,
+          max_output_tokens: params.maxTokens ?? 4096,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        const error = new Error(`Voyage request failed: HTTP ${response.status} ${errorText}`);
+
+        // Retry on 5xx errors (server errors) and 429 (rate limit)
+        if ((response.status >= 500 || response.status === 429) && attempt < maxRetries - 1) {
+          lastError = error;
+          const backoffMs = 1000 * Math.pow(2, attempt); // Exponential backoff: 1s, 2s, 4s
+          console.error(`[Voyage] Attempt ${attempt + 1} failed, retrying in ${backoffMs}ms...`);
+          await new Promise(resolve => setTimeout(resolve, backoffMs));
+          continue;
+        }
+        throw error;
+      }
+
+      const data: any = await response.json();
+      const content = data.choices?.[0]?.message?.content ?? '';
+      const usage = data.usage ?? {};
+
+      return {
+        content,
+        usage: {
+          promptTokens: usage.prompt_tokens ?? 0,
+          completionTokens: usage.completion_tokens ?? 0,
+        },
+      };
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      // Retry on network errors
+      if (attempt < maxRetries - 1) {
+        const backoffMs = 1000 * Math.pow(2, attempt);
+        console.error(`[Voyage] Attempt ${attempt + 1} failed with error: ${lastError.message}`);
+        console.error(`[Voyage] Retrying in ${backoffMs}ms...`);
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        continue;
+      }
+    }
   }
 
-  const data: any = await response.json();
-  const content = data.choices?.[0]?.message?.content ?? '';
-  const usage = data.usage ?? {};
-
-  return {
-    content,
-    usage: {
-      promptTokens: usage.prompt_tokens ?? 0,
-      completionTokens: usage.completion_tokens ?? 0,
-    },
-  };
+  throw lastError || new Error('Voyage request failed after all retries');
 }
 
 // Initialize database and pricing (gracefully degrade if SQLite fails)

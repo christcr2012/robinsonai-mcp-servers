@@ -305,6 +305,37 @@ export class TokenTracker {
   getDatabasePath(): string {
     return this.mode === 'sqlite' ? this.dbPath : this.storePath;
   }
+
+  /**
+   * Get cost statistics by model for better future estimates
+   */
+  getCostByModel(): { [model: string]: { requests: number; totalCost: number; avgCost: number; avgInputTokens: number; avgOutputTokens: number } } {
+    const stats: { [model: string]: { requests: number; totalCost: number; avgCost: number; avgInputTokens: number; avgOutputTokens: number } } = {};
+
+    const usage = this.mode === 'sqlite' && this.db
+      ? (this.db.prepare('SELECT * FROM token_usage WHERE success = 1').all() as TokenUsage[])
+      : this.store.usage.filter(u => u.success);
+
+    for (const record of usage) {
+      if (!stats[record.model]) {
+        stats[record.model] = { requests: 0, totalCost: 0, avgCost: 0, avgInputTokens: 0, avgOutputTokens: 0 };
+      }
+      stats[record.model].requests += 1;
+      stats[record.model].totalCost += record.cost_usd;
+      stats[record.model].avgInputTokens += record.tokens_input;
+      stats[record.model].avgOutputTokens += record.tokens_output;
+    }
+
+    // Calculate averages
+    for (const model in stats) {
+      const count = stats[model].requests;
+      stats[model].avgCost = stats[model].totalCost / count;
+      stats[model].avgInputTokens = stats[model].avgInputTokens / count;
+      stats[model].avgOutputTokens = stats[model].avgOutputTokens / count;
+    }
+
+    return stats;
+  }
 }
 
 let singleton: TokenTracker | null = null;
