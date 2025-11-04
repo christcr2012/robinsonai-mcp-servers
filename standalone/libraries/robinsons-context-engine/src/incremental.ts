@@ -11,6 +11,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import type { RCEStore, StoredChunk, IndexMeta } from './store.js';
 import type { Embedder } from './embeddings.js';
+import { gitChangesSince, fsDiffFallback } from './git/changes.js';
+import { extractSymbols } from './code/symbols.js';
 
 export interface FileHash {
   path: string;
@@ -100,59 +102,87 @@ export function detectChanges(
 }
 
 /**
- * Perform incremental indexing
+ * Perform incremental indexing with git change detection and TTL
  */
 export async function incrementalIndex(
   root: string,
   files: string[],
   store: RCEStore,
   embedder: Embedder | null,
-  chunkSize = 1200
+  chunkSize = 1200,
+  ttlMinutes = 20
 ): Promise<IncrementalIndexResult> {
   console.log(`[Incremental] Starting incremental indexing...`);
 
   // Load previous metadata
   const meta = await store.readMeta();
-  const previousHashes = new Map<string, FileHash>(
-    Object.entries(meta?.fileHashes || {}).map(([path, data]) => [path, { path, ...data }])
-  );
 
-  // Compute current hashes
-  const currentHashes = await computeFileHashes(files, root);
+  // TTL check: skip if recently indexed
+  if (meta?.updatedAt) {
+    const age = Date.now() - meta.updatedAt;
+    if (age < ttlMinutes * 60 * 1000) {
+      console.log(`[Incremental] Index is fresh (${Math.round(age/1000/60)}m old), skipping`);
+      return {
+        added: 0, updated: 0, removed: 0,
+        unchanged: meta.sources || 0,
+        totalChunks: meta.chunks || 0,
+        totalVectors: meta.vectors || 0,
+      };
+    }
+  }
 
-  // Detect changes
-  const changes = detectChanges(currentHashes, previousHashes);
+  // Try git change detection first
+  let changes: { added: string[]; modified: string[]; deleted: string[]; untracked?: string[] };
+  try {
+    const gitChanges = await gitChangesSince(root, meta?.head);
+    changes = {
+      added: [...gitChanges.added, ...(gitChanges.untracked || [])],
+      modified: gitChanges.modified,
+      deleted: gitChanges.deleted
+    };
+    console.log(`[Incremental] Git changes detected:`);
+  } catch {
+    // Fallback to mtime+size comparison
+    const previousHashes = new Map<string, FileHash>(
+      Object.entries(meta?.fileHashes || {}).map(([path, data]) => [path, { path, ...data }])
+    );
+    const currentHashes = await computeFileHashes(files, root);
+    const fsChanges = detectChanges(currentHashes, previousHashes);
+    changes = { added: fsChanges.added, modified: fsChanges.updated, deleted: fsChanges.removed };
+    console.log(`[Incremental] Filesystem changes detected:`);
+  }
 
-  console.log(`[Incremental] Changes detected:`);
   console.log(`  - Added: ${changes.added.length}`);
-  console.log(`  - Updated: ${changes.updated.length}`);
-  console.log(`  - Removed: ${changes.removed.length}`);
-  console.log(`  - Unchanged: ${changes.unchanged.length}`);
+  console.log(`  - Modified: ${changes.modified.length}`);
+  console.log(`  - Deleted: ${changes.deleted.length}`);
 
   // If no changes, return early
-  if (changes.added.length === 0 && changes.updated.length === 0 && changes.removed.length === 0) {
+  if (changes.added.length === 0 && changes.modified.length === 0 && changes.deleted.length === 0) {
     console.log(`[Incremental] No changes detected, skipping indexing`);
     return {
       added: 0,
       updated: 0,
       removed: 0,
-      unchanged: changes.unchanged.length,
+      unchanged: files.length,
       totalChunks: meta?.chunks || 0,
       totalVectors: meta?.vectors || 0,
     };
   }
 
-  // Remove chunks for deleted and updated files
-  const filesToRemove = [...changes.removed, ...changes.updated];
+  // Remove chunks for deleted and modified files
+  const filesToRemove = [...changes.deleted, ...changes.modified];
+  for (const f of filesToRemove) {
+    await store.deleteChunksForFile(f);
+  }
   if (filesToRemove.length > 0) {
-    await store.removeChunksForFiles(filesToRemove);
     console.log(`[Incremental] Removed chunks for ${filesToRemove.length} files`);
   }
 
-  // Index new and updated files
-  const filesToIndex = [...changes.added, ...changes.updated];
+  // Index new and modified files
+  const filesToIndex = [...changes.added, ...changes.modified];
   let newChunks = 0;
   let newVectors = 0;
+  const fileMap = await store.loadFileMap();
 
   if (filesToIndex.length > 0) {
     const batch: StoredChunk[] = [];
@@ -162,22 +192,33 @@ export async function incrementalIndex(
         const fullPath = path.join(root, relPath);
         const content = await fs.readFile(fullPath, 'utf8');
         const title = path.basename(relPath);
+        const ext = path.extname(relPath);
+        const stat = await fs.stat(fullPath);
+        const contentSha = store.sha(content);
+
+        // Extract symbols for code files
+        const symbols = ['.ts','.tsx','.js','.jsx','.py','.go'].includes(ext)
+          ? extractSymbols(ext, content)
+          : [];
 
         // Chunk text
         const parts = chunkText(content, chunkSize);
-        const hashes = parts.map(p =>
-          crypto.createHash('sha1').update(relPath + '|' + p).digest('hex')
-        );
+        const chunkIds: string[] = [];
 
-        // Generate embeddings
+        // Generate embeddings with caching
         let vecs: number[][] = [];
         if (embedder) {
           try {
-            const batchSize = 64;
-            for (let i = 0; i < parts.length; i += batchSize) {
-              const seg = parts.slice(i, i + batchSize);
-              const e = await embedder.embed(seg);
-              vecs.push(...e);
+            const model = embedder.model || 'unknown';
+            for (const p of parts) {
+              const sha = store.sha(p);
+              let vec = await store.getCachedVec(model, sha);
+              if (!vec) {
+                const [v] = await embedder.embed([p]);
+                vec = v;
+                await store.putCachedVec(model, sha, vec);
+              }
+              vecs.push(vec);
             }
           } catch (error: any) {
             console.error(`[Incremental] Embedding failed for ${relPath}:`, error.message);
@@ -186,8 +227,12 @@ export async function incrementalIndex(
 
         // Create chunks
         for (let i = 0; i < parts.length; i++) {
+          const chunkId = crypto.createHash('sha1').update(relPath + '|' + i).digest('hex');
+          chunkIds.push(chunkId);
           batch.push({
-            hash: hashes[i],
+            id: chunkId,
+            file: relPath,
+            hash: store.sha(parts[i]),
             uri: relPath,
             title,
             text: parts[i],
@@ -195,6 +240,9 @@ export async function incrementalIndex(
             metadata: {
               start: i * chunkSize,
               end: Math.min((i + 1) * chunkSize, content.length),
+              symbols,
+              lang: ext.slice(1),
+              lines: content.split('\n').length,
             },
           });
           newChunks++;
@@ -205,6 +253,15 @@ export async function incrementalIndex(
             await store.writeChunks(batch.splice(0, batch.length));
           }
         }
+
+        // Update file map
+        fileMap[relPath] = {
+          mtimeMs: stat.mtimeMs,
+          size: stat.size,
+          contentSha,
+          chunkIds
+        };
+
       } catch (error: any) {
         console.error(`[Incremental] Error indexing ${relPath}:`, error.message);
       }
@@ -215,34 +272,45 @@ export async function incrementalIndex(
       await store.writeChunks(batch);
     }
 
+    await store.saveFileMap(fileMap);
     console.log(`[Incremental] Indexed ${filesToIndex.length} files: ${newChunks} chunks, ${newVectors} vectors`);
   }
 
-  // Update metadata with new file hashes
+  // Get current git head
+  let head: string | undefined;
+  try {
+    const gitChanges = await gitChangesSince(root);
+    head = gitChanges.head;
+  } catch {}
+
+  // Compute current hashes for metadata
+  const currentHashes = await computeFileHashes(files, root);
   const fileHashesObj: { [path: string]: { hash: string; mtime: number; size: number } } = {};
   for (const [path, fileHash] of currentHashes.entries()) {
     fileHashesObj[path] = { hash: fileHash.hash, mtime: fileHash.mtime, size: fileHash.size };
   }
 
   const updatedMeta: IndexMeta = {
+    head,
     provider: meta?.provider || 'none',
     sources: currentHashes.size,
-    chunks: (meta?.chunks || 0) - (changes.removed.length + changes.updated.length) * 10 + newChunks, // Rough estimate
-    vectors: (meta?.vectors || 0) - (changes.removed.length + changes.updated.length) * 10 + newVectors,
+    chunks: (meta?.chunks || 0) - (changes.deleted.length + changes.modified.length) * 10 + newChunks,
+    vectors: (meta?.vectors || 0) - (changes.deleted.length + changes.modified.length) * 10 + newVectors,
     model: meta?.model,
     dimensions: meta?.dimensions,
     totalCost: meta?.totalCost,
     fileHashes: fileHashesObj,
-    indexedAt: new Date().toISOString(),
+    indexedAt: meta?.indexedAt || new Date().toISOString(),
+    updatedAt: Date.now(),
   };
 
   await store.saveMeta(updatedMeta);
 
   return {
     added: changes.added.length,
-    updated: changes.updated.length,
-    removed: changes.removed.length,
-    unchanged: changes.unchanged.length,
+    updated: changes.modified.length,
+    removed: changes.deleted.length,
+    unchanged: files.length - changes.added.length - changes.modified.length - changes.deleted.length,
     totalChunks: updatedMeta.chunks,
     totalVectors: updatedMeta.vectors,
   };

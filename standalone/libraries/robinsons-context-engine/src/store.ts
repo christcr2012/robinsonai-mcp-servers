@@ -7,8 +7,11 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import crypto from 'node:crypto';
 
 export type StoredChunk = {
+  id: string;
+  file: string;           // normalized path relative to root
   hash: string;
   uri: string;
   title: string;
@@ -19,17 +22,37 @@ export type StoredChunk = {
     end?: number;
     language?: string;
     size?: number;
+    symbols?: string[];
+    lang?: string;
+    lines?: number;
   };
 };
 
+export type StoredDoc = {
+  id: string;
+  uri: string;
+  title: string;
+  type: string;
+  status?: string;
+  version?: string;
+  date?: string;
+  summary?: string;
+  tags?: string[];
+  tasks?: Array<{ text: string; done?: boolean }>;
+  links?: Array<{ kind: 'code'|'issue'|'url'; ref: string }>;
+};
+
 export type IndexMeta = {
+  head?: string;
   sources: number;
   chunks: number;
   vectors: number;
+  docs?: number;
   provider: string;
   model?: string;
   dimensions?: number;
   indexedAt: string;
+  updatedAt?: number;
   totalCost?: number;
   fileHashes?: { [path: string]: { hash: string; mtime: number; size: number } };
 };
@@ -38,11 +61,17 @@ export class RCEStore {
   private dir: string;
   private chunksPath: string;
   private metaPath: string;
+  private docsPath: string;
+  private embedDir: string;
+  private filesPath: string;
 
   constructor(private root: string) {
     this.dir = path.join(root, '.rce_index');
     this.chunksPath = path.join(this.dir, 'chunks.jsonl');
     this.metaPath = path.join(this.dir, 'meta.json');
+    this.docsPath = path.join(this.dir, 'docs.jsonl');
+    this.embedDir = path.join(this.dir, 'embeddings');
+    this.filesPath = path.join(this.dir, 'files.json');
   }
 
   /**
@@ -50,6 +79,11 @@ export class RCEStore {
    */
   async init() {
     await fs.mkdir(this.dir, { recursive: true });
+    await fs.mkdir(this.embedDir, { recursive: true });
+    for (const f of [this.chunksPath, this.docsPath]) {
+      try { await fs.access(f); } catch { await fs.writeFile(f, '', 'utf8'); }
+    }
+    try { await fs.access(this.filesPath); } catch { await fs.writeFile(this.filesPath, '{}', 'utf8'); }
   }
 
   /**
@@ -159,6 +193,90 @@ export class RCEStore {
       await this.writeChunks(remaining);
       console.log(`[RCEStore] Removed chunks for ${chunks.length - remaining.length} files`);
     }
+  }
+
+  /**
+   * Delete all chunks for a specific file
+   */
+  async deleteChunksForFile(file: string) {
+    const all = await this.loadAll();
+    const keep = all.filter(c => c.file !== file && c.uri !== file);
+    if (keep.length < all.length) {
+      await fs.writeFile(this.chunksPath, keep.map(c=>JSON.stringify(c)).join('\n')+'\n', 'utf8');
+    }
+  }
+
+  /**
+   * File map (path -> {mtimeMs, size, contentSha, chunkIds})
+   */
+  async loadFileMap(): Promise<Record<string, any>> {
+    try {
+      return JSON.parse(await fs.readFile(this.filesPath, 'utf8') || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  async saveFileMap(m: Record<string, any>) {
+    await fs.writeFile(this.filesPath, JSON.stringify(m, null, 2), 'utf8');
+  }
+
+  /**
+   * Load metadata
+   */
+  async loadMeta() {
+    try {
+      return JSON.parse(await fs.readFile(this.metaPath, 'utf8'));
+    } catch {
+      return {};
+    }
+  }
+
+  /**
+   * Docs storage
+   */
+  async writeDocs(docs: StoredDoc[]) {
+    await this.init();
+    const lines = docs.map(d=>JSON.stringify(d)).join('\n')+'\n';
+    await fs.appendFile(this.docsPath, lines, 'utf8');
+  }
+
+  async loadAllDocs(): Promise<StoredDoc[]> {
+    try {
+      const txt = await fs.readFile(this.docsPath, 'utf8');
+      return txt.split('\n').filter(Boolean).map(l=>JSON.parse(l));
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Embeddings cache: model|sha -> vector
+   */
+  private key(model:string, sha:string) {
+    return `${model}|${sha}`;
+  }
+
+  async getCachedVec(model:string, sha:string): Promise<number[]|undefined> {
+    try {
+      const p = path.join(this.embedDir, `${model}.jsonl`);
+      const txt = await fs.readFile(p, 'utf8');
+      for (const line of txt.split('\n')) {
+        if (!line) continue;
+        const [k, payload] = JSON.parse(line);
+        if (k === this.key(model, sha)) return payload;
+      }
+    } catch {}
+    return undefined;
+  }
+
+  async putCachedVec(model:string, sha:string, vec:number[]) {
+    const p = path.join(this.embedDir, `${model}.jsonl`);
+    await fs.appendFile(p, JSON.stringify([this.key(model, sha), vec])+'\n', 'utf8');
+  }
+
+  sha(text:string) {
+    return crypto.createHash('sha1').update(text).digest('hex');
   }
 
   /**

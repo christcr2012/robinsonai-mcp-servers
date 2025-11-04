@@ -234,7 +234,10 @@ export class RobinsonsContextEngine {
 
         // Create chunks
         for (let i = 0; i < parts.length; i++) {
+          const chunkId = crypto.createHash('sha1').update(relPath + '|' + i).digest('hex');
           batch.push({
+            id: chunkId,
+            file: relPath,
             hash: hashes[i],
             uri: relPath,
             title,
@@ -249,7 +252,7 @@ export class RobinsonsContextEngine {
           });
           chunkCount++;
           if (vecs[i]) vecCount++;
-          
+
           // Write in batches to avoid memory issues
           if (batch.length >= 200) {
             await this.store.writeChunks(batch.splice(0, batch.length));
