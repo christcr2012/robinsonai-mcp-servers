@@ -5,6 +5,7 @@
 
 import path from 'node:path';
 import type { ServerContext } from '../lib/context.js';
+import { indexRepo } from '../context/indexer.js';
 
 export const contextIndexRepoDescriptor = {
   name: 'context_index_repo',
@@ -19,7 +20,13 @@ export const contextIndexRepoDescriptor = {
 
 export async function contextIndexRepoTool(args: any, ctx: ServerContext) {
   try {
-    await ctx.ctx.ensureIndexed();
+    // If force flag is set, call indexRepo directly with force option
+    if (args?.force) {
+      await indexRepo(ctx.workspaceRoot, { force: true });
+    } else {
+      await ctx.ctx.ensureIndexed();
+    }
+
     const stats = await ctx.ctx.stats();
     return {
       ok: true,

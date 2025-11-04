@@ -1,7 +1,8 @@
 {
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\context\\indexer.ts": "1509fa605a290e6ca447a2e0ad3235b3dc2104b9",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\augment-mcp-config.json": "56b165f50ac58d538afc936f12899d3f0e680462",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\package.json": "08f9a56afc8ecfbcba37717e2ba6934a6dc23e7a",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\package.json": "8b73e1b662bcfa37bbbab5548facfe01e290d150",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\skill-packs.db-wal": "985c9dce2c1618c4ee45ed2befcb92eb5d4d3103",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\architect.db-wal": "220714f8cd4e5dedf13b559dfbe9a69d0eaac885"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\architect.db-wal": "220714f8cd4e5dedf13b559dfbe9a69d0eaac885",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\tools\\context_index_repo.ts": "654c1c33ef052b8eeab51414959e0e51ecaa8a85"
 }
