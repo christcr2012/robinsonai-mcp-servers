@@ -41,7 +41,7 @@ import { CodeGenerator } from './agents/code-generator.js';
 import { CodeAnalyzer } from './agents/code-analyzer.js';
 import { CodeRefactor } from './agents/code-refactor.js';
 import { StatsTracker } from './utils/stats-tracker.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinson_ai_systems/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams } from '@robinson_ai_systems/shared-llm';
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, getModelConfig, estimateTaskCost } from './model-catalog.js';
 import { warmupAvailableModels } from './utils/model-warmup.js';
@@ -407,7 +407,7 @@ class AutonomousAgentServer {
    */
   private async executeVersatileTask(args: {
     task: string;
-    taskType: 'code_generation' | 'code_analysis' | 'refactoring' | 'test_generation' | 'documentation' | 'toolkit_call' | 'file_editing';
+    taskType: 'code_generation' | 'code_analysis' | 'refactoring' | 'test_generation' | 'documentation' | 'toolkit_call' | 'thinking_tool_call' | 'file_editing';
     params?: any;
     forcePaid?: boolean;  // NEW: If true, return error (Autonomous Agent is FREE only)
   }): Promise<any> {
@@ -498,6 +498,33 @@ class AutonomousAgentServer {
             total: 0,
             currency: 'USD',
             note: 'FREE - Robinson\'s Toolkit call',
+          },
+        };
+
+      case 'thinking_tool_call':
+        // Call Thinking Tools MCP for cognitive frameworks, context engine, etc.
+        const thinkingClient = getSharedThinkingClient();
+
+        const thinkingParams: ThinkingToolCallParams = {
+          tool_name: params.tool_name || '',
+          arguments: params.arguments || {},
+        };
+
+        const thinkingResult = await thinkingClient.callTool(thinkingParams);
+
+        if (!thinkingResult.success) {
+          throw new Error(`Thinking tool call failed: ${thinkingResult.error}`);
+        }
+
+        return {
+          success: true,
+          result: thinkingResult.result,
+          augmentCreditsUsed: 50, // Just for orchestration
+          creditsSaved: 300, // Saved by using thinking tools instead of AI
+          cost: {
+            total: 0,
+            currency: 'USD',
+            note: 'FREE - Thinking Tools MCP call',
           },
         };
 
@@ -991,17 +1018,17 @@ Generate the modified section now:`;
       },
       {
         name: 'execute_versatile_task_autonomous-agent-mcp',
-        description: 'Execute ANY task - coding, DB setup, deployment, account management, etc. This agent is VERSATILE and can handle all types of work using FREE Ollama + Robinson\'s Toolkit (906 tools).',
+        description: 'Execute ANY task - coding, DB setup, deployment, account management, thinking/planning, etc. This agent is VERSATILE and can handle all types of work using FREE Ollama + Robinson\'s Toolkit (1165 tools) + Thinking Tools (64 cognitive frameworks).',
         inputSchema: {
           type: 'object',
           properties: {
             task: {
               type: 'string',
-              description: 'What to do (e.g., "Generate user profile component", "Set up Neon database", "Deploy to Vercel")',
+              description: 'What to do (e.g., "Generate user profile component", "Set up Neon database", "Deploy to Vercel", "Analyze with SWOT", "Use devils advocate")',
             },
             taskType: {
               type: 'string',
-              enum: ['code_generation', 'code_analysis', 'refactoring', 'test_generation', 'documentation', 'toolkit_call', 'file_editing'],
+              enum: ['code_generation', 'code_analysis', 'refactoring', 'test_generation', 'documentation', 'toolkit_call', 'thinking_tool_call', 'file_editing'],
               description: 'Type of task to execute',
             },
             params: {

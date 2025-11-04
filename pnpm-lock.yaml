@@ -93,8 +93,8 @@ importers:
         specifier: ^1.0.4
         version: 1.20.2
       '@robinson_ai_systems/shared-llm':
-        specifier: ^0.1.0
-        version: 0.1.6(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
+        specifier: workspace:*
+        version: link:../../standalone/libraries/shared-llm
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13

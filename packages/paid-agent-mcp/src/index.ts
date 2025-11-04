@@ -37,7 +37,7 @@ import { initializePricing, getModelPricing, getPricingInfo, refreshPricing } fr
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, estimateTaskCost, getModelConfig, COST_POLICY, requiresApproval, withinBudget } from './model-catalog.js';
 import { getSharedOllamaClient } from './ollama-client.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor } from '@robinson_ai_systems/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams } from '@robinson_ai_systems/shared-llm';
 import { buildStrictSystemPrompt } from './prompt-builder.js';
 import { getWorkspaceRoot } from './lib/workspace.js';
 
