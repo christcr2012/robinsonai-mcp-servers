@@ -41,5 +41,7 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\package-lock.json": "cdb2cf5cfcea3a06713c2d564dda02d457b73e64",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\ARCHITECTURE-FIX-PLAN.md": "e440263f41edb55fee56dca8738f55d000b85ab3",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\shared-llm\\package.json": "d57cb09d658c4fc5e65b7ef0b86bc5f0226df721",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\src\\index.ts": "5c1b4ff6a00577ecfe8c5367365053257c3c882c"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\src\\index.ts": "5c1b4ff6a00577ecfe8c5367365053257c3c882c",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-versatility.mjs": "84219f50f6056c78bfe271490ee01e8d5b090b2b",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-code-structure.mjs": "341cb09e12521dd654d8b90434f3b05d182b86ec"
 }
