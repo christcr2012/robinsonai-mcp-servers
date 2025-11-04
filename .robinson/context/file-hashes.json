@@ -14,7 +14,7 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\robinsons-context-engine\\src\\rankers\\doc_first.ts": "7acc9774cf273cfef544f8229eabd71d67e3c497",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\robinsons-context-engine\\src\\incremental.ts": "909902e6341de8ddaf6ff38dce74dd0d5da17037",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\robinsons-context-engine\\src\\index.ts": "8a6153946716a8556e52bb540655f2b50a8bf1fc",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\pnpm-lock.yaml": "417155fbfbad81d498768a26579bee11aa76246e",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\pnpm-lock.yaml": "781762185fbaffee2a1d32774f7068efe83ae214",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\test-tools.mjs": "b7996091dbb06129439d7f6a8b0485c017aa67de",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\tools\\sequential-thinking-impl.ts": "6b62fcccfb4956e77c92b4eaff2d2a0a21b84351",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\lib\\context-enhancer.ts": "4cd9a02120c2b735b74ed2c20f2c9fe5c1b03ac0",
@@ -22,7 +22,7 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-all-tools.md": "329cd856838ed373ac40a24aaedccb789a4914b2",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\IMPLEMENTATION-SUMMARY.md": "a8a5b2f1a15a688b9c4c7ec6ce07ac24efe0a117",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\free-agent-mcp\\package.json": "a9af06150a213c294b6e5c70fe301f9d32a8a567",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\package.json": "24406ca33bc7378abb85d1b397ce249308335ccc",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\package.json": "9e3f0a1c31bb3decf2e9e257ebca810d775d9827",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\package.json": "29246f61d15393d28b6119010d79f31667967768",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-toolkit-mcp\\package.json": "cb31b1aaa7d7f9115c2f5d6862c6da94a66b1044",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\CREDIT-OPTIMIZER-UPGRADE-PLAN.md": "f1c62f1d5b6b716b469ee3bb74e53a9ed5449795",
@@ -41,5 +41,5 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\package-lock.json": "cdb2cf5cfcea3a06713c2d564dda02d457b73e64",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\ARCHITECTURE-FIX-PLAN.md": "d61e75ad0daf5738c8bafadd6d09f968de6edf34",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\shared-llm\\package.json": "d57cb09d658c4fc5e65b7ef0b86bc5f0226df721",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\src\\index.ts": "5d0b2d86cc0fdf98b413b06d73e7147e9327ec35"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\src\\index.ts": "5c1b4ff6a00577ecfe8c5367365053257c3c882c"
 }

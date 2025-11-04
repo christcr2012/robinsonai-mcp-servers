@@ -335,17 +335,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'execute_versatile_task_paid-agent-mcp',
-        description: 'Execute ANY task using PAID models (OpenAI, Claude, etc.). This agent is VERSATILE and can handle all types of work. Supports multi-provider execution with smart model selection and cost optimization.',
+        description: 'Execute ANY task using PAID models (OpenAI, Claude, etc.). This agent is VERSATILE and can handle all types of work including coding, DB setup, deployment, account management, thinking/planning. Supports multi-provider execution with smart model selection and cost optimization. Has access to Robinson\'s Toolkit (1165 tools) and Thinking Tools (64 cognitive frameworks).',
         inputSchema: {
           type: 'object',
           properties: {
             task: {
               type: 'string',
-              description: 'What to do (e.g., "Generate user profile component", "Set up Neon database", "Deploy to Vercel")',
+              description: 'What to do (e.g., "Generate user profile component", "Set up Neon database", "Deploy to Vercel", "Analyze with SWOT", "Use devils advocate")',
             },
             taskType: {
               type: 'string',
-              enum: ['code_generation', 'code_analysis', 'refactoring', 'test_generation', 'documentation', 'toolkit_call', 'file_editing'],
+              enum: ['code_generation', 'code_analysis', 'refactoring', 'test_generation', 'documentation', 'toolkit_call', 'thinking_tool_call', 'file_editing'],
               description: 'Type of task to execute',
             },
             params: {
@@ -408,6 +408,33 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ['category'],
+        },
+      },
+      // Thinking Tools Discovery (64 cognitive frameworks + Context Engine)
+      {
+        name: 'discover_thinking_tools_paid-agent-mcp',
+        description: 'Search for thinking tools by keyword. Find cognitive frameworks (devils_advocate, swot_analysis, etc.) and context engine tools (context_query, docs_find, etc.).',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Search query (e.g., "analyze", "context", "documentation")',
+            },
+            limit: {
+              type: 'number',
+              description: 'Maximum number of results (default: 10)',
+            },
+          },
+          required: ['query'],
+        },
+      },
+      {
+        name: 'list_thinking_tools_paid-agent-mcp',
+        description: 'List all available thinking tools (64 total: 24 cognitive frameworks + 8 Context Engine tools + 32 others).',
+        inputSchema: {
+          type: 'object',
+          properties: {},
         },
       },
       // Quality Gates Pipeline Tools (using PAID models)
@@ -567,6 +594,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await handleListToolkitCategories();
       case 'list_toolkit_tools_openai-worker-mcp':
         return await handleListToolkitTools(args);
+
+      // Thinking Tools
+      case 'discover_thinking_tools_paid-agent-mcp':
+        return await handleDiscoverThinkingTools(args);
+      case 'list_thinking_tools_paid-agent-mcp':
+        return await handleListThinkingTools();
 
       // Quality Gates Pipeline Tools
       case 'paid_agent_execute_with_quality_gates':
@@ -1078,6 +1111,38 @@ async function handleExecuteVersatileTask(args: any) {
                   total: 0,
                   currency: 'USD',
                   note: 'FREE - Robinson\'s Toolkit call',
+                },
+              }, null, 2),
+            },
+          ],
+        };
+
+      case 'thinking_tool_call':
+        // Call Thinking Tools MCP for cognitive frameworks, context engine, etc.
+        const thinkingClient = getSharedThinkingClient();
+
+        const thinkingParams: ThinkingToolCallParams = {
+          tool_name: params.tool_name || '',
+          arguments: params.arguments || {},
+        };
+
+        const thinkingResult = await thinkingClient.callTool(thinkingParams);
+
+        if (!thinkingResult.success) {
+          throw new Error(`Thinking tool call failed: ${thinkingResult.error}`);
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                result: thinkingResult.result,
+                cost: {
+                  total: 0,
+                  currency: 'USD',
+                  note: 'FREE - Thinking Tools MCP call',
                 },
               }, null, 2),
             },
@@ -1796,6 +1861,89 @@ async function handleListToolkitTools(args: any) {
         {
           type: 'text',
           text: JSON.stringify(result.result, null, 2),
+        },
+      ],
+    };
+  } catch (error: any) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({ error: error.message }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * Discover thinking tools
+ */
+async function handleDiscoverThinkingTools(args: any) {
+  try {
+    const thinkingClient = getSharedThinkingClient();
+    const result = await thinkingClient.listTools();
+
+    if (!result.success) {
+      throw new Error(`Failed to list thinking tools: ${result.error}`);
+    }
+
+    // Filter tools by query if provided
+    const query = args.query?.toLowerCase() || '';
+    const limit = args.limit || 10;
+    const tools = result.result || [];
+
+    const filtered = query
+      ? tools.filter((tool: any) =>
+          tool.name?.toLowerCase().includes(query) ||
+          tool.description?.toLowerCase().includes(query)
+        )
+      : tools;
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            tools: filtered.slice(0, limit),
+            total: filtered.length,
+            query,
+          }, null, 2),
+        },
+      ],
+    };
+  } catch (error: any) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({ error: error.message }, null, 2),
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * List all thinking tools
+ */
+async function handleListThinkingTools() {
+  try {
+    const thinkingClient = getSharedThinkingClient();
+    const result = await thinkingClient.listTools();
+
+    if (!result.success) {
+      throw new Error(`Failed to list thinking tools: ${result.error}`);
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            tools: result.result,
+            total: result.result?.length || 0,
+          }, null, 2),
         },
       ],
     };

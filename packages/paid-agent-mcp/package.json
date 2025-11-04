@@ -35,7 +35,7 @@
     "@anthropic-ai/sdk": "^0.32.1",
     "@modelcontextprotocol/sdk": "^1.0.4",
     "@robinson_ai_systems/free-agent-mcp": "^0.1.15",
-    "@robinson_ai_systems/shared-llm": "^0.1.5",
+    "@robinson_ai_systems/shared-llm": "workspace:*",
     "better-sqlite3": "^11.10.0",
     "openai": "^4.77.3"
   },
