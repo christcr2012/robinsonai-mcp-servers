@@ -355,6 +355,20 @@ class CreditOptimizerServer {
           }
         }
 
+        // Model Routing & Quality Gates
+        else if (name === 'credit_optimize_execute') {
+          const { optimizeExecuteTool } = await import('./tools/optimize_execute.js');
+          result = await optimizeExecuteTool(params, { workspaceRoot: process.cwd() });
+        }
+        else if (name === 'credit_optimizer_health') {
+          const { optimizerHealthTool } = await import('./tools/optimizer_health.js');
+          result = await optimizerHealthTool();
+        }
+        else if (name === 'credit_ollama_health') {
+          const { ollamaHealthTool } = await import('./tools/ollama_health.js');
+          result = await ollamaHealthTool();
+        }
+
         else {
           throw new Error(`Unknown tool: ${name}`);
         }
@@ -988,6 +1002,51 @@ class CreditOptimizerServer {
             dryRun: { type: 'boolean', description: 'Preview without creating files' },
           },
           required: ['name', 'inputs'],
+        },
+      },
+      // Model Routing & Quality Gates (3 tools)
+      {
+        name: 'credit_optimize_execute',
+        description: 'Run a prompt under a budget and quality policy. Will try free local (Ollama) first, then escalate to paid if gates fail.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            task: { type: 'string', enum: ['codegen', 'analysis', 'classification', 'embedding'], description: 'Task type' },
+            prompt: {
+              type: 'object',
+              properties: {
+                system: { type: 'string', description: 'System prompt (optional)' },
+                user: { type: 'string', description: 'User prompt' },
+              },
+              required: ['user'],
+            },
+            budget: {
+              type: 'object',
+              properties: {
+                maxUsd: { type: 'number', description: 'Maximum cost in USD (default: 0.50)' },
+                preferFree: { type: 'boolean', description: 'Prefer free models (default: true)' },
+                maxLatencyMs: { type: 'number', description: 'Maximum latency in milliseconds' },
+                quality: { type: 'number', description: 'Minimum quality score 0-1 (default: 0.85)' },
+              },
+            },
+          },
+          required: ['task', 'prompt'],
+        },
+      },
+      {
+        name: 'credit_optimizer_health',
+        description: 'List enabled providers and environment readiness.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'credit_ollama_health',
+        description: 'Check Ollama availability and loaded models.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
         },
       },
     ];

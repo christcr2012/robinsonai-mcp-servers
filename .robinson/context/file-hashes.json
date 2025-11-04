@@ -24,5 +24,13 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\free-agent-mcp\\package.json": "342f0a49d251008388b64a9dbbb2a7cb6076fc58",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\package.json": "24406ca33bc7378abb85d1b397ce249308335ccc",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\package.json": "29246f61d15393d28b6119010d79f31667967768",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-toolkit-mcp\\package.json": "cb31b1aaa7d7f9115c2f5d6862c6da94a66b1044"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\robinsons-toolkit-mcp\\package.json": "cb31b1aaa7d7f9115c2f5d6862c6da94a66b1044",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\CREDIT-OPTIMIZER-UPGRADE-PLAN.md": "f1c62f1d5b6b716b469ee3bb74e53a9ed5449795",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\src\\lib\\model_catalog.ts": "7ec5d13458b29fa0111628c5c2048413456f8939",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\src\\lib\\providers.ts": "07a4073dff53c47ad82b11602df922235940624e",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\src\\lib\\policy.ts": "2b13ebe0aa108f5ed239f1cb1a2cf46160b6a02e",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\src\\tools\\optimize_execute.ts": "a6e1274a3b0b905dcfc1c0ad58ebba5e9cf8a402",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\src\\tools\\optimizer_health.ts": "89f906cb718394a8e904d8ef971b4dc621b6170e",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\src\\tools\\ollama_health.ts": "1e71eeb8501cd5551b50375141ffc302b7742ed8",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\credit-optimizer-mcp\\src\\index.ts": "e565224c370cb13f37f6462fd73549983abcd764"
 }
