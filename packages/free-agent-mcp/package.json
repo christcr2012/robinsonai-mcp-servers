@@ -94,6 +94,10 @@
   "bin": {
     "free-agent-mcp": "./bin/free-agent-mcp.js"
   },
+  "files": [
+    "dist/",
+    "bin/"
+  ],
   "scripts": {
     "build": "tsc",
     "build:sandbox": "docker build -t free-agent-sandbox:latest .docker",
@@ -101,7 +105,7 @@
     "start": "node dist/index.js",
     "test": "echo \"Tests coming soon\"",
     "check-training": "node dist/learning/auto-train-monitor.js check",
-    "prepare": "npm run build"
+    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs"
   },
   "keywords": [
     "mcp",

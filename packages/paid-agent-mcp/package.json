@@ -8,11 +8,16 @@
   "bin": {
     "paid-agent-mcp": "./bin/paid-agent-mcp.js"
   },
+  "files": [
+    "dist/",
+    "bin/"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
-    "test": "echo \"Tests coming soon\""
+    "test": "echo \"Tests coming soon\"",
+    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs"
   },
   "keywords": [
     "mcp",

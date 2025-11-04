@@ -7,12 +7,16 @@
   "bin": {
     "robinsons-toolkit-mcp": "./bin/robinsons-toolkit-mcp.js"
   },
+  "files": [
+    "dist/",
+    "bin/"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "npm run build"
+    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs"
   },
   "keywords": [
     "mcp",
