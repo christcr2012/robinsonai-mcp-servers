@@ -1,0 +1,15 @@
+Found 845 files
+INCLUDE: ["**/*.{ts,tsx,js,jsx,md,mdx,json,yml,yaml,sql,py,sh,ps1}"]
+EXCLUDE: ["**/node_modules/**","**/.git/**","**/dist/**","**/build/**","**/.next/**","**/.turbo/**","**/.venv*/**","**/venv/**","**/__pycache__/**","**/.pytest_cache/**","**/site-packages/**","**/.augment/**","**/.robinson/**","**/.backups/**","**/.training/**","**/sandbox/**","**/*.db","**/*.db-shm","**/*.db-wal","**/.rce_index/**"]
+cwd: C:/Users/chris/Git Local/robinsonai-mcp-servers
+First 10 files:
+5_SERVER_CONFIG_COMPLETE_SUMMARY.md
+6-SERVER-REFERENCES-UPDATE-PLAN.md
+ACTION_PLAN_POST_DIAGNOSTIC.md
+ADDITIONAL_IMPROVEMENTS_COMPLETE.md
+AGENT_CONCURRENCY_SETTINGS.md
+AGENT_ENHANCEMENT_STRATEGY.md
+AGENT_IMPROVEMENTS_COMPLETE.md
+AGENT_QUALITY_SOLUTION.md
+AGENT_TOOLS_FIX_SUMMARY.md
+ARCHITECTURAL_ISSUES_FOUND.md
