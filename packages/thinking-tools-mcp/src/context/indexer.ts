@@ -198,6 +198,10 @@ export async function indexRepo(
 
     console.log(`📁 Found ${allFiles.length} total files`);
 
+    // DEBUG: Write glob results to file
+    fs.writeFileSync(path.join(repoRoot, '.robinson', 'context', 'debug-glob.txt'),
+      `Found ${allFiles.length} files\nINCLUDE: ${JSON.stringify(INCLUDE)}\nEXCLUDE: ${JSON.stringify(EXCLUDE)}\ncwd: ${repoRoot}\nFirst 10 files:\n${allFiles.slice(0, 10).join('\n')}\n`);
+
     // If force flag is set, process ALL files (full reindex)
     let changed: string[];
     let removed: string[];
