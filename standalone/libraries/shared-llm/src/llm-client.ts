@@ -8,7 +8,7 @@
 import { ollamaGenerate } from './ollama-client.js';
 
 export interface LLMGenerateOptions {
-  provider: 'ollama' | 'openai' | 'claude';
+  provider: 'ollama' | 'openai' | 'claude' | 'voyage';
   model: string;
   prompt: string;
   format?: 'json' | 'text';
@@ -126,6 +126,55 @@ export async function llmGenerate(options: LLMGenerateOptions): Promise<LLMGener
       text,
       model,
       provider: 'claude',
+      tokensInput,
+      tokensOutput,
+      tokensTotal,
+      cost,
+    };
+  }
+
+  if (provider === 'voyage') {
+    const apiKey = process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('Voyage API key missing. Set VOYAGE_API_KEY or reuse ANTHROPIC_API_KEY.');
+    }
+
+    const baseUrl = (process.env.VOYAGE_BASE_URL || 'https://api.voyageai.com/v1').replace(/\/$/, '');
+    const response = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: temperature ?? 0.2,
+        max_output_tokens: maxTokens ?? 4096,
+        response_format: format === 'json' ? { type: 'json_object' } : undefined,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Voyage request failed: HTTP ${response.status} ${errorText}`);
+    }
+
+    const data: any = await response.json();
+    const text = data.choices?.[0]?.message?.content ?? '';
+    const usage = data.usage ?? {};
+    const tokensInput = usage.prompt_tokens ?? 0;
+    const tokensOutput = usage.completion_tokens ?? 0;
+    const tokensTotal = usage.total_tokens ?? tokensInput + tokensOutput;
+
+    const costPerInputToken = 0.00012; // ≈$0.12 per 1K tokens (voyage-code-2)
+    const costPerOutputToken = 0.00012;
+    const cost = tokensInput * costPerInputToken + tokensOutput * costPerOutputToken;
+
+    return {
+      text,
+      model,
+      provider: 'voyage',
       tokensInput,
       tokensOutput,
       tokensTotal,

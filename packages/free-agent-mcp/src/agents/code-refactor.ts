@@ -9,6 +9,7 @@ import { OllamaClient, GenerateOptions } from '../ollama-client.js';
 import { PromptBuilder } from '../utils/prompt-builder.js';
 import { iterateTask, PipelineResult } from '../pipeline/index.js';
 import { ValidationResult } from '../types/validation.js';
+import { formatGMCode, formatUnifiedDiffs, type OutputFile } from '../utils/output-format.js';
 
 export interface RefactorRequest {
   code: string;
@@ -32,6 +33,9 @@ export interface RefactorResult {
   timeMs: number;
   validation?: ValidationResult;
   refinementAttempts?: number;
+  filesDetailed?: OutputFile[];
+  gmcode?: string;
+  diff?: string;
 }
 
 export class CodeRefactor {
@@ -110,6 +114,16 @@ Requirements:
     const augmentCreditsUsed = 400;
     const creditsSaved = 7000 - augmentCreditsUsed;
 
+    const detailedFiles: OutputFile[] = (pipelineResult.files ?? []).map((file, index) => ({
+      path: file.path || `refactored-${index}.ts`,
+      content: file.content,
+      originalContent: index === 0 ? request.code : undefined,
+    }));
+
+    if (detailedFiles.length === 0) {
+      detailedFiles.push({ path: 'refactored.ts', content: code, originalContent: request.code });
+    }
+
     return {
       refactoredCode: code,
       changes,
@@ -120,6 +134,9 @@ Requirements:
       timeMs: totalTimeMs,
       validation,
       refinementAttempts: pipelineResult.attempts,
+      filesDetailed: detailedFiles,
+      gmcode: detailedFiles.length > 0 ? formatGMCode(detailedFiles) : undefined,
+      diff: detailedFiles.length > 0 ? formatUnifiedDiffs(detailedFiles) : undefined,
     };
   }
 

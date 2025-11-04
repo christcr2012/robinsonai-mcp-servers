@@ -12,6 +12,7 @@ import { ValidationResult } from '../types/validation.js';
 import { getModelManager } from '../utils/model-manager.js';
 import { isDockerAvailable, runDockerSandboxPipeline } from '../pipeline/docker-sandbox.js';
 import { runSandboxPipeline } from '../pipeline/sandbox.js';
+import { formatGMCode, formatUnifiedDiffs, type OutputFile } from '../utils/output-format.js';
 
 export interface GenerateRequest {
   task: string;
@@ -28,6 +29,9 @@ export interface GenerateResult {
     path: string;
     content: string;
   }>;
+  filesDetailed?: OutputFile[];
+  gmcode?: string;
+  diff?: string;
   augmentCreditsUsed: number;
   creditsSaved: number;
   model: string;
@@ -103,6 +107,16 @@ export class CodeGenerator {
     const augmentCreditsUsed = 500;
     const creditsSaved = 13000 - augmentCreditsUsed;
 
+    const detailedFiles: OutputFile[] = (files ?? []).map((file, index) => ({
+      path: file.path || `generated-${index}.ts`,
+      content: file.content,
+      originalContent: '',
+    }));
+
+    if (detailedFiles.length === 0 && code) {
+      detailedFiles.push({ path: 'generated.ts', content: code, originalContent: '' });
+    }
+
     return {
       code,
       files,
@@ -122,6 +136,9 @@ export class CodeGenerator {
       timeMs: totalTimeMs,
       validation,
       refinementAttempts: pipelineResult.attempts,
+      filesDetailed: detailedFiles,
+      gmcode: detailedFiles.length > 0 ? formatGMCode(detailedFiles) : undefined,
+      diff: detailedFiles.length > 0 ? formatUnifiedDiffs(detailedFiles) : undefined,
     };
   }
 
@@ -175,6 +192,16 @@ Requirements:
       }] : [],
     };
 
+    const detailedFiles: OutputFile[] = (testFiles.length > 0 ? testFiles : pipelineResult.files).map((file, index) => ({
+      path: file.path || `tests-${index}.ts`,
+      content: file.content,
+      originalContent: '',
+    }));
+
+    if (detailedFiles.length === 0 && code) {
+      detailedFiles.push({ path: 'generated-tests.ts', content: code, originalContent: '' });
+    }
+
     return {
       code,
       files: testFiles,
@@ -194,6 +221,9 @@ Requirements:
       timeMs: totalTimeMs,
       validation,
       refinementAttempts: pipelineResult.attempts,
+      filesDetailed: detailedFiles,
+      gmcode: detailedFiles.length > 0 ? formatGMCode(detailedFiles) : undefined,
+      diff: detailedFiles.length > 0 ? formatUnifiedDiffs(detailedFiles) : undefined,
     };
   }
 
@@ -240,6 +270,16 @@ Requirements:
 
     const totalTimeMs = Date.now() - startTime;
 
+    const detailedFiles: OutputFile[] = (parsed.files || []).map((file, index) => ({
+      path: file.path || `generated-${index}.ts`,
+      content: file.content,
+      originalContent: '',
+    }));
+
+    if (detailedFiles.length === 0 && parsed.code) {
+      detailedFiles.push({ path: 'generated.ts', content: parsed.code, originalContent: '' });
+    }
+
     return {
       code: parsed.code,
       files: parsed.files || [{
@@ -266,6 +306,9 @@ Requirements:
         issues: [],
       },
       refinementAttempts: 1,
+      filesDetailed: detailedFiles,
+      gmcode: detailedFiles.length > 0 ? formatGMCode(detailedFiles) : undefined,
+      diff: detailedFiles.length > 0 ? formatUnifiedDiffs(detailedFiles) : undefined,
     };
   }
 
@@ -363,6 +406,12 @@ Requirements:
 
     const result = await this.ollama.generate(prompt, options);
 
+    const detailedFiles: OutputFile[] = [{
+      path: 'documentation.md',
+      content: result.text,
+      originalContent: '',
+    }];
+
     return {
       code: result.text,
       augmentCreditsUsed: 200,
@@ -379,6 +428,9 @@ Requirements:
         note: 'FREE - Local Ollama model',
       },
       timeMs: result.timeMs,
+      filesDetailed: detailedFiles,
+      gmcode: formatGMCode(detailedFiles),
+      diff: formatUnifiedDiffs(detailedFiles),
     };
   }
 
