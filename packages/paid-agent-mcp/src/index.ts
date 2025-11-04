@@ -2055,7 +2055,8 @@ async function handleExecuteWithQualityGates(args: any) {
  */
 async function handleJudgeCodeQuality(args: any) {
   try {
-    const { judgeCode } = await import('../../free-agent-mcp/dist/pipeline/judge.js');
+    // ✅ FIXED: Import from shared-pipeline instead of FREE agent
+    const { judgeCode } = await import('@robinson_ai_systems/shared-pipeline');
 
     // Build signals from provided data or create empty signals
     const signals = args.signals || {
@@ -2118,7 +2119,8 @@ async function handleJudgeCodeQuality(args: any) {
  */
 async function handleRefineCode(args: any) {
   try {
-    const { applyFixPlan } = await import('../../free-agent-mcp/dist/pipeline/refine.js');
+    // ✅ FIXED: Import from shared-pipeline instead of FREE agent
+    const { applyFixPlan } = await import('@robinson_ai_systems/shared-pipeline');
 
     // Convert code string to file structure
     const currentFiles = [{
@@ -2192,7 +2194,8 @@ async function handleRefineCode(args: any) {
  */
 async function handleGenerateProjectBrief(args: any) {
   try {
-    const { makeProjectBrief } = await import('../../free-agent-mcp/dist/utils/project-brief.js');
+    // ✅ FIXED: Import from shared-utils instead of FREE agent
+    const { makeProjectBrief } = await import('@robinson_ai_systems/shared-utils');
 
     const repoPath = args.repoPath || getWorkspaceRoot();
     const brief = await makeProjectBrief(repoPath);

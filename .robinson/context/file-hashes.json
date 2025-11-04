@@ -39,9 +39,9 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\shared-llm\\src\\index.ts": "67fa72747f1b7fcd421137ebe56a9d30a7b26d77",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\free-agent-mcp\\src\\index.ts": "746765ba820ad1a75778daa319befab993003306",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\package-lock.json": "cdb2cf5cfcea3a06713c2d564dda02d457b73e64",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\ARCHITECTURE-FIX-PLAN.md": "077dc0391f3a713fd2917d562cb2b1ad9537e036",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\ARCHITECTURE-FIX-PLAN.md": "b7eb211406410d3007832f309c311ea5880cf3cc",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\shared-llm\\package.json": "d57cb09d658c4fc5e65b7ef0b86bc5f0226df721",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\src\\index.ts": "9e122b8729a0c801bcf9efc75cd4ba6ae15dc961",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\paid-agent-mcp\\src\\index.ts": "1265e9183b47841f0e690a4530ff6cd2c0184d5d",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-versatility.mjs": "84219f50f6056c78bfe271490ee01e8d5b090b2b",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-code-structure.mjs": "341cb09e12521dd654d8b90434f3b05d182b86ec",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\shared-pipeline\\package.json": "87962c5a3f800097379904891fbb9befd334e0ec",
@@ -56,5 +56,11 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\shared-pipeline\\src\\synthesize.ts": "eeead8630e839241fda1b11a50bd004c00808092",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\shared-utils\\src\\index.ts": "01bb2c51e5536aa1a1a049408968c5585a71db12",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\shared-pipeline\\src\\sandbox.ts": "2700c1199115995d835a4eb3535d100d044f02f7",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\PHASE-3-COMPLETE.md": "0b2034d9fd36ec7b3c3b2ccf0d95b3abc4c33eeb"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\PHASE-3-COMPLETE.md": "0b2034d9fd36ec7b3c3b2ccf0d95b3abc4c33eeb",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-phase-4-architecture.mjs": "a8b1af5320653eb123a4cedadf97fe64140f41e4",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\PHASE-4-COMPLETE.md": "d6377ac04504726bc018ea299db80ef4af725688",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\PHASE-4-REAL-WORLD-TEST-PLAN.md": "ca6733c0977a6fcc28e280613b203998643454ee",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\PHASE-4-REAL-WORLD-TEST-PLAN-PART2.md": "4d2fb9f82ce9884e71a5fce85019df99e8215f31",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-imports.mjs": "174609a98b368471d1667564881a06c399ea0234",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\PHASE-4-TEST-RESULTS.md": "1bce0136655ed194b9eeff4ca9704061b15b0b98"
 }
