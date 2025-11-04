@@ -59,4 +59,3 @@ export function formatUnifiedDiffs(files: OutputFile[]): string {
 export function normalizeOutputFiles(files: Array<{ path: string; content: string }>): OutputFile[] {
   return files.map(file => ({ ...file }));
 }
-

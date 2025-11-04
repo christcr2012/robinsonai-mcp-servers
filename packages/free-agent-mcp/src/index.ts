@@ -84,7 +84,7 @@ const THINKING_TOOL_HINTS: Array<{ regex: RegExp; name: string; aliases?: string
   { regex: /red team|attack|penetration/i, name: 'red_team' },
   { regex: /blue team|defend|mitigat/i, name: 'blue_team' },
   { regex: /decision matrix|trade[- ]?off|compare options/i, name: 'decision_matrix' },
-  { regex: /socratic|question/i, name: 'socratic_questioning' },
+  { regex: /socratic|question/i, name: 'socratic' },
   { regex: /systems thinking|feedback loop|holistic/i, name: 'systems_thinking' },
   { regex: /scenario planning|future state/i, name: 'scenario_planning' },
   { regex: /brainstorm/i, name: 'brainstorming' },
@@ -578,38 +578,27 @@ class AutonomousAgentServer {
           arguments: params.arguments || {},
         };
 
-        try {
-          const toolkitResult = await toolkitClient.callTool(toolkitParams);
+        const toolkitResult = await toolkitClient.callTool(toolkitParams);
 
-          if (!toolkitResult.success) {
-            throw new Error(`Toolkit call failed: ${toolkitResult.error}`);
-          }
-
-          return {
-            success: true,
-            result: toolkitResult.result,
-            augmentCreditsUsed: 100,
-            creditsSaved: 500,
-            cost: {
-              total: 0,
-              currency: 'USD',
-              note: 'FREE - Robinson\'s Toolkit call',
-            },
-            category,
-            tool: toolName,
-            suggestions,
-            argumentsUsed: toolkitParams.arguments,
-          };
-        } catch (error: any) {
-          return {
-            success: false,
-            error: 'TOOLKIT_CALL_FAILED',
-            message: error.message,
-            suggestions,
-            augmentCreditsUsed: 0,
-            creditsSaved: 0,
-          };
+        if (!toolkitResult.success) {
+          throw new Error(`Toolkit call failed: ${toolkitResult.error}`);
         }
+
+        return {
+          success: true,
+          result: toolkitResult.result,
+          augmentCreditsUsed: 100,
+          creditsSaved: 500,
+          cost: {
+            total: 0,
+            currency: 'USD',
+            note: 'FREE - Robinson\'s Toolkit call',
+          },
+          category,
+          tool: toolName,
+          suggestions,
+          argumentsUsed: toolkitParams.arguments,
+        };
       }
 
       case 'thinking_tool_call': {
@@ -642,41 +631,30 @@ class AutonomousAgentServer {
           arguments: toolArguments,
         };
 
-        try {
-          const thinkingResult = await thinkingClient.callTool(thinkingParams);
+        const thinkingResult = await thinkingClient.callTool(thinkingParams);
 
-          if (!thinkingResult.success) {
-            throw new Error(`Thinking tool call failed: ${thinkingResult.error}`);
-          }
-
-          return {
-            success: true,
-            result: thinkingResult.result,
-            augmentCreditsUsed: 50,
-            creditsSaved: 300,
-            cost: {
-              total: 0,
-              currency: 'USD',
-              note: 'FREE - Thinking Tools MCP call',
-            },
-            tool: toolName,
-            suggestions,
-            argumentsUsed: toolArguments,
-          };
-        } catch (error: any) {
-          return {
-            success: false,
-            error: 'THINKING_TOOL_CALL_FAILED',
-            message: error.message,
-            suggestions,
-            augmentCreditsUsed: 0,
-            creditsSaved: 0,
-          };
+        if (!thinkingResult.success) {
+          throw new Error(`Thinking tool call failed: ${thinkingResult.error}`);
         }
+
+        return {
+          success: true,
+          result: thinkingResult.result,
+          augmentCreditsUsed: 50,
+          creditsSaved: 300,
+          cost: {
+            total: 0,
+            currency: 'USD',
+            note: 'FREE - Thinking Tools MCP call',
+          },
+          tool: toolName,
+          suggestions,
+          argumentsUsed: toolArguments,
+        };
       }
 
       default:
-        throw new Error(`Unknown task type: ${resolvedTaskType}`);
+        throw new Error(`Unknown task type: ${taskType}`);
     }
   }
 
@@ -688,6 +666,33 @@ class AutonomousAgentServer {
 
     const fileEditor = getSharedFileEditor();
     const results: any[] = [];
+    const fileSnapshots = new Map<string, { before: string; after?: string; deleted?: boolean }>();
+
+    const safeRead = async (path: string): Promise<string> => {
+      if (!path) return '';
+      try {
+        return await fileEditor.readFile(path);
+      } catch {
+        return '';
+      }
+    };
+
+    const captureBefore = async (path: string) => {
+      if (!path || fileSnapshots.has(path)) {
+        return;
+      }
+      const content = await safeRead(path);
+      fileSnapshots.set(path, { before: content });
+    };
+
+    const captureAfter = async (path: string) => {
+      if (!path) {
+        return;
+      }
+      const snapshot = fileSnapshots.get(path) ?? { before: '' };
+      snapshot.after = await safeRead(path);
+      fileSnapshots.set(path, snapshot);
+    };
 
     // STEP 1: Detect task complexity and choose strategy
     // Simple tasks: Small, targeted changes (fix typo, change variable name, update version)
@@ -721,6 +726,7 @@ class AutonomousAgentServer {
       try {
         fileContent = await fileEditor.readFile(filePath);
         console.error(`[AutonomousAgent] Read ${filePath}: ${fileContent.length} chars`);
+        fileSnapshots.set(filePath, { before: fileContent });
       } catch (e: any) {
         console.error(`[AutonomousAgent] Could not read ${filePath}: ${e.message}`);
       }
@@ -821,6 +827,7 @@ Respond ONLY with the JSON array, no other text.`;
         let result: any;
         switch (op.operation) {
           case 'str_replace':
+            await captureBefore(op.path);
             result = await fileEditor.strReplace({
               path: op.path,
               old_str: op.old_str,
@@ -828,32 +835,50 @@ Respond ONLY with the JSON array, no other text.`;
               old_str_start_line: op.old_str_start_line,
               old_str_end_line: op.old_str_end_line,
             });
+            if (result.success) {
+              await captureAfter(op.path);
+            }
             break;
 
           case 'insert':
+            await captureBefore(op.path);
             result = await fileEditor.insert({
               path: op.path,
               insert_line: op.insert_line,
               new_str: op.new_str,
             });
+            if (result.success) {
+              await captureAfter(op.path);
+            }
             break;
 
           case 'save':
+            await captureBefore(op.path);
             result = await fileEditor.saveFile({
               path: op.path,
               content: op.content,
               add_last_line_newline: op.add_last_line_newline,
             });
+            if (result.success) {
+              await captureAfter(op.path);
+            }
             break;
 
           case 'delete':
+            await captureBefore(op.path);
             result = await fileEditor.deleteFile({
               path: op.path,
             });
+            if (result.success) {
+              const snapshot = fileSnapshots.get(op.path) ?? { before: '' };
+              snapshot.deleted = true;
+              fileSnapshots.set(op.path, snapshot);
+            }
             break;
 
           case 'read':
             const content = await fileEditor.readFile(op.path);
+            fileSnapshots.set(op.path, { before: content, after: content });
             result = { success: true, content, path: op.path };
             break;
 
@@ -872,6 +897,18 @@ Respond ONLY with the JSON array, no other text.`;
       const successCount = results.filter(r => r.success).length;
       const failCount = results.filter(r => !r.success).length;
 
+      const outputFiles: OutputFile[] = [];
+      for (const [path, snapshot] of fileSnapshots.entries()) {
+        const before = snapshot.before ?? '';
+        const after = snapshot.deleted ? '' : snapshot.after ?? before;
+        if (before === after && !snapshot.deleted) {
+          continue;
+        }
+        outputFiles.push({ path, content: after, originalContent: before, deleted: snapshot.deleted });
+      }
+
+      const outputs = this.buildFileOutputs(outputFiles);
+
       return {
         success: failCount === 0,
         message: `Executed ${results.length} file operations: ${successCount} succeeded, ${failCount} failed`,
@@ -883,6 +920,9 @@ Respond ONLY with the JSON array, no other text.`;
           currency: 'USD',
           note: 'FREE - Ollama + file operations',
         },
+        files: outputs.files,
+        gmcode: outputs.gmcode,
+        diff: outputs.diff,
       };
     } catch (error: any) {
       console.error(`[AutonomousAgent] File editing failed:`, error);
@@ -1003,6 +1043,13 @@ Generate the modified section now:`;
             currency: 'USD',
             note: 'FREE - Ollama full code generation',
           },
+          ...this.buildFileOutputs([
+            {
+              path: filePath,
+              content: fullFileContent,
+              originalContent: fileContent,
+            },
+          ]),
         };
       } else {
         throw new Error(result.error || 'Failed to save generated code');
@@ -1016,6 +1063,178 @@ Generate the modified section now:`;
         creditsSaved: 0,
       };
     }
+  }
+
+  private isVersatileTaskType(value: any): value is VersatileTaskType {
+    return typeof value === 'string' && (
+      value === 'code_generation' ||
+      value === 'code_analysis' ||
+      value === 'refactoring' ||
+      value === 'test_generation' ||
+      value === 'documentation' ||
+      value === 'toolkit_call' ||
+      value === 'thinking_tool_call' ||
+      value === 'file_editing'
+    );
+  }
+
+  private inferTaskType(task: string, provided?: string | VersatileTaskType, params?: any): VersatileTaskType {
+    if (provided && this.isVersatileTaskType(provided)) {
+      return provided;
+    }
+
+    const text = `${task} ${params?.context ?? ''}`.toLowerCase();
+
+    if (/(edit|modify|replace|update|rename|change line|apply diff|patch)/i.test(text)) {
+      return 'file_editing';
+    }
+
+    if (/(toolkit|github|git|repo|deploy|vercel|database|postgres|neon|redis|upstash|stripe|infrastructure|setup|api key|account)/i.test(text)) {
+      return 'toolkit_call';
+    }
+
+    if (/(context engine|context7|brainstorm|strategy|premortem|swot|decision matrix|root cause|socratic|mind map|scenario|thinking tool)/i.test(text)) {
+      return 'thinking_tool_call';
+    }
+
+    if (/(analy[sz]e|audit|review|inspect|diagnos|quality|bug|issue|risk|assess)/i.test(text)) {
+      return 'code_analysis';
+    }
+
+    if (/(refactor|rewrite|restructure|modernize|cleanup|simplify|improv|optimi[sz]|modularize)/i.test(text)) {
+      return 'refactoring';
+    }
+
+    if (/(test|unit test|integration test|coverage|spec|assertion)/i.test(text)) {
+      return 'test_generation';
+    }
+
+    if (/(documentation|readme|docstring|comment|explain|guide)/i.test(text)) {
+      return 'documentation';
+    }
+
+    return 'code_generation';
+  }
+
+  private inferToolkitCategory(task: string, params?: any): string | undefined {
+    if (params?.category) {
+      return params.category;
+    }
+
+    if (params?.tool_name) {
+      const fromTool = String(params.tool_name).split('_')[0];
+      if (fromTool) {
+        return fromTool;
+      }
+    }
+
+    const text = task.toLowerCase();
+    for (const hint of TOOLKIT_CATEGORY_HINTS) {
+      if (hint.regex.test(text)) {
+        return hint.category;
+      }
+    }
+
+    return undefined;
+  }
+
+  private async discoverToolkitSuggestions(task: string, limit: number = 5): Promise<Array<{ category: string; tool: { name: string; description?: string } }>> {
+    try {
+      const toolkitClient = getSharedToolkitClient();
+      const discovery = await toolkitClient.discoverTools(task, limit);
+
+      if (!discovery.success || !Array.isArray(discovery.result)) {
+        return [];
+      }
+
+      const textEntry = discovery.result.find((entry: any) => typeof entry?.text === 'string');
+      if (!textEntry) {
+        return [];
+      }
+
+      const parsed = JSON.parse(textEntry.text);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((item: any) => item && item.category && item.tool);
+      }
+    } catch (error) {
+      console.error('[AutonomousAgent] Toolkit discovery parse error:', error);
+    }
+
+    return [];
+  }
+
+  private async inferThinkingTool(task: string, provided?: string): Promise<{ toolName?: string; suggestions?: Array<{ name: string; description?: string }> }> {
+    if (provided) {
+      return { toolName: provided };
+    }
+
+    try {
+      const thinkingClient = getSharedThinkingClient();
+      const list = await thinkingClient.listTools();
+
+      if (!list.success || !Array.isArray(list.result)) {
+        return {};
+      }
+
+      const tools = list.result as Array<{ name: string; description?: string }>;
+      const text = task.toLowerCase();
+      const tokens = this.extractKeywords(text);
+
+      let bestScore = 0;
+      let bestTool: { name: string; description?: string } | undefined;
+
+      for (const tool of tools) {
+        const haystack = `${tool.name ?? ''} ${tool.description ?? ''}`.toLowerCase();
+        let score = 0;
+
+        for (const hint of THINKING_TOOL_HINTS) {
+          if (hint.regex.test(text) && tool.name?.toLowerCase().includes(hint.name)) {
+            score += 6;
+          } else if (hint.regex.test(text) && hint.aliases?.some(alias => haystack.includes(alias))) {
+            score += 4;
+          }
+        }
+
+        for (const token of tokens) {
+          if (token.length < 3) continue;
+          if (haystack.includes(token)) {
+            score += 1;
+          }
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestTool = tool;
+        }
+      }
+
+      if (!bestTool || bestScore === 0) {
+        const fallback = tools.find(tool => tool.name?.includes('critical_thinking')) || tools[0];
+        return { toolName: fallback?.name, suggestions: tools };
+      }
+
+      return { toolName: bestTool.name, suggestions: tools };
+    } catch (error) {
+      console.error('[AutonomousAgent] Thinking tool inference failed:', error);
+      return {};
+    }
+  }
+
+  private buildFileOutputs(files: OutputFile[]): { files: Array<{ path: string; content: string }>; gmcode?: string; diff?: string } {
+    if (files.length === 0) {
+      return { files: [] };
+    }
+
+    const filtered = files.filter(file => file);
+    return {
+      files: filtered.filter(file => !file.deleted).map(file => ({ path: file.path, content: file.content })),
+      gmcode: formatGMCode(filtered),
+      diff: formatUnifiedDiffs(filtered),
+    };
+  }
+
+  private extractKeywords(text: string): string[] {
+    return Array.from(new Set(text.split(/[^a-z0-9]+/i).filter(token => token.length > 0)));
   }
 
   private getTools(): Tool[] {
@@ -1714,105 +1933,6 @@ Generate the modified section now:`;
         creditsSaved: 0,
       };
     }
-  }
-
-  /**
-   * Infer task type from task description if not explicitly provided
-   */
-  private inferTaskType(task: string, taskType?: VersatileTaskType, params?: any): VersatileTaskType {
-    if (taskType) return taskType;
-
-    // Infer from task description
-    if (/generate|create|write|build|implement/i.test(task)) return 'code_generation';
-    if (/analyze|review|check|audit|inspect/i.test(task)) return 'code_analysis';
-    if (/refactor|restructure|reformat|improve|clean/i.test(task)) return 'refactoring';
-    if (/test|spec|coverage|unit test/i.test(task)) return 'test_generation';
-    if (/document|doc|comment|explain|describe/i.test(task)) return 'documentation';
-    if (/github|vercel|database|deploy|toolkit/i.test(task)) return 'toolkit_call';
-    if (/think|analyze|swot|decision|framework/i.test(task)) return 'thinking_tool_call';
-    if (/edit|modify|change|update|fix/i.test(task)) return 'file_editing';
-
-    return 'code_generation'; // Default
-  }
-
-  /**
-   * Infer toolkit category from task description
-   */
-  private inferToolkitCategory(task: string, params?: any): string {
-    // Check if category is explicitly provided
-    if (params?.category) return params.category;
-
-    // Try to match against hints
-    for (const hint of TOOLKIT_CATEGORY_HINTS) {
-      if (hint.regex.test(task)) {
-        return hint.category;
-      }
-    }
-
-    return ''; // No category inferred
-  }
-
-  /**
-   * Discover toolkit suggestions based on task description
-   */
-  private async discoverToolkitSuggestions(task: string, limit: number = 5): Promise<any[]> {
-    try {
-      const toolkitClient = getSharedToolkitClient();
-
-      // Extract keywords from task
-      const keywords = task
-        .toLowerCase()
-        .split(/\s+/)
-        .filter(w => w.length > 3 && !/^(the|and|for|with|from|that|this|what|when|where|why|how)$/.test(w))
-        .slice(0, 5);
-
-      // Try to discover tools for each keyword
-      const suggestions: any[] = [];
-      for (const keyword of keywords) {
-        try {
-          const result = await toolkitClient.discoverTools(keyword, limit);
-          if (result.success && result.result) {
-            suggestions.push(...(Array.isArray(result.result) ? result.result : [result.result]));
-          }
-        } catch (e) {
-          // Silently skip failed discoveries
-        }
-      }
-
-      // Deduplicate and limit
-      const seen = new Set<string>();
-      return suggestions
-        .filter(s => {
-          const key = `${s.category}:${s.tool?.name}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        })
-        .slice(0, limit);
-    } catch (error) {
-      console.error('[FREE-AGENT] Error discovering toolkit suggestions:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Infer thinking tool from task description
-   */
-  private async inferThinkingTool(task: string, toolName?: string): Promise<{ toolName: string; suggestions: any[] }> {
-    // If tool name is explicitly provided, use it
-    if (toolName) {
-      return { toolName, suggestions: [] };
-    }
-
-    // Try to match against hints
-    for (const hint of THINKING_TOOL_HINTS) {
-      if (hint.regex.test(task)) {
-        return { toolName: hint.name, suggestions: [] };
-      }
-    }
-
-    // No tool inferred
-    return { toolName: '', suggestions: [] };
   }
 
   async run(): Promise<void> {

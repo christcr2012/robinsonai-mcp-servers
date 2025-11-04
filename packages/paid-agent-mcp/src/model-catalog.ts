@@ -9,7 +9,7 @@
  *
  * Smart model selection based on:
  * - preferFree: true/false (which models to prefer)
- * - preferredProvider: 'ollama'|'openai'|'claude'|'any' (specific provider)
+ * - preferredProvider: 'ollama'|'openai'|'claude'|'voyage'|'any' (specific provider)
  * - maxCost: budget limit
  * - taskComplexity: simple|medium|complex|expert
  * - minQuality: basic|standard|premium|best
@@ -24,7 +24,7 @@
 import { selectLLMForTask, type LLMTaskContext, type LLMRecommendation } from './llm-selector.js';
 
 export interface ModelConfig {
-  provider: 'ollama' | 'openai' | 'claude';
+  provider: 'ollama' | 'openai' | 'claude' | 'voyage';
   model: string;
   baseURL?: string;
   costPerInputToken: number;
@@ -267,7 +267,48 @@ export const MODEL_CATALOG: Record<string, ModelConfig> = {
     contextWindow: 200000,
     description: 'Claude 3 Haiku - cheapest Claude option for simple tasks',
   },
+
+  // ========================================
+  // PAID VOYAGE AI MODELS
+  // ========================================
+
+  'voyage/voyage-code-2': {
+    provider: 'voyage',
+    model: 'voyage-code-2',
+    costPerInputToken: 0.00012,  // $0.12 per 1K tokens
+    costPerOutputToken: 0.00012, // $0.12 per 1K tokens
+    quality: 'premium',
+    maxTokens: 16000,
+    contextWindow: 120000,
+    description: 'Voyage Code 2 - optimized for software engineering tasks',
+  },
+
+  'voyage/voyage-3': {
+    provider: 'voyage',
+    model: 'voyage-3',
+    costPerInputToken: 0.00014,  // $0.14 per 1K tokens
+    costPerOutputToken: 0.00014, // $0.14 per 1K tokens
+    quality: 'best',
+    maxTokens: 20000,
+    contextWindow: 200000,
+    description: 'Voyage 3 - balanced premium model with long-context reasoning',
+  },
 };
+
+function isProviderAvailable(provider: ModelConfig['provider']): boolean {
+  switch (provider) {
+    case 'ollama':
+      return true;
+    case 'openai':
+      return Boolean(process.env.OPENAI_API_KEY);
+    case 'claude':
+      return Boolean(process.env.ANTHROPIC_API_KEY);
+    case 'voyage':
+      return Boolean(process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY);
+    default:
+      return false;
+  }
+}
 
 /**
  * Cost policy configuration
@@ -302,7 +343,7 @@ export function selectBestModel(params: {
   maxCost?: number;
   taskComplexity?: 'simple' | 'medium' | 'complex' | 'expert';
   preferFree?: boolean;
-  preferredProvider?: 'ollama' | 'openai' | 'claude' | 'any';
+  preferredProvider?: 'ollama' | 'openai' | 'claude' | 'voyage' | 'any';
   taskType?: 'code_generation' | 'code_analysis' | 'refactoring' | 'test_generation' | 'documentation' | 'debugging';
   language?: string;
   framework?: string;
@@ -323,27 +364,61 @@ export function selectBestModel(params: {
   // If maxCost is 0, MUST use FREE Ollama
   if (maxCost === 0) {
     console.error('[ModelCatalog] maxCost=0 → Using FREE Ollama');
-    return selectFreeModel(minQuality);
+    return resolveAvailableModel(selectFreeModel(minQuality), {
+      minQuality,
+      taskComplexity,
+      maxCost,
+      preferFree: true,
+    });
   }
 
   // If preferFree is true, try FREE first
   if (preferFree) {
     console.error('[ModelCatalog] preferFree=true → Using FREE Ollama');
-    return selectFreeModel(minQuality);
+    return resolveAvailableModel(selectFreeModel(minQuality), {
+      minQuality,
+      taskComplexity,
+      maxCost,
+      preferFree: true,
+    });
   }
 
   // If specific provider requested, use it
   if (preferredProvider === 'ollama') {
     console.error('[ModelCatalog] preferredProvider=ollama → Using FREE Ollama');
-    return selectFreeModel(minQuality);
+    return resolveAvailableModel(selectFreeModel(minQuality), {
+      minQuality,
+      taskComplexity,
+      maxCost,
+      preferFree: true,
+    });
   }
   if (preferredProvider === 'claude') {
     console.error('[ModelCatalog] preferredProvider=claude → Using PAID Claude');
-    return selectClaudeModel(taskComplexity, maxCost);
+    return resolveAvailableModel(selectClaudeModel(taskComplexity, maxCost), {
+      minQuality,
+      taskComplexity,
+      maxCost,
+      preferFree,
+    });
   }
   if (preferredProvider === 'openai') {
     console.error('[ModelCatalog] preferredProvider=openai → Using PAID OpenAI');
-    return selectOpenAIModel(taskComplexity, maxCost);
+    return resolveAvailableModel(selectOpenAIModel(taskComplexity, maxCost), {
+      minQuality,
+      taskComplexity,
+      maxCost,
+      preferFree,
+    });
+  }
+  if (preferredProvider === 'voyage') {
+    console.error('[ModelCatalog] preferredProvider=voyage → Using Voyage AI');
+    return resolveAvailableModel(selectVoyageModel(taskComplexity, maxCost, minQuality), {
+      minQuality,
+      taskComplexity,
+      maxCost,
+      preferFree,
+    });
   }
 
   // NEW: Use intelligent task-based selection
@@ -364,13 +439,24 @@ export function selectBestModel(params: {
       const modelId = `${recommendation.provider}/${recommendation.model}`;
       console.error(`[ModelCatalog] 🎯 Intelligent Selection: ${modelId}`);
       console.error(`[ModelCatalog] Reasoning: ${recommendation.reasoning}`);
-      return modelId;
+      return resolveAvailableModel(modelId, {
+        minQuality,
+        taskComplexity,
+        maxCost,
+        preferFree,
+      });
     }
   }
 
   // Fallback: select best PAID model based on budget and complexity
   console.error(`[ModelCatalog] Selecting PAID model: complexity=${taskComplexity}, maxCost=$${maxCost}`);
-  return selectPaidModel(taskComplexity, maxCost, minQuality);
+  const fallbackId = selectPaidModel(taskComplexity, maxCost, minQuality);
+  return resolveAvailableModel(fallbackId, {
+    minQuality,
+    taskComplexity,
+    maxCost,
+    preferFree,
+  });
 }
 
 /**
@@ -465,6 +551,98 @@ function selectOpenAIModel(
   return 'openai/gpt-4o-mini';  // Affordable and capable
 }
 
+function selectVoyageModel(
+  taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
+  maxCost: number,
+  minQuality: 'basic' | 'standard' | 'premium' | 'best',
+  taskType?: string
+): string {
+  // Task-specific model selection: voyage-code-2 is optimized for code tasks
+  if (taskType && /code|refactor|test|debug|generate/i.test(taskType)) {
+    if (taskComplexity === 'expert' || taskComplexity === 'complex') {
+      if (maxCost >= 0.3) {
+        return 'voyage/voyage-code-2'; // Optimized for code
+      }
+    }
+    if (taskComplexity === 'medium' && maxCost >= 0.2) {
+      return 'voyage/voyage-code-2';
+    }
+    if (taskComplexity === 'simple' && maxCost >= 0.15) {
+      return 'voyage/voyage-code-2';
+    }
+  }
+
+  // General task selection
+  if (taskComplexity === 'expert' || taskComplexity === 'complex') {
+    if (maxCost >= 0.5) {
+      return 'voyage/voyage-3';
+    }
+    if (maxCost >= 0.3) {
+      return 'voyage/voyage-code-2';
+    }
+  }
+
+  if (taskComplexity === 'medium' && maxCost >= 0.25) {
+    return 'voyage/voyage-code-2';
+  }
+
+  if (taskComplexity === 'simple' && maxCost >= 0.2) {
+    return 'voyage/voyage-code-2';
+  }
+
+  // If budget insufficient, fall back to free model with requested quality
+  return selectFreeModel(minQuality);
+}
+
+function selectProviderModel(
+  provider: ModelConfig['provider'],
+  taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
+  maxCost: number,
+  minQuality: 'basic' | 'standard' | 'premium' | 'best',
+  taskType?: string
+): string {
+  switch (provider) {
+    case 'ollama':
+      return selectFreeModel(minQuality);
+    case 'openai':
+      return selectOpenAIModel(taskComplexity, maxCost);
+    case 'claude':
+      return selectClaudeModel(taskComplexity, maxCost);
+    case 'voyage':
+      return selectVoyageModel(taskComplexity, maxCost, minQuality, taskType);
+    default:
+      return selectFreeModel(minQuality);
+  }
+}
+
+function resolveAvailableModel(
+  modelId: string,
+  context: {
+    minQuality: 'basic' | 'standard' | 'premium' | 'best';
+    taskComplexity: 'simple' | 'medium' | 'complex' | 'expert';
+    maxCost: number;
+    preferFree: boolean;
+    taskType?: string;
+  }
+): string {
+  const config = MODEL_CATALOG[modelId];
+  if (config && isProviderAvailable(config.provider)) {
+    return modelId;
+  }
+
+  const order: ModelConfig['provider'][] = context.preferFree
+    ? ['ollama', 'openai', 'claude', 'voyage']
+    : ['openai', 'claude', 'voyage', 'ollama'];
+
+  for (const provider of order) {
+    if (!isProviderAvailable(provider)) continue;
+    return selectProviderModel(provider, context.taskComplexity, context.maxCost, context.minQuality, context.taskType);
+  }
+
+  // As a last resort, use free model even if provider unavailable (will throw later if unreachable)
+  return selectFreeModel(context.minQuality);
+}
+
 /**
  * Estimate cost for a task
  */
@@ -501,7 +679,7 @@ export function getModelConfig(modelId: string): ModelConfig {
  * List all available models
  */
 export function listModels(filter?: {
-  provider?: 'ollama' | 'openai';
+  provider?: 'ollama' | 'openai' | 'claude' | 'voyage';
   quality?: 'basic' | 'standard' | 'premium' | 'best';
   maxCost?: number;
 }): Array<{ id: string; config: ModelConfig }> {

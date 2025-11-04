@@ -29,7 +29,7 @@ export interface LLMTaskContext {
 }
 
 export interface LLMRecommendation {
-  provider: 'openai' | 'claude';
+  provider: 'openai' | 'claude' | 'voyage';
   model: string;
   inputCostPer1M: number;
   outputCostPer1M: number;
@@ -118,14 +118,36 @@ const LLM_DATABASE = {
       bestFor: ['expert', 'complex', 'architecture', 'critical'],
       strengths: ['best-overall', 'highest-quality', 'large-context', 'critical-tasks']
     }
+  },
+  voyage: {
+    'voyage-code-2': {
+      inputCostPer1M: 0.12,
+      outputCostPer1M: 0.12,
+      contextWindow: 120000,
+      qualityScore: 90,
+      speedScore: 85,
+      codeScore: 94,
+      bestFor: ['code_generation', 'refactoring', 'complex', 'expert'],
+      strengths: ['code-optimized', 'strong-analysis', 'long-context']
+    },
+    'voyage-3': {
+      inputCostPer1M: 0.14,
+      outputCostPer1M: 0.14,
+      contextWindow: 200000,
+      qualityScore: 93,
+      speedScore: 80,
+      codeScore: 90,
+      bestFor: ['documentation', 'analysis', 'medium', 'complex'],
+      strengths: ['balanced-quality', 'great-context', 'broad-knowledge']
+    }
   }
 } as const;
 
 /**
  * Check which providers are available based on API keys
  */
-function getAvailableProviders(): Set<'openai' | 'claude'> {
-  const available = new Set<'openai' | 'claude'>();
+function getAvailableProviders(): Set<'openai' | 'claude' | 'voyage'> {
+  const available = new Set<'openai' | 'claude' | 'voyage'>();
   
   if (process.env.OPENAI_API_KEY) {
     available.add('openai');
@@ -133,6 +155,10 @@ function getAvailableProviders(): Set<'openai' | 'claude'> {
   
   if (process.env.ANTHROPIC_API_KEY) {
     available.add('claude');
+  }
+
+  if (process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY) {
+    available.add('voyage');
   }
   
   return available;
@@ -150,7 +176,7 @@ function calculateValueScore(qualityScore: number, avgCostPer1M: number): number
  * Score an LLM for a specific task
  */
 function scoreLLMForTask(
-  provider: 'openai' | 'claude',
+  provider: 'openai' | 'claude' | 'voyage',
   modelName: string,
   task: LLMTaskContext
 ): number {
@@ -183,6 +209,10 @@ function scoreLLMForTask(
   // Claude Sonnet 3.5 is BEST for code (25 points)
   if (task.type === 'code_generation' && provider === 'claude' && modelName === 'claude-3-5-sonnet-20241022') {
     score += 25;
+  }
+
+  if (task.type === 'code_generation' && provider === 'voyage' && modelName === 'voyage-code-2') {
+    score += 20;
   }
 
   // o1 models for reasoning tasks (20 points)

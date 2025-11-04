@@ -81,6 +81,84 @@ function getAnthropic(): Anthropic {
   return anthropic;
 }
 
+type VoyageChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
+
+async function callVoyageChatCompletion(params: {
+  model: string;
+  messages: VoyageChatMessage[];
+  temperature?: number;
+  maxTokens?: number;
+  maxRetries?: number;
+}): Promise<{ content: string; usage: { promptTokens: number; completionTokens: number } }> {
+  const apiKey = process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error('Voyage API key missing. Set VOYAGE_API_KEY or reuse ANTHROPIC_API_KEY');
+  }
+
+  const baseUrl = (process.env.VOYAGE_BASE_URL || 'https://api.voyageai.com/v1').replace(/\/$/, '');
+  const maxRetries = params.maxRetries ?? 3;
+  let lastError: Error | null = null;
+
+  // Retry logic with exponential backoff for transient failures
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: params.model,
+          messages: params.messages,
+          temperature: params.temperature ?? 0.7,
+          max_output_tokens: params.maxTokens ?? 4096,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        const error = new Error(`Voyage request failed: HTTP ${response.status} ${errorText}`);
+
+        // Retry on 5xx errors (server errors) and 429 (rate limit)
+        if ((response.status >= 500 || response.status === 429) && attempt < maxRetries - 1) {
+          lastError = error;
+          const backoffMs = 1000 * Math.pow(2, attempt); // Exponential backoff: 1s, 2s, 4s
+          console.error(`[Voyage] Attempt ${attempt + 1} failed, retrying in ${backoffMs}ms...`);
+          await new Promise(resolve => setTimeout(resolve, backoffMs));
+          continue;
+        }
+        throw error;
+      }
+
+      const data: any = await response.json();
+      const content = data.choices?.[0]?.message?.content ?? '';
+      const usage = data.usage ?? {};
+
+      return {
+        content,
+        usage: {
+          promptTokens: usage.prompt_tokens ?? 0,
+          completionTokens: usage.completion_tokens ?? 0,
+        },
+      };
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      // Retry on network errors
+      if (attempt < maxRetries - 1) {
+        const backoffMs = 1000 * Math.pow(2, attempt);
+        console.error(`[Voyage] Attempt ${attempt + 1} failed with error: ${lastError.message}`);
+        console.error(`[Voyage] Retrying in ${backoffMs}ms...`);
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        continue;
+      }
+    }
+  }
+
+  throw lastError || new Error('Voyage request failed after all retries');
+}
+
 // Initialize database and pricing (gracefully degrade if SQLite fails)
 try {
   initDatabase();
@@ -1020,20 +1098,20 @@ async function handleExecuteVersatileTask(args: any) {
   }
 
   // Select best model (FREE Ollama first, PAID OpenAI when needed)
-  const modelId = selectBestModel({
+  let modelId = selectBestModel({
     minQuality,
     maxCost,
     taskComplexity,
     preferFree: !forcePaid,  // If forcePaid=true, preferFree=false
   });
 
-  const modelConfig = getModelConfig(modelId);
+  let modelConfig = getModelConfig(modelId);
   console.error(`[OpenAIWorker] Selected model: ${modelId} (${modelConfig.provider})`);
 
   // Estimate cost
   const estimatedInputTokens = params.estimatedInputTokens || 1000;
   const estimatedOutputTokens = params.estimatedOutputTokens || 1000;
-  const estimatedCost = estimateTaskCost({
+  let estimatedCost = estimateTaskCost({
     modelId,
     estimatedInputTokens,
     estimatedOutputTokens,
@@ -1041,23 +1119,50 @@ async function handleExecuteVersatileTask(args: any) {
 
   console.error(`[OpenAIWorker] Estimated cost: $${estimatedCost.toFixed(4)}`);
 
-  // Check if approval required
+  // Check if approval required and attempt graceful degradation
   if (requiresApproval(estimatedCost)) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            error: 'APPROVAL_REQUIRED',
-            message: `Task estimated to cost $${estimatedCost.toFixed(2)}, which exceeds approval threshold of $${COST_POLICY.HUMAN_APPROVAL_REQUIRED_OVER}`,
-            estimatedCost,
-            model: modelId,
-            suggestion: 'Set maxCost=0 to use FREE Ollama only, or increase approval threshold',
-          }, null, 2),
-        },
-      ],
-    };
+    console.error('[OpenAIWorker] Estimated cost exceeds approval threshold. Attempting cheaper model...');
+
+    const approvalMax = Math.min(maxCost, COST_POLICY.HUMAN_APPROVAL_REQUIRED_OVER - 0.01);
+    if (approvalMax > 0) {
+      const fallbackId = selectBestModel({
+        minQuality,
+        maxCost: approvalMax,
+        taskComplexity,
+        preferFree: !forcePaid,
+      });
+
+      if (fallbackId !== modelId) {
+        console.error(`[OpenAIWorker] Switching to fallback model: ${fallbackId}`);
+        modelId = fallbackId;
+        modelConfig = getModelConfig(modelId);
+        estimatedCost = estimateTaskCost({
+          modelId,
+          estimatedInputTokens,
+          estimatedOutputTokens,
+        });
+      }
+    }
+
+    if (requiresApproval(estimatedCost)) {
+      console.error('[OpenAIWorker] Still over approval threshold. Falling back to FREE execution.');
+      modelId = selectBestModel({
+        minQuality,
+        maxCost: 0,
+        taskComplexity,
+        preferFree: true,
+      });
+      modelConfig = getModelConfig(modelId);
+      estimatedCost = estimateTaskCost({
+        modelId,
+        estimatedInputTokens,
+        estimatedOutputTokens,
+      });
+    }
   }
+
+  console.error(`[OpenAIWorker] Final model after budget checks: ${modelId} (${modelConfig.provider})`);
+  console.error(`[OpenAIWorker] Final estimated cost: $${estimatedCost.toFixed(4)}`);
 
   // Check monthly budget
   const monthlySpend = getMonthlySpend();
@@ -1155,20 +1260,20 @@ async function handleExecuteVersatileTask(args: any) {
       case 'test_generation':
       case 'documentation':
         // Use selected model (Ollama or OpenAI)
+        const messages = [
+          {
+            role: 'system' as const,
+            content: buildStrictSystemPrompt(taskType, params.context),
+          },
+          {
+            role: 'user' as const,
+            content: task,
+          },
+        ];
+
         if (modelConfig.provider === 'ollama') {
           // Use FREE Ollama
           const ollamaClient = getSharedOllamaClient();
-
-          const messages = [
-            {
-              role: 'system' as const,
-              content: buildStrictSystemPrompt(taskType, params.context),
-            },
-            {
-              role: 'user' as const,
-              content: task,
-            },
-          ];
 
           result = await ollamaClient.chatCompletion({
             model: modelId,
@@ -1243,6 +1348,45 @@ async function handleExecuteVersatileTask(args: any) {
                     total: actualCost,
                     currency: 'USD',
                     note: 'PAID - Claude (Anthropic) execution',
+                  },
+                  model: modelId,
+                }, null, 2),
+              },
+            ],
+          };
+        } else if (modelConfig.provider === 'voyage') {
+          const voyageResult = await callVoyageChatCompletion({
+            model: modelConfig.model,
+            messages: messages as VoyageChatMessage[],
+            temperature: params.temperature || 0.7,
+            maxTokens: params.maxTokens,
+          });
+
+          const actualCost = estimateTaskCost({
+            modelId,
+            estimatedInputTokens: voyageResult.usage.promptTokens,
+            estimatedOutputTokens: voyageResult.usage.completionTokens,
+          });
+
+          recordSpend(actualCost, `versatile_task_${modelConfig.model}`);
+          checkBudgetAlerts();
+
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: true,
+                  result: voyageResult.content,
+                  usage: {
+                    promptTokens: voyageResult.usage.promptTokens,
+                    completionTokens: voyageResult.usage.completionTokens,
+                    totalTokens: voyageResult.usage.promptTokens + voyageResult.usage.completionTokens,
+                  },
+                  cost: {
+                    total: actualCost,
+                    currency: 'USD',
+                    note: 'PAID - Voyage execution',
                   },
                   model: modelId,
                 }, null, 2),
@@ -1493,6 +1637,22 @@ Respond ONLY with the JSON array, no other text.`;
       });
       recordSpend(actualCost, `file_editing_${modelConfig.model}`);
       checkBudgetAlerts(); // Check for budget alerts
+    } else if (modelConfig.provider === 'voyage') {
+      const voyageResult = await callVoyageChatCompletion({
+        model: modelConfig.model,
+        messages: [{ role: 'user', content: analysisPrompt }],
+        temperature: 0.1,
+        maxTokens: 4096,
+      });
+      response = voyageResult.content;
+
+      actualCost = estimateTaskCost({
+        modelId,
+        estimatedInputTokens: voyageResult.usage.promptTokens,
+        estimatedOutputTokens: voyageResult.usage.completionTokens,
+      });
+      recordSpend(actualCost, `file_editing_${modelConfig.model}`);
+      checkBudgetAlerts();
     } else {
       // OpenAI
       const openaiResponse = await getOpenAI().chat.completions.create({
@@ -1699,6 +1859,22 @@ Generate the modified section now:`;
       });
       recordSpend(actualCost, `complex_file_editing_${modelConfig.model}`);
       checkBudgetAlerts(); // Check for budget alerts
+    } else if (modelConfig.provider === 'voyage') {
+      const voyageResult = await callVoyageChatCompletion({
+        model: modelConfig.model,
+        messages: [{ role: 'user', content: codeGenPrompt }],
+        temperature: 0.1,
+        maxTokens: 8192,
+      });
+      newCode = voyageResult.content.trim();
+
+      actualCost = estimateTaskCost({
+        modelId,
+        estimatedInputTokens: voyageResult.usage.promptTokens,
+        estimatedOutputTokens: voyageResult.usage.completionTokens,
+      });
+      recordSpend(actualCost, `complex_file_editing_${modelConfig.model}`);
+      checkBudgetAlerts();
     } else {
       // OpenAI
       const openaiResponse = await getOpenAI().chat.completions.create({
@@ -2005,7 +2181,15 @@ async function handleExecuteWithQualityGates(args: any) {
     // Determine provider and model
     // PAID agent uses OpenAI by default, Ollama only if explicitly requested
     const provider = args.provider || 'openai';
-    const model = args.model || (provider === 'openai' ? 'gpt-4o' : provider === 'claude' ? 'claude-3-5-sonnet-20241022' : 'qwen2.5-coder:7b');
+    const model =
+      args.model ||
+      (provider === 'openai'
+        ? 'gpt-4o'
+        : provider === 'claude'
+        ? 'claude-3-5-sonnet-20241022'
+        : provider === 'voyage'
+        ? 'voyage-code-2'
+        : 'qwen2.5-coder:7b');
 
     // Run pipeline with PAID models
     const config = {
