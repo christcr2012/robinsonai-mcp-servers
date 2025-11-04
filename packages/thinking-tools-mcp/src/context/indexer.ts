@@ -44,7 +44,8 @@ function resolveWorkspaceRoot(): string {
   return cwd;
 }
 
-const rootRepo = resolveWorkspaceRoot();
+// Don't resolve at module load time - env vars might not be set yet!
+// Resolve inside indexRepo() instead
 
 const INCLUDE = ['**/*.{ts,tsx,js,jsx,md,mdx,json,yml,yaml,sql,py,sh,ps1}'];
 const EXCLUDE = process.env.RCE_IGNORE
@@ -147,7 +148,7 @@ function chunkByHeuristics(filePath: string, text: string): { start: number; end
 }
 
 export async function indexRepo(
-  repoRoot = rootRepo,
+  repoRoot?: string,
   opts: { quick?: boolean; force?: boolean } = {}
 ): Promise<{
   ok: boolean;
@@ -162,6 +163,11 @@ export async function indexRepo(
   error?: string;
 }> {
   try {
+    // Resolve workspace root NOW (not at module load time) so env vars are available
+    if (!repoRoot) {
+      repoRoot = resolveWorkspaceRoot();
+    }
+
     const start = Date.now();
     console.log(`[indexRepo] Starting ${opts.quick ? 'incremental' : 'full'} indexing for: ${repoRoot}`);
     ensureDirs();
@@ -398,7 +404,7 @@ export async function indexRepo(
 }
 
 // CLI support
-if (import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
+if (process.argv[1] && import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
   indexRepo()
     .then(() => console.log('Indexed repo'))
     .catch(e => {
