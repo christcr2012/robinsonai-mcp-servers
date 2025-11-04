@@ -1,4 +1,4 @@
-Found 845 files
+Found 855 files
 INCLUDE: ["**/*.{ts,tsx,js,jsx,md,mdx,json,yml,yaml,sql,py,sh,ps1}"]
 EXCLUDE: ["**/node_modules/**","**/.git/**","**/dist/**","**/build/**","**/.next/**","**/.turbo/**","**/.venv*/**","**/venv/**","**/__pycache__/**","**/.pytest_cache/**","**/site-packages/**","**/.augment/**","**/.robinson/**","**/.backups/**","**/.training/**","**/sandbox/**","**/*.db","**/*.db-shm","**/*.db-wal","**/.rce_index/**"]
 cwd: C:/Users/chris/Git Local/robinsonai-mcp-servers

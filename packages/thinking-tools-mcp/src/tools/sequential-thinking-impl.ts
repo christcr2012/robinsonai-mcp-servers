@@ -1,9 +1,15 @@
 /**
- * Real Sequential Thinking Implementation
- * Stateful, supports branching, revisions, and history
+ * Enhanced Sequential Thinking Implementation
+ * COMBINES: Stateful thinking + Evidence-driven analysis
+ * Features:
+ * - Maintains thought history across calls (stateful)
+ * - Gathers evidence from repo + web (evidence-driven)
+ * - Supports branching, revisions, and reflections
+ * - Returns structured Markdown reports
  */
 
 import { ServerContext } from '../lib/context.js';
+import { webSearchAll } from '../lib/websearch.js';
 
 export interface ThoughtStep {
   thoughtNumber: number;
@@ -14,6 +20,7 @@ export interface ThoughtStep {
   branchId?: string;
   branchFromThought?: number;
   timestamp: number;
+  evidence?: any[]; // Evidence gathered for this thought
 }
 
 export interface ParallelBranch {
@@ -31,63 +38,179 @@ export interface ReflectionPoint {
 }
 
 /**
- * Sequential thinking tool - stateful implementation
+ * Sequential thinking tool - ENHANCED with evidence gathering
+ *
+ * Usage:
+ * 1. First call with 'problem' - gathers evidence and initializes session
+ * 2. Subsequent calls with 'thought' + 'thoughtNumber' - records thinking steps
+ * 3. Returns structured Markdown with thought history + evidence
  */
 export async function sequentialThinkingTool(args: any, ctx: ServerContext): Promise<any> {
-  // Get or initialize thought history
-  const history = ctx.stateGet<ThoughtStep[]>('seqThinking_history') ?? [];
-  
-  const step: ThoughtStep = {
-    thoughtNumber: args.thoughtNumber,
-    thought: args.thought,
-    nextThoughtNeeded: args.nextThoughtNeeded,
-    isRevision: args.isRevision,
-    revisesThought: args.revisesThought,
-    branchId: args.branchId,
-    branchFromThought: args.branchFromThought,
-    timestamp: Date.now(),
-  };
+  // CASE 1: Initialize new thinking session with evidence gathering
+  if (args.problem && !args.thought) {
+    const problem = args.problem;
+    const steps = args.steps || 5;
+    const useWeb = args.useWeb ?? false;
+    const k = Math.max(4, Math.min(16, args.k ?? 8));
 
-  // Handle revision
-  if (args.isRevision && args.revisesThought) {
-    const revisedIndex = history.findIndex((s) => s.thoughtNumber === args.revisesThought);
-    if (revisedIndex >= 0) {
-      // Mark as revised
-      history[revisedIndex] = { ...history[revisedIndex], isRevision: true };
+    // Gather evidence using blendedSearch (repo + imported context)
+    const variants = Array.from(new Set([
+      problem,
+      problem.replace(/\b(impl|implementation|method)\b/gi, "function"),
+      problem.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
+      `${problem} risks`,
+      `${problem} options`,
+      `${problem} best practices`
+    ]));
+
+    const hits: any[] = [];
+    for (const v of variants) {
+      try {
+        const results = await ctx.blendedSearch(v, Math.ceil(k / variants.length));
+        hits.push(...results);
+      } catch (e) {
+        // Continue if search fails
+      }
     }
+
+    // Optional web evidence
+    if (useWeb) {
+      try {
+        const webResults = await webSearchAll(problem);
+        hits.push(...webResults.slice(0, Math.ceil(k / 2)).map(r => ({
+          source: "web",
+          title: r.title,
+          uri: r.url, // WebHit uses 'url' not 'uri'
+          snippet: r.snippet || "",
+          score: r.score,
+          tags: ["web"]
+        })));
+      } catch (e) {
+        // Continue if web search fails
+      }
+    }
+
+    // Deduplicate evidence
+    const uniqueEvidence = Array.from(
+      new Map(hits.map(h => [String(h.uri || h.path || h.file || h.id || Math.random()), h])).values()
+    ).slice(0, k);
+
+    // Initialize state
+    ctx.stateSet('seqThinking_problem', problem);
+    ctx.stateSet('seqThinking_steps', steps);
+    ctx.stateSet('seqThinking_evidence', uniqueEvidence);
+    ctx.stateSet('seqThinking_history', []);
+
+    // Categorize evidence
+    const code = uniqueEvidence.filter(h => /\.(ts|tsx|js|jsx|py|go|java|rs)$/i.test(String(h.uri || h.file || "")));
+    const docs = uniqueEvidence.filter(h => !/\.(ts|tsx|js|jsx|py|go|java|rs)$/i.test(String(h.uri || h.file || "")));
+
+    const md = [
+      `# Sequential Thinking: ${problem}`,
+      "",
+      `## Evidence Gathered`,
+      `- **Total items:** ${uniqueEvidence.length}`,
+      `- **Code files:** ${code.length}`,
+      `- **Documentation:** ${docs.length}`,
+      `- **Web sources:** ${uniqueEvidence.filter(e => e.source === 'web').length}`,
+      "",
+      `## Evidence Details`,
+      ...uniqueEvidence.map(e => `- **${e.title || e.file || e.path || 'Evidence'}** ${e.uri ? `(${e.uri})` : ''}`),
+      "",
+      `## Next Steps`,
+      `Continue the analysis by providing your thoughts step-by-step:`,
+      `- Use 'thought', 'thoughtNumber', 'totalThoughts', and 'nextThoughtNeeded' parameters`,
+      `- The evidence above will be available for all subsequent thoughts`,
+      `- You can revise previous thoughts using 'isRevision' and 'revisesThought'`,
+      `- You can create branches using 'branchId' and 'branchFromThought'`,
+      "",
+      `## Thought History`,
+      `(No thoughts yet - start by providing your first thought)`
+    ].join("\n");
+
+    return {
+      content: [{ type: 'text', text: md }]
+    };
   }
 
-  // Add to history
-  history.push(step);
-  ctx.stateSet('seqThinking_history', history);
+  // CASE 2: Record a thought step
+  if (args.thought && args.thoughtNumber !== undefined) {
+    const history = ctx.stateGet<ThoughtStep[]>('seqThinking_history') ?? [];
+    const evidence = ctx.stateGet<any[]>('seqThinking_evidence') ?? [];
+    const problem = ctx.stateGet<string>('seqThinking_problem') || 'Analysis';
 
-  // Add to evidence store
-  await ctx.ctx.evidence.add('sequential_thinking', {
-    step: args.thought,
-    thoughtNumber: args.thoughtNumber,
-    meta: {
-      nextNeeded: args.nextThoughtNeeded,
+    const step: ThoughtStep = {
+      thoughtNumber: args.thoughtNumber,
+      thought: args.thought,
+      nextThoughtNeeded: args.nextThoughtNeeded ?? true,
       isRevision: args.isRevision,
+      revisesThought: args.revisesThought,
       branchId: args.branchId,
-    },
-  });
+      branchFromThought: args.branchFromThought,
+      timestamp: Date.now(),
+      evidence: evidence.slice(0, 5) // Store reference to top evidence
+    };
 
-  // Get branches if any
-  const branches = ctx.stateGet<ParallelBranch[]>('seqThinking_branches') ?? [];
+    // Handle revision
+    if (args.isRevision && args.revisesThought) {
+      const revisedIndex = history.findIndex((s) => s.thoughtNumber === args.revisesThought);
+      if (revisedIndex >= 0) {
+        history[revisedIndex] = { ...history[revisedIndex], isRevision: true };
+      }
+    }
 
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify({
-          thoughtNumber: args.thoughtNumber,
-          totalThoughts: args.totalThoughts,
-          nextThoughtNeeded: args.nextThoughtNeeded,
-          branches: branches.map((b) => b.branchId),
-          thoughtHistoryLength: history.length,
-        }, null, 2),
+    // Add to history
+    history.push(step);
+    ctx.stateSet('seqThinking_history', history);
+
+    // Add to evidence store
+    await ctx.ctx.evidence.add('sequential_thinking', {
+      step: args.thought,
+      thoughtNumber: args.thoughtNumber,
+      meta: {
+        nextNeeded: args.nextThoughtNeeded,
+        isRevision: args.isRevision,
+        branchId: args.branchId,
       },
-    ],
+    });
+
+    // Get branches if any
+    const branches = ctx.stateGet<ParallelBranch[]>('seqThinking_branches') ?? [];
+
+    // Build structured Markdown response
+    const md = [
+      `# Sequential Thinking: ${problem}`,
+      "",
+      `## Thought History (${history.length} thoughts)`,
+      ...history.map(h => {
+        const prefix = h.isRevision ? `🔄 Revision of #${h.revisesThought}` :
+          h.branchId ? `🌿 Branch ${h.branchId}` :
+            `💭 Thought ${h.thoughtNumber}`;
+        return `### ${prefix}\n${h.thought}\n`;
+      }),
+      "",
+      `## Status`,
+      `- **Current thought:** ${args.thoughtNumber}/${args.totalThoughts || '?'}`,
+      `- **Next thought needed:** ${args.nextThoughtNeeded ? 'Yes' : 'No'}`,
+      `- **Branches:** ${new Set(history.filter(h => h.branchId).map(h => h.branchId)).size}`,
+      `- **Revisions:** ${history.filter(h => h.isRevision).length}`,
+      "",
+      `## Evidence (${evidence.length} items)`,
+      ...evidence.slice(0, 10).map(e => `- **${e.title || e.file || e.path || 'Evidence'}** ${e.uri ? `(${e.uri})` : ''}`),
+      evidence.length > 10 ? `\n_...and ${evidence.length - 10} more items_` : ''
+    ].join("\n");
+
+    return {
+      content: [{ type: 'text', text: md }]
+    };
+  }
+
+  // CASE 3: Error - invalid arguments
+  return {
+    content: [{
+      type: 'text',
+      text: "Error: Please provide either 'problem' (to start new analysis) or 'thought' + 'thoughtNumber' (to continue existing analysis)"
+    }]
   };
 }
 

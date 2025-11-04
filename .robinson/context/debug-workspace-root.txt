@@ -1,4 +1,4 @@
 repoRoot: C:/Users/chris/Git Local/robinsonai-mcp-servers
-process.cwd(): C:\Users\chris\AppData\Local\Programs\Microsoft VS Code
+process.cwd(): C:\Users\chris\Git Local\robinsonai-mcp-servers\packages\thinking-tools-mcp
 WORKSPACE_ROOT: C:\Users\chris\Git Local\robinsonai-mcp-servers
-AUGMENT_WORKSPACE_ROOT: C:\Users\chris\Git Local\robinsonai-mcp-servers
+AUGMENT_WORKSPACE_ROOT: undefined
