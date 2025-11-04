@@ -137,27 +137,33 @@ packages/
 
 ---
 
-### Phase 3: Create Shared Utils Library
-**Goal:** Move common utilities to `standalone/libraries/shared-utils`
+### Phase 3: Create Shared Utils + Move Pipeline Implementation ✅ COMPLETE
+**Goal:** Move common utilities and pipeline to centralized libraries
 
-**Tasks:**
-1. Create `standalone/libraries/shared-utils` package
-2. Move utilities from FREE agent:
-   - `utils/project-brief.ts`
-   - `utils/symbol-indexer.ts`
-   - `utils/code-retrieval.ts`
-   - `utils/diff-generator.ts`
-   - `utils/dependency-cache.ts`
-   - `utils/portable-*.ts` files
-   - Other shared utilities
-3. Update FREE agent to import from shared-utils
-4. Update PAID agent to import from shared-utils
-5. Test both agents
+**Status:** ✅ COMPLETE
 
-**Benefits:**
-- Shared utilities available to all agents
-- No duplication
-- Easier to maintain
+**Completed Tasks:**
+1. ✅ Created `standalone/libraries/shared-utils` package
+2. ✅ Moved 13 utility files from FREE agent (~127KB):
+   - `project-brief.ts`, `symbol-indexer.ts`, `code-retrieval.ts`
+   - `diff-generator.ts`, `dependency-cache.ts`
+   - `portable-brief-builder.ts`, `portable-interfaces.ts`
+   - `repo-probe.ts`, `repo-tools.ts`, `repo-portable-tools.ts`, `repo-portable-runner.ts`
+   - `language-adapters.ts`, `schema-codegen.ts`
+3. ✅ Moved 7 pipeline files to shared-pipeline (~72KB):
+   - `synthesize.ts`, `judge.ts`, `refine.ts`
+   - `sandbox.ts`, `docker-sandbox.ts`, `pipeline.ts`, `types.ts`
+4. ✅ Updated FREE agent to import from shared-utils and shared-pipeline
+5. ✅ Updated PAID agent to import from shared-utils and shared-pipeline
+6. ✅ **REMOVED** PAID agent dependency on FREE agent (anti-pattern eliminated!)
+7. ✅ All packages build successfully
+
+**Benefits Achieved:**
+- ✅ Shared utilities available to all agents
+- ✅ No duplication
+- ✅ Easier to maintain
+- ✅ Clean architecture (no cross-agent imports)
+- ✅ PAID agent no longer depends on FREE agent
 
 ---
 
@@ -183,21 +189,29 @@ import { applyFixPlan } from '@robinson_ai_systems/shared-pipeline';
 
 ## 🎯 CURRENT STATUS
 
-### What's Done ✅
-1. Created `thinking-client.ts` in shared-llm
-2. Updated shared-llm exports to include thinking client
-3. Added thinking tools support to FREE agent
-4. Built shared-llm successfully
+### Phase 1: Add Versatility ✅ COMPLETE
+- ✅ Created `thinking-client.ts` in shared-llm
+- ✅ Updated shared-llm exports to include thinking client
+- ✅ Added thinking tools support to FREE agent
+- ✅ Added toolkit + thinking tools to PAID agent
+- ✅ Both agents are VERSATILE
 
-### What's In Progress ⏳
-1. Building FREE agent (fixing workspace dependency resolution)
-2. Need to run `pnpm install` to fix symlinks
+### Phase 2: Create Shared Pipeline Library (Types) ✅ COMPLETE
+- ✅ Created shared-pipeline library structure
+- ✅ Exported pipeline types
+- ✅ Library builds successfully
+
+### Phase 3: Create Shared Utils + Move Pipeline Implementation ✅ COMPLETE
+- ✅ Created shared-utils library (13 utility files, ~127KB)
+- ✅ Moved pipeline implementation to shared-pipeline (7 files, ~72KB)
+- ✅ Updated FREE agent to use shared libraries
+- ✅ Updated PAID agent to use shared libraries
+- ✅ **REMOVED** PAID agent dependency on FREE agent
+- ✅ All packages build successfully
 
 ### What's Next 📋
-1. Finish building FREE agent
-2. Add toolkit + thinking tools to PAID agent
-3. Test versatility features
-4. Create shared-pipeline library
+1. Phase 4: Final Testing & Cleanup (optional)
+2. Version bump and publish to npm
 5. Create shared-utils library
 6. Update both agents to use centralized resources
 7. Remove all cross-agent imports

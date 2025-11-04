@@ -9,7 +9,10 @@
     "prepare": "npm run build"
   },
   "dependencies": {
-    "@robinson_ai_systems/shared-llm": "workspace:*"
+    "@robinson_ai_systems/shared-llm": "workspace:*",
+    "@robinson_ai_systems/shared-utils": "workspace:*",
+    "dockerode": "^4.0.2",
+    "tar-stream": "^3.1.7"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

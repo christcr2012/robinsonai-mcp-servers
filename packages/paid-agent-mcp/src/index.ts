@@ -1964,10 +1964,18 @@ async function handleListThinkingTools() {
  */
 async function handleExecuteWithQualityGates(args: any) {
   try {
-    // Import pipeline from free-agent-mcp npm package
-    const { iterateTask } = await import('@robinson_ai_systems/free-agent-mcp/dist/pipeline/index.js');
-    const { makeProjectBrief } = await import('@robinson_ai_systems/free-agent-mcp/dist/utils/project-brief.js');
-    const { designCardToTaskSpec } = await import('@robinson_ai_systems/free-agent-mcp/dist/agents/design-card.js');
+    // ✅ FIXED: Import from shared libraries instead of FREE agent
+    const { iterateTask } = await import('@robinson_ai_systems/shared-pipeline');
+    const { makeProjectBrief } = await import('@robinson_ai_systems/shared-utils');
+
+    // TODO: Move designCardToTaskSpec to shared-utils
+    // For now, we'll inline a simple implementation
+    function designCardToTaskSpec(card: any): string {
+      let spec = `Goals:\n${card.goals?.map((g: string) => `- ${g}`).join('\n') || 'None'}\n\n`;
+      spec += `Acceptance Criteria:\n${card.acceptance?.map((a: string) => `- ${a}`).join('\n') || 'None'}\n\n`;
+      spec += `Constraints:\n${card.constraints?.map((c: string) => `- ${c}`).join('\n') || 'None'}`;
+      return spec;
+    }
 
     // Build task specification
     let spec = `Task: ${args.task}\nContext: ${args.context}`;
@@ -1975,7 +1983,7 @@ async function handleExecuteWithQualityGates(args: any) {
     // Add Design Card if provided
     if (args.designCard) {
       const card = args.designCard;
-      spec = designCardToTaskSpec(card, null);
+      spec = designCardToTaskSpec(card);
     }
 
     // Generate Project Brief if requested
