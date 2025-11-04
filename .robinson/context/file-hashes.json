@@ -16,5 +16,6 @@
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\standalone\\libraries\\robinsons-context-engine\\src\\index.ts": "8a6153946716a8556e52bb540655f2b50a8bf1fc",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\pnpm-lock.yaml": "228d704f1fd42b56fe9b5b2a76a77cd97cac201b",
   "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\test-tools.mjs": "b7996091dbb06129439d7f6a8b0485c017aa67de",
-  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\tools\\sequential-thinking-impl.ts": "6b62fcccfb4956e77c92b4eaff2d2a0a21b84351"
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\tools\\sequential-thinking-impl.ts": "6b62fcccfb4956e77c92b4eaff2d2a0a21b84351",
+  "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\packages\\thinking-tools-mcp\\src\\lib\\context-enhancer.ts": "4cd9a02120c2b735b74ed2c20f2c9fe5c1b03ac0"
 }

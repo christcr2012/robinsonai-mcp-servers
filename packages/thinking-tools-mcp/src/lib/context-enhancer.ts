@@ -50,7 +50,7 @@ export function withContext<TInput extends ContextEnhancedInput, TOutput>(
     try {
       // Search for relevant context
       const hits = await ctx.blendedSearch(query, 8);
-      
+
       // Format evidence
       const contextEvidence = hits.map((hit: any) => ({
         content: hit.content || hit.snippet || hit.text || '',
@@ -58,7 +58,29 @@ export function withContext<TInput extends ContextEnhancedInput, TOutput>(
         score: hit.score || hit.rank,
         uri: hit.uri || hit.path,
       }));
-      
+
+      // Store evidence in the evidence store (as per ChatGPT document line 141, 199, 299)
+      // This allows later tools to reference prior findings
+      try {
+        for (const ev of contextEvidence) {
+          await ctx.evidence.add(
+            'thinking_tool_context',
+            {
+              title: `Context for: ${query}`,
+              snippet: ev.content,
+              uri: ev.uri,
+              score: ev.score,
+            },
+            {
+              tags: ['context_search', 'thinking_tool'],
+              group: 'tool_evidence',
+            }
+          );
+        }
+      } catch (evidenceError) {
+        console.error('[context-enhancer] Failed to store evidence:', evidenceError);
+      }
+
       // Return enhanced result
       return {
         ...result,
