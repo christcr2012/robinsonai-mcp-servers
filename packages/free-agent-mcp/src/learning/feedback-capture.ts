@@ -13,7 +13,6 @@
  * 6. Learning system uses feedback to improve
  */
 
-import { Database } from 'better-sqlite3';
 import { diffLines } from 'diff';
 import { createHash } from 'crypto';
 
@@ -90,9 +89,9 @@ export interface TrainingExample {
 }
 
 export class FeedbackCapture {
-  private db: Database;
+  private db: any;
 
-  constructor(db: Database) {
+  constructor(db: any) {
     this.db = db;
     this.initializeTables();
   }
