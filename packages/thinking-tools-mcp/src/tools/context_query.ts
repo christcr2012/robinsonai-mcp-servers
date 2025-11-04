@@ -20,6 +20,9 @@ export const contextQueryDescriptor = {
 
 export async function contextQueryTool(args: any, ctx: ServerContext) {
   const hits = await ctx.ctx.search(args.query, args.top_k || 12);
+  if (!hits || !Array.isArray(hits)) {
+    return { hits: [], error: 'Search returned no results' };
+  }
   return {
     hits: hits.map((h: any) => ({
       score: h.score,

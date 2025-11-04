@@ -236,6 +236,9 @@ importers:
       '@mozilla/readability':
         specifier: ^0.4.4
         version: 0.4.4
+      '@robinson_ai_systems/robinsons-context-engine':
+        specifier: ^1.2.0
+        version: 1.2.0
       axios:
         specifier: ^1.12.2
         version: 1.13.1
@@ -591,6 +594,10 @@ packages:
     resolution: {integrity: sha512-YqUF3moSSrZ2yqGKWU55VBug0U9Fnrpz3vBY9gdE0mlIOIz5sH4wDIg8uz+ZE4RIeuH3wagWAEUA26mEENemRA==}
     engines: {node: '>=18.0.0'}
     hasBin: true
+
+  '@robinson_ai_systems/robinsons-context-engine@1.2.0':
+    resolution: {integrity: sha512-A9m2BH/qOSF0BKHyHXUW3sXN30XRCP4LejQgMzx3YxNWAlKkbmKqNnAxKd5f5WD0gmI2DIdwVOurLahhMGn2xQ==}
+    engines: {node: '>=18.18.0'}
 
   '@robinson_ai_systems/shared-llm@0.1.6':
     resolution: {integrity: sha512-1rI/y2NzUloHFMtparWTU4T7SLIAlPPUhY8x5pGwVI8P20+bX+ClthGtMmkTS0bzPv9eR2ZZvAhAk0p/ZS5nVw==}
@@ -3312,6 +3319,8 @@ snapshots:
       - utf-8-validate
       - ws
       - zod
+
+  '@robinson_ai_systems/robinsons-context-engine@1.2.0': {}
 
   '@robinson_ai_systems/shared-llm@0.1.6(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))':
     optionalDependencies:

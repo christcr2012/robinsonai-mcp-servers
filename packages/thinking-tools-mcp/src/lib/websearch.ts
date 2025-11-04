@@ -4,19 +4,41 @@ import * as cheerio from "cheerio";
 export type WebHit = { title: string; url: string; snippet?: string; score?: number };
 
 async function searchDuckDuckGo(q: string): Promise<WebHit[]> {
-  const res = await fetch(`https://duckduckgo.com/html/?q=${encodeURIComponent(q)}`, {
-    headers: { "user-agent": "Mozilla/5.0" }
-  });
-  const html = await res.text();
-  const $ = cheerio.load(html);
-  const out: WebHit[] = [];
-  $("a.result__a").each((_, a) => {
-    const title = $(a).text();
-    const url = $(a).attr("href") || "";
-    const snippet = $(a).parent().find(".result__snippet").text();
-    if (url) out.push({ title, url, snippet, score: 0.5 });
-  });
-  return out.slice(0, 10);
+  try {
+    const res = await fetch(`https://duckduckgo.com/html/?q=${encodeURIComponent(q)}&kl=us-en`, {
+      headers: {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "accept-language": "en-US,en;q=0.9"
+      }
+    });
+    if (!res.ok) {
+      console.error(`[DDG] HTTP ${res.status}`);
+      return [];
+    }
+    const html = await res.text();
+    const $ = cheerio.load(html);
+    const out: WebHit[] = [];
+
+    // Try multiple selectors
+    $("a.result__a").each((_, a) => {
+      const title = $(a).text().trim();
+      let url = $(a).attr("href") || "";
+      // DDG sometimes wraps URLs
+      if (url.startsWith("//duckduckgo.com/l/?")) {
+        const match = url.match(/uddg=([^&]+)/);
+        if (match) url = decodeURIComponent(match[1]);
+      }
+      const snippet = $(a).parent().find(".result__snippet").text().trim();
+      if (url && title) out.push({ title, url, snippet, score: 0.5 });
+    });
+
+    console.error(`[DDG] Found ${out.length} results`);
+    return out.slice(0, 10);
+  } catch (e: any) {
+    console.error(`[DDG] Error: ${e.message}`);
+    return [];
+  }
 }
 
 async function searchBrave(q: string): Promise<WebHit[]> {
