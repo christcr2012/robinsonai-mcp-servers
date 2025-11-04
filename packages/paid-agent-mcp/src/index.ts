@@ -1966,7 +1966,13 @@ async function handleExecuteWithQualityGates(args: any) {
   try {
     // ✅ FIXED: Import from shared libraries instead of FREE agent
     const { iterateTask } = await import('@robinson_ai_systems/shared-pipeline');
-    const { makeProjectBrief } = await import('@robinson_ai_systems/shared-utils');
+    let makeProjectBrief: ((repoPath: string) => Promise<any>) | null = null;
+    try {
+      // @ts-ignore - optional dependency may be missing at runtime
+      ({ makeProjectBrief } = await import('@robinson_ai_systems/shared-utils'));
+    } catch (error) {
+      console.warn('[PAID-AGENT] Optional shared-utils module not available. Project brief generation disabled.');
+    }
 
     // TODO: Move designCardToTaskSpec to shared-utils
     // For now, we'll inline a simple implementation
@@ -1988,10 +1994,12 @@ async function handleExecuteWithQualityGates(args: any) {
 
     // Generate Project Brief if requested
     let brief = null;
-    if (args.useProjectBrief !== false) {
+    if (args.useProjectBrief !== false && makeProjectBrief) {
       const repoPath = getWorkspaceRoot();
       brief = await makeProjectBrief(repoPath);
       spec += `\n\nProject Brief:\n${JSON.stringify(brief, null, 2)}`;
+    } else if (args.useProjectBrief !== false && !makeProjectBrief) {
+      spec += '\n\nProject Brief: (skipped - shared-utils not installed)';
     }
 
     // Determine provider and model
@@ -2194,7 +2202,7 @@ async function handleRefineCode(args: any) {
  */
 async function handleGenerateProjectBrief(args: any) {
   try {
-    // ✅ FIXED: Import from shared-utils instead of FREE agent
+    // @ts-ignore - optional dependency may be missing at runtime
     const { makeProjectBrief } = await import('@robinson_ai_systems/shared-utils');
 
     const repoPath = args.repoPath || getWorkspaceRoot();
@@ -2224,7 +2232,7 @@ async function handleGenerateProjectBrief(args: any) {
           type: 'text',
           text: JSON.stringify({
             success: false,
-            error: error.message,
+            error: 'shared-utils package not installed. Install to enable project brief generation.',
           }, null, 2),
         },
       ],

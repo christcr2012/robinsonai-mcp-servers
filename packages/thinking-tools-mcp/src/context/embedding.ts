@@ -1,5 +1,6 @@
 import { request } from 'undici';
 import pLimit from 'p-limit';
+import crypto from 'crypto';
 
 const prov = (process.env.CTX_EMBED_PROVIDER || 'ollama').toLowerCase();
 
@@ -10,9 +11,55 @@ const prov = (process.env.CTX_EMBED_PROVIDER || 'ollama').toLowerCase();
 export async function embedBatch(texts: string[]): Promise<number[][]> {
   console.log(`[embedBatch] Using provider: ${prov} for ${texts.length} texts`);
 
-  if (prov === 'openai') return openaiEmbed(texts);
-  if (prov === 'claude' || prov === 'voyage') return voyageEmbed(texts);
-  return ollamaEmbed(texts);
+  try {
+    if (prov === 'openai') return await openaiEmbed(texts);
+    if (prov === 'claude' || prov === 'voyage') return await voyageEmbed(texts);
+    return await ollamaEmbed(texts);
+  } catch (error: any) {
+    const message = error?.message ?? String(error);
+    console.warn(`⚠️  [embedBatch] Provider "${prov}" failed (${message}). Falling back to lexical embeddings.`);
+    return lexicalFallbackEmbed(texts);
+  }
+}
+
+const FALLBACK_DIMS = parseInt(process.env.CTX_FALLBACK_EMBED_DIMS || '384', 10);
+let loggedFallbackInfo = false;
+
+function lexicalFallbackEmbed(texts: string[]): number[][] {
+  if (!loggedFallbackInfo) {
+    console.warn(`⚠️  [embedBatch] Using deterministic lexical embeddings with ${FALLBACK_DIMS} dimensions.`);
+    console.warn('⚠️  [embedBatch] Results rely on lexical/BM25 scoring until a vector provider is available.');
+    loggedFallbackInfo = true;
+  }
+
+  return texts.map(text => hashedEmbedding(text, FALLBACK_DIMS));
+}
+
+function hashedEmbedding(text: string, dims: number): number[] {
+  const vec = new Array<number>(dims).fill(0);
+  const tokens = text.toLowerCase().split(/\W+/).filter(Boolean);
+  if (tokens.length === 0) return vec;
+
+  for (const token of tokens) {
+    const digest = crypto.createHash('sha1').update(token).digest();
+    const index = ((digest[0] << 8) | digest[1]) % dims;
+    const sign = (digest[2] & 1) === 0 ? 1 : -1;
+    vec[index] += sign;
+  }
+
+  // L2 normalize so cosine similarity behaves well
+  let norm = 0;
+  for (const v of vec) {
+    norm += v * v;
+  }
+  if (norm > 0) {
+    const scale = 1 / Math.sqrt(norm);
+    for (let i = 0; i < vec.length; i++) {
+      vec[i] *= scale;
+    }
+  }
+
+  return vec;
 }
 
 async function ollamaEmbed(texts: string[]): Promise<number[][]> {
