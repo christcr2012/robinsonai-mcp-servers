@@ -26,8 +26,8 @@ export async function buildSymbolIndex(repoRoot = process.cwd()): Promise<Symbol
   const symbols: Symbol[] = [];
   const files: string[] = [];
 
-  // Find all TypeScript/JavaScript files
-  const sourceFiles = await fg(['**/*.{ts,tsx,js,jsx}'], {
+  // Find all supported source files
+  const sourceFiles = await fg(['**/*.{ts,tsx,cts,mts,js,jsx,mjs,cjs,py,go,java,kt,kts,rs,cpp,cc,cxx,c,h,hpp,hxx,ipp,cs,rb,php,swift,scala,m,mm,hs,vue,svelte}'], {
     cwd: repoRoot,
     ignore: [
       '**/node_modules/**',
@@ -75,57 +75,157 @@ export async function buildSymbolIndex(repoRoot = process.cwd()): Promise<Symbol
 /**
  * Extract symbols from a single file
  */
+const INDEX_ALIAS: Record<string, string> = {
+  '.tsx': '.ts',
+  '.jsx': '.js',
+  '.mjs': '.js',
+  '.cjs': '.js',
+  '.cts': '.ts',
+  '.mts': '.ts',
+  '.hpp': '.cpp',
+  '.hxx': '.cpp',
+  '.hh': '.cpp',
+  '.ipp': '.cpp',
+  '.cc': '.cpp',
+  '.cxx': '.cpp',
+  '.h': '.c',
+  '.mm': '.m',
+};
+
+type PatternDescriptor = {
+  regex: RegExp;
+  type: Symbol['type'];
+  nameIndex?: number;
+  exportedGroup?: number;
+};
+
+const LANGUAGE_PATTERNS: Record<string, PatternDescriptor[]> = {
+  '.ts': [
+    { regex: /^(export\s+)?(?:async\s+)?function\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm, type: 'function', nameIndex: 2 },
+    { regex: /^(export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(?:async\s*)?(?:\(|[A-Za-z_$][A-Za-z0-9_$]*\s*=>)/gm, type: 'const', nameIndex: 2 },
+    { regex: /^(export\s+)?(?:abstract\s+)?class\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm, type: 'class', nameIndex: 2 },
+    { regex: /^(export\s+)?interface\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm, type: 'interface', nameIndex: 2 },
+    { regex: /^(export\s+)?type\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm, type: 'type', nameIndex: 2 },
+    { regex: /^(export\s+)?enum\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm, type: 'enum', nameIndex: 2 },
+  ],
+  '.js': [
+    { regex: /^(export\s+)?(?:async\s+)?function\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm, type: 'function', nameIndex: 2 },
+    { regex: /^(export\s+)?(?:const|let|var)\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(?:async\s*)?(?:\(|[A-Za-z_$][A-Za-z0-9_$]*\s*=>)/gm, type: 'const', nameIndex: 2 },
+    { regex: /^(export\s+)?class\s+([A-Za-z_$][A-Za-z0-9_$]*)/gm, type: 'class', nameIndex: 2 },
+  ],
+  '.py': [
+    { regex: /^\s*def\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm, type: 'function', nameIndex: 1 },
+    { regex: /^\s*class\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+  ],
+  '.go': [
+    { regex: /^\s*func\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm, type: 'function', nameIndex: 1 },
+    { regex: /^\s*type\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'type', nameIndex: 1 },
+  ],
+  '.java': [
+    { regex: /^(?:public|protected|private|static|final|abstract|synchronized|\s)*class\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^(?:public|protected|private|static|abstract|\s)*interface\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'interface', nameIndex: 1 },
+    { regex: /^(?:public|protected|private|static|final|abstract|synchronized|native|strictfp|default|\s)+[\w<>\[\]]+\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.kt': [
+    { regex: /^(?:public|internal|private|protected|abstract|data|sealed|open|inline|value|suspend|\s)*class\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^(?:public|internal|private|protected|abstract|suspend|tailrec|infix|operator|inline|\s)*fun\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.kts': [
+    { regex: /^(?:public|internal|private|protected|suspend|inline|\s)*fun\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.rs': [
+    { regex: /^(?:pub\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'function', nameIndex: 1 },
+    { regex: /^(?:pub\s+)?struct\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^(?:pub\s+)?enum\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'enum', nameIndex: 1 },
+    { regex: /^(?:pub\s+)?trait\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'interface', nameIndex: 1 },
+  ],
+  '.cpp': [
+    { regex: /^(?:template\s*<[^>]+>\s*)?(?:class|struct)\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^(?:inline\s+)?(?:static\s+)?(?:constexpr\s+)?[A-Za-z_][\w:\*<>,\s]+\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.c': [
+    { regex: /^(?:static\s+)?[A-Za-z_][\w\*\s]+\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm, type: 'function', nameIndex: 1 },
+    { regex: /^typedef\s+struct\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'type', nameIndex: 1 },
+  ],
+  '.cs': [
+    { regex: /^(?:public|private|protected|internal|static|abstract|sealed|partial|\s)*class\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^(?:public|private|protected|internal|static|abstract|sealed|\s)*interface\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'interface', nameIndex: 1 },
+    { regex: /^(?:public|private|protected|internal|static|async|sealed|override|virtual|\s)+[\w<>\[\]]+\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.rb': [
+    { regex: /^\s*(?:class|module)\s+([A-Za-z_][A-Za-z0-9_!?]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^\s*def\s+([A-Za-z_][A-Za-z0-9_!?]*)/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.php': [
+    { regex: /^(?:abstract\s+|final\s+)?class\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^(?:public|protected|private|static|final|abstract|\s)*function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.swift': [
+    { regex: /^(?:public|internal|private|open|fileprivate|\s)*(?:class|struct|enum|protocol|extension)\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^(?:public|internal|private|open|fileprivate|static|mutating|nonmutating|\s)*func\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.scala': [
+    { regex: /^(?:final\s+|sealed\s+|abstract\s+|case\s+)?class\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^(?:trait|object)\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'interface', nameIndex: 1 },
+    { regex: /^\s*def\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.m': [
+    { regex: /^@interface\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^@implementation\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^[-+]\s*\([^)]+\)\s*([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.mm': [
+    { regex: /^@interface\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^@implementation\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'class', nameIndex: 1 },
+    { regex: /^[-+]\s*\([^)]+\)\s*([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.hs': [
+    { regex: /^\s*([A-Za-z_][A-Za-z0-9_']*)\s*::/gm, type: 'function', nameIndex: 1 },
+    { regex: /^\s*(?:data|newtype)\s+([A-Za-z_][A-Za-z0-9_']*)/gm, type: 'type', nameIndex: 1 },
+  ],
+  '.vue': [
+    { regex: /name:\s*['"]([A-Za-z_][A-Za-z0-9_]*)['"]/gm, type: 'class', nameIndex: 1 },
+    { regex: /methods:\s*{[^}]*([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm, type: 'function', nameIndex: 1 },
+  ],
+  '.svelte': [
+    { regex: /export\s+let\s+([A-Za-z_][A-Za-z0-9_]*)/gm, type: 'const', nameIndex: 1 },
+    { regex: /function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/gm, type: 'function', nameIndex: 1 },
+  ],
+};
+
+function normalizeIndexExt(ext: string): string {
+  const lower = ext.toLowerCase();
+  return INDEX_ALIAS[lower] ?? lower;
+}
+
 function extractSymbols(filePath: string, repoRoot: string): Symbol[] {
   const symbols: Symbol[] = [];
-  
+
   try {
     const content = fs.readFileSync(filePath, 'utf8');
-    const lines = content.split('\n');
     const relativePath = path.relative(repoRoot, filePath);
-
-    // Regex patterns for different symbol types
-    const patterns = [
-      // Functions: export function foo() / function foo()
-      { regex: /^(export\s+)?(async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'function' as const },
-      
-      // Arrow functions: export const foo = () => / const foo = async () =>
-      { regex: /^(export\s+)?const\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(async\s+)?\(/gm, type: 'const' as const },
-      
-      // Classes: export class Foo / class Foo
-      { regex: /^(export\s+)?(abstract\s+)?class\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'class' as const },
-      
-      // Interfaces: export interface Foo / interface Foo
-      { regex: /^(export\s+)?interface\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'interface' as const },
-      
-      // Types: export type Foo / type Foo
-      { regex: /^(export\s+)?type\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'type' as const },
-      
-      // Enums: export enum Foo / enum Foo
-      { regex: /^(export\s+)?enum\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'enum' as const },
-      
-      // Exported constants: export const FOO
-      { regex: /^export\s+const\s+([A-Z_][A-Z0-9_]*)\s*=/gm, type: 'const' as const }
-    ];
+    const ext = normalizeIndexExt(path.extname(filePath));
+    const patterns = LANGUAGE_PATTERNS[ext] || [];
 
     for (const pattern of patterns) {
-      let match;
-      while ((match = pattern.regex.exec(content)) !== null) {
-        const isExported = match[1] !== undefined;
-        const name = pattern.type === 'function' || pattern.type === 'class' || pattern.type === 'interface' || pattern.type === 'type' || pattern.type === 'enum'
-          ? match[3] || match[2]
-          : match[2] || match[1];
-
+      let match: RegExpExecArray | null;
+      const regex = new RegExp(pattern.regex.source, pattern.regex.flags.includes('g') ? pattern.regex.flags : pattern.regex.flags + 'g');
+      while ((match = regex.exec(content)) !== null) {
+        const name = match[pattern.nameIndex ?? 1];
         if (!name) continue;
 
-        // Find line number
-        const lineNumber = content.substring(0, match.index).split('\n').length;
+        const index = match.index;
+        const lineNumber = content.substring(0, index).split('\n').length;
+        const exportedGroup = pattern.exportedGroup ?? 1;
+        const rawExport = match[exportedGroup];
+        const isExported = rawExport ? /export|public|protected/.test(rawExport) : false;
 
         symbols.push({
           name,
           type: pattern.type,
           file: relativePath,
           line: lineNumber,
-          isPublic: isExported || /^[A-Z]/.test(name), // Exported or PascalCase
+          isPublic: isExported || /^[A-Z]/.test(name),
           isExported
         });
       }

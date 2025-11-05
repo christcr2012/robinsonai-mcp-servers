@@ -10,6 +10,7 @@ import { embedBatch } from './embedding.js';
 import { saveChunk, saveEmbedding, getPaths, loadChunks, loadEmbeddings } from './store.js';
 import { Chunk } from './types.js';
 import crypto from 'node:crypto';
+import { loadContextConfig } from './config.js';
 
 const MAXCH = 1500; // Max characters per chunk
 
@@ -140,7 +141,7 @@ export class FileWatcher {
       const sh = sha(rel + ':' + stat.mtimeMs + ':' + text.length);
 
       // Remove old chunks for this file
-      const existingChunks = loadChunks().filter(c => c.path === rel);
+      const existingChunks = loadChunks({ decompress: false }).filter(c => c.path === rel);
       const existingEmbeddings = loadEmbeddings();
       const existingIds = new Set(existingChunks.map(c => c.id));
 
@@ -157,12 +158,15 @@ export class FileWatcher {
 
       console.log(`[FileWatcher] Reindexing ${rel} (${chunks.length} chunks)...`);
 
+      const config = await loadContextConfig();
+      const compressChunks = config.storage.compressionEnabled;
+
       // Generate embeddings
       const embs = await embedBatch(chunks.map(c => c.text));
 
       // Save new chunks and embeddings
       for (let i = 0; i < chunks.length; i++) {
-        saveChunk(chunks[i]);
+        saveChunk(chunks[i], { compress: compressChunks });
         saveEmbedding({ id: chunks[i].id, vec: embs[i] });
       }
 
@@ -202,7 +206,7 @@ export class FileWatcher {
   private handleFileDelete(filePath: string): void {
     // Remove chunks for this file from the store
     // Load all chunks from the JSONL file
-    const chunks: Chunk[] = loadChunks();
+    const chunks = loadChunks({ decompress: false });
     const chunksToRemove = chunks.filter((chunk: Chunk) => chunk.path === filePath || chunk.uri === filePath);
 
     if (chunksToRemove.length > 0) {
@@ -211,10 +215,8 @@ export class FileWatcher {
 
       // Clear and rewrite chunks.jsonl
       const paths = getPaths();
-      fs.writeFileSync(paths.chunks, '', 'utf8');
-      for (const chunk of remainingChunks) {
-        saveChunk(chunk);
-      }
+      const payload = remainingChunks.map(chunk => JSON.stringify(chunk)).join('\n');
+      fs.writeFileSync(paths.chunks, payload ? payload + '\n' : '', 'utf8');
     }
 
     // Remove file hash

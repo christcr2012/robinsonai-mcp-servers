@@ -21,6 +21,14 @@ import type { Chunk, IndexStats, Hit } from './types.js';
 import { rerankCodeFirst, type Candidate } from './rankers/code_first.js';
 import { docHints, rerankDocs } from './rankers/doc_first.js';
 import { loadDocs } from './store.js';
+import {
+  analyzePatterns,
+  applyPatternBoosts,
+  loadPatternSnapshot,
+  savePatternSnapshot,
+  type PatternSnapshot
+} from './pattern-store.js';
+import { loadContextConfig } from './config.js';
 
 // Import graph type
 type ImportGraph = Array<{ from: string; to: string }>;
@@ -43,9 +51,18 @@ export class ContextEngine {
   private symbolIndex: SymbolIndex | null = null;
   private importGraph: ImportGraph | null = null;
   private indexed: boolean = false;
+  private patterns: PatternSnapshot | null = null;
+  private patternUpdate?: Promise<void>;
+  private bootstrapPromise: Promise<void> | null = null;
+  private activeIndexPromise: Promise<void> | null = null;
+  private backgroundQueue: Array<{ include?: string[]; force?: boolean; reason?: string }> = [];
+  private backgroundPromise: Promise<void> | null = null;
+  private staleCheckInFlight = false;
+  private lastStatsCheck = 0;
 
   private constructor(private root: string) {
     this.evidence = new EvidenceStore(this.root);
+    this.patterns = loadPatternSnapshot();
 
     // Start file watcher if enabled
     const autoWatch = process.env.CTX_AUTO_WATCH === '1' || process.env.CTX_AUTO_WATCH === 'true';
@@ -59,39 +76,21 @@ export class ContextEngine {
    */
   async ensureIndexed(): Promise<void> {
     if (this.indexed) {
+      await this.maybeTriggerRefresh();
       return;
     }
 
-    try {
-      const stats = await getStats();
-      if (stats && stats.chunks > 0) {
-        console.log(`[ContextEngine] Already indexed: ${stats.chunks} chunks`);
-        this.indexed = true;
-
-        // Build symbol index if not already built
-        if (!this.symbolIndex) {
-          console.log('[ContextEngine] Building symbol index...');
-          this.symbolIndex = await buildSymbolIndex(this.root);
-          console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
-        }
-
-        return;
-      }
-
-      console.log('[ContextEngine] Indexing repository...');
-      const result = await indexRepo();
-      console.log(`[ContextEngine] ✅ Indexed: ${result.files} files, ${result.chunks} chunks`);
-
-      // Build symbol index
-      console.log('[ContextEngine] Building symbol index...');
-      this.symbolIndex = await buildSymbolIndex(this.root);
-      console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
-
-      this.indexed = true;
-    } catch (error: any) {
-      console.error('[ContextEngine] Indexing failed:', error.message);
-      // Don't throw - allow tools to work without full index
+    if (!this.bootstrapPromise) {
+      this.bootstrapPromise = this.bootstrapIndex();
     }
+
+    try {
+      await this.bootstrapPromise;
+    } finally {
+      this.bootstrapPromise = null;
+    }
+
+    await this.maybeTriggerRefresh();
   }
 
   /**
@@ -147,16 +146,18 @@ export class ContextEngine {
       meta: r.chunk.meta // Include symbol metadata
     }));
 
-    // Rerank with code-first heuristics
-    const top50 = rerankCodeFirst(query, candidates, qVec).slice(0, 50);
+    // Rerank with code-first heuristics and apply architecture/style boosts
+    const reranked = rerankCodeFirst(query, candidates, qVec).slice(0, 50);
+    const boosted = applyPatternBoosts(query, reranked, this.patterns);
 
     // Optional: cross-encoder rerank on top-50 (only if COHERE_API_KEY is set)
     const { ceRerankIfAvailable } = await import('./rankers/cross_encoder.js');
-    const ce = await ceRerankIfAvailable(query, top50.map(t => ({ text: t.text })));
-    const final = ce
-      ? [...top50].sort((a, b) => (ce.find((x: any) => x.idx === top50.indexOf(b))?.score ?? 0) -
-                                   (ce.find((x: any) => x.idx === top50.indexOf(a))?.score ?? 0))
-      : top50;
+    const ce = await ceRerankIfAvailable(query, boosted.map(t => ({ text: t.text })));
+    const finalBase = ce
+      ? [...boosted].sort((a, b) => (ce.find((x: any) => x.idx === boosted.indexOf(b))?.score ?? 0) -
+                                   (ce.find((x: any) => x.idx === boosted.indexOf(a))?.score ?? 0))
+      : boosted;
+    const final = applyPatternBoosts(query, finalBase, this.patterns);
 
     // Format results
     return final.slice(0, k).map(r => ({
@@ -179,6 +180,7 @@ export class ContextEngine {
       console.log('[ContextEngine] Building import graph...');
       this.importGraph = buildImportGraph(this.root);
       console.log(`[ContextEngine] ✅ Import graph built: ${this.importGraph.length} edges`);
+      this.schedulePatternRefresh();
     }
 
     return this.importGraph;
@@ -312,6 +314,13 @@ export class ContextEngine {
    */
   async reset(): Promise<void> {
     this.indexed = false;
+    this.symbolIndex = null;
+    this.importGraph = null;
+    this.patterns = loadPatternSnapshot();
+    this.bootstrapPromise = null;
+    this.backgroundQueue = [];
+    this.backgroundPromise = null;
+    this.activeIndexPromise = null;
     // Invalidate cache when index is reset
     getQueryCache().invalidate();
     console.log('[ContextEngine] ✅ Index reset (will re-index on next search)');
@@ -334,6 +343,24 @@ export class ContextEngine {
       indexedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
+  }
+
+  private schedulePatternRefresh(): void {
+    if (this.patternUpdate) return;
+    if (!this.symbolIndex) return;
+
+    this.patternUpdate = (async () => {
+      try {
+        const chunks = loadChunks();
+        const snapshot = analyzePatterns(this.symbolIndex!, this.importGraph ?? [], chunks);
+        savePatternSnapshot(snapshot);
+        this.patterns = snapshot;
+      } catch (error) {
+        console.warn('[ContextEngine] Failed to refresh architectural/style patterns:', error);
+      } finally {
+        this.patternUpdate = undefined;
+      }
+    })();
   }
 
   /**
@@ -366,6 +393,152 @@ export class ContextEngine {
    */
   isWatcherRunning(): boolean {
     return this.watcher?.isRunning() ?? false;
+  }
+
+  private async bootstrapIndex(): Promise<void> {
+    try {
+      const config = await loadContextConfig();
+      const stats = getStats();
+
+      if (stats && stats.chunks > 0) {
+        console.log(`[ContextEngine] Already indexed: ${stats.chunks} chunks`);
+        this.indexed = true;
+        if (!this.symbolIndex) {
+          await this.rebuildSymbolIndex();
+        }
+        return;
+      }
+
+      const quickFirst = config.indexing.lazyIndexing !== false;
+      if (quickFirst) {
+        console.log('[ContextEngine] Performing quick bootstrap indexing...');
+        const result = await this.executeIndex({ quick: true });
+        if (
+          result.ok &&
+          result.pending &&
+          result.pending.length > 0 &&
+          config.indexing.backgroundIndexing
+        ) {
+          this.enqueueBackgroundIndex({ include: result.pending, reason: 'bootstrap deferred files' });
+        }
+      } else {
+        console.log('[ContextEngine] Performing full bootstrap indexing...');
+        await this.executeIndex({ quick: false, force: true });
+      }
+    } catch (error: any) {
+      console.error('[ContextEngine] Indexing failed:', error?.message ?? error);
+    }
+  }
+
+  private async executeIndex(opts: Parameters<typeof indexRepo>[1] = {}): Promise<Awaited<ReturnType<typeof indexRepo>>> {
+    while (this.activeIndexPromise) {
+      try {
+        await this.activeIndexPromise;
+      } catch {
+        // ignore previous failures
+      }
+    }
+
+    const runPromise = this.runIndex(opts);
+    this.activeIndexPromise = runPromise.then(() => undefined, () => undefined);
+
+    try {
+      return await runPromise;
+    } finally {
+      this.activeIndexPromise = null;
+    }
+  }
+
+  private async runIndex(opts: Parameters<typeof indexRepo>[1] = {}): Promise<Awaited<ReturnType<typeof indexRepo>>> {
+    const result = await indexRepo(this.root, opts);
+
+    if (result.ok) {
+      if (!result.skipped) {
+        await this.rebuildSymbolIndex();
+        this.indexed = true;
+      } else if (!this.symbolIndex) {
+        await this.rebuildSymbolIndex();
+        this.indexed = true;
+      }
+
+      if (result.pending && result.pending.length) {
+        this.enqueueBackgroundIndex({ include: result.pending, reason: 'deferred from incremental run' });
+      }
+    }
+
+    return result;
+  }
+
+  private async rebuildSymbolIndex(): Promise<void> {
+    console.log('[ContextEngine] Building symbol index...');
+    this.symbolIndex = await buildSymbolIndex(this.root);
+    console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
+    this.importGraph = null;
+    this.schedulePatternRefresh();
+  }
+
+  private enqueueBackgroundIndex(task: { include?: string[]; force?: boolean; reason?: string } = {}): void {
+    this.backgroundQueue.push(task);
+    if (!this.backgroundPromise) {
+      this.backgroundPromise = this.runBackgroundQueue();
+    }
+  }
+
+  private async runBackgroundQueue(): Promise<void> {
+    while (this.backgroundQueue.length > 0) {
+      const { include, force, reason } = this.backgroundQueue.shift()!;
+      try {
+        console.log(`[ContextEngine] Background indexing${reason ? ` (${reason})` : ''}...`);
+        const result = await this.executeIndex({ include, force, quick: false });
+        if (result.ok && result.pending && result.pending.length) {
+          this.enqueueBackgroundIndex({ include: result.pending, reason: 'deferred from background pass' });
+        }
+      } catch (error: any) {
+        console.warn('[ContextEngine] Background indexing failed:', error?.message ?? error);
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+    this.backgroundPromise = null;
+  }
+
+  private async maybeTriggerRefresh(): Promise<void> {
+    if (this.staleCheckInFlight) return;
+
+    const now = Date.now();
+    if (now - this.lastStatsCheck < 15000) {
+      return;
+    }
+
+    this.staleCheckInFlight = true;
+    try {
+      const config = await loadContextConfig();
+      if (!config.indexing.backgroundIndexing) {
+        return;
+      }
+
+      const stats = getStats();
+      if (!stats?.updatedAt) {
+        return;
+      }
+
+      const ttlMs = config.indexing.ttlMinutes * 60 * 1000;
+      if (ttlMs <= 0) {
+        return;
+      }
+
+      const age = now - new Date(stats.updatedAt).getTime();
+      if (age > ttlMs) {
+        console.log(`[ContextEngine] Index is stale (${Math.round(age / 1000)}s old). Scheduling background refresh.`);
+        this.enqueueBackgroundIndex({ force: false, reason: 'ttl refresh' });
+      }
+    } catch (error: any) {
+      console.warn('[ContextEngine] Failed to evaluate index freshness:', error?.message ?? error);
+    } finally {
+      this.lastStatsCheck = now;
+      this.staleCheckInFlight = false;
+    }
   }
 }
 

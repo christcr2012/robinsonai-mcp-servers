@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { gzipSync, gunzipSync } from 'zlib';
 import { Chunk, Embedding, IndexStats } from './types.js';
 import { resolveWorkspaceRoot } from '../lib/workspace.js';
 
@@ -18,6 +19,10 @@ function getContextRoot(): string {
 }
 
 const root = getContextRoot();
+
+export function contextRootPath(): string {
+  return root;
+}
 
 const P = {
   chunks: path.join(root, 'chunks.jsonl'),
@@ -55,16 +60,56 @@ export function writeJSON(p: string, obj: any) {
   fs.writeFileSync(p, JSON.stringify(obj, null, 2));
 }
 
-export function loadChunks(): Chunk[] {
-  return Array.from(readJSONL<Chunk>(P.chunks));
+function compressChunkRecord(chunk: Chunk): Chunk {
+  if (chunk.compressed) {
+    return chunk;
+  }
+
+  const payload = gzipSync(Buffer.from(chunk.text, 'utf8'));
+  return {
+    ...chunk,
+    text: payload.toString('base64'),
+    compressed: true,
+    encoding: 'gzip',
+    originalBytes: Buffer.byteLength(chunk.text, 'utf8'),
+  };
+}
+
+export function materializeChunk(chunk: Chunk): Chunk {
+  if (!chunk.compressed || chunk.encoding !== 'gzip') {
+    return chunk;
+  }
+
+  try {
+    const raw = gunzipSync(Buffer.from(chunk.text, 'base64')).toString('utf8');
+    return {
+      ...chunk,
+      text: raw,
+      compressed: false,
+    };
+  } catch (error) {
+    console.warn('[materializeChunk] Failed to decompress chunk, returning raw payload:', error);
+    return {
+      ...chunk,
+      text: Buffer.from(chunk.text, 'base64').toString('utf8'),
+      compressed: false,
+    };
+  }
+}
+
+export function loadChunks(opts: { decompress?: boolean } = {}): Chunk[] {
+  const raw = Array.from(readJSONL<Chunk>(P.chunks));
+  if (opts.decompress === false) return raw;
+  return raw.map(materializeChunk);
 }
 
 export function loadEmbeddings(): Embedding[] {
   return Array.from(readJSONL<Embedding>(P.embeds));
 }
 
-export function saveChunk(c: Chunk) {
-  appendJSONL(P.chunks, c);
+export function saveChunk(c: Chunk, opts: { compress?: boolean } = {}) {
+  const record = opts.compress ? compressChunkRecord(c) : c;
+  appendJSONL(P.chunks, record);
 }
 
 export function saveEmbedding(e: Embedding) {
@@ -118,7 +163,7 @@ export function saveFileMap(m: Record<string, any>) {
 
 // --- Delete all chunks for a file (used on modify/delete)
 export function deleteChunksForFile(file: string) {
-  const all = loadChunks();
+  const all = loadChunks({ decompress: false });
   const keep = all.filter(c => c.path !== file && c.uri !== file);
   // Rewrite chunks file
   fs.writeFileSync(P.chunks, keep.map(c => JSON.stringify(c)).join('\n') + '\n', 'utf8');

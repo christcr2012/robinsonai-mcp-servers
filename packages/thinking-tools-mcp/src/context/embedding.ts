@@ -2,37 +2,44 @@ import { request } from 'undici';
 import pLimit from 'p-limit';
 import crypto from 'crypto';
 
-const prov = (process.env.CTX_EMBED_PROVIDER || 'ollama').toLowerCase();
+import { loadContextConfig } from './config.js';
 
 /**
  * Embed batch of texts using configured provider
  * Supports: ollama (free), openai (paid), claude/voyage (paid)
  */
 export async function embedBatch(texts: string[]): Promise<number[][]> {
+  const config = await loadContextConfig();
+  const prov = config.embedding.provider;
+
   console.log(`[embedBatch] Using provider: ${prov} for ${texts.length} texts`);
 
   try {
     if (prov === 'openai') return await openaiEmbed(texts);
     if (prov === 'claude' || prov === 'voyage') return await voyageEmbed(texts);
-    return await ollamaEmbed(texts);
+    if (prov === 'ollama') return await ollamaEmbed(texts);
+    return lexicalFallbackEmbed(texts, config.embedding.fallbackDimensions, prov === 'lexical');
   } catch (error: any) {
     const message = error?.message ?? String(error);
     console.warn(`⚠️  [embedBatch] Provider "${prov}" failed (${message}). Falling back to lexical embeddings.`);
-    return lexicalFallbackEmbed(texts);
+    return lexicalFallbackEmbed(texts, config.embedding.fallbackDimensions, false);
   }
 }
 
-const FALLBACK_DIMS = parseInt(process.env.CTX_FALLBACK_EMBED_DIMS || '384', 10);
 let loggedFallbackInfo = false;
 
-function lexicalFallbackEmbed(texts: string[]): number[][] {
+function lexicalFallbackEmbed(texts: string[], dims: number, providerPreferred: boolean): number[][] {
   if (!loggedFallbackInfo) {
-    console.warn(`⚠️  [embedBatch] Using deterministic lexical embeddings with ${FALLBACK_DIMS} dimensions.`);
-    console.warn('⚠️  [embedBatch] Results rely on lexical/BM25 scoring until a vector provider is available.');
+    if (!providerPreferred) {
+      console.warn(`⚠️  [embedBatch] Using deterministic lexical embeddings with ${dims} dimensions.`);
+      console.warn('⚠️  [embedBatch] Results rely on lexical/BM25 scoring until a vector provider is available.');
+    } else {
+      console.warn(`ℹ️  [embedBatch] Defaulting to built-in lexical embeddings (${dims} dims).`);
+    }
     loggedFallbackInfo = true;
   }
 
-  return texts.map(text => hashedEmbedding(text, FALLBACK_DIMS));
+  return texts.map(text => hashedEmbedding(text, dims));
 }
 
 function hashedEmbedding(text: string, dims: number): number[] {

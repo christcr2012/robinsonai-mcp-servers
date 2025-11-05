@@ -14,6 +14,9 @@ export interface Chunk {
   tags?: string[];
   vec?: number[];  // Optional embedding vector (for reranking)
   meta?: { symbols?: string[]; lang?: string; lines?: number };  // Symbol extraction metadata
+  compressed?: boolean;
+  encoding?: 'gzip';
+  originalBytes?: number;
 }
 
 export interface Embedding {
@@ -38,5 +41,7 @@ export interface IndexStats {
   totalCost?: number;  // Total cost
   indexedAt?: string;  // When indexed
   updatedAt: string;
+  storageMb?: number;
+  compression?: string;
 }
 
