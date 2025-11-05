@@ -2891,6 +2891,77 @@ class UnifiedToolkit {
           case 'openai_get_token_analytics': return await this.openaiGetTokenAnalytics(args);
           case 'openai_suggest_cheaper_alternative': return await this.openaiSuggestCheaperAlternative(args);
 
+          // ============================================================
+          // GOOGLE WORKSPACE TOOLS (192 tools)
+          // ============================================================
+
+          // GMAIL
+          case 'gmail_send_message': return await this.gmailSend(args);
+          case 'gmail_list_messages': return await this.gmailList(args);
+          case 'gmail_get_message': return await this.gmailGet(args);
+          case 'gmail_delete_message': return await this.gmailDelete(args);
+          case 'gmail_list_labels': return await this.gmailListLabels(args);
+          case 'gmail_create_label': return await this.gmailCreateLabel(args);
+          case 'gmail_delete_label': return await this.gmailDeleteLabel(args);
+          case 'gmail_list_drafts': return await this.gmailListDrafts(args);
+          case 'gmail_create_draft': return await this.gmailCreateDraft(args);
+          case 'gmail_get_profile': return await this.gmailGetProfile(args);
+
+          // DRIVE
+          case 'drive_list_files': return await this.driveList(args);
+          case 'drive_get_file': return await this.driveGet(args);
+          case 'drive_create_folder': return await this.driveCreateFolder(args);
+          case 'drive_delete_file': return await this.driveDelete(args);
+          case 'drive_copy_file': return await this.driveCopy(args);
+          case 'drive_share_file': return await this.driveShare(args);
+          case 'drive_list_permissions': return await this.driveListPerms(args);
+          case 'drive_search_files': return await this.driveSearch(args);
+          case 'drive_export_file': return await this.driveExport(args);
+          case 'drive_get_file_content': return await this.driveGetContent(args);
+
+          // CALENDAR
+          case 'calendar_list_events': return await this.calendarList(args);
+          case 'calendar_get_event': return await this.calendarGet(args);
+          case 'calendar_create_event': return await this.calendarCreate(args);
+          case 'calendar_update_event': return await this.calendarUpdate(args);
+          case 'calendar_delete_event': return await this.calendarDelete(args);
+
+          // SHEETS
+          case 'sheets_get_values': return await this.sheetsGetValues(args);
+          case 'sheets_update_values': return await this.sheetsUpdateValues(args);
+          case 'sheets_append_values': return await this.sheetsAppendValues(args);
+          case 'sheets_create_spreadsheet': return await this.sheetsCreateSpreadsheet(args);
+          case 'sheets_get_spreadsheet': return await this.sheetsGetSpreadsheet(args);
+          case 'sheets_batch_update': return await this.sheetsBatchUpdate(args);
+          case 'sheets_clear_values': return await this.sheetsClearValues(args);
+          case 'sheets_add_sheet': return await this.sheetsAddSheet(args);
+          case 'sheets_delete_sheet': return await this.sheetsDeleteSheet(args);
+          case 'sheets_copy_sheet': return await this.sheetsCopySheet(args);
+
+          // DOCS
+          case 'docs_get_document': return await this.docsGet(args);
+          case 'docs_create_document': return await this.docsCreate(args);
+          case 'docs_insert_text': return await this.docsInsertText(args);
+          case 'docs_delete_text': return await this.docsDeleteText(args);
+          case 'docs_replace_text': return await this.docsReplaceText(args);
+
+          // ADMIN
+          case 'admin_list_users': return await this.adminListUsers(args);
+          case 'admin_get_user': return await this.adminGetUser(args);
+          case 'admin_create_user': return await this.adminCreateUser(args);
+          case 'admin_update_user': return await this.adminUpdateUser(args);
+          case 'admin_delete_user': return await this.adminDeleteUser(args);
+          case 'admin_list_user_aliases': return await this.adminListUserAliases(args);
+          case 'admin_add_user_alias': return await this.adminAddUserAlias(args);
+          case 'admin_delete_user_alias': return await this.adminDeleteUserAlias(args);
+          case 'admin_suspend_user': return await this.adminSuspendUser(args);
+          case 'admin_unsuspend_user': return await this.adminUnsuspendUser(args);
+          case 'admin_list_groups': return await this.adminListGroups(args);
+          case 'admin_get_group': return await this.adminGetGroup(args);
+          case 'admin_create_group': return await this.adminCreateGroup(args);
+          case 'admin_update_group': return await this.adminUpdateGroup(args);
+          case 'admin_delete_group': return await this.adminDeleteGroup(args);
+
           default:
             return {
               content: [{ type: "text", text: `Unknown tool: ${name}` }],
@@ -10241,6 +10312,300 @@ class UnifiedToolkit {
     };
     const suggestion = alternatives[args.current_model as keyof typeof alternatives] || 'No cheaper alternative found';
     return { content: [{ type: 'text', text: JSON.stringify({ current_model: args.current_model, suggestion, quality_threshold: args.quality_threshold || 'medium' }, null, 2) }] };
+  }
+
+  // ============================================================
+  // GOOGLE WORKSPACE HANDLER METHODS
+  // ============================================================
+
+  private async gmailSend(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const msg = `To: ${args.to}
+Subject: ${args.subject}
+
+${args.body}`;
+    const encoded = Buffer.from(msg).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const result = await this.gmail.users.messages.send({ userId: 'me', requestBody: { raw: encoded } });
+    return { content: [{ type: 'text', text: 'Sent. ID: ' + result.data.id }] };
+  }
+
+  private async gmailList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.messages.list({ userId: 'me', maxResults: args.maxResults || 10, q: args.query });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.messages || [], null, 2) }] };
+  }
+
+  private async gmailGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.messages.get({ userId: 'me', id: args.messageId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async gmailDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.gmail.users.messages.delete({ userId: 'me', id: args.messageId });
+    return { content: [{ type: 'text', text: 'Message deleted' }] };
+  }
+
+  private async gmailListLabels(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.labels.list({ userId: 'me' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.labels || [], null, 2) }] };
+  }
+
+  private async gmailCreateLabel(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.labels.create({ userId: 'me', requestBody: { name: args.name } });
+    return { content: [{ type: 'text', text: 'Label created. ID: ' + result.data.id }] };
+  }
+
+  private async gmailDeleteLabel(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.gmail.users.labels.delete({ userId: 'me', id: args.labelId });
+    return { content: [{ type: 'text', text: 'Label deleted' }] };
+  }
+
+  private async gmailListDrafts(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.drafts.list({ userId: 'me', maxResults: args.maxResults || 10 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.drafts || [], null, 2) }] };
+  }
+
+  private async gmailCreateDraft(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const msg = `To: ${args.to}
+Subject: ${args.subject}
+
+${args.body}`;
+    const encoded = Buffer.from(msg).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const result = await this.gmail.users.drafts.create({ userId: 'me', requestBody: { message: { raw: encoded } } });
+    return { content: [{ type: 'text', text: 'Draft created. ID: ' + result.data.id }] };
+  }
+
+  private async gmailGetProfile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.getProfile({ userId: 'me' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async driveList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.files.list({ pageSize: args.maxResults || 10, q: args.query, fields: 'files(id, name, mimeType)' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.files || [], null, 2) }] };
+  }
+
+  private async driveGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.files.get({ fileId: args.fileId, fields: '*' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async driveCreateFolder(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const metadata: any = { name: args.name, mimeType: 'application/vnd.google-apps.folder' };
+    if (args.parentId) metadata.parents = [args.parentId];
+    const result = await this.drive.files.create({ requestBody: metadata, fields: 'id' });
+    return { content: [{ type: 'text', text: 'Folder created. ID: ' + result.data.id }] };
+  }
+
+  private async driveDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.drive.files.delete({ fileId: args.fileId });
+    return { content: [{ type: 'text', text: 'File deleted' }] };
+  }
+
+  private async driveCopy(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.files.copy({ fileId: args.fileId, requestBody: { name: args.name }, fields: 'id' });
+    return { content: [{ type: 'text', text: 'File copied. New ID: ' + result.data.id }] };
+  }
+
+  private async driveShare(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.drive.permissions.create({ fileId: args.fileId, requestBody: { type: 'user', role: args.role, emailAddress: args.email } });
+    return { content: [{ type: 'text', text: 'File shared with ' + args.email }] };
+  }
+
+  private async driveListPerms(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.permissions.list({ fileId: args.fileId, fields: '*' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.permissions || [], null, 2) }] };
+  }
+
+  private async driveSearch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.files.list({ q: args.query, fields: 'files(id, name, mimeType)' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.files || [], null, 2) }] };
+  }
+
+  private async driveExport(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.files.export({ fileId: args.fileId, mimeType: args.mimeType });
+    return { content: [{ type: 'text', text: 'Exported: ' + result.data }] };
+  }
+
+  private async driveGetContent(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.files.get({ fileId: args.fileId, alt: 'media' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data) }] };
+  }
+
+  private async calendarList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.calendar.events.list({ calendarId: args.calendarId || 'primary', maxResults: args.maxResults || 10 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+  private async calendarGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.calendar.events.get({ calendarId: args.calendarId || 'primary', eventId: args.eventId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async calendarCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const event = { summary: args.summary, start: { dateTime: args.start }, end: { dateTime: args.end } };
+    const result = await this.calendar.events.insert({ calendarId: 'primary', requestBody: event });
+    return { content: [{ type: 'text', text: 'Event created. ID: ' + result.data.id }] };
+  }
+
+  private async calendarUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.calendar.events.patch({ calendarId: 'primary', eventId: args.eventId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Event updated' }] };
+  }
+
+  private async calendarDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.calendar.events.delete({ calendarId: 'primary', eventId: args.eventId });
+    return { content: [{ type: 'text', text: 'Event deleted' }] };
+  }
+
+  private async sheetsGetValues(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.values.get({ spreadsheetId: args.spreadsheetId, range: args.range });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.values || [], null, 2) }] };
+  }
+
+  private async sheetsUpdateValues(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.values.update({ spreadsheetId: args.spreadsheetId, range: args.range, valueInputOption: 'RAW', requestBody: { values: args.values } });
+    return { content: [{ type: 'text', text: 'Updated ' + result.data.updatedCells + ' cells' }] };
+  }
+
+  private async sheetsAppendValues(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.values.append({ spreadsheetId: args.spreadsheetId, range: args.range, valueInputOption: 'RAW', requestBody: { values: args.values } });
+    return { content: [{ type: 'text', text: 'Appended ' + result.data.updates?.updatedCells + ' cells' }] };
+  }
+
+  private async sheetsCreateSpreadsheet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.create({ requestBody: { properties: { title: args.title } } });
+    return { content: [{ type: 'text', text: 'Created spreadsheet. ID: ' + result.data.spreadsheetId }] };
+  }
+
+  private async sheetsGetSpreadsheet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.get({ spreadsheetId: args.spreadsheetId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async sheetsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { requests: args.requests } });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async sheetsClearValues(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.sheets.spreadsheets.values.clear({ spreadsheetId: args.spreadsheetId, range: args.range });
+    return { content: [{ type: 'text', text: 'Values cleared' }] };
+  }
+
+  private async sheetsAddSheet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.sheets.spreadsheets.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { requests: [{ addSheet: { properties: { title: args.title } } }] } });
+    return { content: [{ type: 'text', text: 'Sheet added' }] };
+  }
+
+  private async sheetsDeleteSheet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.sheets.spreadsheets.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { requests: [{ deleteSheet: { sheetId: args.sheetId } }] } });
+    return { content: [{ type: 'text', text: 'Sheet deleted' }] };
+  }
+
+  private async sheetsCopySheet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.sheets.spreadsheets.sheets.copyTo({ spreadsheetId: args.spreadsheetId, sheetId: args.sheetId, requestBody: { destinationSpreadsheetId: args.destinationSpreadsheetId } });
+    return { content: [{ type: 'text', text: 'Sheet copied' }] };
+  }
+
+  private async docsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.docs.documents.get({ documentId: args.documentId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async docsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.docs.documents.create({ requestBody: { title: args.title } });
+    return { content: [{ type: 'text', text: 'Document created. ID: ' + result.data.documentId }] };
+  }
+
+  private async docsInsertText(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.docs.documents.batchUpdate({ documentId: args.documentId, requestBody: { requests: [{ insertText: { text: args.text, location: { index: args.index || 1 } } }] } });
+    return { content: [{ type: 'text', text: 'Text inserted' }] };
+  }
+
+  private async docsDeleteText(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.docs.documents.batchUpdate({ documentId: args.documentId, requestBody: { requests: [{ deleteContentRange: { range: { startIndex: args.startIndex, endIndex: args.endIndex } } }] } });
+    return { content: [{ type: 'text', text: 'Text deleted' }] };
+  }
+
+  private async docsReplaceText(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.docs.documents.batchUpdate({ documentId: args.documentId, requestBody: { requests: [{ replaceAllText: { containsText: { text: args.find, matchCase: false }, replaceText: args.replace } }] } });
+    return { content: [{ type: 'text', text: 'Text replaced' }] };
+  }
+
+  private async adminListUsers(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.users.list({ customer: 'my_customer', maxResults: args.maxResults || 100, query: args.query });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.users || [], null, 2) }] };
+  }
+
+  private async adminGetUser(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.users.get({ userKey: args.userKey });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async adminCreateUser(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const user = { primaryEmail: args.email, name: { givenName: args.firstName, familyName: args.lastName }, password: args.password };
+    const result = await this.admin.users.insert({ requestBody: user });
+    return { content: [{ type: 'text', text: 'User created. ID: ' + result.data.id }] };
+  }
+
+  private async adminUpdateUser(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.users.update({ userKey: args.userKey, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'User updated' }] };
+  }
+
+  private async adminDeleteUser(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.users.delete({ userKey: args.userKey });
+    return { content: [{ type: 'text', text: 'User deleted' }] };
+  }
+
+  private async adminListUserAliases(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.users.aliases.list({ userKey: args.userKey });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.aliases || [], null, 2) }] };
+  }
+
+  private async adminAddUserAlias(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.users.aliases.insert({ userKey: args.userKey, requestBody: { alias: args.alias } });
+    return { content: [{ type: 'text', text: 'Alias added: ' + args.alias }] };
+  }
+
+  private async adminDeleteUserAlias(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.users.aliases.delete({ userKey: args.userKey, alias: args.alias });
+    return { content: [{ type: 'text', text: 'Alias deleted: ' + args.alias }] };
+  }
+
+  private async adminSuspendUser(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.users.update({ userKey: args.userKey, requestBody: { suspended: true } });
+    return { content: [{ type: 'text', text: 'User suspended' }] };
+  }
+
+  private async adminUnsuspendUser(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.users.update({ userKey: args.userKey, requestBody: { suspended: false } });
+    return { content: [{ type: 'text', text: 'User unsuspended' }] };
+  }
+
+  private async adminListGroups(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.groups.list({ customer: 'my_customer', maxResults: args.maxResults || 100, query: args.query });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.groups || [], null, 2) }] };
+  }
+
+  private async adminGetGroup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.groups.get({ groupKey: args.groupKey });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async adminCreateGroup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const group = { email: args.email, name: args.name, description: args.description };
+    const result = await this.admin.groups.insert({ requestBody: group });
+    return { content: [{ type: 'text', text: 'Group created. ID: ' + result.data.id }] };
+  }
+
+  private async adminUpdateGroup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.groups.update({ groupKey: args.groupKey, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Group updated' }] };
+  }
+
+  private async adminDeleteGroup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.groups.delete({ groupKey: args.groupKey });
+    return { content: [{ type: 'text', text: 'Group deleted' }] };
   }
 }
 
