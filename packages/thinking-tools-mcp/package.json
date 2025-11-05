@@ -63,6 +63,12 @@
     "slash": "^5.1.0",
     "slugify": "^1.6.6",
     "string-strip-html": "^13.5.0",
+    "tree-sitter": "^0.22.6",
+    "tree-sitter-cpp": "^0.20.0",
+    "tree-sitter-go": "^0.20.0",
+    "tree-sitter-java": "^0.20.0",
+    "tree-sitter-python": "^0.20.4",
+    "tree-sitter-rust": "^0.20.4",
     "undici": "^6.22.0",
     "unified": "^11.0.5"
   },
