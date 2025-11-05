@@ -46,6 +46,8 @@ class CreditOptimizerServer {
   private costTracker: CostTracker;
   private parallelExecutor: ParallelExecutionEngine;
   private agentPool: AgentPool;
+  private initializationPromise: Promise<void> | null = null;
+  private initializationError: Error | null = null;
 
   constructor() {
     this.server = new Server(
@@ -80,12 +82,32 @@ class CreditOptimizerServer {
   private async initialize(): Promise<void> {
     // Index all tools from Robinson's Toolkit
     await this.toolIndexer.indexAllTools();
-    
+
     // Initialize default templates
     await this.templates.initializeDefaultTemplates();
-    
+
     // Clear expired cache
     this.db.clearExpiredCache();
+  }
+
+  private async ensureInitialized(): Promise<void> {
+    if (process.env.CREDIT_OPTIMIZER_SKIP_INDEX === '1') {
+      return;
+    }
+
+    if (this.initializationError) {
+      throw this.initializationError;
+    }
+
+    if (!this.initializationPromise) {
+      this.initializationPromise = this.initialize().catch((err) => {
+        const error = err instanceof Error ? err : new Error(String(err));
+        this.initializationError = error;
+        throw error;
+      });
+    }
+
+    await this.initializationPromise;
   }
 
   private setupHandlers(): void {
@@ -114,6 +136,23 @@ class CreditOptimizerServer {
         const startTime = Date.now();
         let result: any;
         const params = args as any || {};
+
+        try {
+          await this.ensureInitialized();
+        } catch (initError) {
+          const message = initError instanceof Error ? initError.message : String(initError);
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                error: 'Initialization failed',
+                detail: message,
+                hint: 'Set CREDIT_OPTIMIZER_SKIP_INDEX=1 to bypass automatic indexing or fix the underlying issue and retry.',
+              }, null, 2),
+            }],
+            isError: true,
+          };
+        }
 
         // Tool Discovery
         if (name === 'discover_tools') {
@@ -1060,11 +1099,9 @@ class CreditOptimizerServer {
 
     // Kick off initialization asynchronously after connect, unless explicitly skipped
     if (process.env.CREDIT_OPTIMIZER_SKIP_INDEX !== '1') {
-      setTimeout(() => {
-        this.initialize().catch((err) => {
-          console.error('Non-fatal: initialization failed:', err?.message || err);
-        });
-      }, 0);
+      this.ensureInitialized().catch((err) => {
+        console.error('Non-fatal: initialization failed:', err?.message || err);
+      });
     } else {
       console.error('Startup indexing skipped (CREDIT_OPTIMIZER_SKIP_INDEX=1)');
     }
