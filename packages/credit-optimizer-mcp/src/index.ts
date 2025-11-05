@@ -46,8 +46,8 @@ class CreditOptimizerServer {
   private costTracker: CostTracker;
   private parallelExecutor: ParallelExecutionEngine;
   private agentPool: AgentPool;
-  private initializationPromise: Promise<void> | null = null;
-  private initializationError: Error | null = null;
+  private initialized = false;
+  private initializing?: Promise<void>;
 
   constructor() {
     this.server = new Server(
@@ -79,6 +79,25 @@ class CreditOptimizerServer {
     this.setupHandlers();
   }
 
+  private async ensureInitialized(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
+    if (!this.initializing) {
+      this.initializing = (async () => {
+        try {
+          await this.initialize();
+          this.initialized = true;
+        } finally {
+          this.initializing = undefined;
+        }
+      })();
+    }
+
+    return this.initializing;
+  }
+
   private async initialize(): Promise<void> {
     // Index all tools from Robinson's Toolkit
     await this.toolIndexer.indexAllTools();
@@ -90,69 +109,44 @@ class CreditOptimizerServer {
     this.db.clearExpiredCache();
   }
 
-  private async ensureInitialized(): Promise<void> {
-    if (process.env.CREDIT_OPTIMIZER_SKIP_INDEX === '1') {
-      return;
-    }
-
-    if (this.initializationError) {
-      throw this.initializationError;
-    }
-
-    if (!this.initializationPromise) {
-      this.initializationPromise = this.initialize().catch((err) => {
-        const error = err instanceof Error ? err : new Error(String(err));
-        this.initializationError = error;
-        throw error;
-      });
-    }
-
-    await this.initializationPromise;
-  }
-
   private setupHandlers(): void {
     // Handle initialize request
-    this.server.setRequestHandler(InitializeRequestSchema, async (request) => ({
-      protocolVersion: "2024-11-05",
-      capabilities: {
-        tools: {},
-      },
-      serverInfo: {
-        name: "credit-optimizer-mcp",
-        version: "0.1.1",
-      },
-    }));
+    this.server.setRequestHandler(InitializeRequestSchema, async (request) => {
+      try {
+        await this.ensureInitialized();
+      } catch (error) {
+        console.error('[CreditOptimizer] Initialization failed:', error);
+      }
+
+      return {
+        protocolVersion: "2024-11-05",
+        capabilities: {
+          tools: {},
+        },
+        serverInfo: {
+          name: "credit-optimizer-mcp",
+          version: "0.1.1",
+        },
+      };
+    });
 
     // List available tools
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: this.getTools(),
-    }));
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      await this.ensureInitialized();
+      return {
+        tools: this.getTools(),
+      };
+    });
 
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
 
       try {
+        await this.ensureInitialized();
         const startTime = Date.now();
         let result: any;
         const params = args as any || {};
-
-        try {
-          await this.ensureInitialized();
-        } catch (initError) {
-          const message = initError instanceof Error ? initError.message : String(initError);
-          return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify({
-                error: 'Initialization failed',
-                detail: message,
-                hint: 'Set CREDIT_OPTIMIZER_SKIP_INDEX=1 to bypass automatic indexing or fix the underlying issue and retry.',
-              }, null, 2),
-            }],
-            isError: true,
-          };
-        }
 
         // Tool Discovery
         if (name === 'discover_tools') {
@@ -1099,9 +1093,11 @@ class CreditOptimizerServer {
 
     // Kick off initialization asynchronously after connect, unless explicitly skipped
     if (process.env.CREDIT_OPTIMIZER_SKIP_INDEX !== '1') {
-      this.ensureInitialized().catch((err) => {
-        console.error('Non-fatal: initialization failed:', err?.message || err);
-      });
+      setTimeout(() => {
+        this.initialize().catch((err) => {
+          console.error('Non-fatal: initialization failed:', err?.message || err);
+        });
+      }, 0);
     } else {
       console.error('Startup indexing skipped (CREDIT_OPTIMIZER_SKIP_INDEX=1)');
     }

@@ -9,6 +9,8 @@ import { withContext } from '../lib/context-enhancer.js';
 export interface DecisionMatrixInput {
   options: string[];
   criteria?: string[];
+  weights?: number[];
+  optionDetails?: Record<string, unknown>;
   context?: string;
   useContext?: boolean;
   contextQuery?: string;
@@ -27,6 +29,24 @@ export interface DecisionMatrixOutput {
   reasoning: string;
 }
 
+type CanonicalCriterion =
+  | 'cost'
+  | 'performance'
+  | 'maintainability'
+  | 'scalability'
+  | 'time'
+  | 'expertise'
+  | 'risk'
+  | 'security'
+  | 'compliance'
+  | 'reliability'
+  | 'support'
+  | 'flexibility'
+  | 'usability'
+  | 'automation'
+  | 'integration'
+  | 'general';
+
 const DEFAULT_CRITERIA = [
   'Cost',
   'Performance',
@@ -37,350 +57,709 @@ const DEFAULT_CRITERIA = [
   'Risk',
 ];
 
-const CRITERIA_KEYWORDS: Record<string, { positive: string[]; negative: string[] }> = {
+const PROFILE_WEIGHT_PRESETS: Record<string, Array<[CanonicalCriterion, number]>> = {
+  startup: [
+    ['cost', 0.24],
+    ['time', 0.24],
+    ['flexibility', 0.12],
+    ['performance', 0.1],
+    ['maintainability', 0.1],
+    ['risk', 0.1],
+    ['scalability', 0.1],
+  ],
+  enterprise: [
+    ['reliability', 0.18],
+    ['performance', 0.16],
+    ['security', 0.14],
+    ['compliance', 0.12],
+    ['maintainability', 0.12],
+    ['support', 0.1],
+    ['cost', 0.08],
+    ['time', 0.1],
+  ],
+  regulated: [
+    ['compliance', 0.24],
+    ['security', 0.2],
+    ['risk', 0.16],
+    ['reliability', 0.14],
+    ['maintainability', 0.1],
+    ['support', 0.08],
+    ['cost', 0.08],
+  ],
+  operations: [
+    ['reliability', 0.2],
+    ['automation', 0.16],
+    ['performance', 0.14],
+    ['risk', 0.12],
+    ['maintainability', 0.12],
+    ['time', 0.1],
+    ['cost', 0.08],
+    ['integration', 0.08],
+  ],
+};
+
+const CRITERIA_KEYWORDS: Record<CanonicalCriterion, { positive: string[]; negative: string[] }> = {
   cost: {
-    positive: ['low cost', 'lower cost', 'cheap', 'affordable', 'cost effective', 'cost-efficient', 'saves budget', 'savings', 'no license', 'open source', 'free tier'],
-    negative: ['expensive', 'high cost', 'premium', 'license fee', 'overage', 'overhead', 'subscription cost', 'costly', 'pricing concern'],
+    positive: [
+      'low cost',
+      'lower cost',
+      'reduces cost',
+      'cost savings',
+      'saves money',
+      'affordable',
+      'cheap',
+      'free',
+      'open source',
+      'included',
+      'shared infra',
+      'no license',
+      'no licensing',
+      'no ai credits',
+      'zero credits',
+    ],
+    negative: [
+      'expensive',
+      'higher cost',
+      'cost increase',
+      'premium',
+      'license fee',
+      'licensing',
+      'over budget',
+      'recurring fee',
+      'per seat',
+      'subscription',
+      'usage fee',
+    ],
   },
   performance: {
-    positive: ['high performance', 'low latency', 'fast', 'optimized', 'high throughput', 'cache', 'cached', 'real time', 'realtime', 'performance boost'],
-    negative: ['slow', 'latency issue', 'lag', 'bottleneck', 'throttled', 'performance limit', 'sluggish'],
+    positive: [
+      'fast',
+      'low latency',
+      'optimized',
+      'cache',
+      'cached',
+      'async',
+      'parallel',
+      'vectorized',
+      'gpu',
+      'efficient',
+      'high throughput',
+      'snappy',
+    ],
+    negative: [
+      'slow',
+      'blocking',
+      'latency',
+      'bottleneck',
+      'performance issue',
+      'heavy',
+      'resource intensive',
+      'sync only',
+    ],
   },
   maintainability: {
-    positive: ['simple', 'minimal maintenance', 'standardized', 'well documented', 'mature', 'stable release', 'supported', 'community support'],
-    negative: ['complex', 'custom logic', 'manual upkeep', 'fragile', 'maintenance heavy', 'hard to maintain', 'bespoke'],
+    positive: [
+      'simple',
+      'clean',
+      'documented',
+      'readable',
+      'modular',
+      'standard',
+      'convention',
+      'well tested',
+      'idiomatic',
+      'scaffolded',
+    ],
+    negative: [
+      'complex',
+      'custom code',
+      'legacy',
+      'spaghetti',
+      'unstructured',
+      'manual maintenance',
+      'brittle',
+      'hard to maintain',
+    ],
   },
   scalability: {
-    positive: ['scalable', 'auto scale', 'autoscale', 'serverless', 'distributed', 'horizontal', 'multi region', 'multi-region', 'elastic'],
-    negative: ['monolith', 'single server', 'scale limit', 'does not scale', 'limited scale', 'bottleneck'],
+    positive: [
+      'scales',
+      'scalable',
+      'autoscale',
+      'cluster',
+      'distributed',
+      'sharded',
+      'multi region',
+      'horizontal',
+      'elastic',
+      'serverless',
+    ],
+    negative: [
+      'single server',
+      'monolith',
+      'vertical scale',
+      'limited scale',
+      'no scaling',
+      'single point of failure',
+    ],
   },
-  'time to implement': {
-    positive: ['quick setup', 'fast to implement', 'ready to use', 'turnkey', 'managed service', 'out of the box', 'out-of-the-box', 'plug and play', 'drop-in'],
-    negative: ['custom build', 'long setup', 'manual process', 'migration effort', 'weeks to build', 'months to build', 'slow rollout'],
+  time: {
+    positive: [
+      'fast setup',
+      'quick win',
+      'ready-made',
+      'turnkey',
+      'out of box',
+      'no code',
+      'instant',
+      'automated',
+      'prebuilt',
+      'hours',
+      'days',
+      'already built',
+    ],
+    negative: [
+      'weeks',
+      'months',
+      'long setup',
+      'custom build',
+      'manual work',
+      'slow rollout',
+      'from scratch',
+    ],
   },
-  'team expertise': {
-    positive: ['familiar', 'existing stack', 'known stack', 'training provided', 'well documented', 'community knowledge', 'uses current skills'],
-    negative: ['steep learning curve', 'unfamiliar', 'specialist', 'requires specialists', 'new stack', 'limited expertise', 'learning required'],
+  expertise: {
+    positive: [
+      'familiar',
+      'known stack',
+      'existing skills',
+      'same stack',
+      'common language',
+      'no new tooling',
+      'no training',
+    ],
+    negative: [
+      'learning curve',
+      'new stack',
+      'requires specialist',
+      'requires expertise',
+      'rare expertise',
+      'requires training',
+    ],
   },
   risk: {
-    positive: ['proven', 'battle tested', 'stable', 'reliable', 'compliant', 'audit', 'mature', 'supported vendor'],
-    negative: ['experimental', 'beta', 'unproven', 'deprecated', 'security risk', 'downtime', 'instability', 'high risk'],
+    positive: [
+      'tested',
+      'stable',
+      'rollbacks',
+      'monitoring',
+      'alerts',
+      'safety net',
+      'proven',
+      'mature',
+      'backups',
+      'fallback',
+    ],
+    negative: [
+      'risky',
+      'unknown',
+      'experimental',
+      'beta',
+      'no tests',
+      'manual fix',
+      'no rollback',
+      'unstable',
+    ],
+  },
+  security: {
+    positive: [
+      'encrypted',
+      'mfa',
+      'sso',
+      'least privilege',
+      'compliant',
+      'audit',
+      'security review',
+      'security hardening',
+      'zero trust',
+      'rbac',
+    ],
+    negative: [
+      'no auth',
+      'public access',
+      'insecure',
+      'breach',
+      'weak security',
+      'shared credentials',
+      'no encryption',
+    ],
+  },
+  compliance: {
+    positive: [
+      'gdpr',
+      'hipaa',
+      'pci',
+      'sox',
+      'fedramp',
+      'audit trail',
+      'policy',
+      'compliant',
+    ],
+    negative: [
+      'non compliant',
+      'no compliance',
+      'fails audit',
+      'violates policy',
+      'manual compliance',
+    ],
+  },
+  reliability: {
+    positive: [
+      'reliable',
+      'redundant',
+      'ha',
+      'failover',
+      'uptime',
+      'resilient',
+      'self healing',
+      'observability',
+      'retry logic',
+      'sla',
+    ],
+    negative: [
+      'downtime',
+      'outage',
+      'single point',
+      'fragile',
+      'flaky',
+      'no monitoring',
+    ],
+  },
+  support: {
+    positive: [
+      'community',
+      'docs',
+      'maintained',
+      'vendor support',
+      'lts',
+      'roadmap',
+      'tutorials',
+      'active contributors',
+    ],
+    negative: [
+      'no support',
+      'abandoned',
+      'deprecated',
+      'limited docs',
+      'one maintainer',
+      'unsupported',
+    ],
+  },
+  flexibility: {
+    positive: [
+      'flexible',
+      'configurable',
+      'extensible',
+      'customizable',
+      'pluggable',
+      'modular',
+      'composable',
+    ],
+    negative: [
+      'rigid',
+      'fixed workflow',
+      'locked in',
+      'opinionated',
+      'no customization',
+    ],
+  },
+  usability: {
+    positive: [
+      'intuitive',
+      'easy to use',
+      'user-friendly',
+      'clear ui',
+      'simple workflow',
+      'guided',
+      'examples',
+    ],
+    negative: [
+      'confusing',
+      'steep learning curve',
+      'manual steps',
+      'complex interface',
+      'clunky',
+    ],
+  },
+  automation: {
+    positive: [
+      'automates',
+      'workflow',
+      'pipeline',
+      'orchestrated',
+      'hands-off',
+      'self healing',
+      'cron',
+      'scheduled',
+    ],
+    negative: [
+      'manual',
+      'hand operated',
+      'needs babysitting',
+      'ad hoc',
+      'manual trigger',
+    ],
+  },
+  integration: {
+    positive: [
+      'integrates',
+      'api',
+      'webhook',
+      'sdk',
+      'plugin',
+      'compatible',
+      'adapter',
+      'connector',
+    ],
+    negative: [
+      'custom integration',
+      'no api',
+      'manual import',
+      'no connector',
+      'limited compatibility',
+    ],
+  },
+  general: {
+    positive: [
+      'benefit',
+      'improves',
+      'strength',
+      'advantage',
+      'good fit',
+      'wins',
+      'recommended',
+      'solid choice',
+    ],
+    negative: [
+      'drawback',
+      'concern',
+      'weakness',
+      'issue',
+      'problem',
+      'gap',
+      'limitation',
+    ],
   },
 };
 
-const GENERAL_POSITIVE = [
-  'robust',
-  'reliable',
-  'secure',
-  'best in class',
-  'recommended',
-  'preferred',
-  'saves time',
-  'improves',
-  'high confidence',
-  'mature',
-  'stable',
-  'flexible',
-  'scalable',
-  'productivity',
-  'automation',
+const CROSS_SIGNALS: Array<{
+  pattern: RegExp;
+  effects: Partial<Record<CanonicalCriterion, number>>;
+}> = [
+  {
+    pattern: /serverless|managed service|hosted|saas|fully managed/i,
+    effects: { maintainability: 10, time: 10, scalability: 8, cost: -6 },
+  },
+  {
+    pattern: /self[- ]?hosted|on[- ]?prem|custom build|bespoke|roll your own/i,
+    effects: { time: -10, maintainability: -8, cost: 6, flexibility: 6 },
+  },
+  {
+    pattern: /open source|oss|apache|mit license/i,
+    effects: { cost: 8, support: 4, flexibility: 4 },
+  },
+  {
+    pattern: /vendor support|enterprise support|24\/7 support|sla/i,
+    effects: { support: 10, risk: 4, cost: -6 },
+  },
+  {
+    pattern: /cache|cdn|redis|queue|parallel|vector|gpu/i,
+    effects: { performance: 8, scalability: 6 },
+  },
+  {
+    pattern: /compliance|audit|regulat(ed|ion)|policy/i,
+    effects: { compliance: 10, risk: 4 },
+  },
+  {
+    pattern: /observability|monitoring|logging|tracing|metrics|telemetry/i,
+    effects: { reliability: 8, risk: 6 },
+  },
+  {
+    pattern: /automation|workflow|pipeline|orchestrat|scripting|auto[- ]?remediation/i,
+    effects: { automation: 10, time: 6 },
+  },
 ];
 
-const GENERAL_NEGATIVE = [
-  'fragile',
-  'risky',
-  'manual overhead',
-  'downtime',
-  'unstable',
-  'outdated',
-  'legacy',
-  'slow',
-  'blocked',
-  'unknown',
-  'uncertain',
-  'inconsistent',
-];
-
-type MatrixRow = {
-  option: string;
-  scores: Array<{ criterion: string; score: number; weight: number; weightedScore: number }>;
-  totalScore: number;
-  rank: number;
-};
-
-function clampScore(score: number): number {
-  if (Number.isNaN(score)) return 50;
-  return Math.max(5, Math.min(95, score));
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }
 
-function countMatches(text: string, terms: string[]): number {
-  if (!text) return 0;
-  let hits = 0;
-  for (const term of terms) {
-    if (!term) continue;
-    if (text.includes(term)) hits++;
-  }
-  return hits;
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function buildOptionWindow(option: string, context: string): string {
-  if (!context) return '';
-  const ctxLower = context.toLowerCase();
-  const tokens = option.toLowerCase().split(/\W+/).filter(Boolean);
-  if (!tokens.length) {
-    return ctxLower.slice(0, 240);
+function countKeywordHits(text: string, keywords: string[]): number {
+  const haystack = text.toLowerCase();
+  let count = 0;
+  for (const keyword of keywords) {
+    if (!keyword) continue;
+    const pattern = new RegExp(`\\b${escapeRegExp(keyword.toLowerCase())}\\b`, 'g');
+    const matches = haystack.match(pattern);
+    if (matches) count += matches.length;
   }
-
-  const searchPhrases = [
-    tokens.join(' '),
-    tokens.slice(0, Math.min(tokens.length, 3)).join(' '),
-    tokens[0],
-  ].filter(Boolean);
-
-  let idx = -1;
-  for (const phrase of searchPhrases) {
-    idx = ctxLower.indexOf(phrase);
-    if (idx !== -1) break;
-  }
-
-  if (idx === -1) {
-    return ctxLower.slice(0, 240);
-  }
-
-  const start = Math.max(0, idx - 160);
-  const end = Math.min(ctxLower.length, idx + searchPhrases[0]!.length + 160);
-  return ctxLower.slice(start, end);
+  return count;
 }
 
-function applyKeywordAdjustments(base: number, criterion: string, text: string): number {
-  const config = CRITERIA_KEYWORDS[criterion.toLowerCase()] ?? { positive: [], negative: [] };
-  let score = base;
-
-  const posHits = countMatches(text, config.positive);
-  const negHits = countMatches(text, config.negative);
-
-  if (posHits) {
-    score += 12 + (posHits - 1) * 6;
-  }
-  if (negHits) {
-    score -= 12 + (negHits - 1) * 6;
-  }
-
-  const generalPos = countMatches(text, GENERAL_POSITIVE);
-  const generalNeg = countMatches(text, GENERAL_NEGATIVE);
-
-  if (generalPos) {
-    score += Math.min(15, generalPos * 4);
-  }
-  if (generalNeg) {
-    score -= Math.min(15, generalNeg * 4);
-  }
-
-  return clampScore(score);
+function canonicalCriterion(name: string): CanonicalCriterion {
+  const n = name.toLowerCase();
+  if (/cost|price|budget|expense|roi|credit/.test(n)) return 'cost';
+  if (/performance|latency|speed|throughput|efficiency/.test(n)) return 'performance';
+  if (/maintain|maintenance|supportability|operability|sustain/.test(n)) return 'maintainability';
+  if (/scalab|scaling|capacity|load/.test(n)) return 'scalability';
+  if (/time|velocity|delivery|implement|setup|lead time/.test(n)) return 'time';
+  if (/expertise|skill|team|training|familiarity|learning/.test(n)) return 'expertise';
+  if (/risk|uncertain|failure|stability|safety/.test(n)) return 'risk';
+  if (/security|auth|encryption|privacy|secret|rbac/.test(n)) return 'security';
+  if (/compliance|regulation|governance|gdpr|hipaa|pci|sox/.test(n)) return 'compliance';
+  if (/reliab|uptime|availability|resilien|redundan|fault/.test(n)) return 'reliability';
+  if (/support|community|docs|ecosystem|backing/.test(n)) return 'support';
+  if (/flexib|custom|extensib|adapt|configur/.test(n)) return 'flexibility';
+  if (/usab|ux|adoption|ease|friendly|learning/.test(n)) return 'usability';
+  if (/automation|workflow|orchestrat|hands[- ]?off/.test(n)) return 'automation';
+  if (/integration|compatible|api|ecosystem|connect/.test(n)) return 'integration';
+  return 'general';
 }
 
-function computeSentimentSignal(text: string): number {
-  if (!text) return 0;
-  const pos = countMatches(text, GENERAL_POSITIVE);
-  const neg = countMatches(text, GENERAL_NEGATIVE);
-  return (pos - neg) * 2.5;
+function flattenDetail(detail: unknown): string {
+  if (!detail) return '';
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) return detail.map(flattenDetail).join(' ');
+  if (typeof detail === 'object') {
+    return Object.values(detail as Record<string, unknown>)
+      .map(flattenDetail)
+      .join(' ');
+  }
+  return '';
 }
 
-function applyTieBreakers(rows: MatrixRow[], windows: string[], options: string[]): void {
-  if (rows.length <= 1) return;
+function deriveOptionContext(option: string, context: string | undefined, detail: unknown): string {
+  const normalized = option.toLowerCase();
+  const blocks = (context ?? '')
+    .split(/\n\s*\n/)
+    .map((b) => b.trim())
+    .filter(Boolean);
 
-  const uniqueTotals = new Set(rows.map((row) => row.totalScore.toFixed(2)));
-  if (uniqueTotals.size > 1) {
-    return;
-  }
+  const matchedBlocks = blocks.filter((block) => block.toLowerCase().includes(normalized));
+  const inlineMatches = (context ?? '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((line) => line.toLowerCase().includes(normalized));
 
-  const lengths = options.map((option) => {
-    const sanitized = option.replace(/[^a-z0-9]/gi, '');
-    return sanitized.length || option.length || 1;
-  });
-  const avgLength = lengths.reduce((sum, len) => sum + len, 0) / lengths.length;
+  const detailText = flattenDetail(detail);
+  const combined = [...new Set([detailText, ...matchedBlocks, ...inlineMatches].filter(Boolean))].join(' ').trim();
 
-  rows.forEach((row, idx) => {
-    const window = windows[idx] ?? '';
-    let adjust = computeSentimentSignal(window);
+  return combined || detailText || option;
+}
 
-    if (Math.abs(adjust) < 0.5) {
-      const deviation = lengths[idx] - avgLength;
-      adjust = deviation / 5;
+function detectProfile(text: string): string {
+  const lower = text.toLowerCase();
+  if (/(startup|mvp|prototype|greenfield|bootstrapped)/.test(lower)) return 'startup';
+  if (/(regulated|gdpr|hipaa|pci|sox|compliance|audit)/.test(lower)) return 'regulated';
+  if (/(enterprise|mission critical|production|global|scale)/.test(lower)) return 'enterprise';
+  if (/(incident|oncall|operations|slo|observability|automation)/.test(lower)) return 'operations';
+  return 'balanced';
+}
+
+function findCriterion(criteria: string[], target: CanonicalCriterion): string | undefined {
+  return criteria.find((criterion) => canonicalCriterion(criterion) === target);
+}
+
+function deriveWeights(criteria: string[], explicitWeights: number[] | undefined, contextText: string): Record<string, number> {
+  const weights: Record<string, number> = {};
+
+  if (explicitWeights && explicitWeights.length === criteria.length) {
+    const absolute = explicitWeights.map((w) => Math.max(0, Math.abs(w)));
+    const sum = absolute.reduce((acc, w) => acc + w, 0);
+    if (sum > 0) {
+      criteria.forEach((criterion, index) => {
+        weights[criterion] = absolute[index] / sum;
+      });
+      return weights;
     }
+  }
 
-    if (!Number.isFinite(adjust) || Math.abs(adjust) < 0.5) {
-      adjust = ((rows.length - idx - 1) - (rows.length - 1) / 2);
+  const profile = detectProfile(contextText);
+  const presets = PROFILE_WEIGHT_PRESETS[profile] ?? [];
+  let assigned = 0;
+
+  for (const [target, value] of presets) {
+    const criterion = findCriterion(criteria, target);
+    if (criterion && weights[criterion] === undefined) {
+      weights[criterion] = value;
+      assigned += value;
     }
+  }
 
-    adjust = Math.max(-6, Math.min(6, adjust));
-    if (adjust === 0) {
-      adjust = idx === 0 ? 1.5 : -1.5;
+  const remaining = criteria.filter((criterion) => weights[criterion] === undefined);
+  if (remaining.length > 0) {
+    const remainingWeight = clamp(1 - assigned, 0, 1);
+    const share = remaining.length ? remainingWeight / remaining.length : 0;
+    for (const criterion of remaining) {
+      weights[criterion] = share || 1 / criteria.length;
     }
+  } else if (assigned !== 1) {
+    const scale = assigned > 0 ? 1 / assigned : 1;
+    for (const key of Object.keys(weights)) {
+      weights[key] *= scale;
+    }
+  }
 
-    const target = row.scores.reduce((best, current) => (current.weight > best.weight ? current : best), row.scores[0]);
-    target.score = clampScore(target.score + adjust);
-    target.weightedScore = target.score * target.weight;
-    row.totalScore = row.scores.reduce((sum, s) => sum + s.weightedScore, 0);
-  });
+  return weights;
+}
+
+function applyCrossSignals(canonical: CanonicalCriterion, text: string): number {
+  let delta = 0;
+  for (const signal of CROSS_SIGNALS) {
+    if (signal.pattern.test(text)) {
+      delta += signal.effects[canonical] ?? 0;
+    }
+  }
+  return delta;
+}
+
+function deterministicBias(option: string, criterion: string): number {
+  const key = `${option}::${criterion}`;
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+  }
+  return ((hash % 7) - 3) * 0.75; // -2.25 .. 3.0 roughly
+}
+
+function scoreCriterion(canonical: CanonicalCriterion, option: string, optionContext: string, criteriaCount: number): number {
+  const heuristics = CRITERIA_KEYWORDS[canonical] ?? CRITERIA_KEYWORDS.general;
+  const contextLower = optionContext.toLowerCase();
+
+  const positiveHits = countKeywordHits(contextLower, heuristics.positive);
+  const negativeHits = countKeywordHits(contextLower, heuristics.negative);
+
+  let score = 50;
+  score += Math.min(28, positiveHits * 9);
+  score -= Math.min(32, negativeHits * 11);
+
+  score += applyCrossSignals(canonical, contextLower);
+
+  if (positiveHits === 0 && negativeHits === 0) {
+    const generalPos = countKeywordHits(contextLower, CRITERIA_KEYWORDS.general.positive);
+    const generalNeg = countKeywordHits(contextLower, CRITERIA_KEYWORDS.general.negative);
+    score += Math.min(18, generalPos * 6);
+    score -= Math.min(20, generalNeg * 7);
+  }
+
+  if (positiveHits === 0 && negativeHits === 0) {
+    score += deterministicBias(option, canonical);
+  }
+
+  // Small adjustment based on how much narrative exists for the option.
+  const words = optionContext.split(/\s+/).filter(Boolean).length;
+  if (words > 0) {
+    const adjustment = clamp((words - 40) / 4, -8, 8);
+    score += adjustment / Math.max(1, criteriaCount / 2);
+  }
+
+  return clamp(score, 15, 95);
 }
 
 export function decisionMatrix(input: DecisionMatrixInput): DecisionMatrixOutput {
-  const { options, criteria = [], context = '' } = input;
-  const combined = `${options.join(' ')} ${criteria.join(' ')} ${context}`.toLowerCase();
-
-  const detectedCriteria = criteria.length > 0 ? criteria : DEFAULT_CRITERIA;
-
-  const weights: { [key: string]: number } = {};
-
-  if (combined.includes('startup') || combined.includes('mvp')) {
-    weights['Cost'] = 0.25;
-    weights['Time to Implement'] = 0.25;
-    weights['Performance'] = 0.1;
-    weights['Maintainability'] = 0.15;
-    weights['Scalability'] = 0.1;
-    weights['Team Expertise'] = 0.1;
-    weights['Risk'] = 0.05;
-  } else if (combined.includes('enterprise') || combined.includes('production')) {
-    weights['Cost'] = 0.1;
-    weights['Time to Implement'] = 0.1;
-    weights['Performance'] = 0.2;
-    weights['Maintainability'] = 0.2;
-    weights['Scalability'] = 0.2;
-    weights['Team Expertise'] = 0.1;
-    weights['Risk'] = 0.1;
+  const { options, context = '' } = input;
+  if (!options || options.length === 0) {
+    throw new Error('At least one option is required');
   }
 
-  const defaultWeight = 1.0 / detectedCriteria.length;
-  const optionWindows = options.map((option) => {
-    const window = buildOptionWindow(option, context);
-    return `${option} ${window}`.toLowerCase();
+  const criteriaList = input.criteria && input.criteria.length > 0 ? input.criteria : DEFAULT_CRITERIA;
+  const weights = deriveWeights(criteriaList, input.weights, context);
+
+  const optionContexts = new Map<string, string>();
+  options.forEach((option) => {
+    const detail = input.optionDetails ? input.optionDetails[option] : undefined;
+    optionContexts.set(option, deriveOptionContext(option, context, detail));
   });
 
-  const rows: MatrixRow[] = options.map((option, optionIndex) => {
-    const text = optionWindows[optionIndex] ?? option.toLowerCase();
+  const matrix: Array<{
+    option: string;
+    scores: Array<{ criterion: string; score: number; weight: number; weightedScore: number }>;
+    totalScore: number;
+    rank: number;
+  }> = [];
 
-    const scores = detectedCriteria.map((criterion) => {
-      const weight = weights[criterion] ?? defaultWeight;
-      const criterionLower = criterion.toLowerCase();
-      let score = 50;
+  const tradeoffs: Array<{ option: string; strengths: string[]; weaknesses: string[] }> = [];
 
-      if (criterionLower === 'cost') {
-        if (/(free|no license|included|open source|bundled)/.test(text)) score = Math.max(score, 88);
-        if (/(low cost|cost effective|savings|affordable|reduced spend)/.test(text)) score = Math.max(score, 80);
-        if (/(expensive|premium|high cost|license fee|overage|ongoing cost)/.test(text)) score = Math.min(score, 42);
-      }
+  options.forEach((option) => {
+    const optionContext = optionContexts.get(option) ?? option;
+    const scores: Array<{ criterion: string; score: number; weight: number; weightedScore: number }> = [];
+    const strengths: string[] = [];
+    const weaknesses: string[] = [];
 
-      if (criterionLower === 'performance') {
-        if (/(fast|low latency|optimized|high throughput|cached|cache)/.test(text)) score = Math.max(score, 85);
-        if (/(slow|latency issue|bottleneck|heavy load|performance risk|throttle)/.test(text)) score = Math.min(score, 45);
-      }
-
-      if (criterionLower === 'maintainability') {
-        if (/(simple|standard|well documented|mature|stable release|community support|boilerplate)/.test(text)) score = Math.max(score, 82);
-        if (/(complex|custom build|manual steps|fragmented|hard to maintain|bespoke)/.test(text)) score = Math.min(score, 44);
-      }
-
-      if (criterionLower === 'scalability') {
-        if (/(auto scale|autoscale|serverless|distributed|horizontal|multi region|multi-region|elastic)/.test(text)) score = Math.max(score, 86);
-        if (/(monolith|single server|scale limit|does not scale|scale bottleneck)/.test(text)) score = Math.min(score, 46);
-      }
-
-      if (criterionLower === 'time to implement') {
-        if (/(quick setup|fast to implement|turnkey|ready to use|managed service|out of the box|out-of-the-box|plug and play|drop-in)/.test(text)) score = Math.max(score, 87);
-        if (/(long setup|custom build|manual process|migration effort|weeks to build|months to build|slow rollout)/.test(text)) score = Math.min(score, 43);
-      }
-
-      if (criterionLower === 'team expertise') {
-        if (/(familiar|existing stack|known stack|current skills|training provided|documented)/.test(text)) score = Math.max(score, 80);
-        if (/(steep learning curve|unfamiliar|specialist|requires specialists|new stack|limited expertise|learning required)/.test(text)) score = Math.min(score, 45);
-      }
-
-      if (criterionLower === 'risk') {
-        if (/(proven|battle tested|stable|reliable|compliant|audit|mature|supported vendor)/.test(text)) score = Math.max(score, 82);
-        if (/(experimental|beta|unproven|deprecated|security risk|downtime|instability|high risk)/.test(text)) score = Math.min(score, 42);
-      }
-
-      score = applyKeywordAdjustments(score, criterion, text);
+    criteriaList.forEach((criterion) => {
+      const canonical = canonicalCriterion(criterion);
+      const weight = weights[criterion] ?? 1 / criteriaList.length;
+      const score = scoreCriterion(canonical, option, optionContext, criteriaList.length);
       const weightedScore = score * weight;
 
-      return {
+      scores.push({
         criterion,
         score,
         weight,
         weightedScore,
-      };
+      });
+
+      if (score >= 78) {
+        strengths.push(`${criterion}: ${score.toFixed(0)}/100`);
+      } else if (score <= 42) {
+        weaknesses.push(`${criterion}: ${score.toFixed(0)}/100`);
+      }
     });
 
     const totalScore = scores.reduce((sum, s) => sum + s.weightedScore, 0);
-
-    return {
-      option,
-      scores,
-      totalScore,
-      rank: 0,
-    };
+    matrix.push({ option, scores, totalScore, rank: 0 });
+    tradeoffs.push({ option, strengths, weaknesses });
   });
 
-  applyTieBreakers(rows, optionWindows, options);
-
-  rows.sort((a, b) => b.totalScore - a.totalScore);
-  rows.forEach((row, index) => {
-    row.rank = index + 1;
+  matrix.sort((a, b) => b.totalScore - a.totalScore);
+  matrix.forEach((item, index) => {
+    item.rank = index + 1;
   });
 
-  const tradeoffs = rows.map((row) => {
-    const strengths = row.scores
-      .filter((s) => s.score >= 75)
-      .map((s) => `${s.criterion}: ${s.score.toFixed(0)}/100`);
-    const weaknesses = row.scores
-      .filter((s) => s.score <= 45)
-      .map((s) => `${s.criterion}: ${s.score.toFixed(0)}/100`);
+  const winner = matrix[0];
+  const runnerUp = matrix[1];
 
-    return {
-      option: row.option,
-      strengths,
-      weaknesses,
-    };
-  });
-
-  const winner = rows[0];
-  const runnerUp = rows[1];
+  const spread = runnerUp ? winner.totalScore - runnerUp.totalScore : 12;
+  const profile = detectProfile(context);
 
   let recommendation = `Recommended: ${winner.option} (score: ${winner.totalScore.toFixed(1)})`;
-  if (runnerUp) {
-    const gap = winner.totalScore - runnerUp.totalScore;
-    if (gap < 5) {
-      recommendation += ` - Very close to ${runnerUp.option} (gap ${gap.toFixed(1)}). Compare qualitative trade-offs before locking in.`;
-    } else {
-      recommendation += ` - Beats ${runnerUp.option} by ${gap.toFixed(1)} points on weighted criteria.`;
-    }
+  if (runnerUp && Math.abs(spread) < 4) {
+    recommendation += ` – very close to ${runnerUp.option} (${runnerUp.totalScore.toFixed(1)}). Consider pilot tests for both.`;
+  } else if (runnerUp) {
+    recommendation += ` – clear lead over ${runnerUp.option} (${runnerUp.totalScore.toFixed(1)})`;
   }
 
-  const spread = runnerUp ? winner.totalScore - runnerUp.totalScore : Math.max(0, winner.totalScore - 50);
-  const confidence = Math.max(55, Math.min(95, 65 + spread));
-
-  const topStrengths = winner.scores
-    .slice()
-    .sort((a, b) => b.weightedScore - a.weightedScore)
-    .slice(0, 3)
-    .map((s) => `${s.criterion} (${s.score.toFixed(0)})`);
+  const confidenceBase = 58 + clamp(spread * 0.9, -12, 22);
+  const coverageBonus = clamp(criteriaList.length * 2.5, 4, 18);
+  const narrativeBonus = clamp((optionContexts.get(winner.option)?.split(/\s+/).length ?? 0) / 6, 0, 12);
+  const confidence = clamp(confidenceBase + coverageBonus + narrativeBonus, 45, 95);
 
   const reasoningParts = [
-    `Evaluated ${options.length} option${options.length === 1 ? '' : 's'} across ${detectedCriteria.length} criteria with weighted scoring.`,
-    topStrengths.length
-      ? `Key strengths for ${winner.option}: ${topStrengths.join(', ')}.`
-      : 'Add more context or criteria to surface clearer differentiators.',
+    `Evaluated ${options.length} options across ${criteriaList.length} criteria with weighted scoring.`,
+    profile !== 'balanced'
+      ? `Weighting emphasised ${profile === 'regulated' ? 'compliance and security requirements' : profile} priorities based on the brief.`
+      : 'Balanced weighting applied because no dominant constraints were detected.',
+    `Top option scored ${winner.totalScore.toFixed(1)}/100${runnerUp ? ` vs ${runnerUp.option} (${runnerUp.totalScore.toFixed(1)})` : ''}.`,
   ];
-
-  if (context.trim()) {
-    reasoningParts.push('Factored in contextual signals from the provided brief to adjust weights and scores.');
-  }
 
   const reasoning = reasoningParts.join(' ');
 
   return {
-    matrix: rows,
+    matrix,
     recommendation,
     tradeoffs,
     confidence,
@@ -393,6 +772,14 @@ export function decisionMatrix(input: DecisionMatrixInput): DecisionMatrixOutput
  */
 export const decisionMatrixEnhanced = withContext(
   decisionMatrix,
-  (input) => `${input.options.join(' ')} ${input.context || ''}`.slice(0, 200),
+  (input) => {
+    const detailText = input.optionDetails
+      ? Object.entries(input.optionDetails)
+          .map(([name, detail]) => `${name}: ${flattenDetail(detail)}`)
+          .join(' ')
+      : '';
+
+    return `${input.options.join(' ')} ${input.context || ''} ${detailText}`.slice(0, 400);
+  }
 );
 
