@@ -352,13 +352,7 @@ npm run build
 
 ## 🎯 **SUCCESS CRITERIA**
 
-### **Phase 0 (RAD + CleverChatty) Complete When:**
-- ✅ RAD Crawler provides RAG interface
-- ✅ RAD Crawler provides Memory interface
-- ✅ A2A Protocol working (agent-to-agent communication)
-- ✅ Multi-Transport MCP working (HTTP + SSE)
-- ✅ Self-Replication working (one-command spawning)
-- ✅ Shared Knowledge "Treasure Trove" operational
+
 
 ### **Phase 0.5 (OpenAI MCP) Complete When:**
 - ✅ OpenAI MCP has 259 tools (up from 110)
@@ -378,6 +372,14 @@ npm run build
 - ✅ Shared knowledge base working
 - ✅ All agents coordinate via Redis
 - ✅ One-command deployment working
+
+### **Phase 9 (RAD + CleverChatty) Complete When:**
+- ✅ RAD Crawler provides RAG interface
+- ✅ RAD Crawler provides Memory interface
+- ✅ A2A Protocol working (agent-to-agent communication)
+- ✅ Multi-Transport MCP working (HTTP + SSE)
+- ✅ Self-Replication working (one-command spawning)
+- ✅ Shared Knowledge "Treasure Trove" operational
 
 ---
 

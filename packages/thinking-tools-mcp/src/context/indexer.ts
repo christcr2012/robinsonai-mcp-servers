@@ -17,6 +17,9 @@ import { extractSymbols } from './symbols.js';
 import { gitChangesSince, fsDiffFallback } from './git/changes.js';
 import { loadContextConfig } from './config.js';
 import type { ContextConfig } from './config.js';
+import { BehaviorMemory } from './memory/behavior.js';
+import { ArchitectureMemory } from './memory/architecture.js';
+import { StyleLearner } from './memory/style.js';
 
 const MAXCH = parseInt(process.env.CTX_MAX_CHARS_PER_CHUNK || '1200', 10);
 
@@ -678,6 +681,34 @@ export async function indexRepo(
     (stats as any).compression = compressChunks ? 'gzip' : 'none';
 
     saveStats(stats);
+
+    // Initialize memory systems if enabled
+    try {
+      const behavior = BehaviorMemory.forRoot(repoRoot);
+
+      if (config.architectureLearning?.enabled) {
+        console.log('🧠 Detecting architectural patterns...');
+        const archMem = new ArchitectureMemory(repoRoot, behavior);
+        const patterns = archMem.analyze(null, null);
+        console.log(`✅ Detected ${patterns.length} architectural patterns`);
+      }
+
+      if (config.styleLearning?.enabled) {
+        console.log('🎨 Analyzing code style patterns...');
+        const styleLearner = new StyleLearner(behavior);
+        const allFiles = Object.keys(filesMap);
+        const style = await styleLearner.analyze(allFiles);
+        if (style) {
+          console.log(`✅ Analyzed code style: ${style.namingPreference} naming, ${style.quoteStyle} quotes, ${style.indentStyle} indentation`);
+        }
+      }
+
+      if (config.behaviorLearning?.enabled) {
+        console.log('📊 Behavior tracking initialized');
+      }
+    } catch (memError: any) {
+      console.warn(`⚠️  Memory system initialization failed: ${memError.message}`);
+    }
 
     const tookMs = Date.now() - start;
     console.log(`✅ Incremental index complete: ${n} chunks, ${e} embeddings, ${docsBatch.length} docs (${changed.length} processed, ${removed.length} removed, ${errors} errors) in ${tookMs}ms`);

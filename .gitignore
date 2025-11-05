@@ -107,3 +107,6 @@ update-settings*.ps1
 # Test scripts with hardcoded secrets
 test-openai-mcp.mjs
 test-openai-integration.mjs
+
+# Robinson runtime directories
+.robinson/

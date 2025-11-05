@@ -76,15 +76,21 @@ function envInt(name: string, defaultValue: number): number {
 
 async function resolveEmbeddingProvider(): Promise<EmbeddingProvider> {
   const forced = process.env.CTX_EMBED_PROVIDER || process.env.EMBED_PROVIDER;
-  if (forced) {
+
+  // Handle 'auto' - detect best available provider
+  if (forced && forced.toLowerCase() !== 'auto') {
     return forced.toLowerCase() as EmbeddingProvider;
   }
 
+  // Priority order: Voyage AI > OpenAI > Ollama > Lexical
+  if (process.env.VOYAGE_API_KEY) {
+    return 'voyage';
+  }
   if (process.env.OPENAI_API_KEY) {
     return 'openai';
   }
-  if (process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY) {
-    return 'voyage';
+  if (process.env.ANTHROPIC_API_KEY) {
+    return 'voyage'; // Anthropic uses Voyage for embeddings
   }
 
   const baseUrl = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
