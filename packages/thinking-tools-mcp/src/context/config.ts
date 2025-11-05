@@ -1,90 +1,166 @@
-let defaultsApplied = false;
+import { request } from 'undici';
+import { resolveWorkspaceRoot } from '../lib/workspace.js';
 
-type Provider = 'openai' | 'voyage' | 'ollama';
+export type EmbeddingProvider = 'ollama' | 'openai' | 'claude' | 'voyage' | 'lexical';
 
-const STATIC_DEFAULTS: Record<string, string> = {
-  RCE_LAZY_INDEX: '1',
-  RCE_MAX_DISK_MB: '512',
-  RCE_COMPRESSION: 'auto',
-  RCE_COMPRESSION_THRESHOLD: '4096',
-  RCE_INDEX_TTL_MINUTES: '20',
-  RCE_MAX_CHANGED_PER_RUN: '800',
-  RCE_QUICK_MAX_FILES: '400',
-  CTX_AUTO_WATCH: '1',
-  CTX_FALLBACK_EMBED_DIMS: '384',
-  OLLAMA_BASE_URL: 'http://127.0.0.1:11434',
-};
-
-function normalizeProvider(value: string | undefined): Provider | undefined {
-  if (!value) return undefined;
-  const lower = value.toLowerCase();
-  if (lower === 'openai' || lower === 'voyage' || lower === 'ollama') {
-    return lower;
-  }
-  return undefined;
+export interface ContextConfig {
+  workspaceRoot: string;
+  contextRoot: string;
+  embedding: {
+    provider: EmbeddingProvider;
+    model: string;
+    fallbackDimensions: number;
+  };
+  indexing: {
+    ttlMinutes: number;
+    maxChangedFiles: number;
+    lazyIndexing: boolean;
+    backgroundIndexing: boolean;
+    quickFileLimit: number;
+  };
+  storage: {
+    compressionEnabled: boolean;
+    maxDiskUsageMb: number;
+    autoCleanup: boolean;
+  };
+  styleLearning: {
+    enabled: boolean;
+  };
+  architectureLearning: {
+    enabled: boolean;
+  };
+  behaviorLearning: {
+    enabled: boolean;
+  };
 }
 
-function detectEmbeddingDefaults(explicit?: Provider): { provider: Provider; model: string } {
-  const chosen = explicit
-    ?? (process.env.OPENAI_API_KEY ? 'openai'
-      : (process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY) ? 'voyage'
-        : 'ollama');
+let cachedConfig: ContextConfig | null = null;
+let loadPromise: Promise<ContextConfig> | null = null;
 
-  if (chosen === 'openai') {
-    const model = process.env.OPENAI_EMBED_MODEL || 'text-embedding-3-small';
-    return { provider: 'openai', model };
-  }
+async function detectOllama(baseUrl: string): Promise<boolean> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 700).unref?.();
 
-  if (chosen === 'voyage') {
-    const model = process.env.VOYAGE_EMBED_MODEL || 'voyage-code-2';
-    return { provider: 'voyage', model };
-  }
+  try {
+    const url = baseUrl.replace(/\/?$/, '') + '/api/tags';
+    const response = await request(url, {
+      method: 'GET',
+      signal: controller.signal,
+      headers: { 'accept': 'application/json' }
+    });
 
-  const model = process.env.OLLAMA_EMBED_MODEL || 'nomic-embed-text';
-  return { provider: 'ollama', model };
-}
-
-/**
- * Apply zero-config defaults for the context engine.
- * Prefers OpenAI → Voyage → Ollama automatically and fills in sane limits.
- */
-export function applyContextDefaults(): void {
-  if (defaultsApplied) return;
-  defaultsApplied = true;
-
-  const explicitProvider = normalizeProvider(
-    process.env.CTX_EMBED_PROVIDER ?? process.env.EMBED_PROVIDER
-  );
-  const { provider, model } = detectEmbeddingDefaults(explicitProvider);
-
-  if (!process.env.CTX_EMBED_PROVIDER) {
-    process.env.CTX_EMBED_PROVIDER = provider;
-  }
-  if (!process.env.EMBED_PROVIDER) {
-    process.env.EMBED_PROVIDER = provider;
-  }
-
-  if (!process.env.RCE_EMBED_MODEL) {
-    process.env.RCE_EMBED_MODEL = model;
-  }
-  if (!process.env.EMBED_MODEL) {
-    process.env.EMBED_MODEL = model;
-  }
-
-  if (provider === 'openai' && !process.env.OPENAI_EMBED_MODEL) {
-    process.env.OPENAI_EMBED_MODEL = model;
-  }
-  if (provider === 'voyage' && !process.env.VOYAGE_EMBED_MODEL) {
-    process.env.VOYAGE_EMBED_MODEL = model;
-  }
-  if (provider === 'ollama' && !process.env.OLLAMA_EMBED_MODEL) {
-    process.env.OLLAMA_EMBED_MODEL = model;
-  }
-
-  for (const [key, value] of Object.entries(STATIC_DEFAULTS)) {
-    if (!process.env[key]) {
-      process.env[key] = value;
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      await response.body.dump();
+      return true;
     }
+  } catch (error) {
+    // ignore network failures – fallback will handle it
+  } finally {
+    clearTimeout(timeout);
   }
+  return false;
 }
 
+function envToggle(name: string, defaultValue: boolean): boolean {
+  const raw = process.env[name];
+  if (raw === undefined) return defaultValue;
+  return ['1', 'true', 'yes', 'on'].includes(raw.toLowerCase());
+}
+
+function envInt(name: string, defaultValue: number): number {
+  const raw = process.env[name];
+  if (!raw) return defaultValue;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) ? parsed : defaultValue;
+}
+
+async function resolveEmbeddingProvider(): Promise<EmbeddingProvider> {
+  const forced = process.env.CTX_EMBED_PROVIDER || process.env.EMBED_PROVIDER;
+  if (forced) {
+    return forced.toLowerCase() as EmbeddingProvider;
+  }
+
+  if (process.env.OPENAI_API_KEY) {
+    return 'openai';
+  }
+  if (process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY) {
+    return 'voyage';
+  }
+
+  const baseUrl = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
+  if (await detectOllama(baseUrl)) {
+    return 'ollama';
+  }
+
+  return 'lexical';
+}
+
+export async function loadContextConfig(force = false): Promise<ContextConfig> {
+  if (!force && cachedConfig) {
+    return cachedConfig;
+  }
+
+  if (!force && loadPromise) {
+    return loadPromise;
+  }
+
+  loadPromise = (async () => {
+    const workspaceRoot = resolveWorkspaceRoot();
+    const contextRoot = process.env.CTX_ROOT
+      ? (process.env.CTX_ROOT.startsWith('.')
+          ? new URL(process.env.CTX_ROOT, `file://${workspaceRoot.replace(/\\/g, '/')}/`).pathname
+          : process.env.CTX_ROOT)
+      : `${workspaceRoot}/.robinson/context`;
+
+    const provider = await resolveEmbeddingProvider();
+    const fallbackDimensions = envInt('CTX_FALLBACK_EMBED_DIMS', 384);
+
+    const config: ContextConfig = {
+      workspaceRoot,
+      contextRoot,
+      embedding: {
+        provider,
+        model: process.env.RCE_EMBED_MODEL || process.env.EMBED_MODEL || process.env.OLLAMA_EMBED_MODEL || 'nomic-embed-text',
+        fallbackDimensions,
+      },
+      indexing: {
+        ttlMinutes: envInt('RCE_INDEX_TTL_MINUTES', 20),
+        maxChangedFiles: envInt('RCE_MAX_CHANGED_PER_RUN', 1000),
+        lazyIndexing: envToggle('RCE_LAZY_INDEXING', true),
+        backgroundIndexing: envToggle('RCE_BACKGROUND_INDEXING', true),
+        quickFileLimit: envInt('RCE_QUICK_FILE_LIMIT', 240),
+      },
+      storage: {
+        compressionEnabled: envToggle('RCE_STORAGE_COMPRESS', true),
+        maxDiskUsageMb: envInt('RCE_STORAGE_LIMIT_MB', 2048),
+        autoCleanup: envToggle('RCE_STORAGE_AUTOCLEAN', true),
+      },
+      styleLearning: {
+        enabled: envToggle('RCE_STYLE_LEARNING', true),
+      },
+      architectureLearning: {
+        enabled: envToggle('RCE_ARCH_LEARNING', true),
+      },
+      behaviorLearning: {
+        enabled: envToggle('RCE_BEHAVIOR_LEARNING', true),
+      },
+    };
+
+    cachedConfig = config;
+
+    // Surface provider back to embedding module via env for backward compatibility
+    process.env.CTX_EMBED_PROVIDER = provider;
+    process.env.EMBED_PROVIDER = provider;
+
+    return config;
+  })();
+
+  const resolved = await loadPromise;
+  loadPromise = null;
+  return resolved;
+}
+
+export function invalidateContextConfig(): void {
+  cachedConfig = null;
+  loadPromise = null;
+}

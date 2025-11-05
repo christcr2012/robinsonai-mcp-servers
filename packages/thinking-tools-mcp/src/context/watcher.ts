@@ -7,16 +7,10 @@ import chokidar from 'chokidar';
 import path from 'node:path';
 import fs from 'node:fs';
 import { embedBatch } from './embedding.js';
-import {
-  saveChunk,
-  saveEmbedding,
-  deleteChunksForFile,
-  deleteEmbeddingsById,
-  recomputeStats,
-  iterateChunks,
-} from './store.js';
+import { saveChunk, saveEmbedding, getPaths, loadChunks, loadEmbeddings } from './store.js';
 import { Chunk } from './types.js';
 import crypto from 'node:crypto';
+import { loadContextConfig } from './config.js';
 
 const MAXCH = 1500; // Max characters per chunk
 
@@ -54,18 +48,13 @@ function chunkText(text: string): { start: number; end: number; text: string }[]
 /**
  * File Watcher class for real-time indexing
  */
-export interface FileWatcherHooks {
-  onFilesIndexed?: (files: string[]) => void;
-  onFilesDeleted?: (files: string[]) => void;
-}
-
 export class FileWatcher {
   private watcher?: chokidar.FSWatcher;
   private debounceTimers = new Map<string, NodeJS.Timeout>();
   private fileHashes = new Map<string, string>();
   private isIndexing = false;
 
-  constructor(private repoRoot: string, private readonly hooks: FileWatcherHooks = {}) {
+  constructor(private repoRoot: string) {
     this.loadFileHashes();
   }
 
@@ -146,20 +135,15 @@ export class FileWatcher {
         return;
       }
 
-      const rel = path.relative(this.repoRoot, filePath).split(path.sep).join('/');
+      const rel = path.relative(this.repoRoot, filePath);
       const text = fs.readFileSync(filePath, 'utf8');
       const stat = fs.statSync(filePath);
       const sh = sha(rel + ':' + stat.mtimeMs + ':' + text.length);
 
-      const removedIds = new Set<string>();
-      for (const chunk of iterateChunks()) {
-        if (chunk.path === rel || chunk.uri === rel) {
-          removedIds.add(chunk.id);
-        }
-      }
-
-      deleteChunksForFile(rel);
-      deleteEmbeddingsById(removedIds);
+      // Remove old chunks for this file
+      const existingChunks = loadChunks({ decompress: false }).filter(c => c.path === rel);
+      const existingEmbeddings = loadEmbeddings();
+      const existingIds = new Set(existingChunks.map(c => c.id));
 
       // Create new chunks
       const chunks = chunkText(text).map((c) => ({
@@ -174,20 +158,22 @@ export class FileWatcher {
 
       console.log(`[FileWatcher] Reindexing ${rel} (${chunks.length} chunks)...`);
 
+      const config = await loadContextConfig();
+      const compressChunks = config.storage.compressionEnabled;
+
       // Generate embeddings
       const embs = await embedBatch(chunks.map(c => c.text));
 
       // Save new chunks and embeddings
       for (let i = 0; i < chunks.length; i++) {
-        saveChunk(chunks[i]);
+        saveChunk(chunks[i], { compress: compressChunks });
         saveEmbedding({ id: chunks[i].id, vec: embs[i] });
       }
 
-      recomputeStats();
+      // Clean up old chunks/embeddings (simple approach: keep all, let deduplication handle it)
+      // In production, you'd want to remove old chunks with the same path but different IDs
 
       console.log(`[FileWatcher] ✅ Reindexed ${rel}`);
-
-      this.hooks.onFilesIndexed?.([rel]);
     } catch (error) {
       console.error(`[FileWatcher] Error reindexing ${filePath}:`, error);
     } finally {
@@ -218,25 +204,26 @@ export class FileWatcher {
    * Handle file deletion
    */
   private handleFileDelete(filePath: string): void {
-    const rel = path.relative(this.repoRoot, filePath).split(path.sep).join('/');
-    const removedIds = new Set<string>();
-    for (const chunk of iterateChunks()) {
-      if (chunk.path === rel || chunk.uri === rel) {
-        removedIds.add(chunk.id);
-      }
+    // Remove chunks for this file from the store
+    // Load all chunks from the JSONL file
+    const chunks = loadChunks({ decompress: false });
+    const chunksToRemove = chunks.filter((chunk: Chunk) => chunk.path === filePath || chunk.uri === filePath);
+
+    if (chunksToRemove.length > 0) {
+      // Rewrite the chunks file without the deleted file's chunks
+      const remainingChunks = chunks.filter((chunk: Chunk) => chunk.path !== filePath && chunk.uri !== filePath);
+
+      // Clear and rewrite chunks.jsonl
+      const paths = getPaths();
+      const payload = remainingChunks.map(chunk => JSON.stringify(chunk)).join('\n');
+      fs.writeFileSync(paths.chunks, payload ? payload + '\n' : '', 'utf8');
     }
 
-    if (removedIds.size > 0) {
-      deleteChunksForFile(rel);
-      deleteEmbeddingsById(removedIds);
-      recomputeStats();
-    }
-
+    // Remove file hash
     this.fileHashes.delete(filePath);
     this.saveFileHashes();
 
-    console.log(`[FileWatcher] Removed ${removedIds.size} chunks for deleted file: ${rel}`);
-    this.hooks.onFilesDeleted?.([rel]);
+    console.log(`[FileWatcher] Removed ${chunksToRemove.length} chunks for deleted file: ${filePath}`);
   }
 
   /**

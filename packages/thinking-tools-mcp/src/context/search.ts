@@ -1,4 +1,4 @@
-import { readJSONL, getPaths, iterateChunks } from './store.js';
+import { readJSONL, getPaths, materializeChunk } from './store.js';
 import { cosine } from './embedding.js';
 import { Hit, Chunk, Embedding } from './types.js';
 import { getQueryCache } from './cache.js';
@@ -65,7 +65,8 @@ export async function hybridQuery(query: string, topK = 8): Promise<Hit[]> {
   // Stream chunks and score incrementally
   const scored: Hit[] = [];
   try {
-    for (const chunk of iterateChunks()) {
+    for (const rawChunk of readJSONL<Chunk>(paths.chunks)) {
+      const chunk = materializeChunk(rawChunk);
       const v = embMap.get(chunk.id);
       let s = v ? cosine(qvec, v) : 0;
       s = 0.80 * s + 0.20 * lexicalRank(query, chunk.text);
