@@ -24,7 +24,7 @@ export async function contextIndexRepoTool(args: any, ctx: ServerContext) {
     if (args?.force) {
       await indexRepo(ctx.workspaceRoot, { force: true });
     } else {
-      await ctx.ctx.ensureIndexed();
+      await ctx.ctx.waitForIndex();
     }
 
     const stats = await ctx.ctx.stats();

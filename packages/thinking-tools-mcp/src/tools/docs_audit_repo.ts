@@ -28,7 +28,7 @@ export async function docsAuditTool(
   const K = Math.max(1, Math.min(12, Number(args.k ?? 4)));
 
   try {
-    await ctx.ctx.ensureIndexed();
+    await ctx.ctx.waitForIndex();
     const store = (ctx.ctx as any).store;
     const docs = await store.loadAllDocs();
 

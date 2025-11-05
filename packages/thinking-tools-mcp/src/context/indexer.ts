@@ -2,7 +2,6 @@ import fg from 'fast-glob';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { execSync } from 'child_process';
 import { embedBatch } from './embedding.js';
 import {
   ensureDirs, saveChunk, saveEmbedding, saveStats, saveDocs,
@@ -14,6 +13,7 @@ import { Chunk, IndexStats } from './types.js';
 import { extractDocRecord } from './docs/extract.js';
 import { extractSymbols } from './symbols.js';
 import { gitChangesSince, fsDiffFallback } from './git/changes.js';
+import { resolveWorkspaceRoot } from '../lib/workspace.js';
 
 const MAXCH = parseInt(process.env.CTX_MAX_CHARS_PER_CHUNK || '1200', 10);
 
@@ -22,33 +22,11 @@ const TTL_MIN = Number(process.env.RCE_INDEX_TTL_MINUTES ?? 20);
 const MAX_CHANGED = Number(process.env.RCE_MAX_CHANGED_PER_RUN ?? 800);
 const EMBED_MODEL = process.env.RCE_EMBED_MODEL || process.env.EMBED_MODEL || 'nomic-embed-text';
 
-/**
- * Resolve workspace root (MCP-aware)
- * In MCP environment, process.cwd() returns VS Code install dir, not workspace!
- */
-function resolveWorkspaceRoot(): string {
-  // Try environment variables first (set by MCP config)
-  const envRoot = process.env.WORKSPACE_ROOT ||
-                  process.env.AUGMENT_WORKSPACE_ROOT ||
-                  process.env.VSCODE_WORKSPACE ||
-                  process.env.INIT_CWD;
-
-  if (envRoot && fs.existsSync(envRoot)) {
-    console.log(`[indexer] Using workspace root from env: ${envRoot}`);
-    return envRoot;
-  }
-
-  // Fallback to process.cwd() (works in CLI, breaks in MCP)
-  const cwd = process.cwd();
-  console.log(`[indexer] Using process.cwd(): ${cwd}`);
-  return cwd;
-}
-
 // Don't resolve at module load time - env vars might not be set yet!
 // Resolve inside indexRepo() instead
 
-const INCLUDE = ['**/*.{ts,tsx,js,jsx,md,mdx,json,yml,yaml,sql,py,sh,ps1}'];
-const EXCLUDE = process.env.RCE_IGNORE
+export const INCLUDE = ['**/*.{ts,tsx,js,jsx,py,go,rs,java,cpp,c,md,mdx,json,yml,yaml,sql,sh,ps1}'];
+export const EXCLUDE = process.env.RCE_IGNORE
   ? process.env.RCE_IGNORE.split(',').map(s => s.trim())
   : [
       '**/node_modules/**',

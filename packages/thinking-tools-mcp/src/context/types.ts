@@ -10,6 +10,8 @@ export interface Chunk {
   start: number;
   end: number;
   text: string;
+  compressed?: boolean;
+  encoding?: 'gzip' | 'none';
   tokens?: number;
   tags?: string[];
   vec?: number[];  // Optional embedding vector (for reranking)

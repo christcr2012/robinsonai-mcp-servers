@@ -17,7 +17,7 @@ export async function docsGraphTool(
   args: { type?: string; format?: 'mermaid' | 'json' },
   ctx: ServerContext
 ) {
-  await ctx.ctx.ensureIndexed();
+  await ctx.ctx.waitForIndex();
   const docs = loadDocs();
 
   // Filter by type if specified

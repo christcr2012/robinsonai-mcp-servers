@@ -16,7 +16,7 @@ export const docsFindDescriptor = {
 };
 
 export async function docsFindTool(args:{type?:string; status?:string; text?:string; k?:number}, ctx: ServerContext){
-  await ctx.ctx.ensureIndexed();
+  await ctx.ctx.waitForIndex();
   const docs = loadDocs();
   const want = (v?:string)=> (v||'').toLowerCase();
   const out = docs.filter(d =>

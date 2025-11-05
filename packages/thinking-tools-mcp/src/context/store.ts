@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { Buffer } from 'node:buffer';
+import { gunzipSync, gzipSync } from 'zlib';
 import { Chunk, Embedding, IndexStats } from './types.js';
 import { resolveWorkspaceRoot } from '../lib/workspace.js';
 
@@ -25,8 +27,15 @@ const P = {
   stats: path.join(root, 'stats.json'),
   docs: path.join(root, 'docs.jsonl'),
   files: path.join(root, 'files.json'),
-  embedCache: path.join(root, 'embed-cache')
+  embedCache: path.join(root, 'embed-cache'),
+  patterns: path.join(root, 'patterns.json')
 };
+
+function compressionEnabled(): boolean {
+  const flag = process.env.RCE_COMPRESS;
+  if (flag === undefined) return false;
+  return flag === '1' || flag === 'true';
+}
 
 export function ensureDirs() {
   fs.mkdirSync(path.dirname(P.chunks), { recursive: true });
@@ -55,8 +64,51 @@ export function writeJSON(p: string, obj: any) {
   fs.writeFileSync(p, JSON.stringify(obj, null, 2));
 }
 
+function maybeCompressChunk(chunk: Chunk): Chunk {
+  if (!compressionEnabled() || chunk.compressed) {
+    return chunk;
+  }
+
+  try {
+    const gz = gzipSync(Buffer.from(chunk.text, 'utf8'));
+    return {
+      ...chunk,
+      text: gz.toString('base64'),
+      compressed: true,
+      encoding: 'gzip'
+    };
+  } catch (error) {
+    console.warn('[store] Failed to compress chunk, storing uncompressed:', (error as Error).message);
+    return { ...chunk, compressed: false, encoding: 'none' };
+  }
+}
+
+export function hydrateChunk(chunk: Chunk): Chunk {
+  if (!chunk.compressed) {
+    return { ...chunk, encoding: chunk.encoding ?? 'none' };
+  }
+
+  if (chunk.encoding && chunk.encoding !== 'gzip') {
+    return { ...chunk, compressed: false, encoding: 'none' };
+  }
+
+  try {
+    const buf = Buffer.from(chunk.text, 'base64');
+    const text = gunzipSync(buf).toString('utf8');
+    return {
+      ...chunk,
+      text,
+      compressed: false,
+      encoding: 'none'
+    };
+  } catch (error) {
+    console.warn('[store] Failed to decompress chunk, returning raw payload:', (error as Error).message);
+    return { ...chunk, compressed: false, encoding: 'none' };
+  }
+}
+
 export function loadChunks(): Chunk[] {
-  return Array.from(readJSONL<Chunk>(P.chunks));
+  return Array.from(readJSONL<Chunk>(P.chunks)).map(hydrateChunk);
 }
 
 export function loadEmbeddings(): Embedding[] {
@@ -64,7 +116,7 @@ export function loadEmbeddings(): Embedding[] {
 }
 
 export function saveChunk(c: Chunk) {
-  appendJSONL(P.chunks, c);
+  appendJSONL(P.chunks, maybeCompressChunk(c));
 }
 
 export function saveEmbedding(e: Embedding) {
@@ -119,7 +171,9 @@ export function saveFileMap(m: Record<string, any>) {
 // --- Delete all chunks for a file (used on modify/delete)
 export function deleteChunksForFile(file: string) {
   const all = loadChunks();
-  const keep = all.filter(c => c.path !== file && c.uri !== file);
+  const keep = all
+    .filter(c => c.path !== file && c.uri !== file)
+    .map(maybeCompressChunk);
   // Rewrite chunks file
   fs.writeFileSync(P.chunks, keep.map(c => JSON.stringify(c)).join('\n') + '\n', 'utf8');
 }
@@ -150,5 +204,34 @@ export function putCachedVec(model: string, sha: string, vec: number[]) {
 
 export function sha(text: string): string {
   return crypto.createHash('sha1').update(text).digest('hex');
+}
+
+export interface PatternStoreData {
+  version: number;
+  analyzedAt: string;
+  symbolCount: number;
+  graphEdges: number;
+  behavior: any[];
+  styles: any[];
+  architectures: any[];
+}
+
+export function loadPatternStore(): PatternStoreData | null {
+  if (!fs.existsSync(P.patterns)) {
+    return null;
+  }
+
+  try {
+    const txt = fs.readFileSync(P.patterns, 'utf8');
+    return JSON.parse(txt) as PatternStoreData;
+  } catch (error) {
+    console.warn('[store] Failed to parse pattern store, resetting:', (error as Error).message);
+    return null;
+  }
+}
+
+export function savePatternStore(data: PatternStoreData): void {
+  fs.mkdirSync(path.dirname(P.patterns), { recursive: true });
+  fs.writeFileSync(P.patterns, JSON.stringify(data, null, 2), 'utf8');
 }
 

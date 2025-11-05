@@ -5,7 +5,7 @@
 
 import { indexRepo } from './indexer.js';
 import { hybridQuery } from './search.js';
-import { getStats, loadChunks } from './store.js';
+import { getStats } from './store.js';
 import { EvidenceStore } from './evidence.js';
 import { FileWatcher } from './watcher.js';
 import { getQueryCache } from './cache.js';
@@ -21,6 +21,9 @@ import type { Chunk, IndexStats, Hit } from './types.js';
 import { rerankCodeFirst, type Candidate } from './rankers/code_first.js';
 import { docHints, rerankDocs } from './rankers/doc_first.js';
 import { loadDocs } from './store.js';
+import { loadContextEngineConfig, applyConfigToEnvironment, type ContextEngineConfig } from './config.js';
+import { PatternManager } from './patterns.js';
+import { quickSearchFallback, type QuickSearchHit } from './quick-search.js';
 
 // Import graph type
 type ImportGraph = Array<{ from: string; to: string }>;
@@ -43,9 +46,14 @@ export class ContextEngine {
   private symbolIndex: SymbolIndex | null = null;
   private importGraph: ImportGraph | null = null;
   private indexed: boolean = false;
+  private configPromise?: Promise<ContextEngineConfig>;
+  private config?: ContextEngineConfig;
+  private patternManager: PatternManager;
+  private indexingPromise?: Promise<void>;
 
   private constructor(private root: string) {
     this.evidence = new EvidenceStore(this.root);
+    this.patternManager = PatternManager.forRoot(this.root);
 
     // Start file watcher if enabled
     const autoWatch = process.env.CTX_AUTO_WATCH === '1' || process.env.CTX_AUTO_WATCH === 'true';
@@ -54,44 +62,76 @@ export class ContextEngine {
     }
   }
 
-  /**
-   * Ensure repository is indexed (embeddings + BM25 + symbols)
-   */
-  async ensureIndexed(): Promise<void> {
-    if (this.indexed) {
-      return;
+  private async ensureConfig(): Promise<ContextEngineConfig> {
+    if (!this.configPromise) {
+      this.configPromise = loadContextEngineConfig()
+        .then(config => {
+          this.config = config;
+          applyConfigToEnvironment(config);
+          return config;
+        })
+        .catch(error => {
+          this.configPromise = undefined;
+          throw error;
+        });
     }
+    return this.configPromise;
+  }
 
-    try {
-      const stats = await getStats();
-      if (stats && stats.chunks > 0) {
-        console.log(`[ContextEngine] Already indexed: ${stats.chunks} chunks`);
-        this.indexed = true;
-
-        // Build symbol index if not already built
-        if (!this.symbolIndex) {
-          console.log('[ContextEngine] Building symbol index...');
-          this.symbolIndex = await buildSymbolIndex(this.root);
-          console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
-        }
-
-        return;
-      }
-
-      console.log('[ContextEngine] Indexing repository...');
-      const result = await indexRepo();
-      console.log(`[ContextEngine] ✅ Indexed: ${result.files} files, ${result.chunks} chunks`);
-
-      // Build symbol index
+  private async ensureSecondaryIndexes(): Promise<void> {
+    if (!this.symbolIndex) {
       console.log('[ContextEngine] Building symbol index...');
       this.symbolIndex = await buildSymbolIndex(this.root);
       console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
-
-      this.indexed = true;
-    } catch (error: any) {
-      console.error('[ContextEngine] Indexing failed:', error.message);
-      // Don't throw - allow tools to work without full index
     }
+
+    if (!this.importGraph) {
+      console.log('[ContextEngine] Building import graph...');
+      this.importGraph = buildImportGraph(this.root);
+      console.log(`[ContextEngine] ✅ Import graph built: ${this.importGraph.length} edges`);
+    }
+
+    if (this.symbolIndex && this.importGraph) {
+      await this.patternManager.ensureAnalysed(this.symbolIndex, this.importGraph);
+    }
+  }
+
+  private async runIndexing(force = false): Promise<void> {
+    const stats = await getStats();
+
+    if (!force && stats && stats.chunks > 0) {
+      this.indexed = true;
+      await this.ensureSecondaryIndexes();
+      return;
+    }
+
+    console.log('[ContextEngine] Indexing repository...');
+    const result = await indexRepo(this.root, { quick: !force && Boolean(stats), force });
+    console.log(`[ContextEngine] ✅ Indexed: ${result.files} files, ${result.chunks} chunks`);
+
+    this.indexed = true;
+    await this.ensureSecondaryIndexes();
+  }
+
+  private async ensureIndexed(waitForCompletion: boolean = true): Promise<void> {
+    await this.ensureConfig();
+
+    if (!this.indexingPromise) {
+      this.indexingPromise = this.runIndexing().catch(error => {
+        console.error('[ContextEngine] Indexing failed:', error.message || error);
+        this.indexingPromise = undefined;
+        this.indexed = false;
+        throw error;
+      });
+    }
+
+    if (waitForCompletion) {
+      await this.indexingPromise.catch(() => {});
+    }
+  }
+
+  async waitForIndex(): Promise<void> {
+    await this.ensureIndexed(true);
   }
 
   /**
@@ -104,7 +144,51 @@ export class ContextEngine {
    * 4. Return top k results
    */
   async search(query: string, k: number = 12): Promise<any[]> {
-    await this.ensureIndexed();
+    const config = await this.ensureConfig();
+    const indexingPromise = this.ensureIndexed(false);
+    let indexingFailed = false;
+    let fallback: QuickSearchHit[] | null = null;
+
+    if (!this.indexed) {
+      fallback = await quickSearchFallback(this.root, query, k);
+      const ready = await Promise.race([
+        indexingPromise.then(() => true).catch(() => {
+          indexingFailed = true;
+          return true;
+        }),
+        new Promise<boolean>(resolve => setTimeout(() => resolve(false), config.quickFallbackWaitMs)),
+      ]);
+
+      if (!ready && fallback.length) {
+        return fallback.map(hit => ({
+          uri: hit.uri,
+          title: `Quick match: ${hit.uri}`,
+          snippet: hit.snippet,
+          score: hit.score,
+          meta: { mode: 'fallback', indexed: false }
+        }));
+      }
+    }
+
+    try {
+      await indexingPromise;
+    } catch (error) {
+      indexingFailed = true;
+      console.error('[ContextEngine] Background indexing failed:', (error as Error).message);
+    }
+
+    if (!this.indexed || indexingFailed) {
+      if (!fallback) {
+        fallback = await quickSearchFallback(this.root, query, k);
+      }
+      return fallback.map(hit => ({
+        uri: hit.uri,
+        title: `Quick match: ${hit.uri}`,
+        snippet: hit.snippet,
+        score: hit.score,
+        meta: { mode: 'fallback', indexed: false }
+      }));
+    }
 
     // Detect query intent
     const { wantsDocs } = docHints(query);
@@ -114,56 +198,69 @@ export class ContextEngine {
       const docs = loadDocs();
       const top = rerankDocs(query, docs, k * 2); // list more docs
 
-      // Return doc-shaped hits
       return top.slice(0, k).map(d => ({
         uri: d.uri,
         title: `${d.type.toUpperCase()}: ${d.title}`,
         snippet: d.summary ?? '',
         score: 1,
-        meta: { type: d.type, status: d.status, date: d.date, tasks: d.tasks?.length, links: d.links?.length }
+        meta: { type: d.type, status: d.status, date: d.date, tasks: d.tasks?.length, links: d.links?.length, mode: 'docs' }
       }));
     }
 
     // Code-first path: hybrid search with code-first reranking
-    // Get larger shortlist for reranking (300 candidates)
     const shortlistSize = Math.max(300, k * 25);
     const results: Hit[] = await hybridQuery(query, shortlistSize);
 
     if (results.length === 0) {
-      return [];
+      const quick = fallback ?? await quickSearchFallback(this.root, query, k);
+      return quick.map(hit => ({
+        uri: hit.uri,
+        title: `Quick match: ${hit.uri}`,
+        snippet: hit.snippet,
+        score: hit.score,
+        meta: { mode: 'fallback', indexed: this.indexed }
+      }));
     }
 
-    // Get query embedding for reranker
     const { embedBatch } = await import('./embedding.js');
     const [qVec] = await embedBatch([query]);
 
-    // Convert to reranker format
     const candidates: Candidate[] = results.map(r => ({
       uri: r.chunk.uri,
       title: r.chunk.title || r.chunk.uri,
       text: r.chunk.text,
-      vec: r.chunk.vec, // Include chunk vector if available
-      lexScore: r.score, // Pass hybrid score as lexical score
-      meta: r.chunk.meta // Include symbol metadata
+      vec: r.chunk.vec,
+      lexScore: r.score,
+      meta: r.chunk.meta
     }));
 
-    // Rerank with code-first heuristics
-    const top50 = rerankCodeFirst(query, candidates, qVec).slice(0, 50);
+    let reranked = rerankCodeFirst(query, candidates, qVec).slice(0, 50);
 
-    // Optional: cross-encoder rerank on top-50 (only if COHERE_API_KEY is set)
     const { ceRerankIfAvailable } = await import('./rankers/cross_encoder.js');
-    const ce = await ceRerankIfAvailable(query, top50.map(t => ({ text: t.text })));
-    const final = ce
-      ? [...top50].sort((a, b) => (ce.find((x: any) => x.idx === top50.indexOf(b))?.score ?? 0) -
-                                   (ce.find((x: any) => x.idx === top50.indexOf(a))?.score ?? 0))
-      : top50;
+    const ce = await ceRerankIfAvailable(query, reranked.map(t => ({ text: t.text })));
+    if (ce) {
+      const ceScores = ce as Array<{ idx: number; score: number }>;
+      reranked = reranked
+        .map((candidate, idx) => {
+          const ceScore = ceScores.find(entry => entry.idx === idx)?.score ?? 0;
+          return { ...candidate, score: (candidate.score ?? 0) + ceScore * 0.25 };
+        })
+        .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+    }
 
-    // Format results
-    return final.slice(0, k).map(r => ({
+    const primary = reranked.slice(0, k);
+    const boosts = this.patternManager.applyBoosts(query, primary.map(r => ({ uri: r.uri, text: r.text })));
+
+    const boosted = primary
+      .map(r => ({ ...r, score: (r.score ?? 0) + (boosts.get(r.uri) ?? 0) }))
+      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+
+    return boosted.map(r => ({
       uri: r.uri,
       title: r.title,
-      snippet: r.text.substring(0, 620), // Longer snippets for better context
-      score: r.score
+      snippet: r.text.substring(0, 620),
+      score: r.score ?? 0,
+      meta: { mode: 'indexed', boost: boosts.get(r.uri) ?? 0, lang: r.meta?.lang }
     }));
   }
 
@@ -312,6 +409,9 @@ export class ContextEngine {
    */
   async reset(): Promise<void> {
     this.indexed = false;
+    this.symbolIndex = null;
+    this.importGraph = null;
+    this.indexingPromise = undefined;
     // Invalidate cache when index is reset
     getQueryCache().invalidate();
     console.log('[ContextEngine] ✅ Index reset (will re-index on next search)');

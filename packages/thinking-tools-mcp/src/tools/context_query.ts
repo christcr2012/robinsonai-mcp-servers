@@ -21,7 +21,7 @@ export const contextQueryDescriptor = {
 export async function contextQueryTool(args: any, ctx: ServerContext) {
   try {
     // Ensure index is built before searching
-    await ctx.ctx.ensureIndexed();
+    await ctx.ctx.waitForIndex();
 
     const hits = await ctx.ctx.search(args.query, args.top_k || 12);
     if (!hits || !Array.isArray(hits)) {

@@ -12,7 +12,7 @@ export const docsDupesDescriptor = {
 };
 
 export async function docsDupesTool(_: {}, ctx: ServerContext){
-  await ctx.ctx.ensureIndexed();
+  await ctx.ctx.waitForIndex();
   const docs = loadDocs();
   const map = new Map<string, any[]>();
   for (const d of docs) {
