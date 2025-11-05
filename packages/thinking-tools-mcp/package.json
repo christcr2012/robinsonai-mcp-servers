@@ -21,6 +21,8 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "tsc -p tsconfig.json",
+    "pretest": "pnpm run build",
+    "test": "node test/run-tests.mjs",
     "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs",
     "start": "node bin/thinking-tools-mcp.js",
     "smoke": "node scripts/handshake-smoke.mjs"
