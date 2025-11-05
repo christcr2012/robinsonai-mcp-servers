@@ -297,7 +297,10 @@ export async function indexRepo(
           if (!vec) {
             // Need to embed this chunk
             try {
-              const embs = await embedBatch([part.text]);
+              const embs = await embedBatch([part.text], {
+                filePath: rel,
+                inputType: 'document' // Indexing uses 'document' type
+              });
               if (embs && embs.length > 0) {
                 vec = embs[0];
                 // Cache for future use

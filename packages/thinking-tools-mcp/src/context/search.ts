@@ -29,8 +29,28 @@ export async function hybridQuery(query: string, topK = 8): Promise<Hit[]> {
   const paths = getPaths();
 
   // lazy embed for query using same provider as chunks
-  const { embedBatch } = await import('./embedding.js');
-  const [qvec] = await embedBatch([query]);
+  const { embedBatch, detectContentType } = await import('./embedding.js');
+
+  // Detect query content type for best model selection
+  const queryLower = query.toLowerCase();
+  let contentType: 'code' | 'docs' | 'finance' | 'legal' | 'general' = 'general';
+
+  if (/\b(function|class|method|variable|import|export|async|await|const|let|var|interface|type)\b/i.test(queryLower)) {
+    contentType = 'code';
+  } else if (/\b(revenue|profit|earnings|financial|fiscal|quarter|balance|income)\b/i.test(queryLower)) {
+    contentType = 'finance';
+  } else if (/\b(gdpr|hipaa|pci|sox|compliance|regulation|legal|contract|terms)\b/i.test(queryLower)) {
+    contentType = 'legal';
+  } else if (/\b(how to|what is|explain|guide|tutorial|documentation)\b/i.test(queryLower)) {
+    contentType = 'docs';
+  }
+
+  console.log(`[hybridQuery] Query type: ${contentType}`);
+
+  const [qvec] = await embedBatch([query], {
+    contentType,
+    inputType: 'query' // Queries use 'query' input type!
+  });
 
   // Build embedding map (stream to avoid memory overflow)
   const embMap = new Map<string, number[]>();

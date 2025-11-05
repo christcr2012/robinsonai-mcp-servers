@@ -1,25 +1,112 @@
 import { request } from 'undici';
 import pLimit from 'p-limit';
 import crypto from 'crypto';
+import path from 'path';
 
-const prov = (process.env.CTX_EMBED_PROVIDER || 'ollama').toLowerCase();
+export type ContentType = 'code' | 'docs' | 'finance' | 'legal' | 'general';
+export type InputType = 'query' | 'document';
+
+export interface EmbedOptions {
+  contentType?: ContentType;
+  inputType?: InputType;
+  filePath?: string;
+  provider?: 'voyage' | 'openai' | 'ollama' | 'auto';
+}
 
 /**
- * Embed batch of texts using configured provider
- * Supports: ollama (free), openai (paid), claude/voyage (paid)
+ * Detect content type from file path and content
  */
-export async function embedBatch(texts: string[]): Promise<number[][]> {
-  console.log(`[embedBatch] Using provider: ${prov} for ${texts.length} texts`);
+export function detectContentType(filePath: string, content: string = ''): ContentType {
+  const ext = path.extname(filePath).toLowerCase();
 
-  try {
-    if (prov === 'openai') return await openaiEmbed(texts);
-    if (prov === 'claude' || prov === 'voyage') return await voyageEmbed(texts);
-    return await ollamaEmbed(texts);
-  } catch (error: any) {
-    const message = error?.message ?? String(error);
-    console.warn(`⚠️  [embedBatch] Provider "${prov}" failed (${message}). Falling back to lexical embeddings.`);
-    return lexicalFallbackEmbed(texts);
+  // Code files
+  const codeExts = ['.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.java', '.rs', '.cpp', '.c', '.h', '.sql', '.sh', '.ps1'];
+  if (codeExts.includes(ext)) return 'code';
+
+  // Documentation files
+  const docExts = ['.md', '.mdx', '.txt', '.rst'];
+  if (docExts.includes(ext)) {
+    const lowerContent = content.toLowerCase();
+    // Check for legal keywords
+    if (/\b(gdpr|hipaa|pci|sox|compliance|regulation|legal|contract|terms|privacy policy|license agreement)\b/i.test(lowerContent)) {
+      return 'legal';
+    }
+    // Check for finance keywords
+    if (/\b(revenue|profit|earnings|financial|fiscal|quarter|balance sheet|income statement|cash flow)\b/i.test(lowerContent)) {
+      return 'finance';
+    }
+    return 'docs';
   }
+
+  // Config files (treat as code)
+  const configExts = ['.json', '.yml', '.yaml', '.toml', '.ini'];
+  if (configExts.includes(ext)) return 'code';
+
+  return 'general';
+}
+
+/**
+ * Select best Voyage AI model for content type
+ */
+export function selectVoyageModel(contentType: ContentType): string {
+  const modelMap: Record<ContentType, string> = {
+    code: process.env.CTX_EMBED_CODE_MODEL || 'voyage-code-3',
+    finance: process.env.CTX_EMBED_FINANCE_MODEL || 'voyage-finance-2',
+    legal: process.env.CTX_EMBED_LEGAL_MODEL || 'voyage-law-2',
+    docs: process.env.CTX_EMBED_DOCS_MODEL || 'voyage-3-large',
+    general: process.env.CTX_EMBED_GENERAL_MODEL || 'voyage-3.5'
+  };
+
+  return modelMap[contentType];
+}
+
+/**
+ * Embed batch of texts using configured provider with intelligent model selection
+ * Supports: voyage (best), openai (good), ollama (free fallback)
+ */
+export async function embedBatch(texts: string[], options: EmbedOptions = {}): Promise<number[][]> {
+  const {
+    contentType = 'general',
+    inputType = 'document',
+    provider = (process.env.CTX_EMBED_PROVIDER || 'auto').toLowerCase() as any
+  } = options;
+
+  // Auto-detect content type if file path provided
+  let detectedType = contentType;
+  if (options.filePath && contentType === 'general') {
+    detectedType = detectContentType(options.filePath, texts[0] || '');
+  }
+
+  const voyageModel = selectVoyageModel(detectedType);
+
+  console.log(`[embedBatch] Type: ${detectedType}, Model: ${voyageModel}, Input: ${inputType}, Texts: ${texts.length}`);
+
+  // Build provider chain
+  const providers = provider === 'auto'
+    ? ['voyage', 'openai', 'ollama']
+    : [provider];
+
+  for (const prov of providers) {
+    try {
+      if (prov === 'voyage') {
+        return await voyageEmbed(texts, voyageModel, inputType);
+      }
+      if (prov === 'openai') {
+        return await openaiEmbed(texts);
+      }
+      if (prov === 'ollama') {
+        return await ollamaEmbed(texts);
+      }
+    } catch (error: any) {
+      const message = error?.message ?? String(error);
+      console.warn(`⚠️  [embedBatch] ${prov} failed (${message}), trying next provider...`);
+      // Continue to next provider
+    }
+  }
+
+  // All providers failed, use lexical fallback
+  console.warn(`⚠️  [embedBatch] All providers failed, using lexical fallback`);
+  return lexicalFallbackEmbed(texts);
 }
 
 const FALLBACK_DIMS = parseInt(process.env.CTX_FALLBACK_EMBED_DIMS || '384', 10);
@@ -103,21 +190,37 @@ async function openaiEmbed(texts: string[]): Promise<number[][]> {
   return j.data.map((d: any) => d.embedding);
 }
 
-async function voyageEmbed(texts: string[]): Promise<number[][]> {
+async function voyageEmbed(
+  texts: string[],
+  model: string = 'voyage-code-3',
+  inputType: InputType = 'document'
+): Promise<number[][]> {
   const key = process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error('VOYAGE_API_KEY or ANTHROPIC_API_KEY missing');
 
-  const model = process.env.VOYAGE_EMBED_MODEL || 'voyage-code-2';
+  console.log(`[voyageEmbed] Model: ${model}, Input type: ${inputType}, Texts: ${texts.length}`);
+
   const r = await request('https://api.voyageai.com/v1/embeddings', {
     method: 'POST',
     headers: {
       'authorization': `Bearer ${key}`,
       'content-type': 'application/json'
     },
-    body: JSON.stringify({ model, input: texts, input_type: 'document' })
+    body: JSON.stringify({
+      model,
+      input: texts,
+      input_type: inputType, // 'query' or 'document'
+      output_dimension: 1024, // Default for voyage-3 models
+      output_dtype: 'float' // Use float for best quality
+    })
   });
 
   const j: any = await r.body.json();
+
+  if (!j?.data) {
+    throw new Error(`Voyage API error: ${JSON.stringify(j)}`);
+  }
+
   return j.data.map((d: any) => d.embedding);
 }
 
