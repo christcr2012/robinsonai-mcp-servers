@@ -1,4 +1,4 @@
 repoRoot: C:/Users/chris/Git Local/robinsonai-mcp-servers
-process.cwd(): C:\Users\chris\Git Local\robinsonai-mcp-servers\packages\thinking-tools-mcp
-WORKSPACE_ROOT: C:\Users\chris\Git Local\robinsonai-mcp-servers
+process.cwd(): C:\Users\chris\Git Local\robinsonai-mcp-servers
+WORKSPACE_ROOT: undefined
 AUGMENT_WORKSPACE_ROOT: undefined

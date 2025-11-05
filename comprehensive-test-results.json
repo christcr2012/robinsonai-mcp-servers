@@ -1,0 +1,174 @@
+{
+  "timestamp": "2025-11-05T03:12:41.895Z",
+  "tests": [
+    {
+      "server": "Robinson's Toolkit MCP",
+      "tests": [
+        {
+          "name": "List Categories",
+          "tool": "toolkit_list_categories",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"",
+          "error": null
+        },
+        {
+          "name": "List GitHub Tools",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"",
+          "error": null
+        },
+        {
+          "name": "List Vercel Tools",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"",
+          "error": null
+        },
+        {
+          "name": "List Neon Tools",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"",
+          "error": null
+        },
+        {
+          "name": "List Upstash Tools",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"",
+          "error": null
+        },
+        {
+          "name": "List Google Tools",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"",
+          "error": null
+        },
+        {
+          "name": "Discover Tools",
+          "tool": "toolkit_discover",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"",
+          "error": null
+        },
+        {
+          "name": "Health Check",
+          "tool": "toolkit_health_check",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"",
+          "error": null
+        }
+      ]
+    },
+    {
+      "server": "Thinking Tools MCP",
+      "tests": [
+        {
+          "name": "Context Index Repo",
+          "tool": "context_index_repo",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": null
+        },
+        {
+          "name": "Context Query",
+          "tool": "context_query",
+          "success": false,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\""
+        },
+        {
+          "name": "Context Stats",
+          "tool": "context_stats",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": null
+        },
+        {
+          "name": "SWOT Analysis",
+          "tool": "swot_analysis",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": null
+        },
+        {
+          "name": "Devil's Advocate",
+          "tool": "devils_advocate",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": null
+        },
+        {
+          "name": "First Principles",
+          "tool": "first_principles",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": null
+        },
+        {
+          "name": "Root Cause",
+          "tool": "root_cause",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": null
+        },
+        {
+          "name": "Sequential Thinking",
+          "tool": "sequential_thinking",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": null
+        },
+        {
+          "name": "Decision Matrix",
+          "tool": "decision_matrix",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": null
+        },
+        {
+          "name": "Premortem Analysis",
+          "tool": "premortem_analysis",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\"",
+          "error": null
+        }
+      ]
+    },
+    {
+      "server": "FREE Agent MCP",
+      "tests": [
+        {
+          "name": "Code Generation",
+          "tool": "delegate_code_generation",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"free-agent-mcp\",\"version\":\"0.1.1\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n",
+          "error": null
+        },
+        {
+          "name": "Code Analysis",
+          "tool": "delegate_code_analysis",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"free-agent-mcp\",\"version\":\"0.1.1\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n",
+          "error": null
+        },
+        {
+          "name": "Test Generation",
+          "tool": "delegate_test_generation",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"free-agent-mcp\",\"version\":\"0.1.1\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n⚠️  Docker not available - using local sandbox (",
+          "error": null
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "totalTests": 21,
+    "passedTests": 20,
+    "failedTests": 1,
+    "percentage": 95,
+    "status": "MOSTLY READY"
+  }
+}

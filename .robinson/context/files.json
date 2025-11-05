@@ -28042,5 +28042,108 @@
     "chunkIds": [
       "6dcaadf4e1688a0085a7ed9f9f6c8a9a78fa7abd:0"
     ]
+  },
+  "comprehensive-test-results.json": {
+    "mtimeMs": 1762312530091.529,
+    "size": 9150,
+    "contentSha": "01e956856a8dc194570010eab4bfcab2e604c320",
+    "chunkIds": [
+      "7a4225f1d5d7d343dd9b9648139ce99669b77e7f:0",
+      "a72d9def44b2bd1a642be556e793fcbadb7d6760:1",
+      "267e38f5d031b62d809db3723d15387468ddc00a:2",
+      "906154c8570c3e78f55eae8209a7099074f3dfde:3",
+      "655b3e36e4d12c456a5c865fe2d11842c1b0fd28:4",
+      "3b4f4cbeaded673e6236597a3ef0842519e9d99c:5",
+      "eb7536f4af323c2fe94e3b8155db4b454fcc4103:6",
+      "77875de968119f95d08d69977e3a0f5a3191009f:7"
+    ]
+  },
+  "comprehensive-test-suite.mjs": {
+    "mtimeMs": 1762312356599.7288,
+    "size": 7115,
+    "contentSha": "0c4c0cab53b94867f34c5f3226807d44316dde81",
+    "chunkIds": [
+      "def3b33cd118521d9be721b8fa513b73eef1d849:0",
+      "63c8ca4e0a51ba78cee9060185701263480e5c92:1",
+      "d53d449bb578735a7324cb4dac42ed027e855e9f:2",
+      "5cf9f81b06062f900c3fbb8016c2d1f83f8e6945:3",
+      "f199de063785d39806ae423e5cbce4f5ef921fc4:4",
+      "8f91aa121108f4b78c25ba0ed542e4edc0c46f65:5",
+      "2643774fa0c2c31d869acf62fa6b197ffe503288:6",
+      "58b80597debfd274c1ae38bd9626c9501dec2fb3:7",
+      "26f26f13c368b6d8faab8021a092901caee5497c:8",
+      "01eba84fb325688f1bd6cdea5258af6f589f8434:9",
+      "4c5df6963f0368983094708b89c0da5b788e6e64:10",
+      "45e9982b25e1f83734a6e0db2bdfdc639f27e25b:11",
+      "a920253583582a2f5688caa6e58c5e2f917874b5:12",
+      "82f91ae7fead82c2b48bf8c50985b7fd63c8260b:13",
+      "b09941508c9f32044a447924af331ff407b58cf3:14",
+      "bdf278bd06204216cc39fa18c4fa8469480b6290:15",
+      "8ee35dccf770e71ef8100213ee25aaec0e42b09d:16",
+      "86c54f5328ff9c881b201452673d2e111748b638:17",
+      "4424384f170226a026d132b047f08e7e588a182d:18",
+      "8e1c67f6d188993465176f759a3950d7de9dc24e:19",
+      "783d5e92c023dcc26e268643cbd56834f0618bd2:20",
+      "09d57a0c745a3021fc6519b096cd0ba12fa1b7e6:21",
+      "8478e432cfe78deb35bb1102b5b951c1c2a3c5eb:22",
+      "f4ffe74df106984ac1fdb74705518330726f45ba:23",
+      "26ca4b7db94527a9053c66715f7507b37f5d7991:24",
+      "bc67d1c9bebe0b1982202aa6773f378ef54b8b0e:25",
+      "55c9c60987f41ecb4c2c0bda09fdda505d2c4c39:26",
+      "8e368caf957e99fc73b513fceaa52604887c7679:27"
+    ]
+  },
+  "detailed-component-test.mjs": {
+    "mtimeMs": 1762312685201.3784,
+    "size": 8517,
+    "contentSha": "7d3fefc6d3ed9f970f4092d2af224248dfca2ac2",
+    "chunkIds": [
+      "def3b33cd118521d9be721b8fa513b73eef1d849:0",
+      "63c8ca4e0a51ba78cee9060185701263480e5c92:1",
+      "e18cbf2213309286d62e7360446df6f48d96b6b6:2",
+      "082e61374e5eaf93232d77ac540d8adb51781d1e:3",
+      "946d5e3584956e5c1455e4a1d27cbd78fd96cd6e:4",
+      "761de9d24aa4714322da9b370b594a24ff65e0b1:5",
+      "f811c612c7bead816768e9c9df5b85888da69926:6",
+      "82d8c1a03276fb02e80ec135f26b57b396eb9cd1:7",
+      "26f26f13c368b6d8faab8021a092901caee5497c:8",
+      "01eba84fb325688f1bd6cdea5258af6f589f8434:9",
+      "41b7554b3320ec9e721eaa58a2d5fa9849134e77:10",
+      "c62ef87a315f5d11e3b6fc3cbedb4786e46b193f:11",
+      "31e425e0ee66f7afd82dd90a60ee33f3dfd1dd89:12",
+      "d1cea7f4369c06e51c9dd0f0141336258b720404:13",
+      "0a2a9b6bc6f125bc9db246156b57e1b81c47c50d:14",
+      "87d4aec459f25c53d9b874baf394f39f0cead270:15",
+      "613fd17f906768638a1b224d6278f0a9a7728db0:16",
+      "5e6966d4d1d30fc145bafb81efe2b1647a0ceec7:17",
+      "80182c5486480ce7f7fb9026b4a83c73cef82063:18",
+      "8f98be93064fd93f28986ff3276fa75668546bc7:19",
+      "4d2226c7340911bdf3b4724e3776d835c6df8f68:20",
+      "6ab910fbe58e60f0b6f0883ecf60674d4c6028c8:21",
+      "71d58877d4ec9de3284c3596ec0f6548fe4c2791:22",
+      "eb6d86dce6c95ac13d8eb2efb6c6ba2e79f08981:23",
+      "c419fc3ee458de37e8b3f7b445e37204c0adabb5:24",
+      "9c43acc110d1c7db7911ba6c91828c95da468c46:25",
+      "0de6a4615859a4c992488ea3744429966267068b:26",
+      "77511c8d7fc03b74c576f22785d47671f36aca67:27",
+      "a9f4e5a4ff7f92a027a36f50625b86ef72fa708e:28",
+      "fcb90c277843c190504e7aa56b7cc90d40da4ba4:29"
+    ]
+  },
+  ".robinson/context/debug-glob.txt": {
+    "mtimeMs": 1762312861203.0398,
+    "size": 806,
+    "contentSha": "e30d52d6ea8b47a591877762f151061e6cad07f1",
+    "chunkIds": [
+      "e30d52d6ea8b47a591877762f151061e6cad07f1:0"
+    ]
+  },
+  ".robinson/context/debug-workspace-root.txt": {
+    "mtimeMs": 1762312861178.358,
+    "size": 181,
+    "contentSha": "0057925ca29a8b3344ee28937585aeeec6f2ffa0",
+    "chunkIds": [
+      "0057925ca29a8b3344ee28937585aeeec6f2ffa0:0"
+    ]
   }
 }

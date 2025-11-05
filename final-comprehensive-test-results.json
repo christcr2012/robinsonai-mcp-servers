@@ -1,0 +1,178 @@
+{
+  "timestamp": "2025-11-05T03:26:27.280Z",
+  "components": {
+    "Robinson's Toolkit MCP (10 tests)": {
+      "name": "Robinson's Toolkit MCP (10 tests)",
+      "tests": [
+        {
+          "name": "List Categories",
+          "tool": "toolkit_list_categories",
+          "success": true
+        },
+        {
+          "name": "GitHub Tools",
+          "tool": "toolkit_list_tools",
+          "success": true
+        },
+        {
+          "name": "Vercel Tools",
+          "tool": "toolkit_list_tools",
+          "success": true
+        },
+        {
+          "name": "Neon Tools",
+          "tool": "toolkit_list_tools",
+          "success": true
+        },
+        {
+          "name": "Upstash Tools",
+          "tool": "toolkit_list_tools",
+          "success": true
+        },
+        {
+          "name": "Google Tools",
+          "tool": "toolkit_list_tools",
+          "success": true
+        },
+        {
+          "name": "Discover Tools",
+          "tool": "toolkit_discover",
+          "success": true
+        },
+        {
+          "name": "Get Tool Schema",
+          "tool": "toolkit_get_tool_schema",
+          "success": true
+        },
+        {
+          "name": "Health Check",
+          "tool": "toolkit_health_check",
+          "success": true
+        },
+        {
+          "name": "Validate Tools",
+          "tool": "toolkit_validate",
+          "success": true
+        }
+      ],
+      "passed": 10,
+      "failed": 0
+    },
+    "Thinking Tools MCP (14 tests)": {
+      "name": "Thinking Tools MCP (14 tests)",
+      "tests": [
+        {
+          "name": "Index Repo",
+          "tool": "context_index_repo",
+          "success": true
+        },
+        {
+          "name": "Query (Simple)",
+          "tool": "context_query",
+          "success": true
+        },
+        {
+          "name": "Query (Complex)",
+          "tool": "context_query",
+          "success": true
+        },
+        {
+          "name": "Context Stats",
+          "tool": "context_stats",
+          "success": true
+        },
+        {
+          "name": "Ensure Fresh Index",
+          "tool": "ensure_fresh_index",
+          "success": true
+        },
+        {
+          "name": "SWOT Analysis",
+          "tool": "swot_analysis",
+          "success": true
+        },
+        {
+          "name": "Devil's Advocate",
+          "tool": "devils_advocate",
+          "success": true
+        },
+        {
+          "name": "First Principles",
+          "tool": "first_principles",
+          "success": true
+        },
+        {
+          "name": "Root Cause",
+          "tool": "root_cause",
+          "success": true
+        },
+        {
+          "name": "Premortem",
+          "tool": "premortem_analysis",
+          "success": true
+        },
+        {
+          "name": "Decision Matrix",
+          "tool": "decision_matrix",
+          "success": true
+        },
+        {
+          "name": "Sequential Thinking",
+          "tool": "sequential_thinking",
+          "success": true
+        },
+        {
+          "name": "Docs Find",
+          "tool": "docs_find",
+          "success": true
+        },
+        {
+          "name": "Health Check",
+          "tool": "thinking_tools_health_check",
+          "success": true
+        }
+      ],
+      "passed": 14,
+      "failed": 0
+    },
+    "FREE Agent MCP (5 tests)": {
+      "name": "FREE Agent MCP (5 tests)",
+      "tests": [
+        {
+          "name": "Code Generation",
+          "tool": "delegate_code_generation",
+          "success": true
+        },
+        {
+          "name": "Code Analysis",
+          "tool": "delegate_code_analysis",
+          "success": true
+        },
+        {
+          "name": "Code Refactoring",
+          "tool": "delegate_code_refactoring",
+          "success": true
+        },
+        {
+          "name": "Test Generation",
+          "tool": "delegate_test_generation",
+          "success": true
+        },
+        {
+          "name": "Documentation",
+          "tool": "delegate_documentation",
+          "success": true
+        }
+      ],
+      "passed": 5,
+      "failed": 0
+    }
+  },
+  "summary": {
+    "totalTests": 29,
+    "totalPassed": 29,
+    "totalFailed": 0,
+    "percentage": 100,
+    "status": "✅ PRODUCTION READY"
+  }
+}

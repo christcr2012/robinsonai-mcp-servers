@@ -1,0 +1,254 @@
+{
+  "timestamp": "2025-11-05T03:18:39.102Z",
+  "components": {
+    "Robinson's Toolkit MCP (All Integrations)": {
+      "name": "Robinson's Toolkit MCP (All Integrations)",
+      "tests": [
+        {
+          "name": "List Categories",
+          "tool": "toolkit_list_categories",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"[\\n  {\\n    \\\"name\\\": \\\"github\\\",\\n    \\\"displayName\\\": \\\"GitHub\\\",\\n    \\\"description\\\": \\\"GitHub repository, issue, PR, workflow, and collaboration tools\\\",\\n    \\\"toolCount\\\": 241,\\n    \\\"enabled\\\": true\\n  },\\n  {\\n    \\\"name\\\": \\\"vercel\\\",\\n    \\\"displayName\\\": \\\"Vercel\\\",\\n    \\\"description\\\":",
+          "error": null
+        },
+        {
+          "name": "GitHub Tools (20)",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"[\\n  {\\n    \\\"name\\\": \\\"github_add_assignees\\\",\\n    \\\"description\\\": \\\"Add assignees to issue\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"name\\\": \\\"github_add_collaborator\\\",\\n    \\\"description\\\": \\\"Add repository collaborator\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"name\\\": \\\"github_add_cop",
+          "error": null
+        },
+        {
+          "name": "Vercel Tools (20)",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"[\\n  {\\n    \\\"name\\\": \\\"vercel_add_domain\\\",\\n    \\\"description\\\": \\\"Add a domain to a project\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"name\\\": \\\"vercel_assign_alias\\\",\\n    \\\"description\\\": \\\"Assign an alias to a deployment\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"name\\\": \\\"vercel_blob_de",
+          "error": null
+        },
+        {
+          "name": "Neon Tools (20)",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"[\\n  {\\n    \\\"name\\\": \\\"neon_analyze_database\\\",\\n    \\\"description\\\": \\\"Run ANALYZE on database.\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"name\\\": \\\"neon_analyze_deadlocks\\\",\\n    \\\"description\\\": \\\"Deadlock analysis and prevention.\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"name\\\": \\\"neon_a",
+          "error": null
+        },
+        {
+          "name": "Upstash Tools (20)",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"[\\n  {\\n    \\\"name\\\": \\\"upstash_add_team_member\\\",\\n    \\\"description\\\": \\\"Add a member to a team\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"name\\\": \\\"upstash_backup_redis_database\\\",\\n    \\\"description\\\": \\\"Create a backup of a Redis database\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"name\\\":",
+          "error": null
+        },
+        {
+          "name": "Google Tools (20)",
+          "tool": "toolkit_list_tools",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"[\\n  {\\n    \\\"name\\\": \\\"admin_action_chrome_device\\\",\\n    \\\"description\\\": \\\"Perform action on Chrome device\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"name\\\": \\\"admin_action_mobile_device\\\",\\n    \\\"description\\\": \\\"Perform action on mobile device\\\",\\n    \\\"inputSchema\\\": {}\\n  },\\n  {\\n    \\\"na",
+          "error": null
+        },
+        {
+          "name": "Discover by Keyword",
+          "tool": "toolkit_discover",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"query\\\": \\\"database\\\",\\n  \\\"limit\\\": 10,\\n  \\\"results\\\": [\\n    {\\n      \\\"category\\\": \\\"neon\\\",\\n      \\\"name\\\": \\\"neon_analyze_database\\\",\\n      \\\"description\\\": \\\"Run ANALYZE on database.\\\",\\n      \\\"score\\\": 1,\\n      \\\"matched\\\": [\\n        \\\"name\\\"\\n      ],\\n      \\\"inputSchema\\\": {\\n",
+          "error": null
+        },
+        {
+          "name": "Get Tool Schema",
+          "tool": "toolkit_get_tool_schema",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"name\\\": \\\"github_create_repo\\\",\\n  \\\"description\\\": \\\"Create a new repository\\\",\\n  \\\"inputSchema\\\": {\\n    \\\"type\\\": \\\"object\\\",\\n    \\\"properties\\\": {\\n      \\\"name\\\": {\\n        \\\"type\\\": \\\"string\\\"\\n      },\\n      \\\"description\\\": {\\n        \\\"type\\\": \\\"string\\\"\\n      },\\n      \\\"privat",
+          "error": null
+        },
+        {
+          "name": "Health Check",
+          "tool": "toolkit_health_check",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"status\\\": \\\"healthy\\\",\\n  \\\"timestamp\\\": \\\"2025-11-05T03:20:01.409Z\\\",\\n  \\\"services\\\": {\\n    \\\"github\\\": true,\\n    \\\"vercel\\\": true,\\n    \\\"neon\\\": true,\\n    \\\"upstash\\\": true,\\n    \\\"openai\\\": true,\\n    \\\"google\\\": true\\n  },\\n  \\\"registry\\\": {\\n    \\\"totalTools\\\": 979,\\n    \\\"categorie",
+          "error": null
+        },
+        {
+          "name": "Validate Tools",
+          "tool": "toolkit_validate",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"robinsons-toolkit\",\"version\":\"1.0.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"total\\\": 979,\\n  \\\"valid\\\": 979,\\n  \\\"invalid_count\\\": 0,\\n  \\\"sample_invalid\\\": [],\\n  \\\"categories\\\": {\\n    \\\"github\\\": 241,\\n    \\\"vercel\\\": 150,\\n    \\\"neon\\\": 166,\\n    \\\"upstash\\\": 157,\\n    \\\"gmail\\\": 15,\\n    \\\"drive\\\": 15,\\n    \\\"calendar\\\": 8,\\n    \\\"sheets\\\": 11,\\n    \\\"docs\\\": 5,",
+          "error": null
+        }
+      ],
+      "passed": 10,
+      "failed": 0,
+      "issues": []
+    },
+    "Thinking Tools MCP (All Tools)": {
+      "name": "Thinking Tools MCP (All Tools)",
+      "tests": [
+        {
+          "name": "Index Repo",
+          "tool": "context_index_repo",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"ok\\\": true,\\n  \\\"files\\\": {\\n    \\\"repo\\\": 846\\n  },\\n  \\\"chunks\\\": 22122,\\n  \\\"vectors\\\": 2665,\\n  \\\"embeddings\\\": 2665,\\n  \\\"mode\\\": \\\"auto\\\",\\n  \\\"model\\\": \\\"nomic-embed-text\\\",\\n  \\\"dimensions\\\": 768,\\n  \\\"totalCost\\\": 0,\\n  \\\"indexedAt\\\": \\\"2025-11-04T03:47:39.833Z\\\",\\n  \\\"rceIndexDir\\",
+          "error": null
+        },
+        {
+          "name": "Query (Simple)",
+          "tool": "context_query",
+          "success": false,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"ERROR: The \\\"path\\\" argument must be of type string. Received undefined\"}],\"isError\":true},\"jsonrpc\":\"2.0\",\"id\":1}\n",
+          "error": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"ERROR: The \\\"path\\\" argument must be of type string. Received undefined\"}],\"isError\":true},\"jsonrp"
+        },
+        {
+          "name": "Query (Complex)",
+          "tool": "context_query",
+          "success": false,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"ERROR: The \\\"path\\\" argument must be of type string. Received undefined\"}],\"isError\":true},\"jsonrpc\":\"2.0\",\"id\":1}\n",
+          "error": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"ERROR: The \\\"path\\\" argument must be of type string. Received undefined\"}],\"isError\":true},\"jsonrp"
+        },
+        {
+          "name": "Context Stats",
+          "tool": "context_stats",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"ok\\\": true,\\n  \\\"chunks\\\": 22122,\\n  \\\"embeddings\\\": 2665,\\n  \\\"sources\\\": {\\n    \\\"repo\\\": 846\\n  },\\n  \\\"mode\\\": \\\"auto\\\",\\n  \\\"model\\\": \\\"nomic-embed-text\\\",\\n  \\\"dimensions\\\": 768,\\n  \\\"totalCost\\\": 0,\\n  \\\"updatedAt\\\": \\\"2025-11-04T03:47:39.833Z\\\",\\n  \\\"rceIndexDir\\\": \\\"C:\\\\\\\\Users\\\\\\\\",
+          "error": null
+        },
+        {
+          "name": "Ensure Fresh Index",
+          "tool": "ensure_fresh_index",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n",
+          "error": null
+        },
+        {
+          "name": "SWOT Analysis",
+          "tool": "swot_analysis",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"strengths\\\": [\\n    \\\"Proven technology/approach\\\",\\n    \\\"Available resources and documentation\\\"\\n  ],\\n  \\\"weaknesses\\\": [\\n    \\\"Learning curve\\\",\\n    \\\"Implementation complexity\\\"\\n  ],\\n  \\\"opportunities\\\": [\\n    \\\"Improve current state\\\",\\n    \\\"Learn new skills\\\"\\n  ],\\n  \\\"threat",
+          "error": null
+        },
+        {
+          "name": "Devil's Advocate",
+          "tool": "devils_advocate",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"challenges\\\": [\\n    \\\"MCP servers have complex dependency chains - one broken server affects the entire delegation system\\\",\\n    \\\"Local Ollama models may not have the same quality as cloud models, affecting Free Agent output\\\",\\n    \\\"Tool discovery systems are fragile - if search breaks",
+          "error": null
+        },
+        {
+          "name": "First Principles",
+          "tool": "first_principles",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"fundamentals\\\": [\\n    \\\"Testing = verifying code behaves as expected\\\",\\n    \\\"Unit test = test individual function\\\",\\n    \\\"Integration test = test components together\\\",\\n    \\\"E2E test = test entire user flow\\\"\\n  ],\\n  \\\"assumptions\\\": [\\n    \\\"Assuming code can be tested in isolation",
+          "error": null
+        },
+        {
+          "name": "Root Cause",
+          "tool": "root_cause",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"whyChain\\\": [\\n    {\\n      \\\"why\\\": \\\"Tests are failing\\\",\\n      \\\"because\\\": \\\"Code is not handling edge cases properly\\\"\\n    },\\n    {\\n      \\\"why\\\": \\\"Code is not handling edge cases properly\\\",\\n      \\\"because\\\": \\\"Insufficient input validation\\\"\\n    },\\n    {\\n      \\\"why\\\": \\\"In",
+          "error": null
+        },
+        {
+          "name": "Premortem",
+          "tool": "premortem_analysis",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"failureScenarios\\\": [\\n    {\\n      \\\"scenario\\\": \\\"Key team member left mid-project\\\",\\n      \\\"likelihood\\\": \\\"MEDIUM\\\",\\n      \\\"impact\\\": \\\"HIGH\\\"\\n    },\\n    {\\n      \\\"scenario\\\": \\\"Scope creep doubled timeline\\\",\\n      \\\"likelihood\\\": \\\"HIGH\\\",\\n      \\\"impact\\\": \\\"MEDIUM\\\"\\n    },",
+          "error": null
+        },
+        {
+          "name": "Decision Matrix",
+          "tool": "decision_matrix",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"matrix\\\": [\\n    {\\n      \\\"option\\\": \\\"A\\\",\\n      \\\"scores\\\": [\\n        {\\n          \\\"criterion\\\": \\\"Cost\\\",\\n          \\\"score\\\": 44.25,\\n          \\\"weight\\\": 0.5,\\n          \\\"weightedScore\\\": 22.125\\n        },\\n        {\\n          \\\"criterion\\\": \\\"Quality\\\",\\n          \\\"score\\\": ",
+          "error": null
+        },
+        {
+          "name": "Sequential Thinking",
+          "tool": "sequential_thinking",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"content\\\": [\\n    {\\n      \\\"type\\\": \\\"text\\\",\\n      \\\"text\\\": \\\"# Sequential Thinking: Analysis\\\\n\\\\n## Thought History (1 thoughts)\\\\n### 💭 Thought 1\\\\nHow to optimize?\\\\n\\\\n\\\\n## Status\\\\n- **Current thought:** 1/1\\\\n- **Next thought needed:** No\\\\n- **Branches:** 0\\\\n- **Revisions:** ",
+          "error": null
+        },
+        {
+          "name": "Docs Find",
+          "tool": "docs_find",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"content\\\": [\\n    {\\n      \\\"type\\\": \\\"text\\\",\\n      \\\"text\\\": \\\"[\\\\n  {\\\\n    \\\\\\\"id\\\\\\\": \\\\\\\"19213cf389fb9b2f03392b2b16d6c0cc74fd991c\\\\\\\",\\\\n    \\\\\\\"uri\\\\\\\": \\\\\\\"ACTION_PLAN_POST_DIAGNOSTIC.md\\\\\\\",\\\\n    \\\\\\\"title\\\\\\\": \\\\\\\"🎯 Action Plan: Post-Diagnostic Recovery & Testing\\\\\\\",\\\\n    \\\\\\",
+          "error": null
+        },
+        {
+          "name": "Health Check",
+          "tool": "thinking_tools_health_check",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"content\\\": [\\n    {\\n      \\\"type\\\": \\\"text\\\",\\n      \\\"text\\\": \\\"{\\\\n  \\\\\\\"ok\\\\\\\": true,\\\\n  \\\\\\\"tools\\\\\\\": 64,\\\\n  \\\\\\\"names\\\\\\\": [\\\\n    \\\\\\\"context_index_repo\\\\\\\",\\\\n    \\\\\\\"ensure_fresh_index\\\\\\\",\\\\n    \\\\\\\"context_index_full\\\\\\\",\\\\n    \\\\\\\"context_query\\\\\\\",\\\\n    \\\\\\\"context_stats\\\\\\",
+          "error": null
+        }
+      ],
+      "passed": 12,
+      "failed": 2,
+      "issues": [
+        {
+          "test": "Query (Simple)",
+          "tool": "context_query",
+          "error": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"ERROR: The \\\"path\\\" argument must be of type string. Received undefined\"}],\"isError\":true},\"jsonrp",
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"ERROR: The \\\"path\\\" argument must be of type string. Received undefined\"}],\"isError\":true},\"jsonrpc\":\"2.0\",\"id\":1}\n"
+        },
+        {
+          "test": "Query (Complex)",
+          "tool": "context_query",
+          "error": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"ERROR: The \\\"path\\\" argument must be of type string. Received undefined\"}],\"isError\":true},\"jsonrp",
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"thinking-tools-mcp\",\"version\":\"1.10.0\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"ERROR: The \\\"path\\\" argument must be of type string. Received undefined\"}],\"isError\":true},\"jsonrpc\":\"2.0\",\"id\":1}\n"
+        }
+      ]
+    },
+    "FREE Agent MCP (All Tools)": {
+      "name": "FREE Agent MCP (All Tools)",
+      "tests": [
+        {
+          "name": "Code Generation",
+          "tool": "delegate_code_generation",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"free-agent-mcp\",\"version\":\"0.1.1\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n{\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"code\\\": \\\"```typescript // path/to/debounceFunction.ts\\\\nimport { debounce } from 'lodash';\\\\n\\\\nexport const createDebouncedFunction = (): (param1: any) => void => {\\\\n  const originalFn = (param1: any): void => {};\\\\n\\\\n  return debounce(originalFn, 500); // Debounce function with a delay of 5",
+          "error": null
+        },
+        {
+          "name": "Code Analysis",
+          "tool": "delegate_code_analysis",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"free-agent-mcp\",\"version\":\"0.1.1\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n",
+          "error": null
+        },
+        {
+          "name": "Code Refactoring",
+          "tool": "delegate_code_refactoring",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"free-agent-mcp\",\"version\":\"0.1.1\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n⚠️  Docker not available - using local sandbox (less secure)\n\n🔄 Attempt 1/5\n  📝 Synthesizing code and tests...\n[Synthesize] Using ollama/qwen2.5-coder:7b\n",
+          "error": null
+        },
+        {
+          "name": "Test Generation",
+          "tool": "delegate_test_generation",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"free-agent-mcp\",\"version\":\"0.1.1\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n⚠️  Docker not available - using local sandbox (less secure)\n\n🔄 Attempt 1/4\n  📝 Synthesizing code and tests...\n[Synthesize] Using ollama/qwen2.5-coder:7b\n[Synthesize] Success! Files: 1, Tests: 1, Cost: $0.0000\n  🏃 Executing in sandbox...\nUsing cached dependencies (key: 5eb679bd7ad0fe2a)\n",
+          "error": null
+        },
+        {
+          "name": "Documentation",
+          "tool": "delegate_documentation",
+          "success": true,
+          "output": "{\"result\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"free-agent-mcp\",\"version\":\"0.1.1\"}},\"jsonrpc\":\"2.0\",\"id\":0}\n",
+          "error": null
+        }
+      ],
+      "passed": 5,
+      "failed": 0,
+      "issues": []
+    }
+  },
+  "issues": [],
+  "recommendations": [],
+  "summary": {
+    "totalTests": 29,
+    "totalPassed": 27,
+    "totalFailed": 2,
+    "percentage": 93,
+    "status": "⚠️ NEEDS FIXES"
+  }
+}
