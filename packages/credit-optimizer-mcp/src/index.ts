@@ -46,6 +46,8 @@ class CreditOptimizerServer {
   private costTracker: CostTracker;
   private parallelExecutor: ParallelExecutionEngine;
   private agentPool: AgentPool;
+  private initialized = false;
+  private initializing?: Promise<void>;
 
   constructor() {
     this.server = new Server(
@@ -77,40 +79,71 @@ class CreditOptimizerServer {
     this.setupHandlers();
   }
 
+  private async ensureInitialized(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
+    if (!this.initializing) {
+      this.initializing = (async () => {
+        try {
+          await this.initialize();
+          this.initialized = true;
+        } finally {
+          this.initializing = undefined;
+        }
+      })();
+    }
+
+    return this.initializing;
+  }
+
   private async initialize(): Promise<void> {
     // Index all tools from Robinson's Toolkit
     await this.toolIndexer.indexAllTools();
-    
+
     // Initialize default templates
     await this.templates.initializeDefaultTemplates();
-    
+
     // Clear expired cache
     this.db.clearExpiredCache();
   }
 
   private setupHandlers(): void {
     // Handle initialize request
-    this.server.setRequestHandler(InitializeRequestSchema, async (request) => ({
-      protocolVersion: "2024-11-05",
-      capabilities: {
-        tools: {},
-      },
-      serverInfo: {
-        name: "credit-optimizer-mcp",
-        version: "0.1.1",
-      },
-    }));
+    this.server.setRequestHandler(InitializeRequestSchema, async (request) => {
+      try {
+        await this.ensureInitialized();
+      } catch (error) {
+        console.error('[CreditOptimizer] Initialization failed:', error);
+      }
+
+      return {
+        protocolVersion: "2024-11-05",
+        capabilities: {
+          tools: {},
+        },
+        serverInfo: {
+          name: "credit-optimizer-mcp",
+          version: "0.1.1",
+        },
+      };
+    });
 
     // List available tools
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: this.getTools(),
-    }));
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      await this.ensureInitialized();
+      return {
+        tools: this.getTools(),
+      };
+    });
 
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
 
       try {
+        await this.ensureInitialized();
         const startTime = Date.now();
         let result: any;
         const params = args as any || {};
