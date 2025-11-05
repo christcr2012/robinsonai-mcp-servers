@@ -1,7 +1,7 @@
 {
   "name": "@robinson_ai_systems/thinking-tools-mcp",
-  "version": "1.19.1",
-  "description": "Comprehensive Thinking Tools MCP - 24 cognitive frameworks + Context Engine with semantic search + Documentation Intelligence",
+  "version": "1.20.0",
+  "description": "Comprehensive Thinking Tools MCP - 24 cognitive frameworks + Context Engine with semantic search + Documentation Intelligence + Memory System + Multi-Language Support",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
