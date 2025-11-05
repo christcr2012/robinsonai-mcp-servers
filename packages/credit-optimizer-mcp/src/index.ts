@@ -46,6 +46,18 @@ class CreditOptimizerServer {
   private costTracker: CostTracker;
   private parallelExecutor: ParallelExecutionEngine;
   private agentPool: AgentPool;
+  private initialized: boolean = false;
+  private initializationError: Error | null = null;
+  private initializationPromise: Promise<void> | null = null;
+  private readonly toolsRequiringIndex = new Set<string>([
+    'discover_tools',
+    'suggest_workflow',
+    'list_tools_by_category',
+    'list_tools_by_server',
+    'get_tool_details',
+    'find_similar_tools',
+    'get_workflow_suggestions',
+  ]);
 
   constructor() {
     this.server = new Server(
@@ -80,12 +92,41 @@ class CreditOptimizerServer {
   private async initialize(): Promise<void> {
     // Index all tools from Robinson's Toolkit
     await this.toolIndexer.indexAllTools();
-    
+
     // Initialize default templates
     await this.templates.initializeDefaultTemplates();
-    
+
     // Clear expired cache
     this.db.clearExpiredCache();
+
+    this.initialized = true;
+    this.initializationError = null;
+  }
+
+  private async ensureInitialized(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
+    if (!this.initializationPromise) {
+      this.initializationPromise = this.initialize().catch((error) => {
+        const err = error instanceof Error ? error : new Error(String(error));
+        this.initializationError = err;
+        this.initialized = false;
+        console.error('[CreditOptimizer] Initialization failed:', err.message);
+        throw err;
+      }).finally(() => {
+        this.initializationPromise = null;
+      });
+    }
+
+    try {
+      await this.initializationPromise;
+    } catch (error) {
+      if (this.initializationError) {
+        throw this.initializationError;
+      }
+    }
   }
 
   private setupHandlers(): void {
@@ -114,6 +155,14 @@ class CreditOptimizerServer {
         const startTime = Date.now();
         let result: any;
         const params = args as any || {};
+
+        if (this.toolsRequiringIndex.has(name)) {
+          try {
+            await this.ensureInitialized();
+          } catch (error) {
+            console.error(`[CreditOptimizer] Proceeding without full index for ${name}:`, (error as Error)?.message ?? error);
+          }
+        }
 
         // Tool Discovery
         if (name === 'discover_tools') {
@@ -1061,7 +1110,7 @@ class CreditOptimizerServer {
     // Kick off initialization asynchronously after connect, unless explicitly skipped
     if (process.env.CREDIT_OPTIMIZER_SKIP_INDEX !== '1') {
       setTimeout(() => {
-        this.initialize().catch((err) => {
+        this.ensureInitialized().catch((err) => {
           console.error('Non-fatal: initialization failed:', err?.message || err);
         });
       }, 0);
