@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/thinking-tools-mcp",
-  "version": "1.20.1",
+  "version": "1.20.2",
   "description": "Comprehensive Thinking Tools MCP - 24 cognitive frameworks + Context Engine with semantic search + Documentation Intelligence + Memory System + Multi-Language Support",
   "type": "module",
   "main": "dist/index.js",
@@ -65,7 +65,7 @@
     "slash": "^5.1.0",
     "slugify": "^1.6.6",
     "string-strip-html": "^13.5.0",
-    "tree-sitter": "^0.22.6",
+    "tree-sitter": "^0.22.4",
     "tree-sitter-cpp": "^0.20.0",
     "tree-sitter-go": "^0.20.0",
     "tree-sitter-java": "^0.20.0",
