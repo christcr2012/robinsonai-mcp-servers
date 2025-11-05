@@ -219,18 +219,136 @@ const think_decision_matrix: ToolDef = {
     required: ["title","options","criteria","weights"]
   },
   handler: async ({ title, options, criteria, weights }) => {
-    if (weights.length !== criteria.length) throw new Error("weights length must equal criteria length");
-    const base = `decision--${title.slice(0,60)}--${iso()}`;
-    const scores = Object.fromEntries((options as string[]).map(o => [o, Object.fromEntries(criteria.map((c:string)=>[c,0]))]));
-    const json = { title, criteria, weights, scores, totals:{}, recommendation:"" };
-    const csv = ["option", ...criteria].join(",") + "\n" + (options as string[]).map(o => [o, ...criteria.map(()=>0)].join(",")).join("\n");
-    const md =
-`# Decision Matrix — ${title}
+    if (!Array.isArray(options) || options.length === 0) {
+      throw new Error("options array is required");
+    }
+    if (!Array.isArray(criteria) || criteria.length === 0) {
+      throw new Error("criteria array is required");
+    }
+    if (!Array.isArray(weights) || weights.length !== criteria.length) {
+      throw new Error("weights length must equal criteria length");
+    }
 
+    const trimmedTitle = (title || "Decision").trim();
+    const base = `decision--${trimmedTitle.slice(0,60)}--${iso()}`;
+
+    const totalWeight = weights.reduce((sum: number, w: number) => sum + (Number.isFinite(w) ? w : 0), 0);
+    const normalizedWeights = weights.map((w: number) => {
+      if (!Number.isFinite(w)) return 0;
+      if (totalWeight === 0) return Number((1 / criteria.length).toFixed(4));
+      return Number((w / totalWeight).toFixed(4));
+    });
+
+    const criteriaEntries = criteria.map((name: string, index: number) => ({
+      name,
+      weight: Number(weights[index] ?? 0),
+      normalizedWeight: normalizedWeights[index],
+      rank: index,
+    }));
+
+    const rankedCriteria = [...criteriaEntries].sort((a, b) => b.normalizedWeight - a.normalizedWeight);
+    rankedCriteria.forEach((entry, idx) => {
+      entry.rank = idx + 1;
+    });
+
+    const scoringScale = [
+      { score: 5, label: "Excellent", description: "Best possible fit / materially advances the goal" },
+      { score: 4, label: "Good", description: "Strong fit with only minor trade-offs" },
+      { score: 3, label: "Acceptable", description: "Meets requirements but requires mitigation" },
+      { score: 2, label: "Weak", description: "Significant gaps or risk that need resolution" },
+      { score: 1, label: "Poor", description: "Does not satisfy the criterion" },
+      { score: 0, label: "N/A", description: "Criterion does not apply" },
+    ];
+
+    const optionRows = (options as string[]).map((optionName: string) => ({
+      option: optionName,
+      evaluations: criteriaEntries.map((criterion) => ({
+        criterion: criterion.name,
+        weight: criterion.weight,
+        normalizedWeight: criterion.normalizedWeight,
+        score: null as number | null,
+        rationale: "",
+        weightedScore: null as number | null,
+      })),
+      totalScore: null as number | null,
+      confidence: null as number | null,
+      notes: "",
+    }));
+
+    const csvHeader = ["option", "criterion", "weight", "normalized_weight", "score", "weighted_score", "rationale"];
+    const csvRows = optionRows
+      .map((row) =>
+        row.evaluations
+          .map((evaluation) => [
+            row.option,
+            evaluation.criterion,
+            evaluation.weight,
+            evaluation.normalizedWeight,
+            "",
+            "",
+            "",
+          ].join(","))
+          .join("\n")
+      )
+      .join("\n");
+    const csv = `${csvHeader.join(",")}\n${csvRows}`;
+
+    const topCriteria = rankedCriteria.slice(0, Math.min(3, rankedCriteria.length));
+
+    const json = {
+      title: trimmedTitle,
+      generatedAt: iso(),
+      totalWeight,
+      scoringScale,
+      criteria: rankedCriteria,
+      options: optionRows,
+      recommendation: {
+        status: "pending",
+        nextSteps: [
+          "Interview stakeholders for qualitative input before scoring.",
+          "Populate the matrix with 0-5 scores and rationales for each criterion.",
+          "Review the weighted totals and document the final recommendation.",
+        ],
+        focusAreas: topCriteria.map((entry) => ({
+          criterion: entry.name,
+          normalizedWeight: entry.normalizedWeight,
+          guidance: `Spend extra time validating evidence for ${entry.name}.`,
+        })),
+      },
+    };
+
+    const criteriaTable = rankedCriteria
+      .map((entry) => `| ${entry.rank} | ${entry.name} | ${entry.weight} | ${entry.normalizedWeight} |`)
+      .join("\n");
+
+    const scaleTable = scoringScale
+      .map((row) => `| ${row.score} | ${row.label} | ${row.description} |`)
+      .join("\n");
+
+    const md =
+`# Decision Matrix — ${trimmedTitle}
+
+## Criteria Priority
+| Rank | Criterion | Weight | Normalized |
+| ---: | --- | ---: | ---: |
+${criteriaTable}
+
+## Scoring Scale (0–5)
+| Score | Label | Guidance |
+| ---: | --- | --- |
+${scaleTable}
+
+## Next Steps
+- Interview or review stakeholders for the top-weighted criteria: ${topCriteria.map((c) => c.name).join(", ") || "(all criteria equal)"}.
+- Capture evidence and rationale for each option/criterion pairing.
+- Sum the weighted scores and record the final recommendation.
+
+## CSV Template
 \`\`\`csv
 ${csv}
 \`\`\`
 `;
+
     return { ok: true, ...(await write(base, json, md)) };
   }
 };

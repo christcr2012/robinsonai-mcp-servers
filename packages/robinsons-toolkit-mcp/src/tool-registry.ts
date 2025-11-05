@@ -134,23 +134,82 @@ export class ToolRegistry {
   /**
    * Search for tools by keyword
    */
-  searchTools(query: string, limit: number = 10): Array<{ category: string; tool: ToolSchema }> {
-    const results: Array<{ category: string; tool: ToolSchema }> = [];
-    const lowerQuery = query.toLowerCase();
+  searchTools(query: string, limit: number = 10): Array<{ category: string; tool: ToolSchema; score: number; matched: string[] }> {
+    const trimmed = query.trim().toLowerCase();
+    if (!trimmed) {
+      return [];
+    }
+
+    const terms = Array.from(new Set(trimmed.split(/\s+/).filter(Boolean)));
+    if (terms.length === 0) {
+      return [];
+    }
+
+    const results: Array<{ category: string; tool: ToolSchema; score: number; matched: string[] }> = [];
+
+    const normalise = (value: string | undefined): string => {
+      if (!value) return '';
+      return value
+        .toLowerCase()
+        .replace(/[_-]+/g, ' ')
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ') // collapse whitespace for reliable includes()
+        .trim();
+    };
+
+    const collectSchemaHints = (tool: ToolSchema): string => {
+      const props = tool.inputSchema?.properties ?? {};
+      const keys = Object.keys(props);
+      if (keys.length === 0) {
+        return '';
+      }
+      const descriptions = keys
+        .map((key) => {
+          const prop = props[key];
+          const desc = typeof prop?.description === 'string' ? prop.description : '';
+          const enumValues = Array.isArray(prop?.enum) ? prop.enum.join(' ') : '';
+          return `${key} ${desc} ${enumValues}`;
+        })
+        .join(' ');
+      return descriptions;
+    };
 
     for (const [category, tools] of this.toolsByCategory.entries()) {
       for (const tool of tools.values()) {
-        if (
-          tool.name.toLowerCase().includes(lowerQuery) ||
-          tool.description.toLowerCase().includes(lowerQuery)
-        ) {
-          results.push({ category, tool });
-          if (results.length >= limit) return results;
+        const haystacks: Record<string, string> = {
+          name: normalise(tool.name),
+          description: normalise(tool.description),
+          schema: normalise(collectSchemaHints(tool)),
+          category,
+        };
+
+        const matchedFields = new Set<string>();
+        let score = 0;
+
+        for (const term of terms) {
+          for (const [field, text] of Object.entries(haystacks)) {
+            if (!text) continue;
+            if (text.includes(term)) {
+              score += 1;
+              matchedFields.add(field);
+              break; // Avoid double counting this term on other fields
+            }
+          }
+        }
+
+        if (score > 0) {
+          results.push({ category, tool, score, matched: Array.from(matchedFields) });
         }
       }
     }
 
-    return results;
+    results.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.category !== b.category) return a.category.localeCompare(b.category);
+      return a.tool.name.localeCompare(b.tool.name);
+    });
+
+    return results.slice(0, limit);
   }
 
   /**

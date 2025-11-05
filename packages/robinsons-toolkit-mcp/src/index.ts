@@ -324,14 +324,27 @@ class UnifiedToolkit {
               }]
             };
 
-          case 'toolkit_discover':
+          case 'toolkit_discover': {
             const discovered = this.registry.searchTools(args.query, args.limit || 10);
             return {
               content: [{
                 type: 'text',
-                text: JSON.stringify(discovered, null, 2)
+                text: JSON.stringify({
+                  query: args.query,
+                  limit: args.limit || 10,
+                  results: discovered.map(entry => ({
+                    category: entry.category,
+                    name: entry.tool.name,
+                    description: entry.tool.description,
+                    score: entry.score,
+                    matched: entry.matched,
+                    inputSchema: entry.tool.inputSchema,
+                  })),
+                  total: discovered.length
+                }, null, 2)
               }]
             };
+          }
 
           case 'toolkit_call':
             // Execute the actual tool server-side
