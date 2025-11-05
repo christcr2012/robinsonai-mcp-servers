@@ -59,9 +59,36 @@ See PHASE_0.5_AGENT_COORDINATION.md for complete details.
 
 ## 📋 **EXECUTION ORDER (CRITICAL)**
 
-### **PHASE 0: COMPREHENSIVE OpenAI MCP (6-8 hours) ⚡ HIGHEST PRIORITY**
+### **PHASE 0: RAD Crawler + CleverChatty Integration (4-6 weeks) ⚡ NEW PRIORITY**
 
-**Why First:** User's agents are "practically useless" because they don't coordinate. Agents SDK fixes this immediately.
+**Why First:** RAD Crawler replaces CleverChatty's RAG/Memory interfaces AND provides self-replication. This is the foundation for everything else.
+
+**Goal:** Integrate RAD Crawler with CleverChatty A2A protocol + Multi-Transport MCP
+
+**What to Build:**
+1. **Phase 1 (Week 1-2):** RAD Crawler as RAG + Memory interface
+2. **Phase 2 (Week 3):** A2A Protocol integration (agent-to-agent communication)
+3. **Phase 3 (Week 4):** Multi-Transport MCP (HTTP + SSE support)
+4. **Phase 4 (Week 5-6):** Self-Replication (Fly.io + Docker integration)
+
+**Key Benefits:**
+- ✅ RAD Crawler provides RAG + Memory (replaces CleverChatty's interfaces)
+- ✅ A2A Protocol enables multi-agent communication
+- ✅ Multi-Transport MCP enables remote/cloud MCP servers
+- ✅ Self-Replication spawns unlimited RAD instances
+- ✅ Shared Knowledge "Treasure Trove" - all agents learn from each other
+
+**Deliverable:** Next-generation multi-agent system with universal knowledge access
+
+**See:** `RAD-CLEVERCHATTY-INTEGRATION-PLAN.md` for detailed breakdown
+
+---
+
+### **PHASE 0.5: COMPREHENSIVE OpenAI MCP (6-8 hours) - DEFERRED**
+
+**Status:** DEFERRED until after RAD Crawler integration
+
+**Why Deferred:** RAD Crawler + A2A protocol provides better multi-agent coordination than OpenAI Agents SDK alone.
 
 **Goal:** Expand OpenAI MCP from 110 → 259 tools
 
@@ -325,7 +352,15 @@ npm run build
 
 ## 🎯 **SUCCESS CRITERIA**
 
-### **Phase 0 Complete When:**
+### **Phase 0 (RAD + CleverChatty) Complete When:**
+- ✅ RAD Crawler provides RAG interface
+- ✅ RAD Crawler provides Memory interface
+- ✅ A2A Protocol working (agent-to-agent communication)
+- ✅ Multi-Transport MCP working (HTTP + SSE)
+- ✅ Self-Replication working (one-command spawning)
+- ✅ Shared Knowledge "Treasure Trove" operational
+
+### **Phase 0.5 (OpenAI MCP) Complete When:**
 - ✅ OpenAI MCP has 259 tools (up from 110)
 - ✅ Agents SDK working (multi-agent coordination)
 - ✅ All tools have real implementations (no placeholders)
@@ -343,6 +378,31 @@ npm run build
 - ✅ Shared knowledge base working
 - ✅ All agents coordinate via Redis
 - ✅ One-command deployment working
+
+---
+
+## 📚 **KEY DOCUMENTATION REFERENCES**
+
+### **Integration Plans:**
+- **`RAD-CLEVERCHATTY-INTEGRATION-PLAN.md`** - RAD Crawler + CleverChatty integration (4-6 weeks)
+- **`RAD-CRAWLER-VS-CLEVERCHATTY-ANALYSIS.md`** - Why RAD is superior to CleverChatty RAG/Memory
+- **`CLEVERCHATTY-INTEGRATION-ANALYSIS.md`** - CleverChatty features and benefits
+- **`RAD_CRAWLER_MASTER_PLAN_V2.md`** - RAD Crawler master plan (self-replication, shared knowledge)
+
+### **System Architecture:**
+- **`COMPREHENSIVE_TOOLKIT_EXPANSION_SPEC.md`** - Toolkit expansion plan (1000+ tools)
+- **`OPENAI_MCP_COMPREHENSIVE_SPEC.md`** - OpenAI MCP expansion (259 tools)
+- **`PHASE_0.5_AGENT_COORDINATION.md`** - Agent coordination system (completed)
+
+### **Context Engine:**
+- **`AUGMENT-VS-ROBINSON-CONTEXT-ENGINE-COMPARISON.md`** - Head-to-head comparison
+- **`ROBINSONS-GAPS-SOLUTION-ANALYSIS.md`** - 6/8 gaps solvable in MCP
+- **`GAPS-ANALYSIS-DETAILED.md`** - Detailed gap analysis
+
+### **Status Reports:**
+- **`100-PERCENT-READINESS-REPORT.md`** - Production readiness (29/29 tests passing)
+- **`HANDOFF_COMPLETE_SUMMARY.md`** - What was completed before this handoff
+- **`PROJECT_STATUS.md`** - Current project status
 
 ---
 
