@@ -8,6 +8,33 @@ import { resolveWorkspaceRoot } from './workspace.js';
 import { ContextEngine } from '../context/engine.js';
 import { EvidenceStore } from '../context/evidence.js';
 
+function ensureScores(items: any[], fallbackStart: number, limit?: number): any[] {
+  const capped = typeof limit === 'number' ? items.slice(0, limit) : items;
+  return capped.map((item, idx) => {
+    if (!item || typeof item !== 'object') {
+      return item;
+    }
+
+    const numericScore = typeof item.score === 'number' && Number.isFinite(item.score)
+      ? item.score
+      : undefined;
+
+    if (numericScore !== undefined) {
+      return item;
+    }
+
+    const rankScore = typeof item.rank === 'number' && Number.isFinite(item.rank)
+      ? 1 / Math.max(1, item.rank + 1)
+      : undefined;
+
+    const fallback = Math.max(0.01, fallbackStart - idx * 0.05);
+    return {
+      ...item,
+      score: rankScore ?? fallback,
+    };
+  });
+}
+
 export type ServerContext = {
   workspaceRoot: string;
   convoId: string;
@@ -47,10 +74,13 @@ export function buildServerContext(args: any): ServerContext {
   const rankingMode = () => _ranking;
 
   const blendedSearch = async (q: string, k = 12) => {
-    const local = await ctx.search(q, k);
-    const imported = await evidence.find({ source: 'context7', text: q });
+    const localRaw = await ctx.search(q, k);
+    const importedRaw = await evidence.find({ source: 'context7', text: q });
 
-    if (_ranking === 'local') return local;
+    const local = ensureScores(localRaw, 0.85, k);
+    const imported = ensureScores(importedRaw, 0.65, k);
+
+    if (_ranking === 'local') return local.slice(0, k);
     if (_ranking === 'imported') return imported.slice(0, k);
 
     // Blend: interleave by score (if present), otherwise alternate

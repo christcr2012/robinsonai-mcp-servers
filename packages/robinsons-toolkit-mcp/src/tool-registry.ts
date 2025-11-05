@@ -226,6 +226,7 @@ export class ToolRegistry {
     if (toolName.startsWith('vercel_')) return 'vercel';
     if (toolName.startsWith('neon_')) return 'neon';
     if (toolName.startsWith('upstash_')) return 'upstash'; // Handles both upstash_redis_ and upstash_
+    if (toolName.startsWith('openai_')) return 'openai';
 
     // Google Workspace tools use various prefixes (gmail_, drive_, calendar_, sheets_, docs_, etc.)
     if (toolName.startsWith('gmail_') ||
