@@ -18,7 +18,31 @@ export function extractSymbols(langExt: string, text: string): string[] {
   if (['.go'].includes(langExt)) {
     add((text.match(/func\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/g) || []).map(s=>s.split(/\s+/)[1].replace('(','').trim()));
   }
-  // Java/Rust are similar – add if needed
+  // Java
+  if (['.java'].includes(langExt)) {
+    add((text.match(/class\s+([A-Za-z_][A-Za-z0-9_]*)/g) || []).map(s=>s.split(/\s+/)[1]));
+    add((text.match(/interface\s+([A-Za-z_][A-Za-z0-9_]*)/g) || []).map(s=>s.split(/\s+/)[1]));
+    add((text.match(/enum\s+([A-Za-z_][A-Za-z0-9_]*)/g) || []).map(s=>s.split(/\s+/)[1]));
+    add((text.match(/(?:public\s+)?(?:static\s+)?[A-Za-z0-9_<>\[\]]+\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/g) || [])
+      .map(s => s.replace(/.*\s+/, '').replace('(', '').trim()));
+  }
+  // Rust
+  if (['.rs'].includes(langExt)) {
+    add((text.match(/fn\s+([A-Za-z_][A-Za-z0-9_]*)/g) || []).map(s=>s.split(/\s+/)[1]));
+    add((text.match(/struct\s+([A-Za-z_][A-Za-z0-9_]*)/g) || []).map(s=>s.split(/\s+/)[1]));
+    add((text.match(/enum\s+([A-Za-z_][A-Za-z0-9_]*)/g) || []).map(s=>s.split(/\s+/)[1]));
+    add((text.match(/trait\s+([A-Za-z_][A-Za-z0-9_]*)/g) || []).map(s=>s.split(/\s+/)[1]));
+  }
+  // C/C++
+  if (['.cpp','.cc','.cxx','.c','.h','.hpp','.hh'].includes(langExt)) {
+    add((text.match(/([A-Za-z_][A-Za-z0-9_:<>]*)\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/g) || [])
+      .map(s=>{
+        const parts = s.replace('(', '').trim().split(/\s+/);
+        return parts[parts.length-1];
+      }));
+    add((text.match(/class\s+([A-Za-z_][A-Za-z0-9_]*)/g) || []).map(s=>s.split(/\s+/)[1]));
+    add((text.match(/struct\s+([A-Za-z_][A-Za-z0-9_]*)/g) || []).map(s=>s.split(/\s+/)[1]));
+  }
 
   return Array.from(out).slice(0, 200); // cap
 }

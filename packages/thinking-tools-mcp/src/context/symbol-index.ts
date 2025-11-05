@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import fg from 'fast-glob';
+import { extractSymbolsForFile } from './languages.js';
 
 export interface Symbol {
   name: string;
@@ -26,8 +27,8 @@ export async function buildSymbolIndex(repoRoot = process.cwd()): Promise<Symbol
   const symbols: Symbol[] = [];
   const files: string[] = [];
 
-  // Find all TypeScript/JavaScript files
-  const sourceFiles = await fg(['**/*.{ts,tsx,js,jsx}'], {
+  // Find all supported source files
+  const sourceFiles = await fg(['**/*.{ts,tsx,js,jsx,py,go,java,rs,cpp,cxx,cc,h,hpp,hh}'], {
     cwd: repoRoot,
     ignore: [
       '**/node_modules/**',
@@ -45,8 +46,12 @@ export async function buildSymbolIndex(repoRoot = process.cwd()): Promise<Symbol
 
   for (const file of sourceFiles) {
     files.push(file);
-    const fileSymbols = extractSymbols(file, repoRoot);
-    symbols.push(...fileSymbols);
+    try {
+      const fileSymbols = await extractSymbolsForFile(file, repoRoot);
+      symbols.push(...fileSymbols.map(s => ({ ...s })));
+    } catch (error) {
+      console.warn(`[buildSymbolIndex] Failed to extract symbols for ${file}:`, (error as Error).message);
+    }
   }
 
   // Build lookup maps
@@ -75,68 +80,6 @@ export async function buildSymbolIndex(repoRoot = process.cwd()): Promise<Symbol
 /**
  * Extract symbols from a single file
  */
-function extractSymbols(filePath: string, repoRoot: string): Symbol[] {
-  const symbols: Symbol[] = [];
-  
-  try {
-    const content = fs.readFileSync(filePath, 'utf8');
-    const lines = content.split('\n');
-    const relativePath = path.relative(repoRoot, filePath);
-
-    // Regex patterns for different symbol types
-    const patterns = [
-      // Functions: export function foo() / function foo()
-      { regex: /^(export\s+)?(async\s+)?function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'function' as const },
-      
-      // Arrow functions: export const foo = () => / const foo = async () =>
-      { regex: /^(export\s+)?const\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(async\s+)?\(/gm, type: 'const' as const },
-      
-      // Classes: export class Foo / class Foo
-      { regex: /^(export\s+)?(abstract\s+)?class\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'class' as const },
-      
-      // Interfaces: export interface Foo / interface Foo
-      { regex: /^(export\s+)?interface\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'interface' as const },
-      
-      // Types: export type Foo / type Foo
-      { regex: /^(export\s+)?type\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'type' as const },
-      
-      // Enums: export enum Foo / enum Foo
-      { regex: /^(export\s+)?enum\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/gm, type: 'enum' as const },
-      
-      // Exported constants: export const FOO
-      { regex: /^export\s+const\s+([A-Z_][A-Z0-9_]*)\s*=/gm, type: 'const' as const }
-    ];
-
-    for (const pattern of patterns) {
-      let match;
-      while ((match = pattern.regex.exec(content)) !== null) {
-        const isExported = match[1] !== undefined;
-        const name = pattern.type === 'function' || pattern.type === 'class' || pattern.type === 'interface' || pattern.type === 'type' || pattern.type === 'enum'
-          ? match[3] || match[2]
-          : match[2] || match[1];
-
-        if (!name) continue;
-
-        // Find line number
-        const lineNumber = content.substring(0, match.index).split('\n').length;
-
-        symbols.push({
-          name,
-          type: pattern.type,
-          file: relativePath,
-          line: lineNumber,
-          isPublic: isExported || /^[A-Z]/.test(name), // Exported or PascalCase
-          isExported
-        });
-      }
-    }
-  } catch (error) {
-    console.error(`[extractSymbols] Error processing ${filePath}:`, error);
-  }
-
-  return symbols;
-}
-
 /**
  * Find symbol definition by name
  */

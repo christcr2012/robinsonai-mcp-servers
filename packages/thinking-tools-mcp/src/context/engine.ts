@@ -5,7 +5,7 @@
 
 import { indexRepo } from './indexer.js';
 import { hybridQuery } from './search.js';
-import { getStats, loadChunks } from './store.js';
+import { applyStoragePolicy, getStats } from './store.js';
 import { EvidenceStore } from './evidence.js';
 import { FileWatcher } from './watcher.js';
 import { getQueryCache } from './cache.js';
@@ -21,6 +21,10 @@ import type { Chunk, IndexStats, Hit } from './types.js';
 import { rerankCodeFirst, type Candidate } from './rankers/code_first.js';
 import { docHints, rerankDocs } from './rankers/doc_first.js';
 import { loadDocs } from './store.js';
+import { BehaviorMemory } from './memory/behavior.js';
+import { StyleLearner } from './memory/style.js';
+import { ArchitectureMemory } from './memory/architecture.js';
+import { QuickSearch } from './quick-search.js';
 
 // Import graph type
 type ImportGraph = Array<{ from: string; to: string }>;
@@ -43,9 +47,31 @@ export class ContextEngine {
   private symbolIndex: SymbolIndex | null = null;
   private importGraph: ImportGraph | null = null;
   private indexed: boolean = false;
+  private indexingPromise: Promise<void> | null = null;
+  private backgroundIndexing: boolean = false;
+  private readonly lazyIndexing: boolean;
+  private readonly memory: BehaviorMemory;
+  private readonly styleLearner: StyleLearner;
+  private readonly architectureMemory: ArchitectureMemory;
+  private readonly quickSearch: QuickSearch;
+  private styleAnalyzed = false;
+  private architectureAnalyzed = false;
+  private statsSignature: string | null = null;
+
+  private readonly handleIndexMutation = () => {
+    this.markDirty();
+    this.ensureIndexed().catch(error => {
+      console.error('[ContextEngine] Failed to refresh after file change:', error);
+    });
+  };
 
   private constructor(private root: string) {
     this.evidence = new EvidenceStore(this.root);
+    this.memory = BehaviorMemory.forRoot(this.root);
+    this.styleLearner = new StyleLearner(this.memory);
+    this.architectureMemory = new ArchitectureMemory(this.root, this.memory);
+    this.quickSearch = new QuickSearch(this.root);
+    this.lazyIndexing = (process.env.RCE_LAZY_INDEX ?? '1') !== '0';
 
     // Start file watcher if enabled
     const autoWatch = process.env.CTX_AUTO_WATCH === '1' || process.env.CTX_AUTO_WATCH === 'true';
@@ -54,43 +80,75 @@ export class ContextEngine {
     }
   }
 
+  private markCachesDirty(): void {
+    this.symbolIndex = null;
+    this.importGraph = null;
+    this.styleAnalyzed = false;
+    this.architectureAnalyzed = false;
+  }
+
+  private markDirty(): void {
+    this.markCachesDirty();
+    this.statsSignature = null;
+    this.indexed = false;
+    getQueryCache().invalidate();
+  }
+
+  async reloadFromDisk(): Promise<void> {
+    this.markDirty();
+    await this.ensureIndexed();
+  }
+
+  private computeStatsSignature(stats?: IndexStats | null): string | null {
+    if (!stats) return null;
+    const embeddings = typeof stats.embeddings === 'number' ? stats.embeddings : Number(stats.embeddings ?? 0);
+    const updatedAt = stats.updatedAt ?? stats.indexedAt ?? '';
+    return `${updatedAt}|${stats.chunks ?? 0}|${embeddings}`;
+  }
+
   /**
    * Ensure repository is indexed (embeddings + BM25 + symbols)
    */
   async ensureIndexed(): Promise<void> {
-    if (this.indexed) {
+    if (this.indexed) return;
+
+    const stats = await getStats();
+    if (stats && stats.chunks > 0) {
+      this.indexed = true;
+      await this.refreshAnalysis(stats);
+      this.logStorageUsage();
       return;
     }
 
-    try {
-      const stats = await getStats();
-      if (stats && stats.chunks > 0) {
-        console.log(`[ContextEngine] Already indexed: ${stats.chunks} chunks`);
-        this.indexed = true;
-
-        // Build symbol index if not already built
-        if (!this.symbolIndex) {
-          console.log('[ContextEngine] Building symbol index...');
-          this.symbolIndex = await buildSymbolIndex(this.root);
-          console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
-        }
-
-        return;
+    if (this.indexingPromise) {
+      if (!this.lazyIndexing) {
+        await this.indexingPromise;
       }
+      return;
+    }
 
-      console.log('[ContextEngine] Indexing repository...');
-      const result = await indexRepo();
-      console.log(`[ContextEngine] ✅ Indexed: ${result.files} files, ${result.chunks} chunks`);
+    const runIndex = async () => {
+      try {
+        console.log(`[ContextEngine] ${this.lazyIndexing ? 'Background indexing' : 'Indexing'} repository...`);
+        await indexRepo(this.root, { quick: this.lazyIndexing });
+        this.indexed = true;
+        const latest = await getStats();
+        await this.refreshAnalysis(latest, true);
+        this.logStorageUsage();
+      } catch (error: any) {
+        console.error('[ContextEngine] Indexing failed:', error.message);
+      } finally {
+        this.indexingPromise = null;
+        this.backgroundIndexing = false;
+      }
+    };
 
-      // Build symbol index
-      console.log('[ContextEngine] Building symbol index...');
-      this.symbolIndex = await buildSymbolIndex(this.root);
-      console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
-
-      this.indexed = true;
-    } catch (error: any) {
-      console.error('[ContextEngine] Indexing failed:', error.message);
-      // Don't throw - allow tools to work without full index
+    if (this.lazyIndexing) {
+      this.backgroundIndexing = true;
+      this.indexingPromise = runIndex();
+    } else {
+      this.indexingPromise = runIndex();
+      await this.indexingPromise;
     }
   }
 
@@ -108,6 +166,11 @@ export class ContextEngine {
 
     // Detect query intent
     const { wantsDocs } = docHints(query);
+
+    // Run quick lexical search while index warms
+    const quickHits = (!this.indexed || this.backgroundIndexing)
+      ? await this.quickSearch.search(query, Math.max(3, Math.ceil(k / 2)))
+      : [];
 
     // Doc-first path: search documentation records
     if (wantsDocs) {
@@ -130,7 +193,13 @@ export class ContextEngine {
     const results: Hit[] = await hybridQuery(query, shortlistSize);
 
     if (results.length === 0) {
-      return [];
+      return quickHits.slice(0, k).map(hit => ({
+        uri: hit.uri,
+        title: hit.title,
+        snippet: hit.snippet,
+        score: hit.score,
+        source: hit.source,
+      }));
     }
 
     // Get query embedding for reranker
@@ -138,14 +207,28 @@ export class ContextEngine {
     const [qVec] = await embedBatch([query]);
 
     // Convert to reranker format
-    const candidates: Candidate[] = results.map(r => ({
-      uri: r.chunk.uri,
-      title: r.chunk.title || r.chunk.uri,
-      text: r.chunk.text,
-      vec: r.chunk.vec, // Include chunk vector if available
-      lexScore: r.score, // Pass hybrid score as lexical score
-      meta: r.chunk.meta // Include symbol metadata
-    }));
+    const candidates: Candidate[] = results.map(r => {
+      const style = this.memory.styleBoost(r.chunk.text);
+      const architecture = this.memory.architectureBoost(r.chunk.uri);
+      const usage = this.memory.usageBoost(r.chunk.uri);
+
+      return {
+        uri: r.chunk.uri,
+        title: r.chunk.title || r.chunk.uri,
+        text: r.chunk.text,
+        vec: r.chunk.vec, // Include chunk vector if available
+        lexScore: r.score, // Pass hybrid score as lexical score
+        meta: {
+          ...r.chunk.meta,
+          architectureTags: architecture.tags,
+        },
+        boosts: {
+          style,
+          architecture: architecture.score,
+          usage,
+        },
+      };
+    });
 
     // Rerank with code-first heuristics
     const top50 = rerankCodeFirst(query, candidates, qVec).slice(0, 50);
@@ -159,12 +242,38 @@ export class ContextEngine {
       : top50;
 
     // Format results
-    return final.slice(0, k).map(r => ({
+    const formatted = final.slice(0, k).map(r => ({
       uri: r.uri,
       title: r.title,
       snippet: r.text.substring(0, 620), // Longer snippets for better context
-      score: r.score
+      score: r.score,
+      source: 'workspace',
+      meta: {
+        architecture: r.meta?.architectureTags ?? [],
+        styleBoost: r.boosts?.style ?? 0,
+        usageBoost: r.boosts?.usage ?? 0,
+      },
     }));
+
+    for (const hit of formatted) {
+      this.memory.recordUsage(hit.uri);
+    }
+
+    if (quickHits.length) {
+      const fallback = quickHits
+        .filter(hit => !formatted.some(r => r.uri === hit.uri))
+        .slice(0, Math.max(0, k - formatted.length))
+        .map(hit => ({
+          uri: hit.uri,
+          title: hit.title,
+          snippet: hit.snippet,
+          score: hit.score,
+          source: hit.source,
+        }));
+      return [...formatted, ...fallback].slice(0, k);
+    }
+
+    return formatted;
   }
 
   /**
@@ -311,9 +420,7 @@ export class ContextEngine {
    * Reset index (force re-indexing)
    */
   async reset(): Promise<void> {
-    this.indexed = false;
-    // Invalidate cache when index is reset
-    getQueryCache().invalidate();
+    this.markDirty();
     console.log('[ContextEngine] ✅ Index reset (will re-index on next search)');
   }
 
@@ -345,7 +452,10 @@ export class ContextEngine {
       return;
     }
 
-    this.watcher = new FileWatcher(this.root);
+    this.watcher = new FileWatcher(this.root, {
+      onFilesIndexed: this.handleIndexMutation,
+      onFilesDeleted: this.handleIndexMutation,
+    });
     this.watcher.start();
     console.log('[ContextEngine] ✅ File watcher started');
   }
@@ -366,6 +476,50 @@ export class ContextEngine {
    */
   isWatcherRunning(): boolean {
     return this.watcher?.isRunning() ?? false;
+  }
+
+  private async refreshAnalysis(stats?: IndexStats | null, force = false): Promise<void> {
+    const signature = this.computeStatsSignature(stats);
+    const changed = force || signature !== this.statsSignature;
+
+    if (changed) {
+      this.markCachesDirty();
+    }
+
+    if (!this.symbolIndex) {
+      console.log('[ContextEngine] Building symbol index...');
+      this.symbolIndex = await buildSymbolIndex(this.root);
+      console.log(`[ContextEngine] ✅ Symbol index built: ${this.symbolIndex.symbols.length} symbols`);
+    }
+
+    if (!this.importGraph) {
+      console.log('[ContextEngine] Building import graph...');
+      this.importGraph = buildImportGraph(this.root);
+      console.log(`[ContextEngine] ✅ Import graph built: ${this.importGraph.length} edges`);
+    }
+
+    if (!this.styleAnalyzed && this.symbolIndex) {
+      await this.styleLearner.analyze(this.symbolIndex.files);
+      this.styleAnalyzed = true;
+    }
+
+    if (!this.architectureAnalyzed && this.symbolIndex) {
+      this.architectureMemory.analyze(this.symbolIndex, this.importGraph ?? []);
+      this.architectureAnalyzed = true;
+    }
+
+    this.statsSignature = signature;
+  }
+
+  private logStorageUsage(): void {
+    const policy = applyStoragePolicy();
+    const usageMb = (policy.usage / (1024 * 1024)).toFixed(1);
+    if (policy.reclaimed > 0) {
+      const reclaimedMb = (policy.reclaimed / (1024 * 1024)).toFixed(1);
+      console.log(`[ContextEngine] Storage optimized: reclaimed ${reclaimedMb}MB (usage ${usageMb}MB / budget ${policy.budgetMb}MB)`);
+    } else {
+      console.log(`[ContextEngine] Storage usage ${usageMb}MB (budget ${policy.budgetMb}MB)`);
+    }
   }
 }
 

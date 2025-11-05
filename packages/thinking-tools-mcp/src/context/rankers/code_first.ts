@@ -17,7 +17,12 @@ export type Candidate = {
   uri: string; title: string; text: string;
   vec?: number[];        // optional dense vector (from indexer)
   lexScore?: number;     // BM25-like lexical score (stage-1)
-  meta?: { symbols?: string[]; lang?: string; lines?: number };
+  meta?: { symbols?: string[]; lang?: string; lines?: number; architectureTags?: string[] };
+  boosts?: {
+    style?: number;
+    architecture?: number;
+    usage?: number;
+  };
 };
 
 export type QueryHints = {
@@ -136,15 +141,21 @@ export function rerankCodeFirst(q: string, cands: Candidate[], qVec?: number[]) 
     const exact  = exactSymbolBoost(hints.methodNames, c.title, c.text);
     const sig    = presenceOfSignature(hints.methodNames, c.text);
     const clazz  = classOrIfaceHint(hints.classOrInterface, c.text);
+    const style  = Math.min(1, c.boosts?.style ?? 0);
+    const arch   = Math.min(1, c.boosts?.architecture ?? 0);
+    const usage  = Math.min(1, c.boosts?.usage ?? 0);
 
     // Implementation-aware fusion
     const score =
-      0.52 * base +
-      0.22 * dense +
-      0.14 * prior +
-      0.06 * prox +
+      0.45 * base +
+      0.18 * dense +
+      0.12 * prior +
+      0.05 * prox +
       0.04 * exact +
-      0.10 * (hints.wantsImpl ? (sig + clazz) : 0);
+      0.08 * (hints.wantsImpl ? (sig + clazz) : 0) +
+      0.04 * style +
+      0.04 * arch +
+      0.03 * usage;
 
     return { ...c, score };
   });

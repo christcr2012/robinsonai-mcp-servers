@@ -23,6 +23,7 @@ export async function contextIndexRepoTool(args: any, ctx: ServerContext) {
     // If force flag is set, call indexRepo directly with force option
     if (args?.force) {
       await indexRepo(ctx.workspaceRoot, { force: true });
+      await ctx.ctx.reloadFromDisk();
     } else {
       await ctx.ctx.ensureIndexed();
     }

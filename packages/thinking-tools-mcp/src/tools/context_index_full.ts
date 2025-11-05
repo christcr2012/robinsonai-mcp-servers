@@ -14,7 +14,8 @@ export async function contextIndexFullTool(_: {}, ctx: ServerContext) {
   try {
     // Force full rebuild by passing quick: false
     const res = await indexRepo(ctx.workspaceRoot, { quick: false, force: true });
-    
+    await ctx.ctx.reloadFromDisk();
+
     return {
       content: [{
         type: 'text' as const,

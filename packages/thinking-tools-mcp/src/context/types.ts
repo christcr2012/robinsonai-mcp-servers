@@ -13,7 +13,15 @@ export interface Chunk {
   tokens?: number;
   tags?: string[];
   vec?: number[];  // Optional embedding vector (for reranking)
-  meta?: { symbols?: string[]; lang?: string; lines?: number };  // Symbol extraction metadata
+  meta?: {
+    symbols?: string[];
+    lang?: string;
+    lines?: number;
+    architectureTags?: string[];
+  };  // Symbol extraction metadata
+  compressed?: boolean;
+  compressedSize?: number;
+  originalSize?: number;
 }
 
 export interface Embedding {

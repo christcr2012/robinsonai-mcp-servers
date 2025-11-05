@@ -7,6 +7,7 @@ import { state, SessionKey } from './state.js';
 import { resolveWorkspaceRoot } from './workspace.js';
 import { ContextEngine } from '../context/engine.js';
 import { EvidenceStore, EvidenceItem } from '../context/evidence.js';
+import { applyContextDefaults } from '../context/config.js';
 
 export type ServerContext = {
   workspaceRoot: string;
@@ -30,6 +31,8 @@ let _ranking: 'local' | 'imported' | 'blend' =
  * Extracts workspace root and conversation ID, provides state accessors
  */
 export function buildServerContext(args: any): ServerContext {
+  applyContextDefaults();
+
   const workspaceRoot = resolveWorkspaceRoot();
   const convoId = String(args?.convoId ?? args?.conversationId ?? 'default');
 
