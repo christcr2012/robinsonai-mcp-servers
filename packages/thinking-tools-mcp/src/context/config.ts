@@ -170,3 +170,10 @@ export function invalidateContextConfig(): void {
   cachedConfig = null;
   loadPromise = null;
 }
+
+/**
+ * Backward-compatible alias used by older tests/utilities.
+ */
+export function clearCachedContextConfig(): void {
+  invalidateContextConfig();
+}

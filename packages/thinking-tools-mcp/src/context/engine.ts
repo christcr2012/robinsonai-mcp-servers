@@ -29,6 +29,7 @@ import {
   type PatternSnapshot
 } from './pattern-store.js';
 import { loadContextConfig } from './config.js';
+import { QuickSearch, type QuickHit } from './quick-search.js';
 
 // Import graph type
 type ImportGraph = Array<{ from: string; to: string }>;
@@ -59,6 +60,7 @@ export class ContextEngine {
   private backgroundPromise: Promise<void> | null = null;
   private staleCheckInFlight = false;
   private lastStatsCheck = 0;
+  private quickSearch: QuickSearch | null = null;
 
   private constructor(private root: string) {
     this.evidence = new EvidenceStore(this.root);
@@ -165,6 +167,39 @@ export class ContextEngine {
       title: r.title,
       snippet: r.text.substring(0, 620), // Longer snippets for better context
       score: r.score
+    }));
+  }
+
+  /**
+   * Lightweight lexical fallback scan that does not require embeddings.
+   * Provides results while full indexing is unavailable.
+   */
+  async quickScan(query: string, limit: number = 8): Promise<Array<Record<string, any>>> {
+    const quick = this.quickSearch ??= new QuickSearch(this.root);
+    const maxHits = Math.max(1, Math.min(50, Math.floor(limit) || 8));
+
+    let hits: QuickHit[] = [];
+    try {
+      hits = await quick.search(query, maxHits);
+    } catch (error: any) {
+      console.warn('[ContextEngine] quickScan failed:', error?.message ?? error);
+      return [];
+    }
+
+    return hits.map(hit => ({
+      uri: hit.uri,
+      title: hit.title,
+      snippet: hit.snippet,
+      content: hit.snippet,
+      score: hit.score,
+      source: hit.source ?? 'quick',
+      _provider: 'lexical-fallback',
+      _method: 'lazy-scan',
+      meta: {
+        fallback: true,
+        source: hit.source ?? 'quick',
+        title: hit.title,
+      },
     }));
   }
 
@@ -321,6 +356,7 @@ export class ContextEngine {
     this.backgroundQueue = [];
     this.backgroundPromise = null;
     this.activeIndexPromise = null;
+    this.quickSearch = null;
     // Invalidate cache when index is reset
     getQueryCache().invalidate();
     console.log('[ContextEngine] ✅ Index reset (will re-index on next search)');
@@ -541,4 +577,3 @@ export class ContextEngine {
     }
   }
 }
-
