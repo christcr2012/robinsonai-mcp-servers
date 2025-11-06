@@ -83,6 +83,27 @@ function getAnthropic(): Anthropic {
 
 type VoyageChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
+/**
+ * Type-safe tool response structure (from PR #19)
+ * Ensures consistent response format across all tool handlers
+ */
+type ToolResponse = {
+  content: Array<{ type: 'text'; text: string }>;
+  isError?: boolean;
+};
+
+/**
+ * Helper function to create consistent tool responses (from PR #19)
+ * Keeps text-based format from PR #21 but adds type safety
+ */
+function createToolResponse(data: any, options: { isError?: boolean } = {}): ToolResponse {
+  const text = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+  return {
+    content: [{ type: 'text', text }],
+    ...(options.isError ? { isError: true } : {}),
+  };
+}
+
 function getVoyageBaseUrl(): string {
   const raw = (process.env.VOYAGE_BASE_URL || '').trim();
   if (!raw) {
@@ -712,14 +733,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error(`Unknown tool: ${name}`);
     }
   } catch (error: any) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({ error: error.message }, null, 2),
-        },
-      ],
-    };
+    // Improved error handling from PR #19
+    const message = error instanceof Error ? error.message : String(error);
+    return createToolResponse({ error: message }, { isError: true });
   }
 });
 

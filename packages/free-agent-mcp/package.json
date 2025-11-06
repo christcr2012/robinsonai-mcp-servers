@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/free-agent-mcp",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Free Agent MCP - Execute tasks using FREE models (Ollama, etc.)",
   "type": "module",
   "main": "dist/index.js",

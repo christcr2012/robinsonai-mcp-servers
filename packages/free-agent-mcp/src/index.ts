@@ -440,11 +440,13 @@ class AutonomousAgentServer {
           this.releaseJobSlot();
         }
       } catch (error: any) {
+        // Improved error handling from PR #19
+        const message = error instanceof Error ? error.message : String(error);
         return {
           content: [
             {
               type: 'text',
-              text: `Error: ${error.message}`,
+              text: `Error: ${message}`,
             },
           ],
           isError: true,
@@ -1229,23 +1231,89 @@ Generate the modified section now:`;
     };
   }
 
+  /**
+   * Normalize tool result to ensure consistent structure (from PR #19)
+   * - Ensures augmentCreditsUsed and creditsSaved are numbers
+   * - Handles filesDetailed and files arrays
+   * - Builds file outputs with gmcode and diff
+   */
+  private normalizeToolResult(result: any): any {
+    if (result === null || result === undefined) {
+      return {};
+    }
+
+    if (typeof result !== 'object') {
+      return { value: result };
+    }
+
+    const normalized: any = { ...result };
+
+    // Ensure credit fields are numbers (default to 0)
+    if (typeof normalized.augmentCreditsUsed !== 'number') {
+      normalized.augmentCreditsUsed = 0;
+    }
+    if (typeof normalized.creditsSaved !== 'number') {
+      normalized.creditsSaved = 0;
+    }
+
+    // Handle filesDetailed array
+    const detailedFiles: OutputFile[] | undefined = Array.isArray(normalized.filesDetailed)
+      ? normalized.filesDetailed
+      : undefined;
+
+    // Handle basic files array
+    const basicFiles: Array<{ path: string; content: string; deleted?: boolean }> | undefined = Array.isArray(normalized.files)
+      ? normalized.files
+      : undefined;
+
+    if (detailedFiles && detailedFiles.length > 0) {
+      const outputs = this.buildFileOutputs(detailedFiles);
+      normalized.files = outputs.files;
+      if (outputs.gmcode) normalized.gmcode = outputs.gmcode;
+      if (outputs.diff) normalized.diff = outputs.diff;
+    } else if (basicFiles && basicFiles.length > 0) {
+      // Sanitize basic files
+      const sanitized = basicFiles
+        .filter(file => file && typeof file.path === 'string')
+        .map(file => ({
+          path: file.path,
+          content: file.content ?? '',
+        }));
+      normalized.files = sanitized;
+
+      // Build outputs from sanitized files
+      const outputs = this.buildFileOutputs(
+        sanitized.map(file => ({ path: file.path, content: file.content, originalContent: '' }))
+      );
+      if (outputs.gmcode && !normalized.gmcode) normalized.gmcode = outputs.gmcode;
+      if (outputs.diff && !normalized.diff) normalized.diff = outputs.diff;
+    } else {
+      normalized.files = [];
+    }
+
+    return normalized;
+  }
+
   private formatToolResponse(result: any): { content: Array<{ type: 'text'; text: string }> } {
-    if (result === undefined || result === null) {
+    // Normalize result first (from PR #19)
+    const normalized = this.normalizeToolResult(result);
+
+    if (normalized === undefined || normalized === null) {
       return { content: [{ type: 'text', text: 'No result was returned.' }] };
     }
 
-    if (typeof result === 'string') {
-      return { content: [{ type: 'text', text: result }] };
+    if (typeof normalized === 'string') {
+      return { content: [{ type: 'text', text: normalized }] };
     }
 
-    if (Array.isArray(result)) {
-      const text = result
+    if (Array.isArray(normalized)) {
+      const text = normalized
         .map(item => (typeof item === 'string' ? item : JSON.stringify(item, null, 2)))
         .join('\n');
       return { content: [{ type: 'text', text }] };
     }
 
-    const { gmcode, diff, files, filesDetailed, code, message, summary, ...rest } = result as Record<string, any>;
+    const { gmcode, diff, files, filesDetailed, code, message, summary, ...rest } = normalized as Record<string, any>;
     const meta: Record<string, any> = { ...rest };
     const content: Array<{ type: 'text'; text: string }> = [];
     const summaryLines: string[] = [];
