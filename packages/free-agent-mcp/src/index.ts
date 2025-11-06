@@ -1416,7 +1416,7 @@ Generate the modified section now:`;
         name: 'delegate_code_generation',
         description: 'Generate code using local LLM (0 Augment credits!). Saves 90%+ credits vs Augment generating code.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             task: {
               type: 'string',
@@ -1454,7 +1454,7 @@ Generate the modified section now:`;
         name: 'delegate_code_analysis',
         description: 'Analyze code using local LLM (0 Augment credits!). Find issues, performance problems, security vulnerabilities.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             code: {
               type: 'string',
@@ -1481,7 +1481,7 @@ Generate the modified section now:`;
         name: 'delegate_code_refactoring',
         description: 'Refactor code using local LLM (0 Augment credits!). Extract components, improve structure, apply patterns.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             code: {
               type: 'string',
@@ -1508,7 +1508,7 @@ Generate the modified section now:`;
         name: 'delegate_test_generation',
         description: 'Generate tests using local LLM (0 Augment credits!). Create comprehensive test suites.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             code: {
               type: 'string',
@@ -1536,7 +1536,7 @@ Generate the modified section now:`;
         name: 'delegate_documentation',
         description: 'Generate documentation using local LLM (0 Augment credits!). Create JSDoc, TSDoc, or README files.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             code: {
               type: 'string',
@@ -1559,7 +1559,7 @@ Generate the modified section now:`;
         name: 'execute_versatile_task_autonomous-agent-mcp',
         description: 'Execute ANY task - coding, DB setup, deployment, account management, thinking/planning, etc. This agent is VERSATILE and can handle all types of work using FREE Ollama + Robinson\'s Toolkit (1165 tools) + Thinking Tools (64 cognitive frameworks).',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             task: {
               type: 'string',
@@ -1582,7 +1582,7 @@ Generate the modified section now:`;
         name: 'get_agent_stats',
         description: 'Get usage statistics for the autonomous agent. See how many credits you\'ve saved!',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             period: {
               type: 'string',
@@ -1595,7 +1595,7 @@ Generate the modified section now:`;
         name: 'get_token_analytics',
         description: 'Get detailed token usage analytics. Shows tokens used, costs (always $0 for Ollama), and patterns over time.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             period: {
               type: 'string',
@@ -1610,13 +1610,13 @@ Generate the modified section now:`;
         description: 'Diagnose Autonomous Agent environment - check Ollama connection, models, stats DB',
         inputSchema: {
       type: 'object'
-        },
+        , additionalProperties: false },
       },
       {
         name: 'discover_toolkit_tools_autonomous-agent-mcp',
         description: 'Search for tools in Robinson\'s Toolkit by keyword. Dynamically discovers tools as new ones are added to the toolkit.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             query: {
               type: 'string',
@@ -1635,13 +1635,13 @@ Generate the modified section now:`;
         description: 'List all available categories in Robinson\'s Toolkit (github, vercel, neon, upstash, google, etc.). Dynamically updates as new categories are added.',
         inputSchema: {
       type: 'object'
-        },
+        , additionalProperties: false },
       },
       {
         name: 'list_toolkit_tools_autonomous-agent-mcp',
         description: 'List all tools in a specific category. Dynamically updates as new tools are added to Robinson\'s Toolkit.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             category: {
               type: 'string',
@@ -1656,7 +1656,7 @@ Generate the modified section now:`;
         name: 'file_str_replace',
         description: 'Replace text in a file (universal - works in any MCP client). Like Augment\'s str-replace-editor but works everywhere.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             path: {
               type: 'string',
@@ -1687,7 +1687,7 @@ Generate the modified section now:`;
         name: 'free_agent_execute_with_quality_gates',
         description: 'Execute code generation with FULL quality gates pipeline (Synthesize-Execute-Critique-Refine). Runs formatter, linter, type checker, tests, coverage, security checks. Returns code that ACTUALLY WORKS with structured verdict.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             task: {
               type: 'string',
@@ -1699,6 +1699,7 @@ Generate the modified section now:`;
             },
             designCard: {
               type: 'object',
+              additionalProperties: false,
               description: 'Optional Design Card with goals, acceptance criteria, constraints',
               properties: {
                 name: { type: 'string' },
@@ -1732,7 +1733,7 @@ Generate the modified section now:`;
         name: 'free_agent_judge_code_quality',
         description: 'Evaluate code quality using LLM Judge with structured rubric. Returns scores for compilation, tests, types, style, security, and conventions. Uses Ollama (0 credits).',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             code: {
               type: 'string',
@@ -1754,7 +1755,7 @@ Generate the modified section now:`;
         name: 'free_agent_refine_code',
         description: 'Fix code issues based on judge feedback. Applies fixes from structured fix plan. Uses Ollama (0 credits).',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             code: {
               type: 'string',
@@ -1776,7 +1777,7 @@ Generate the modified section now:`;
         name: 'free_agent_generate_project_brief',
         description: 'Auto-generate Project Brief from repository. Analyzes naming conventions, import patterns, architecture, testing patterns, and builds domain glossary. Use this for repo-native code generation.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             repoPath: {
               type: 'string',
@@ -1793,7 +1794,7 @@ Generate the modified section now:`;
         name: 'file_insert',
         description: 'Insert text at a specific line in a file (universal - works in any MCP client)',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             path: {
               type: 'string',
@@ -1815,7 +1816,7 @@ Generate the modified section now:`;
         name: 'file_save',
         description: 'Create a new file (universal - works in any MCP client). Like Augment\'s save-file but works everywhere.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             path: {
               type: 'string',
@@ -1837,7 +1838,7 @@ Generate the modified section now:`;
         name: 'file_delete',
         description: 'Delete a file (universal - works in any MCP client)',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             path: {
               type: 'string',
@@ -1851,7 +1852,7 @@ Generate the modified section now:`;
         name: 'file_read',
         description: 'Read file content (universal - works in any MCP client)',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             path: {
               type: 'string',
@@ -1865,7 +1866,7 @@ Generate the modified section now:`;
         name: 'submit_feedback',
         description: 'Submit feedback on agent-generated code. Used by primary coding agents (Augment, Cursor, Copilot, etc.) to teach the FREE agent from their edits. This feedback is used to improve the agent over time.',
         inputSchema: {
-          type: 'object',
+          type: 'object', additionalProperties: false,
           properties: {
             runId: {
               type: 'string',
@@ -1897,7 +1898,7 @@ Generate the modified section now:`;
         description: 'Get statistics about feedback received from primary coding agents. Shows what types of edits are most common and helps identify areas for improvement.',
         inputSchema: {
       type: 'object'
-        },
+        , additionalProperties: false },
       },
     ];
   }
