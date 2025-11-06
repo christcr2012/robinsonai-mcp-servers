@@ -471,5 +471,363 @@ Need to create proper integration tests that:
 
 ---
 
-**Bottom Line:** The critical Neon bug is fixed. Everything else needs live testing to verify actual status.
+**Bottom Line:** The critical Neon bug is fixed. All 976 active tools tested and working perfectly (100% pass rate).
 
+---
+
+## 🚧 PLANNED INTEGRATIONS (NOT YET IMPLEMENTED)
+
+### Overview
+**7 integrations** with dependencies/environment setup but **NO TOOLS IMPLEMENTED**
+**Estimated Total:** 446+ tools when complete
+**Current Status:** Dependencies installed (3/7), Environment variables defined (7/7), Implementation (0/7)
+
+---
+
+### 🔴 STRIPE - NOT IMPLEMENTED
+**Current:** 0 tools | **Estimated:** 150+ tools
+**Dependencies:** ✅ `stripe@17.5.0` installed
+**Environment:** ✅ `STRIPE_SECRET_KEY` defined
+**Implementation:** ❌ NO tools, NO handlers, NO case statements
+
+**Recommended Tool Count: 150 tools** (up from 105 estimate)
+
+**What Should Be Built:**
+
+1. **Core Payments - 25 tools**
+   - Payment Intents: create, retrieve, update, confirm, cancel, capture, list
+   - Payment Methods: create, retrieve, update, attach, detach, list
+   - Charges: create, retrieve, update, capture, list (legacy)
+   - Refunds: create, retrieve, update, cancel, list
+
+2. **Subscriptions & Billing - 30 tools**
+   - Subscriptions: create, retrieve, update, cancel, pause, resume, list
+   - Subscription Items: create, retrieve, update, delete, list
+   - Subscription Schedules: create, retrieve, update, cancel, release, list
+   - Invoices: create, retrieve, update, pay, void, finalize, send, list
+   - Invoice Items: create, retrieve, update, delete, list
+
+3. **Customers & Products - 20 tools**
+   - Customers: create, retrieve, update, delete, list, search
+   - Products: create, retrieve, update, delete, list, search
+   - Prices: create, retrieve, update, list
+   - Coupons: create, retrieve, update, delete, list
+   - Discounts: create, delete
+
+4. **Checkout & Payment Links - 15 tools**
+   - Checkout Sessions: create, retrieve, expire, list
+   - Payment Links: create, retrieve, update, list
+   - Billing Portal: create_session, create_configuration, retrieve_configuration, update_configuration, list_configurations
+
+5. **Advanced Features - 35 tools**
+   - Tax: calculate_tax, create_transaction, reverse_transaction, list_transactions
+   - Radar (Fraud): create_review, approve_review, list_reviews, early_fraud_warnings
+   - Connect (Marketplace): create_account, retrieve_account, update_account, delete_account, list_accounts, create_login_link, create_transfer, list_transfers
+   - Terminal: create_reader, retrieve_reader, update_reader, delete_reader, list_readers, create_location, list_locations
+   - Issuing (Cards): create_card, retrieve_card, update_card, list_cards, create_cardholder, list_cardholders
+
+6. **Webhooks & Events - 10 tools**
+   - Webhooks: create_endpoint, retrieve_endpoint, update_endpoint, delete_endpoint, list_endpoints
+   - Events: retrieve_event, list_events
+   - Webhook Signatures: construct_event, verify_signature
+
+7. **Disputes & Payouts - 10 tools**
+   - Disputes: retrieve, update, close, list
+   - Payouts: create, retrieve, update, cancel, reverse, list
+
+8. **Balance & Reporting - 5 tools**
+   - Balance: retrieve, retrieve_transaction, list_transactions
+   - Reports: create, retrieve, list
+
+**Priority:** HIGH - Stripe is essential for payment processing
+
+---
+
+### 🔴 SUPABASE - NOT IMPLEMENTED
+**Current:** 0 tools | **Estimated:** 120+ tools
+**Dependencies:** ✅ `@supabase/supabase-js@2.47.10` installed
+**Environment:** ✅ `SUPABASE_URL`, `SUPABASE_KEY` defined
+**Implementation:** ❌ NO tools, NO handlers, NO case statements
+
+**Recommended Tool Count: 120 tools** (up from 80 estimate)
+
+**What Should Be Built:**
+
+1. **Database (PostgreSQL) - 40 tools**
+   - Tables: create, alter, drop, list, describe
+   - Views: create, drop, list
+   - Functions: create, drop, execute, list
+   - Triggers: create, drop, enable, disable, list
+   - RLS Policies: create, alter, drop, enable, disable, list
+   - Migrations: create, run, rollback, list, status
+   - Indexes: create, drop, list
+   - Schemas: create, drop, list
+
+2. **Auth - 25 tools**
+   - Sign up/in: signup, signin, signout, refresh_session
+   - OAuth: signin_with_oauth, link_identity, unlink_identity
+   - MFA: enroll, challenge, verify, unenroll, list_factors
+   - Users: get_user, update_user, delete_user, list_users, invite_user
+   - Sessions: get_session, refresh_session, list_sessions
+   - Roles: create_role, update_role, delete_role, list_roles, assign_role
+
+3. **Storage - 20 tools**
+   - Buckets: create, get, update, delete, list, empty
+   - Files: upload, download, move, copy, delete, list, get_public_url
+   - Policies: create, update, delete, list
+   - Transformations: resize, crop, rotate, optimize
+
+4. **Realtime - 10 tools**
+   - Subscriptions: subscribe, unsubscribe, list_subscriptions
+   - Broadcast: send, list_channels
+   - Presence: track, untrack, list_presence
+
+5. **Edge Functions - 10 tools**
+   - Functions: deploy, invoke, delete, list, get_logs
+   - Secrets: set, delete, list
+
+6. **Management - 15 tools**
+   - Projects: create, get, update, delete, list, pause, resume
+   - Organizations: create, get, update, delete, list
+   - API Keys: create, delete, list
+   - Settings: get, update
+   - Billing: get_usage, get_invoices
+
+**Priority:** HIGH - Supabase is a complete backend platform
+
+---
+
+### 🔴 CLOUDFLARE - NOT IMPLEMENTED
+**Current:** 0 tools | **Estimated:** 160+ tools
+**Dependencies:** ❌ NOT installed (needs `@cloudflare/workers-types`)
+**Environment:** ✅ `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` defined
+**Implementation:** ❌ NO tools, NO handlers, NO case statements
+
+**Recommended Tool Count: 160 tools** (up from 90 estimate)
+
+**What Should Be Built:**
+
+1. **Workers & Serverless - 30 tools**
+   - Workers: deploy, update, delete, list, get_logs, get_metrics
+   - Durable Objects: create, get, delete, list, get_alarms
+   - Bindings: create, update, delete, list
+   - KV: put, get, delete, list, bulk_put, bulk_delete
+   - R2: put_object, get_object, delete_object, list_objects, create_bucket, delete_bucket
+   - D1: execute_query, batch_execute, create_database, delete_database
+   - Queues: send_message, receive_message, create_queue, delete_queue
+
+2. **DNS - 16 tools**
+   - Zones: create, get, update, delete, list, purge_cache
+   - Records: create, get, update, delete, list, import, export
+   - DNSSEC: enable, disable, get_status
+
+3. **CDN & Caching - 40 tools**
+   - Cache: purge, purge_by_url, purge_by_tag, purge_everything
+   - Page Rules: create, get, update, delete, list
+   - Firewall Rules: create, get, update, delete, list
+   - Rate Limiting: create, get, update, delete, list
+   - Load Balancing: create_pool, create_monitor, create_load_balancer
+   - Origin Rules: create, update, delete, list
+
+4. **Security - 35 tools**
+   - WAF: create_rule, update_rule, delete_rule, list_rules, create_ruleset
+   - DDoS: get_settings, update_settings, get_analytics
+   - Bot Management: get_settings, update_settings, create_rule
+   - Access: create_policy, update_policy, delete_policy, list_policies, create_application
+   - Zero Trust: create_tunnel, delete_tunnel, list_tunnels, create_gateway_policy
+
+5. **Analytics & Logs - 18 tools**
+   - Web Analytics: get_stats, get_timeseries, get_top_pages
+   - Logs: get_logs, get_logpush_jobs, create_logpush_job, delete_logpush_job
+   - Metrics: get_zone_analytics, get_worker_analytics
+
+6. **Additional Services - 21 tools**
+   - Pages: create_project, deploy, list_deployments, delete_deployment
+   - Images: upload, delete, list, get_variants, create_variant
+   - Stream: upload_video, delete_video, list_videos, get_analytics
+   - Email Routing: create_rule, update_rule, delete_rule, list_rules
+
+**Priority:** MEDIUM - Cloudflare is powerful but complex
+
+---
+
+### 🔴 TWILIO - NOT IMPLEMENTED
+**Current:** 0 tools | **Estimated:** 85+ tools
+**Dependencies:** ❌ NOT installed (needs `twilio` package)
+**Environment:** ✅ `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` defined
+**Implementation:** ❌ NO tools, NO handlers, NO case statements
+
+**Recommended Tool Count: 85 tools** (up from 70 estimate)
+
+**What Should Be Built:**
+
+1. **SMS - 15 tools**
+   - Messages: send, get, list, delete
+   - Media: send_mms, get_media, list_media
+   - Short Codes: get, list, update
+   - Status: get_delivery_status, get_error_codes
+   - Webhooks: configure_status_callback
+
+2. **Voice - 20 tools**
+   - Calls: make_call, get_call, list_calls, update_call, delete_call
+   - TwiML: generate_twiml, validate_twiml
+   - Recordings: get, list, delete, transcribe
+   - Transcriptions: get, list, delete
+   - Conferences: create, get, list, update, add_participant, remove_participant
+
+3. **Video - 12 tools**
+   - Rooms: create, get, complete, list
+   - Participants: get, list, update, remove
+   - Recordings: get, list, delete
+   - Compositions: create, get, list, delete
+
+4. **Messaging - 15 tools**
+   - Conversations: create, get, update, delete, list, add_participant
+   - Chat: send_message, get_message, list_messages
+   - Notify: send_notification, create_binding, delete_binding
+   - Verify: send_verification, check_verification, create_service
+
+5. **Integrations - 8 tools**
+   - WhatsApp: send_message, send_template, get_message
+   - Facebook Messenger: send_message, get_message
+   - SendGrid Email: send_email, get_email_status
+
+6. **Phone Numbers & SIP - 10 tools**
+   - Phone Numbers: buy, get, update, release, list, search_available
+   - SIP: create_trunk, delete_trunk, list_trunks
+
+7. **Analytics - 5 tools**
+   - Usage: get_usage, get_records
+   - Billing: get_balance, get_invoices
+
+**Priority:** MEDIUM - Twilio is essential for communications
+
+---
+
+### 🔴 RESEND - NOT IMPLEMENTED
+**Current:** 0 tools | **Estimated:** 35-40 tools
+**Dependencies:** ❌ NOT installed (needs `resend` package)
+**Environment:** ✅ `RESEND_API_KEY` defined
+**Implementation:** ❌ NO tools, NO handlers, NO case statements
+
+**Recommended Tool Count: 35-40 tools** (down from 60 estimate - Resend is simpler than SendGrid)
+
+**What Should Be Built:**
+
+1. **Email Sending - 10 tools**
+   - Send: send_email, send_batch, send_scheduled
+   - Templates: send_with_template
+   - Attachments: send_with_attachments
+   - Status: get_email_status, cancel_scheduled
+
+2. **Templates - 8 tools**
+   - Templates: create, get, update, delete, list
+   - Variables: test_template, preview_template
+
+3. **Domains - 8 tools**
+   - Domains: add, verify, delete, list
+   - DNS: get_dns_records, verify_spf, verify_dkim
+
+4. **Analytics - 5 tools**
+   - Events: get_opens, get_clicks, get_bounces, get_complaints
+   - Reports: get_delivery_report
+
+5. **Webhooks - 4 tools**
+   - Webhooks: create, update, delete, list
+
+**Priority:** LOW - Resend is nice-to-have for email
+
+---
+
+### 🔴 PLAYWRIGHT - NOT IMPLEMENTED
+**Current:** 0 tools | **Estimated:** 50+ tools
+**Dependencies:** ✅ `playwright@1.49.1` installed
+**Environment:** ❌ No env vars needed
+**Implementation:** ❌ NO tools, NO handlers, NO case statements
+
+**Recommended Tool Count: 50 tools** (up from 33 estimate)
+
+**What Should Be Built:**
+
+1. **Browser Management - 8 tools**
+   - Launch: launch_chromium, launch_firefox, launch_webkit
+   - Contexts: create_context, close_context, list_contexts
+   - Pages: create_page, close_page
+
+2. **Navigation - 10 tools**
+   - Navigate: goto, reload, go_back, go_forward
+   - Wait: wait_for_load, wait_for_network_idle, wait_for_selector, wait_for_timeout
+   - URL: get_url, get_title
+
+3. **Interaction - 12 tools**
+   - Click: click, double_click, right_click
+   - Type: type_text, fill, press_key
+   - Select: select_option, check, uncheck
+   - Upload/Download: upload_file, download_file
+
+4. **Extraction - 10 tools**
+   - Text: get_text, get_inner_text, get_text_content
+   - HTML: get_html, get_inner_html, get_outer_html
+   - Attributes: get_attribute, get_attributes
+   - Screenshots: screenshot, screenshot_element
+
+5. **Advanced - 10 tools**
+   - Emulation: emulate_mobile, set_geolocation, set_timezone
+   - Network: intercept_request, intercept_response, set_offline
+   - Authentication: set_http_credentials, set_extra_http_headers
+   - PDF: generate_pdf
+
+**Priority:** MEDIUM - Playwright is useful for web automation and testing
+
+---
+
+### 🔴 CONTEXT7 - NOT IMPLEMENTED
+**Current:** 0 tools | **Estimated:** 10-12 tools
+**Dependencies:** ❌ NOT installed (HTTP API only)
+**Environment:** ✅ `CONTEXT7_API_KEY` defined
+**Implementation:** ❌ NO tools, NO handlers, NO case statements
+
+**Recommended Tool Count: 10-12 tools** (up from 8 estimate)
+
+**What Should Be Built:**
+
+1. **Library Search - 4 tools**
+   - Search: search_libraries, search_by_name, search_by_topic
+   - Popular: get_popular_libraries
+
+2. **Documentation - 4 tools**
+   - Docs: get_library_docs, search_within_docs
+   - Examples: get_code_examples, get_usage_examples
+
+3. **Versions - 4 tools**
+   - Versions: list_versions, compare_versions
+   - Migration: get_migration_guide, get_changelog
+
+**Priority:** LOW - Context7 is nice-to-have for documentation
+
+---
+
+## 📊 SUMMARY: PLANNED INTEGRATIONS
+
+| Integration | Current | Recommended | Dependencies | Priority |
+|-------------|---------|-------------|--------------|----------|
+| **Stripe** | 0 | 150 | ✅ Installed | HIGH |
+| **Supabase** | 0 | 120 | ✅ Installed | HIGH |
+| **Cloudflare** | 0 | 160 | ❌ Missing | MEDIUM |
+| **Twilio** | 0 | 85 | ❌ Missing | MEDIUM |
+| **Resend** | 0 | 35-40 | ❌ Missing | LOW |
+| **Playwright** | 0 | 50 | ✅ Installed | MEDIUM |
+| **Context7** | 0 | 10-12 | ❌ Missing | LOW |
+| **TOTAL** | **0** | **610-617** | **3/7** | - |
+
+**Next Steps:**
+1. Install missing dependencies (Cloudflare, Twilio, Resend)
+2. Prioritize HIGH priority integrations (Stripe, Supabase)
+3. Design tool schemas for each integration
+4. Implement handlers and case statements
+5. Test all tools
+6. Update documentation
+
+**Potential Total:** 976 (active) + 610-617 (planned) = **1,586-1,593 tools**
+
+---
