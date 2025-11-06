@@ -434,28 +434,15 @@ class AutonomousAgentServer {
             });
           }
 
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(result, null, 2),
-              },
-            ],
-          };
+          const normalized = this.normalizeToolResult(result);
+          return this.createJsonResponse(normalized);
         } finally {
           // Always release job slot
           this.releaseJobSlot();
         }
       } catch (error: any) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error: ${error.message}`,
-            },
-          ],
-          isError: true,
-        };
+        const message = error instanceof Error ? error.message : String(error);
+        return this.createJsonResponse({ error: message }, true);
       }
     });
   }
@@ -1230,6 +1217,70 @@ Generate the modified section now:`;
       files: filtered.filter(file => !file.deleted).map(file => ({ path: file.path, content: file.content })),
       gmcode: formatGMCode(filtered),
       diff: formatUnifiedDiffs(filtered),
+    };
+  }
+
+  private normalizeToolResult(result: any): any {
+    if (result === null || result === undefined) {
+      return {};
+    }
+
+    if (typeof result !== 'object') {
+      return { value: result };
+    }
+
+    const normalized: any = { ...result };
+
+    if (typeof normalized.augmentCreditsUsed !== 'number') {
+      normalized.augmentCreditsUsed = 0;
+    }
+    if (typeof normalized.creditsSaved !== 'number') {
+      normalized.creditsSaved = 0;
+    }
+
+    const detailedFiles: OutputFile[] | undefined = Array.isArray(normalized.filesDetailed)
+      ? normalized.filesDetailed
+      : undefined;
+
+    const basicFiles: Array<{ path: string; content: string; deleted?: boolean }> | undefined = Array.isArray(normalized.files)
+      ? normalized.files
+      : undefined;
+
+    if (detailedFiles && detailedFiles.length > 0) {
+      const outputs = this.buildFileOutputs(detailedFiles);
+      normalized.files = outputs.files;
+      if (outputs.gmcode) normalized.gmcode = outputs.gmcode;
+      if (outputs.diff) normalized.diff = outputs.diff;
+    } else if (basicFiles && basicFiles.length > 0) {
+      const sanitized = basicFiles
+        .filter(file => file && typeof file.path === 'string')
+        .map(file => ({
+          path: file.path,
+          content: file.content ?? '',
+        }));
+      normalized.files = sanitized;
+
+      const outputs = this.buildFileOutputs(
+        sanitized.map(file => ({ path: file.path, content: file.content, originalContent: '' }))
+      );
+      if (outputs.gmcode && !normalized.gmcode) normalized.gmcode = outputs.gmcode;
+      if (outputs.diff && !normalized.diff) normalized.diff = outputs.diff;
+    } else {
+      normalized.files = [];
+    }
+
+    return normalized;
+  }
+
+  private createJsonResponse(payload: any, isError: boolean = false) {
+    return {
+      content: [
+        {
+          type: 'json' as const,
+          json: payload,
+        },
+      ],
+      ...(isError ? { isError: true } : {}),
     };
   }
 

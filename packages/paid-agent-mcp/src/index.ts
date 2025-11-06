@@ -83,6 +83,23 @@ function getAnthropic(): Anthropic {
 
 type VoyageChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
+type ToolResponse = {
+  content: Array<{ type: 'json'; json: any }>;
+  isError?: boolean;
+};
+
+function jsonResponse(payload: any, options: { isError?: boolean } = {}): ToolResponse {
+  return {
+    content: [
+      {
+        type: 'json',
+        json: payload,
+      },
+    ],
+    ...(options.isError ? { isError: true } : {}),
+  };
+}
+
 async function callVoyageChatCompletion(params: {
   model: string;
   messages: VoyageChatMessage[];
@@ -696,21 +713,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error(`Unknown tool: ${name}`);
     }
   } catch (error: any) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({ error: error.message }, null, 2),
-        },
-      ],
-    };
+    const message = error instanceof Error ? error.message : String(error);
+    return jsonResponse({ error: message }, { isError: true });
   }
 });
 
 /**
  * Run a job
  */
-async function handleRunJob(args: any) {
+async function handleRunJob(args: any): Promise<ToolResponse> {
   const { agent, task, input_refs = [], caps = {} } = args;
 
   // Validate agent
@@ -796,32 +807,27 @@ async function handleRunJob(args: any) {
       completed_at: new Date().toISOString(),
     });
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            job_id: job.id,
-            state: 'completed',
-            result,
-            tokens_used: {
-              input: usage?.prompt_tokens || 0,
-              output: usage?.completion_tokens || 0,
-              total: usage?.total_tokens || 0,
-            },
-            cost: {
-              input: inputCost,
-              output: outputCost,
-              total: totalCost,
-              currency: 'USD',
-              pricing_source: pricing.source,
-            },
-            model: agentConfig.model,
-            agent,
-          }, null, 2),
-        },
-      ],
+    const payload = {
+      job_id: job.id,
+      state: 'completed',
+      result,
+      tokens_used: {
+        input: usage?.prompt_tokens || 0,
+        output: usage?.completion_tokens || 0,
+        total: usage?.total_tokens || 0,
+      },
+      cost: {
+        input: inputCost,
+        output: outputCost,
+        total: totalCost,
+        currency: 'USD',
+        pricing_source: pricing.source,
+      },
+      model: agentConfig.model,
+      agent,
     };
+
+    return jsonResponse(payload);
   } catch (error: any) {
     updateJob(job.id, {
       state: 'failed',
@@ -838,7 +844,7 @@ async function handleRunJob(args: any) {
 /**
  * Queue batch jobs
  */
-async function handleQueueBatch(args: any) {
+async function handleQueueBatch(args: any): Promise<ToolResponse> {
   const { jobs } = args;
 
   const jobIds = jobs.map((jobData: any) => {
@@ -851,23 +857,16 @@ async function handleQueueBatch(args: any) {
     return job.id;
   });
 
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify({
-          message: `Queued ${jobs.length} jobs`,
-          job_ids: jobIds,
-        }, null, 2),
-      },
-    ],
-  };
+  return jsonResponse({
+    message: `Queued ${jobs.length} jobs`,
+    job_ids: jobIds,
+  });
 }
 
 /**
  * Get job status
  */
-async function handleGetJobStatus(args: any) {
+async function handleGetJobStatus(args: any): Promise<ToolResponse> {
   const { job_id } = args;
   const job = getJob(job_id);
 
@@ -875,42 +874,28 @@ async function handleGetJobStatus(args: any) {
     throw new Error(`Job not found: ${job_id}`);
   }
 
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify(job, null, 2),
-      },
-    ],
-  };
+  return jsonResponse(job);
 }
 
 /**
  * Get spend stats
  */
-async function handleGetSpendStats() {
+async function handleGetSpendStats(): Promise<ToolResponse> {
   const policy = getPolicy();
   const monthlySpend = getMonthlySpend();
 
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify({
-          current_month: monthlySpend,
-          total_budget: policy.MONTHLY_BUDGET,
-          remaining: Math.max(0, policy.MONTHLY_BUDGET - monthlySpend),
-          percentage_used: (monthlySpend / policy.MONTHLY_BUDGET) * 100,
-        }, null, 2),
-      },
-    ],
-  };
+  return jsonResponse({
+    current_month: monthlySpend,
+    total_budget: policy.MONTHLY_BUDGET,
+    remaining: Math.max(0, policy.MONTHLY_BUDGET - monthlySpend),
+    percentage_used: (monthlySpend / policy.MONTHLY_BUDGET) * 100,
+  });
 }
 
 /**
  * Estimate cost for a job (uses live pricing)
  */
-async function handleEstimateCost(args: any) {
+async function handleEstimateCost(args: any): Promise<ToolResponse> {
   const { agent, estimated_input_tokens, estimated_output_tokens } = args;
 
   if (!AGENTS[agent as keyof typeof AGENTS]) {
@@ -928,72 +913,58 @@ async function handleEstimateCost(args: any) {
   const monthlySpend = getMonthlySpend();
   const remaining = Math.max(0, policy.MONTHLY_BUDGET - monthlySpend);
 
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify({
-          agent,
-          model: agentConfig.model,
-          pricing: {
-            source: agentConfig.pricing_source,
-            updated: agentConfig.pricing_updated,
-            input_per_1k: agentConfig.cost_per_1k_input,
-            output_per_1k: agentConfig.cost_per_1k_output
-          },
-          estimated_cost: {
-            input: inputCost,
-            output: outputCost,
-            total: totalCost,
-            currency: 'USD'
-          },
-          budget_impact: {
-            monthly_budget: policy.MONTHLY_BUDGET,
-            current_spend: monthlySpend,
-            remaining_budget: remaining,
-            percentage_of_remaining: remaining > 0 ? (totalCost / remaining) * 100 : 0,
-            can_afford: totalCost <= remaining
-          },
-          recommendation: totalCost > remaining
-            ? 'BLOCKED - Would exceed monthly budget. Use free Ollama agents instead.'
-            : totalCost > (remaining * 0.5)
-            ? 'CAUTION - Uses >50% of remaining budget. Consider free Ollama agents.'
-            : totalCost > (remaining * 0.1)
-            ? 'OK - Moderate cost. Ollama agents are free alternative.'
-            : 'OK - Low cost impact.'
-        }, null, 2),
-      },
-    ],
-  };
+  return jsonResponse({
+    agent,
+    model: agentConfig.model,
+    pricing: {
+      source: agentConfig.pricing_source,
+      updated: agentConfig.pricing_updated,
+      input_per_1k: agentConfig.cost_per_1k_input,
+      output_per_1k: agentConfig.cost_per_1k_output,
+    },
+    estimated_cost: {
+      input: inputCost,
+      output: outputCost,
+      total: totalCost,
+      currency: 'USD',
+    },
+    budget_impact: {
+      monthly_budget: policy.MONTHLY_BUDGET,
+      current_spend: monthlySpend,
+      remaining_budget: remaining,
+      percentage_of_remaining: remaining > 0 ? (totalCost / remaining) * 100 : 0,
+      can_afford: totalCost <= remaining,
+    },
+    recommendation:
+      totalCost > remaining
+        ? 'BLOCKED - Would exceed monthly budget. Use free Ollama agents instead.'
+        : totalCost > remaining * 0.5
+        ? 'CAUTION - Uses >50% of remaining budget. Consider free Ollama agents.'
+        : totalCost > remaining * 0.1
+        ? 'OK - Moderate cost. Ollama agents are free alternative.'
+        : 'OK - Low cost impact.',
+  });
 }
 
 /**
  * Refresh pricing from live source
  */
-async function handleRefreshPricing() {
+async function handleRefreshPricing(): Promise<ToolResponse> {
   const success = await refreshPricing();
   const pricingInfo = getPricingInfo();
-
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify({
-          success,
-          message: success
-            ? 'Successfully refreshed pricing from live source'
-            : 'Failed to refresh pricing, using cached/fallback values',
-          pricing_info: pricingInfo
-        }, null, 2),
-      },
-    ],
-  };
+  return jsonResponse({
+    success,
+    message: success
+      ? 'Successfully refreshed pricing from live source'
+      : 'Failed to refresh pricing, using cached/fallback values',
+    pricing_info: pricingInfo,
+  });
 }
 
 /**
  * Get capacity info (uses live pricing)
  */
-async function handleGetCapacity() {
+async function handleGetCapacity(): Promise<ToolResponse> {
   const policy = getPolicy();
   const monthlySpend = getMonthlySpend();
   const remaining = Math.max(0, policy.MONTHLY_BUDGET - monthlySpend);
@@ -1004,84 +975,69 @@ async function handleGetCapacity() {
   const premiumConfig = await getAgentConfig('premium-worker');
   const pricingInfo = getPricingInfo();
 
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify({
-          max_concurrency: policy.MAX_CONCURRENCY,
-          config: `Set MAX_OPENAI_CONCURRENCY=1-10 (current: ${policy.MAX_CONCURRENCY})`,
-          budget: {
-            monthly_limit: policy.MONTHLY_BUDGET,
-            spent: monthlySpend,
-            remaining,
-            percentage_used: (monthlySpend / policy.MONTHLY_BUDGET) * 100
-          },
-          pricing_info: {
-            last_updated: pricingInfo.last_updated,
-            cache_age_hours: Math.round(pricingInfo.cache_age_hours * 10) / 10,
-            sources: pricingInfo.sources
-          },
-          agents: {
-            'mini-worker': {
-              model: miniConfig.model,
-              cost_per_1k_input: miniConfig.cost_per_1k_input,
-              cost_per_1k_output: miniConfig.cost_per_1k_output,
-              pricing_source: miniConfig.pricing_source,
-              note: 'Cheapest - good for simple tasks'
-            },
-            'balanced-worker': {
-              model: balancedConfig.model,
-              cost_per_1k_input: balancedConfig.cost_per_1k_input,
-              cost_per_1k_output: balancedConfig.cost_per_1k_output,
-              pricing_source: balancedConfig.pricing_source,
-              note: 'Mid-tier - good balance of cost/quality'
-            },
-            'premium-worker': {
-              model: premiumConfig.model,
-              cost_per_1k_input: premiumConfig.cost_per_1k_input,
-              cost_per_1k_output: premiumConfig.cost_per_1k_output,
-              pricing_source: premiumConfig.pricing_source,
-              note: 'Most expensive - use sparingly'
-            }
-          },
-          free_alternative: {
-            server: 'autonomous-agent-mcp',
-            cost: 0,
-            note: 'FREE - runs on local Ollama. Use this first!'
-          }
-        }, null, 2),
+  return jsonResponse({
+    max_concurrency: policy.MAX_CONCURRENCY,
+    config: `Set MAX_OPENAI_CONCURRENCY=1-10 (current: ${policy.MAX_CONCURRENCY})`,
+    budget: {
+      monthly_limit: policy.MONTHLY_BUDGET,
+      spent: monthlySpend,
+      remaining,
+      percentage_used: (monthlySpend / policy.MONTHLY_BUDGET) * 100,
+    },
+    pricing_info: {
+      last_updated: pricingInfo.last_updated,
+      cache_age_hours: Math.round(pricingInfo.cache_age_hours * 10) / 10,
+      sources: pricingInfo.sources,
+    },
+    agents: {
+      'mini-worker': {
+        model: miniConfig.model,
+        cost_per_1k_input: miniConfig.cost_per_1k_input,
+        cost_per_1k_output: miniConfig.cost_per_1k_output,
+        pricing_source: miniConfig.pricing_source,
+        note: 'Cheapest - good for simple tasks',
       },
-    ],
-  };
+      'balanced-worker': {
+        model: balancedConfig.model,
+        cost_per_1k_input: balancedConfig.cost_per_1k_input,
+        cost_per_1k_output: balancedConfig.cost_per_1k_output,
+        pricing_source: balancedConfig.pricing_source,
+        note: 'Mid-tier - good balance of cost/quality',
+      },
+      'premium-worker': {
+        model: premiumConfig.model,
+        cost_per_1k_input: premiumConfig.cost_per_1k_input,
+        cost_per_1k_output: premiumConfig.cost_per_1k_output,
+        pricing_source: premiumConfig.pricing_source,
+        note: 'Most expensive - use sparingly',
+      },
+    },
+    free_alternative: {
+      server: 'autonomous-agent-mcp',
+      cost: 0,
+      note: 'FREE - runs on local Ollama. Use this first!',
+    },
+  });
 }
 
 /**
  * Get token analytics
  */
-async function handleGetTokenAnalytics(args: any) {
+async function handleGetTokenAnalytics(args: any): Promise<ToolResponse> {
   const tracker = getTokenTracker();
   const period = args?.period || 'all';
   const stats = tracker.getStats(period);
-
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify({
-          ...stats,
-          database_path: tracker.getDatabasePath(),
-          note: 'Real OpenAI costs - track your spending!'
-        }, null, 2),
-      },
-    ],
-  };
+  return jsonResponse({
+    ...stats,
+    database_path: tracker.getDatabasePath(),
+    note: 'Real OpenAI costs - track your spending!',
+  });
 }
 
 /**
  * Execute versatile task with smart model selection
  */
-async function handleExecuteVersatileTask(args: any) {
+async function handleExecuteVersatileTask(args: any): Promise<ToolResponse> {
   const {
     task,
     taskType,
@@ -1167,21 +1123,17 @@ async function handleExecuteVersatileTask(args: any) {
   // Check monthly budget
   const monthlySpend = getMonthlySpend();
   if (!withinBudget(monthlySpend, estimatedCost)) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            error: 'BUDGET_EXCEEDED',
-            message: `Monthly budget of $${COST_POLICY.MONTHLY_BUDGET} would be exceeded`,
-            currentSpend: monthlySpend,
-            estimatedCost,
-            remaining: COST_POLICY.MONTHLY_BUDGET - monthlySpend,
-            suggestion: 'Use FREE Ollama (set maxCost=0) or wait until next month',
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse(
+      {
+        error: 'BUDGET_EXCEEDED',
+        message: `Monthly budget of $${COST_POLICY.MONTHLY_BUDGET} would be exceeded`,
+        currentSpend: monthlySpend,
+        estimatedCost,
+        remaining: COST_POLICY.MONTHLY_BUDGET - monthlySpend,
+        suggestion: 'Use FREE Ollama (set maxCost=0) or wait until next month',
+      },
+      { isError: true }
+    );
   }
 
   // Execute task based on taskType
@@ -1205,22 +1157,15 @@ async function handleExecuteVersatileTask(args: any) {
           throw new Error(`Toolkit call failed: ${toolkitResult.error}`);
         }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                success: true,
-                result: toolkitResult.result,
-                cost: {
-                  total: 0,
-                  currency: 'USD',
-                  note: 'FREE - Robinson\'s Toolkit call',
-                },
-              }, null, 2),
-            },
-          ],
-        };
+        return jsonResponse({
+          success: true,
+          result: toolkitResult.result,
+          cost: {
+            total: 0,
+            currency: 'USD',
+            note: "FREE - Robinson's Toolkit call",
+          },
+        });
 
       case 'thinking_tool_call':
         // Call Thinking Tools MCP for cognitive frameworks, context engine, etc.
@@ -1237,22 +1182,15 @@ async function handleExecuteVersatileTask(args: any) {
           throw new Error(`Thinking tool call failed: ${thinkingResult.error}`);
         }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                success: true,
-                result: thinkingResult.result,
-                cost: {
-                  total: 0,
-                  currency: 'USD',
-                  note: 'FREE - Thinking Tools MCP call',
-                },
-              }, null, 2),
-            },
-          ],
-        };
+        return jsonResponse({
+          success: true,
+          result: thinkingResult.result,
+          cost: {
+            total: 0,
+            currency: 'USD',
+            note: 'FREE - Thinking Tools MCP call',
+          },
+        });
 
       case 'code_generation':
       case 'code_analysis':
@@ -1282,24 +1220,17 @@ async function handleExecuteVersatileTask(args: any) {
             maxTokens: params.maxTokens,
           });
 
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify({
-                  success: true,
-                  result: result.content,
-                  usage: result.usage,
-                  cost: {
-                    total: 0,
-                    currency: 'USD',
-                    note: 'FREE - Ollama execution',
-                  },
-                  model: modelId,
-                }, null, 2),
-              },
-            ],
-          };
+          return jsonResponse({
+            success: true,
+            result: result.content,
+            usage: result.usage,
+            cost: {
+              total: 0,
+              currency: 'USD',
+              note: 'FREE - Ollama execution',
+            },
+            model: modelId,
+          });
         } else if (modelConfig.provider === 'claude') {
           // Use PAID Claude (Anthropic)
           const systemPrompt = buildStrictSystemPrompt(taskType, params.context);
@@ -1332,28 +1263,21 @@ async function handleExecuteVersatileTask(args: any) {
           recordSpend(actualCost, `versatile_task_${modelConfig.model}`);
           checkBudgetAlerts(); // Check for budget alerts
 
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify({
-                  success: true,
-                  result: resultText,
-                  usage: {
-                    promptTokens: usage.input_tokens,
-                    completionTokens: usage.output_tokens,
-                    totalTokens: usage.input_tokens + usage.output_tokens,
-                  },
-                  cost: {
-                    total: actualCost,
-                    currency: 'USD',
-                    note: 'PAID - Claude (Anthropic) execution',
-                  },
-                  model: modelId,
-                }, null, 2),
-              },
-            ],
-          };
+          return jsonResponse({
+            success: true,
+            result: resultText,
+            usage: {
+              promptTokens: usage.input_tokens,
+              completionTokens: usage.output_tokens,
+              totalTokens: usage.input_tokens + usage.output_tokens,
+            },
+            cost: {
+              total: actualCost,
+              currency: 'USD',
+              note: 'PAID - Claude (Anthropic) execution',
+            },
+            model: modelId,
+          });
         } else if (modelConfig.provider === 'voyage') {
           const voyageResult = await callVoyageChatCompletion({
             model: modelConfig.model,
@@ -1371,28 +1295,21 @@ async function handleExecuteVersatileTask(args: any) {
           recordSpend(actualCost, `versatile_task_${modelConfig.model}`);
           checkBudgetAlerts();
 
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify({
-                  success: true,
-                  result: voyageResult.content,
-                  usage: {
-                    promptTokens: voyageResult.usage.promptTokens,
-                    completionTokens: voyageResult.usage.completionTokens,
-                    totalTokens: voyageResult.usage.promptTokens + voyageResult.usage.completionTokens,
-                  },
-                  cost: {
-                    total: actualCost,
-                    currency: 'USD',
-                    note: 'PAID - Voyage execution',
-                  },
-                  model: modelId,
-                }, null, 2),
-              },
-            ],
-          };
+          return jsonResponse({
+            success: true,
+            result: voyageResult.content,
+            usage: {
+              promptTokens: voyageResult.usage.promptTokens,
+              completionTokens: voyageResult.usage.completionTokens,
+              totalTokens: voyageResult.usage.promptTokens + voyageResult.usage.completionTokens,
+            },
+            cost: {
+              total: actualCost,
+              currency: 'USD',
+              note: 'PAID - Voyage execution',
+            },
+            model: modelId,
+          });
         } else {
           // Use PAID OpenAI
           const messages = [
@@ -1427,58 +1344,37 @@ async function handleExecuteVersatileTask(args: any) {
           recordSpend(actualCost, `versatile_task_${modelConfig.model}`);
           checkBudgetAlerts(); // Check for budget alerts
 
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify({
-                  success: true,
-                  result: choice.message.content,
-                  usage: {
-                    promptTokens: usage?.prompt_tokens || 0,
-                    completionTokens: usage?.completion_tokens || 0,
-                    totalTokens: usage?.total_tokens || 0,
-                  },
-                  cost: {
-                    total: actualCost,
-                    currency: 'USD',
-                    note: 'PAID - OpenAI execution',
-                  },
-                  model: modelId,
-                }, null, 2),
-              },
-            ],
-          };
+          return jsonResponse({
+            success: true,
+            result: choice.message.content,
+            usage: {
+              promptTokens: usage?.prompt_tokens || 0,
+              completionTokens: usage?.completion_tokens || 0,
+              totalTokens: usage?.total_tokens || 0,
+            },
+            cost: {
+              total: actualCost,
+              currency: 'USD',
+              note: 'PAID - OpenAI execution',
+            },
+            model: modelId,
+          });
         }
 
       case 'file_editing':
         // NEW: Direct file editing using universal file tools
         const fileEditResult = await handleFileEditing(task, params, modelId, modelConfig);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(fileEditResult, null, 2),
-            },
-          ],
-        };
+        return jsonResponse(fileEditResult);
 
       default:
         throw new Error(`Unknown task type: ${taskType}`);
     }
   } catch (error: any) {
     console.error(`[OpenAIWorker] Error:`, error.message);
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            error: error.message,
-            model: modelId,
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      error: error.message,
+      model: modelId,
+    }, { isError: true });
   }
 }
 
@@ -1959,7 +1855,7 @@ Generate the modified section now:`;
 /**
  * Discover toolkit tools
  */
-async function handleDiscoverToolkitTools(args: any) {
+async function handleDiscoverToolkitTools(args: any): Promise<ToolResponse> {
   try {
     const toolkitClient = getSharedToolkitClient();
     const result = await toolkitClient.discoverTools(args.query || '', args.limit || 10);
@@ -1968,30 +1864,16 @@ async function handleDiscoverToolkitTools(args: any) {
       throw new Error(`Tool discovery failed: ${result.error}`);
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result.result, null, 2),
-        },
-      ],
-    };
+    return jsonResponse(result.result);
   } catch (error: any) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({ error: error.message }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({ error: error.message }, { isError: true });
   }
 }
 
 /**
  * List toolkit categories
  */
-async function handleListToolkitCategories() {
+async function handleListToolkitCategories(): Promise<ToolResponse> {
   try {
     const toolkitClient = getSharedToolkitClient();
     const result = await toolkitClient.listCategories();
@@ -2000,30 +1882,16 @@ async function handleListToolkitCategories() {
       throw new Error(`Failed to list categories: ${result.error}`);
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result.result, null, 2),
-        },
-      ],
-    };
+    return jsonResponse(result.result);
   } catch (error: any) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({ error: error.message }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({ error: error.message }, { isError: true });
   }
 }
 
 /**
  * List toolkit tools in a category
  */
-async function handleListToolkitTools(args: any) {
+async function handleListToolkitTools(args: any): Promise<ToolResponse> {
   try {
     const toolkitClient = getSharedToolkitClient();
     const result = await toolkitClient.listTools(args.category || '');
@@ -2032,30 +1900,16 @@ async function handleListToolkitTools(args: any) {
       throw new Error(`Failed to list tools: ${result.error}`);
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result.result, null, 2),
-        },
-      ],
-    };
+    return jsonResponse(result.result);
   } catch (error: any) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({ error: error.message }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({ error: error.message }, { isError: true });
   }
 }
 
 /**
  * Discover thinking tools
  */
-async function handleDiscoverThinkingTools(args: any) {
+async function handleDiscoverThinkingTools(args: any): Promise<ToolResponse> {
   try {
     const thinkingClient = getSharedThinkingClient();
     const result = await thinkingClient.listTools();
@@ -2076,34 +1930,20 @@ async function handleDiscoverThinkingTools(args: any) {
         )
       : tools;
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            tools: filtered.slice(0, limit),
-            total: filtered.length,
-            query,
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      tools: filtered.slice(0, limit),
+      total: filtered.length,
+      query,
+    });
   } catch (error: any) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({ error: error.message }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({ error: error.message }, { isError: true });
   }
 }
 
 /**
  * List all thinking tools
  */
-async function handleListThinkingTools() {
+async function handleListThinkingTools(): Promise<ToolResponse> {
   try {
     const thinkingClient = getSharedThinkingClient();
     const result = await thinkingClient.listTools();
@@ -2112,33 +1952,19 @@ async function handleListThinkingTools() {
       throw new Error(`Failed to list thinking tools: ${result.error}`);
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            tools: result.result,
-            total: result.result?.length || 0,
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      tools: result.result,
+      total: result.result?.length || 0,
+    });
   } catch (error: any) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({ error: error.message }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({ error: error.message }, { isError: true });
   }
 }
 
 /**
  * Execute code generation with quality gates pipeline (PAID models)
  */
-async function handleExecuteWithQualityGates(args: any) {
+async function handleExecuteWithQualityGates(args: any): Promise<ToolResponse> {
   try {
     // ✅ FIXED: Import from shared libraries instead of FREE agent
     const { iterateTask } = await import('@robinson_ai_systems/shared-pipeline');
@@ -2205,47 +2031,33 @@ async function handleExecuteWithQualityGates(args: any) {
     // Get actual cost from pipeline result
     const actualCost = result.totalCost || 0;
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: result.ok,
-            files: result.files,
-            score: result.score,
-            attempts: result.attempts,
-            verdict: result.verdict,
-            execReport: result.execReport,
-            cost: {
-              total: actualCost,
-              currency: 'USD',
-              note: 'PAID - OpenAI/Claude with quality gates pipeline',
-              breakdown: result.costBreakdown,
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      success: result.ok,
+      files: result.files,
+      score: result.score,
+      attempts: result.attempts,
+      verdict: result.verdict,
+      execReport: result.execReport,
+      cost: {
+        total: actualCost,
+        currency: 'USD',
+        note: 'PAID - OpenAI/Claude with quality gates pipeline',
+        breakdown: result.costBreakdown,
+      },
+    });
   } catch (error: any) {
     console.error('[handleExecuteWithQualityGates] Error:', error);
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: error.message,
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      success: false,
+      error: error.message,
+    }, { isError: true });
   }
 }
 
 /**
  * Judge code quality using LLM Judge (PAID models)
  */
-async function handleJudgeCodeQuality(args: any) {
+async function handleJudgeCodeQuality(args: any): Promise<ToolResponse> {
   try {
     // ✅ FIXED: Import from shared-pipeline instead of FREE agent
     const { judgeCode } = await import('@robinson_ai_systems/shared-pipeline');
@@ -2273,43 +2085,29 @@ async function handleJudgeCodeQuality(args: any) {
     // Cost is $0 since we're using Ollama
     const actualCost = 0;
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            verdict,
-            code: args.code,
-            cost: {
-              total: actualCost,
-              currency: 'USD',
-              note: 'PAID - OpenAI/Claude judge',
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      success: true,
+      verdict,
+      code: args.code,
+      cost: {
+        total: actualCost,
+        currency: 'USD',
+        note: 'PAID - OpenAI/Claude judge',
+      },
+    });
   } catch (error: any) {
     console.error('[handleJudgeCodeQuality] Error:', error);
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: error.message,
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      success: false,
+      error: error.message,
+    }, { isError: true });
   }
 }
 
 /**
  * Refine code based on judge feedback (PAID models)
  */
-async function handleRefineCode(args: any) {
+async function handleRefineCode(args: any): Promise<ToolResponse> {
   try {
     // ✅ FIXED: Import from shared-pipeline instead of FREE agent
     const { applyFixPlan } = await import('@robinson_ai_systems/shared-pipeline');
@@ -2347,44 +2145,30 @@ async function handleRefineCode(args: any) {
     // Cost is $0 since we're using Ollama
     const actualCost = 0;
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            files: result.files,
-            tests: result.tests,
-            notes: result.notes,
-            cost: {
-              total: actualCost,
-              currency: 'USD',
-              note: 'PAID - OpenAI/Claude refine',
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      success: true,
+      files: result.files,
+      tests: result.tests,
+      notes: result.notes,
+      cost: {
+        total: actualCost,
+        currency: 'USD',
+        note: 'PAID - OpenAI/Claude refine',
+      },
+    });
   } catch (error: any) {
     console.error('[handleRefineCode] Error:', error);
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: error.message,
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      success: false,
+      error: error.message,
+    }, { isError: true });
   }
 }
 
 /**
  * Generate Project Brief from repository (static analysis - no AI cost)
  */
-async function handleGenerateProjectBrief(args: any) {
+async function handleGenerateProjectBrief(args: any): Promise<ToolResponse> {
   try {
     // @ts-ignore - optional dependency may be missing at runtime
     const { makeProjectBrief } = await import('@robinson_ai_systems/shared-utils');
@@ -2392,35 +2176,21 @@ async function handleGenerateProjectBrief(args: any) {
     const repoPath = args.repoPath || getWorkspaceRoot();
     const brief = await makeProjectBrief(repoPath);
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            brief,
-            cost: {
-              total: 0,
-              currency: 'USD',
-              note: 'FREE - Static analysis',
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      success: true,
+      brief,
+      cost: {
+        total: 0,
+        currency: 'USD',
+        note: 'FREE - Static analysis',
+      },
+    });
   } catch (error: any) {
     console.error('[handleGenerateProjectBrief] Error:', error);
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: 'shared-utils package not installed. Install to enable project brief generation.',
-          }, null, 2),
-        },
-      ],
-    };
+    return jsonResponse({
+      success: false,
+      error: 'shared-utils package not installed. Install to enable project brief generation.',
+    }, { isError: true });
   }
 }
 
