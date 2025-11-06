@@ -305,3 +305,202 @@ Based on FREE agent's validation report and priority:
 
 **Ready to begin when you are!** 🚀
 
+---
+
+## 🔮 FUTURE: DYNAMIC TOOL SYSTEM (Post v1.12.0)
+
+### The Problem with Current Architecture
+
+**Current System (Manual):**
+```typescript
+// 1. Define handler method
+private async stripeCreateCustomer(args: any) { ... }
+
+// 2. Add case statement (MANUAL - easy to forget!)
+case 'stripe_create_customer': return await this.stripeCreateCustomer(args);
+
+// 3. Register tool in ListToolsRequestSchema (MANUAL - easy to forget!)
+{ name: 'stripe_create_customer', description: '...', inputSchema: {...} }
+```
+
+**Problems:**
+- ❌ **3 places to update** for every tool (handler, case, registry)
+- ❌ **Easy to forget** case statements (like Neon bug we fixed)
+- ❌ **Manual synchronization** between handler names and tool names
+- ❌ **Doesn't scale** - we're adding 610+ tools!
+- ❌ **Error-prone** - typos break everything
+
+### The Dynamic Solution
+
+**Inspired by thinking-tools-mcp pattern:**
+
+```typescript
+// 1. Tool definitions with handlers in one place
+const stripeTools = [
+  {
+    name: 'stripe_create_customer',
+    description: 'Create a new Stripe customer',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string' },
+        name: { type: 'string' }
+      },
+      required: ['email']
+    },
+    handler: async (args: any) => {
+      // Implementation here
+      const stripe = new Stripe(this.stripeSecretKey);
+      return await stripe.customers.create(args);
+    }
+  },
+  // ... more tools
+];
+
+// 2. Central registry (auto-registers all tools)
+const registry: Record<string, ToolEntry> = {};
+
+for (const tool of stripeTools) {
+  registry[tool.name] = {
+    description: tool.description,
+    inputSchema: tool.inputSchema,
+    handler: tool.handler
+  };
+}
+
+// 3. Dynamic ListTools handler (no manual registration!)
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: Object.entries(registry).map(([name, entry]) => ({
+    name,
+    description: entry.description,
+    inputSchema: entry.inputSchema
+  }))
+}));
+
+// 4. Dynamic CallTool handler (no case statements!)
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+
+  const entry = registry[name];
+  if (!entry) {
+    throw new Error(`Unknown tool: ${name}`);
+  }
+
+  return await entry.handler(args);
+});
+```
+
+### Benefits of Dynamic System
+
+1. ✅ **Single Source of Truth** - Tool definition includes handler
+2. ✅ **No Manual Sync** - Can't forget case statements or registry
+3. ✅ **Auto-Discovery** - New tools automatically exposed
+4. ✅ **Type-Safe** - TypeScript can validate tool definitions
+5. ✅ **Scalable** - Adding 1,000 tools is same effort as adding 1
+6. ✅ **Maintainable** - All tool logic in one place
+7. ✅ **Testable** - Easy to test individual tools
+
+### Migration Plan (After v1.12.0)
+
+**Phase 1: Create Dynamic Infrastructure**
+1. Create `src/tools/` directory structure:
+   ```
+   src/tools/
+   ├── stripe/
+   │   ├── customers.ts
+   │   ├── payments.ts
+   │   └── index.ts
+   ├── supabase/
+   │   ├── database.ts
+   │   ├── auth.ts
+   │   └── index.ts
+   └── index.ts (exports all tools)
+   ```
+
+2. Create tool definition type:
+   ```typescript
+   interface ToolDefinition {
+     name: string;
+     description: string;
+     inputSchema: any;
+     handler: (args: any, context?: any) => Promise<any>;
+   }
+   ```
+
+3. Create registry builder:
+   ```typescript
+   function buildRegistry(toolCollections: ToolDefinition[][]): Record<string, ToolEntry> {
+     const registry: Record<string, ToolEntry> = {};
+     for (const collection of toolCollections) {
+       for (const tool of collection) {
+         registry[tool.name] = {
+           description: tool.description,
+           inputSchema: tool.inputSchema,
+           handler: tool.handler
+         };
+       }
+     }
+     return registry;
+   }
+   ```
+
+**Phase 2: Migrate One Category at a Time**
+1. Start with smallest category (Context7 - 10 tools)
+2. Convert to dynamic pattern
+3. Test thoroughly
+4. Verify no regressions
+5. Move to next category
+
+**Phase 3: Remove Old Infrastructure**
+1. Delete massive switch statement
+2. Delete manual tool registrations
+3. Simplify index.ts to just registry + handlers
+4. Update documentation
+
+**Phase 4: Add Code Generation**
+1. Create script to generate tool definitions from API specs
+2. Auto-generate TypeScript types from schemas
+3. Reduce manual work even further
+
+### Expected Outcome
+
+**Before (Current):**
+- `index.ts`: 16,289 lines (mostly case statements)
+- Adding 1 tool: 3 manual edits
+- Risk: High (easy to forget steps)
+
+**After (Dynamic):**
+- `index.ts`: ~500 lines (just registry setup)
+- `src/tools/`: Organized by category
+- Adding 1 tool: 1 file edit
+- Risk: Low (automatic registration)
+
+### Timeline
+
+**When to Migrate:**
+- ✅ After v1.12.0 (all 7 categories implemented)
+- ✅ After comprehensive testing of current system
+- ✅ When we have time for major refactor
+- ✅ Before adding more categories (to avoid more manual work)
+
+**Estimated Effort:**
+- Phase 1 (Infrastructure): 1-2 days
+- Phase 2 (Migration): 1 week (7 categories)
+- Phase 3 (Cleanup): 1 day
+- Phase 4 (Code Gen): 2-3 days
+- **Total: ~2 weeks**
+
+**ROI:**
+- Saves 100+ hours on future tool additions
+- Eliminates entire class of bugs (missing case statements)
+- Makes codebase 10x more maintainable
+- Enables AI-assisted tool generation
+
+---
+
+## 📝 NOTES
+
+**Don't forget this plan!** After we complete v1.12.0 with all 7 categories implemented using the current manual system, we should migrate to the dynamic system to make future additions effortless and bug-free.
+
+The thinking-tools-mcp server already uses this pattern successfully - we just need to apply it to Robinson's Toolkit MCP.
+
