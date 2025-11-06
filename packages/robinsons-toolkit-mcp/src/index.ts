@@ -2961,6 +2961,27 @@ class UnifiedToolkit {
           case 'admin_create_group': return await this.adminCreateGroup(args);
           case 'admin_update_group': return await this.adminUpdateGroup(args);
           case 'admin_delete_group': return await this.adminDeleteGroup(args);
+          case 'admin_list_group_members': return await this.adminListGroupMembers(args);
+          case 'admin_add_group_member': return await this.adminAddGroupMember(args);
+          case 'admin_remove_group_member': return await this.adminRemoveGroupMember(args);
+          case 'admin_list_group_aliases': return await this.adminListGroupAliases(args);
+          case 'admin_add_group_alias': return await this.adminAddGroupAlias(args);
+          case 'admin_delete_group_alias': return await this.adminDeleteGroupAlias(args);
+          case 'admin_list_orgunits': return await this.adminListOrgUnits(args);
+          case 'admin_get_orgunit': return await this.adminGetOrgUnit(args);
+          case 'admin_create_orgunit': return await this.adminCreateOrgUnit(args);
+          case 'admin_update_orgunit': return await this.adminUpdateOrgUnit(args);
+          case 'admin_delete_orgunit': return await this.adminDeleteOrgUnit(args);
+          case 'admin_list_domains': return await this.adminListDomains(args);
+          case 'admin_get_domain': return await this.adminGetDomain(args);
+          case 'admin_create_domain': return await this.adminCreateDomain(args);
+          case 'admin_delete_domain': return await this.adminDeleteDomain(args);
+          case 'admin_list_domain_aliases': return await this.adminListDomainAliases(args);
+          case 'admin_list_roles': return await this.adminListRoles(args);
+          case 'admin_get_role': return await this.adminGetRole(args);
+          case 'admin_create_role': return await this.adminCreateRole(args);
+          case 'admin_update_role': return await this.adminUpdateRole(args);
+          case 'admin_delete_role': return await this.adminDeleteRole(args);
 
           default:
             return {
@@ -10606,6 +10627,113 @@ ${args.body}`;
   private async adminDeleteGroup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     await this.admin.groups.delete({ groupKey: args.groupKey });
     return { content: [{ type: 'text', text: 'Group deleted' }] };
+  }
+
+  private async adminListGroupMembers(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.members.list({ groupKey: args.groupKey, maxResults: args.maxResults || 100 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.members || [], null, 2) }] };
+  }
+
+  private async adminAddGroupMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.members.insert({ groupKey: args.groupKey, requestBody: { email: args.email, role: args.role || 'MEMBER' } });
+    return { content: [{ type: 'text', text: 'Member added to group' }] };
+  }
+
+  private async adminRemoveGroupMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.members.delete({ groupKey: args.groupKey, memberKey: args.memberKey });
+    return { content: [{ type: 'text', text: 'Member removed from group' }] };
+  }
+
+  private async adminListGroupAliases(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.groups.aliases.list({ groupKey: args.groupKey });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.aliases || [], null, 2) }] };
+  }
+
+  private async adminAddGroupAlias(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.groups.aliases.insert({ groupKey: args.groupKey, requestBody: { alias: args.alias } });
+    return { content: [{ type: 'text', text: 'Group alias added: ' + args.alias }] };
+  }
+
+  private async adminDeleteGroupAlias(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.groups.aliases.delete({ groupKey: args.groupKey, alias: args.alias });
+    return { content: [{ type: 'text', text: 'Group alias deleted: ' + args.alias }] };
+  }
+
+  private async adminListOrgUnits(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.orgunits.list({ customerId: args.customerId || 'my_customer', orgUnitPath: args.orgUnitPath });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.organizationUnits || [], null, 2) }] };
+  }
+
+  private async adminGetOrgUnit(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.orgunits.get({ customerId: args.customerId, orgUnitPath: args.orgUnitPath });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async adminCreateOrgUnit(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const orgUnit = { name: args.name, parentOrgUnitPath: args.parentOrgUnitPath || '/' };
+    const result = await this.admin.orgunits.insert({ customerId: args.customerId, requestBody: orgUnit });
+    return { content: [{ type: 'text', text: 'Org unit created: ' + result.data.orgUnitPath }] };
+  }
+
+  private async adminUpdateOrgUnit(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.orgunits.update({ customerId: args.customerId, orgUnitPath: args.orgUnitPath, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Org unit updated' }] };
+  }
+
+  private async adminDeleteOrgUnit(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.orgunits.delete({ customerId: args.customerId, orgUnitPath: args.orgUnitPath });
+    return { content: [{ type: 'text', text: 'Org unit deleted' }] };
+  }
+
+  private async adminListDomains(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.domains.list({ customer: args.customerId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.domains || [], null, 2) }] };
+  }
+
+  private async adminGetDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.domains.get({ customer: args.customerId, domainName: args.domainName });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async adminCreateDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.domains.insert({ customer: args.customerId, requestBody: { domainName: args.domainName } });
+    return { content: [{ type: 'text', text: 'Domain created: ' + args.domainName }] };
+  }
+
+  private async adminDeleteDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.domains.delete({ customer: args.customerId, domainName: args.domainName });
+    return { content: [{ type: 'text', text: 'Domain deleted: ' + args.domainName }] };
+  }
+
+  private async adminListDomainAliases(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.domainAliases.list({ customer: args.customerId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.domainAliases || [], null, 2) }] };
+  }
+
+  private async adminListRoles(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.roles.list({ customer: args.customerId, maxResults: args.maxResults || 100 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+  private async adminGetRole(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.roles.get({ customer: args.customerId, roleId: args.roleId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async adminCreateRole(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const role = { roleName: args.roleName, rolePrivileges: args.rolePrivileges || [] };
+    const result = await this.admin.roles.insert({ customer: args.customerId, requestBody: role });
+    return { content: [{ type: 'text', text: 'Role created. ID: ' + result.data.roleId }] };
+  }
+
+  private async adminUpdateRole(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.roles.update({ customer: args.customerId, roleId: args.roleId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Role updated' }] };
+  }
+
+  private async adminDeleteRole(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.roles.delete({ customer: args.customerId, roleId: args.roleId });
+    return { content: [{ type: 'text', text: 'Role deleted' }] };
   }
 }
 
