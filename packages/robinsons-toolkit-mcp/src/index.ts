@@ -13291,6 +13291,1640 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
     return { content: [{ type: 'text', text: JSON.stringify(thumbnail.data, null, 2) }] };
   }
 
+  // ============================================================================
+  // NEON HANDLERS (166 total)
+  // ============================================================================
+
+  // PROJECT MANAGEMENT (13 handlers)
+  private async neonListProjects(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.limit) params.append('limit', String(args.limit));
+      if (args.search) params.append('search', args.search);
+      if (args.cursor) params.append('cursor', args.cursor);
+      if (args.org_id) params.append('org_id', args.org_id);
+      const result = await this.neonFetch(`/projects?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list projects: ${error.message}`);
+    }
+  }
+
+  private async neonListOrganizations(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.search) params.append('search', args.search);
+      const result = await this.neonFetch(`/organizations?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list organizations: ${error.message}`);
+    }
+  }
+
+  private async neonListSharedProjects(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.limit) params.append('limit', String(args.limit));
+      if (args.cursor) params.append('cursor', args.cursor);
+      const result = await this.neonFetch(`/projects/shared?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list shared projects: ${error.message}`);
+    }
+  }
+
+  private async neonCreateProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body: any = { project: {} };
+      if (args.name) body.project.name = args.name;
+      if (args.region_id) body.project.region_id = args.region_id;
+      if (args.pg_version) body.project.pg_version = args.pg_version;
+      const result = await this.neonFetch('/projects', { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create project: ${error.message}`);
+    }
+  }
+
+  private async neonDeleteProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete project: ${error.message}`);
+    }
+  }
+
+  private async neonDescribeProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to describe project: ${error.message}`);
+    }
+  }
+
+  private async neonUpdateProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body: any = { project: {} };
+      if (args.name) body.project.name = args.name;
+      if (args.settings) body.project.settings = args.settings;
+      const result = await this.neonFetch(`/projects/${args.project_id}`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to update project: ${error.message}`);
+    }
+  }
+
+  private async neonGetProjectOperations(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/operations`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get project operations: ${error.message}`);
+    }
+  }
+
+  private async neonGetProjectConsumption(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.from) params.append('from', args.from);
+      if (args.to) params.append('to', args.to);
+      const result = await this.neonFetch(`/projects/${args.project_id}/consumption?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get project consumption: ${error.message}`);
+    }
+  }
+
+  private async neonSetProjectSettings(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { settings: args.settings };
+      const result = await this.neonFetch(`/projects/${args.project_id}/settings`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set project settings: ${error.message}`);
+    }
+  }
+
+  private async neonGetProjectQuotas(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/quotas`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get project quotas: ${error.message}`);
+    }
+  }
+
+  private async neonCloneProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body: any = {};
+      if (args.name) body.name = args.name;
+      const result = await this.neonFetch(`/projects/${args.project_id}/clone`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to clone project: ${error.message}`);
+    }
+  }
+
+  private async neonGetProjectPermissions(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/permissions`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get project permissions: ${error.message}`);
+    }
+  }
+
+  // BRANCH MANAGEMENT (20 handlers)
+  private async neonCreateBranch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body: any = { branch: {} };
+      if (args.name) body.branch.name = args.name;
+      if (args.parent_id) body.branch.parent_id = args.parent_id;
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create branch: ${error.message}`);
+    }
+  }
+
+  private async neonDeleteBranch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete branch: ${error.message}`);
+    }
+  }
+
+  private async neonDescribeBranch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to describe branch: ${error.message}`);
+    }
+  }
+
+  private async neonResetFromParent(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/reset_from_parent`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to reset from parent: ${error.message}`);
+    }
+  }
+
+  private async neonUpdateBranch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body: any = { branch: {} };
+      if (args.name) body.branch.name = args.name;
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to update branch: ${error.message}`);
+    }
+  }
+
+  private async neonListBranches(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list branches: ${error.message}`);
+    }
+  }
+
+  private async neonGetBranchDetails(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/details`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get branch details: ${error.message}`);
+    }
+  }
+
+  private async neonRestoreBranch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { timestamp: args.timestamp };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/restore`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to restore branch: ${error.message}`);
+    }
+  }
+
+  private async neonSetBranchProtection(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { protected: args.protected };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/protection`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set branch protection: ${error.message}`);
+    }
+  }
+
+  private async neonGetBranchSchemaDiff(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/schema_diff`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get branch schema diff: ${error.message}`);
+    }
+  }
+
+  private async neonGetBranchDataDiff(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/data_diff`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get branch data diff: ${error.message}`);
+    }
+  }
+
+  private async neonMergeBranches(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { source_branch_id: args.source_branch_id };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.target_branch_id}/merge`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to merge branches: ${error.message}`);
+    }
+  }
+
+  private async neonPromoteBranch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/promote`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to promote branch: ${error.message}`);
+    }
+  }
+
+  private async neonSetBranchRetention(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { retention_days: args.retention_days };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/retention`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set branch retention: ${error.message}`);
+    }
+  }
+
+  private async neonGetBranchHistory(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/history`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get branch history: ${error.message}`);
+    }
+  }
+
+  private async neonRestoreBranchToTimestamp(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { timestamp: args.timestamp };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/restore_to_timestamp`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to restore branch to timestamp: ${error.message}`);
+    }
+  }
+
+  private async neonGetBranchSize(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/size`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get branch size: ${error.message}`);
+    }
+  }
+
+  private async neonSetBranchComputeSettings(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { compute_settings: args.compute_settings };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/compute_settings`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set branch compute settings: ${error.message}`);
+    }
+  }
+
+  private async neonGetBranchConnections(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/connections`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get branch connections: ${error.message}`);
+    }
+  }
+
+  private async neonListBranchComputes(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/computes`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list branch computes: ${error.message}`);
+    }
+  }
+
+  // SQL OPERATIONS (10 handlers)
+  private async neonRunSql(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { query: args.query };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/query`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to run SQL: ${error.message}`);
+    }
+  }
+
+  private async neonRunSqlTransaction(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { queries: args.queries };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/transaction`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to run SQL transaction: ${error.message}`);
+    }
+  }
+
+  private async neonGetConnectionString(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.role_name) params.append('role_name', args.role_name);
+      if (args.database_name) params.append('database_name', args.database_name);
+      if (args.pooled !== undefined) params.append('pooled', String(args.pooled));
+      const result = await this.neonFetch(`/projects/${args.project_id}/connection_uri?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get connection string: ${error.message}`);
+    }
+  }
+
+  private async neonGetDatabaseTables(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/tables`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get database tables: ${error.message}`);
+    }
+  }
+
+  private async neonDescribeTableSchema(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/tables/${args.table_name}/schema`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to describe table schema: ${error.message}`);
+    }
+  }
+
+  private async neonExplainSqlStatement(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { query: args.query };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/explain`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to explain SQL statement: ${error.message}`);
+    }
+  }
+
+  private async neonListSlowQueries(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/slow_queries`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list slow queries: ${error.message}`);
+    }
+  }
+
+  private async neonOptimizeQuery(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { query: args.query };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/optimize_query`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to optimize query: ${error.message}`);
+    }
+  }
+
+  private async neonSuggestIndexes(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { query: args.query };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/suggest_indexes`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to suggest indexes: ${error.message}`);
+    }
+  }
+
+  private async neonAnalyzeQueryPlan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { query: args.query };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/analyze_query_plan`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to analyze query plan: ${error.message}`);
+    }
+  }
+
+  // DATABASE MANAGEMENT (16 handlers)
+  private async neonCreateDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { database: { name: args.name, owner_name: args.owner_name } };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create database: ${error.message}`);
+    }
+  }
+
+  private async neonDeleteDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete database: ${error.message}`);
+    }
+  }
+
+  private async neonListDatabases(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list databases: ${error.message}`);
+    }
+  }
+
+  private async neonGetDatabaseSize(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/size`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get database size: ${error.message}`);
+    }
+  }
+
+  private async neonGetDatabaseStats(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/stats`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get database stats: ${error.message}`);
+    }
+  }
+
+  private async neonVacuumDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/vacuum`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to vacuum database: ${error.message}`);
+    }
+  }
+
+  private async neonAnalyzeDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/analyze`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to analyze database: ${error.message}`);
+    }
+  }
+
+  private async neonReindexDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/reindex`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to reindex database: ${error.message}`);
+    }
+  }
+
+  private async neonGetDatabaseLocks(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/locks`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get database locks: ${error.message}`);
+    }
+  }
+
+  private async neonKillDatabaseQuery(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { pid: args.pid };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/kill_query`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to kill database query: ${error.message}`);
+    }
+  }
+
+  private async neonGetDatabaseActivity(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/activity`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get database activity: ${error.message}`);
+    }
+  }
+
+  private async neonBackupDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/backup`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to backup database: ${error.message}`);
+    }
+  }
+
+  private async neonPrepareDatabaseMigration(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { migration_sql: args.migration_sql };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/prepare_migration`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to prepare database migration: ${error.message}`);
+    }
+  }
+
+  private async neonCompleteDatabaseMigration(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { migration_id: args.migration_id };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/complete_migration`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to complete database migration: ${error.message}`);
+    }
+  }
+
+  private async neonPrepareQueryTuning(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { query: args.query };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/prepare_query_tuning`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to prepare query tuning: ${error.message}`);
+    }
+  }
+
+  private async neonCompleteQueryTuning(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { tuning_id: args.tuning_id };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/complete_query_tuning`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to complete query tuning: ${error.message}`);
+    }
+  }
+
+  // ROLE MANAGEMENT (10 handlers)
+  private async neonCreateRole(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { role: { name: args.name } };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/roles`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create role: ${error.message}`);
+    }
+  }
+
+  private async neonDeleteRole(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/roles/${args.role_name}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete role: ${error.message}`);
+    }
+  }
+
+  private async neonListRoles(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/roles`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list roles: ${error.message}`);
+    }
+  }
+
+  private async neonUpdateRole(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { role: args.updates };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/roles/${args.role_name}`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to update role: ${error.message}`);
+    }
+  }
+
+  private async neonGrantRolePermissions(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { permissions: args.permissions };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/roles/${args.role_name}/grant`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to grant role permissions: ${error.message}`);
+    }
+  }
+
+  private async neonRevokeRolePermissions(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { permissions: args.permissions };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/roles/${args.role_name}/revoke`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to revoke role permissions: ${error.message}`);
+    }
+  }
+
+  private async neonGetRolePermissions(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/roles/${args.role_name}/permissions`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get role permissions: ${error.message}`);
+    }
+  }
+
+  private async neonResetRolePassword(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/roles/${args.role_name}/reset_password`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to reset role password: ${error.message}`);
+    }
+  }
+
+  // ENDPOINT MANAGEMENT (11 handlers)
+  private async neonCreateEndpoint(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { endpoint: { branch_id: args.branch_id, type: args.type } };
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create endpoint: ${error.message}`);
+    }
+  }
+
+  private async neonDeleteEndpoint(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints/${args.endpoint_id}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete endpoint: ${error.message}`);
+    }
+  }
+
+  private async neonUpdateEndpoint(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { endpoint: args.updates };
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints/${args.endpoint_id}`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to update endpoint: ${error.message}`);
+    }
+  }
+
+  private async neonStartEndpoint(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints/${args.endpoint_id}/start`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to start endpoint: ${error.message}`);
+    }
+  }
+
+  private async neonSuspendEndpoint(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints/${args.endpoint_id}/suspend`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to suspend endpoint: ${error.message}`);
+    }
+  }
+
+  private async neonRestartEndpoint(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints/${args.endpoint_id}/restart`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to restart endpoint: ${error.message}`);
+    }
+  }
+
+  private async neonGetEndpointMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints/${args.endpoint_id}/metrics`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get endpoint metrics: ${error.message}`);
+    }
+  }
+
+  private async neonSetEndpointAutoscaling(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { autoscaling: args.autoscaling };
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints/${args.endpoint_id}/autoscaling`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set endpoint autoscaling: ${error.message}`);
+    }
+  }
+
+  private async neonGetEndpointLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.limit) params.append('limit', String(args.limit));
+      if (args.cursor) params.append('cursor', args.cursor);
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints/${args.endpoint_id}/logs?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get endpoint logs: ${error.message}`);
+    }
+  }
+
+  private async neonSetEndpointPooling(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { pooling: args.pooling };
+      const result = await this.neonFetch(`/projects/${args.project_id}/endpoints/${args.endpoint_id}/pooling`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set endpoint pooling: ${error.message}`);
+    }
+  }
+
+  // MONITORING & METRICS (16 handlers)
+  private async neonGetQueryStatistics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/query_statistics`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get query statistics: ${error.message}`);
+    }
+  }
+
+  private async neonGetSlowQueryLog(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/slow_query_log`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get slow query log: ${error.message}`);
+    }
+  }
+
+  private async neonGetConnectionStats(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/connection_stats`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get connection stats: ${error.message}`);
+    }
+  }
+
+  private async neonGetStorageMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/storage_metrics`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get storage metrics: ${error.message}`);
+    }
+  }
+
+  private async neonGetComputeMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/compute_metrics`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get compute metrics: ${error.message}`);
+    }
+  }
+
+  private async neonGetIoMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/io_metrics`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get IO metrics: ${error.message}`);
+    }
+  }
+
+  private async neonGetCacheHitRatio(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/cache_hit_ratio`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get cache hit ratio: ${error.message}`);
+    }
+  }
+
+  private async neonGetIndexUsage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/index_usage`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get index usage: ${error.message}`);
+    }
+  }
+
+  private async neonGetTableBloat(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/table_bloat`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get table bloat: ${error.message}`);
+    }
+  }
+
+  private async neonGetReplicationLag(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/replication_lag`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get replication lag: ${error.message}`);
+    }
+  }
+
+  private async neonGetCheckpointStats(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/checkpoint_stats`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get checkpoint stats: ${error.message}`);
+    }
+  }
+
+  private async neonGetWalStats(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/wal_stats`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get WAL stats: ${error.message}`);
+    }
+  }
+
+  private async neonSetMonitoringAlerts(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { alerts: args.alerts };
+      const result = await this.neonFetch(`/projects/${args.project_id}/monitoring_alerts`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set monitoring alerts: ${error.message}`);
+    }
+  }
+
+  private async neonGetAlertHistory(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/alert_history`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get alert history: ${error.message}`);
+    }
+  }
+
+  private async neonGetPerformanceInsights(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/performance_insights`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get performance insights: ${error.message}`);
+    }
+  }
+
+  // BACKUP & RESTORE (8 handlers)
+  private async neonListBackups(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/backups`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list backups: ${error.message}`);
+    }
+  }
+
+  private async neonCreateBackup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { backup: { branch_id: args.branch_id } };
+      const result = await this.neonFetch(`/projects/${args.project_id}/backups`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create backup: ${error.message}`);
+    }
+  }
+
+  private async neonRestoreBackup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { target_branch_id: args.target_branch_id };
+      const result = await this.neonFetch(`/projects/${args.project_id}/backups/${args.backup_id}/restore`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to restore backup: ${error.message}`);
+    }
+  }
+
+  private async neonDeleteBackup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/backups/${args.backup_id}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete backup: ${error.message}`);
+    }
+  }
+
+  private async neonGetBackupStatus(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/backups/${args.backup_id}/status`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get backup status: ${error.message}`);
+    }
+  }
+
+  private async neonScheduleBackup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { schedule: args.schedule };
+      const result = await this.neonFetch(`/projects/${args.project_id}/backup_schedule`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to schedule backup: ${error.message}`);
+    }
+  }
+
+  private async neonExportBackup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/backups/${args.backup_id}/export`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to export backup: ${error.message}`);
+    }
+  }
+
+  private async neonValidateBackup(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/backups/${args.backup_id}/validate`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to validate backup: ${error.message}`);
+    }
+  }
+
+  // SECURITY & COMPLIANCE (10 handlers)
+  private async neonEnableIpAllowlist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { ip_allowlist: args.ip_allowlist };
+      const result = await this.neonFetch(`/projects/${args.project_id}/ip_allowlist`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to enable IP allowlist: ${error.message}`);
+    }
+  }
+
+  private async neonGetIpAllowlist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/ip_allowlist`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get IP allowlist: ${error.message}`);
+    }
+  }
+
+  private async neonEnableSslEnforcement(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { ssl_enforcement: true };
+      const result = await this.neonFetch(`/projects/${args.project_id}/ssl_enforcement`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to enable SSL enforcement: ${error.message}`);
+    }
+  }
+
+  private async neonRotateCredentials(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/rotate_credentials`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to rotate credentials: ${error.message}`);
+    }
+  }
+
+  private async neonGetAuditLog(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.from) params.append('from', args.from);
+      if (args.to) params.append('to', args.to);
+      const result = await this.neonFetch(`/projects/${args.project_id}/audit_log?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get audit log: ${error.message}`);
+    }
+  }
+
+  private async neonEnableEncryption(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { encryption: true };
+      const result = await this.neonFetch(`/projects/${args.project_id}/encryption`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to enable encryption: ${error.message}`);
+    }
+  }
+
+  private async neonGetSecurityScan(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/security_scan`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get security scan: ${error.message}`);
+    }
+  }
+
+  private async neonSetPasswordPolicy(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { password_policy: args.password_policy };
+      const result = await this.neonFetch(`/projects/${args.project_id}/password_policy`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set password policy: ${error.message}`);
+    }
+  }
+
+  private async neonEnable2fa(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { two_factor_auth: true };
+      const result = await this.neonFetch(`/projects/${args.project_id}/2fa`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to enable 2FA: ${error.message}`);
+    }
+  }
+
+  private async neonGetComplianceReport(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/compliance_report`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get compliance report: ${error.message}`);
+    }
+  }
+
+  // COST MANAGEMENT (8 handlers)
+  private async neonGetCostBreakdown(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.from) params.append('from', args.from);
+      if (args.to) params.append('to', args.to);
+      const result = await this.neonFetch(`/projects/${args.project_id}/cost_breakdown?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get cost breakdown: ${error.message}`);
+    }
+  }
+
+  private async neonGetCostForecast(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/cost_forecast`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get cost forecast: ${error.message}`);
+    }
+  }
+
+  private async neonSetCostAlerts(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { alerts: args.alerts };
+      const result = await this.neonFetch(`/projects/${args.project_id}/cost_alerts`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set cost alerts: ${error.message}`);
+    }
+  }
+
+  private async neonGetCostOptimizationTips(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/cost_optimization_tips`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get cost optimization tips: ${error.message}`);
+    }
+  }
+
+  private async neonGetBillingHistory(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/billing_history`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get billing history: ${error.message}`);
+    }
+  }
+
+  private async neonExportCostReport(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.format) params.append('format', args.format);
+      const result = await this.neonFetch(`/projects/${args.project_id}/export_cost_report?${params.toString()}`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to export cost report: ${error.message}`);
+    }
+  }
+
+  private async neonSetBudgetLimits(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { budget_limits: args.budget_limits };
+      const result = await this.neonFetch(`/projects/${args.project_id}/budget_limits`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to set budget limits: ${error.message}`);
+    }
+  }
+
+  private async neonGetResourceRecommendations(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/resource_recommendations`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get resource recommendations: ${error.message}`);
+    }
+  }
+
+  // WEBHOOKS (5 handlers)
+  private async neonCreateWebhook(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { webhook: { url: args.url, events: args.events } };
+      const result = await this.neonFetch(`/projects/${args.project_id}/webhooks`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create webhook: ${error.message}`);
+    }
+  }
+
+  private async neonListWebhooks(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/webhooks`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list webhooks: ${error.message}`);
+    }
+  }
+
+  private async neonDeleteWebhook(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/webhooks/${args.webhook_id}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete webhook: ${error.message}`);
+    }
+  }
+
+  private async neonTestWebhook(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/webhooks/${args.webhook_id}/test`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to test webhook: ${error.message}`);
+    }
+  }
+
+  private async neonGetWebhookLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/webhooks/${args.webhook_id}/logs`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get webhook logs: ${error.message}`);
+    }
+  }
+
+  private async neonCreateApiKey(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { api_key: { name: args.name } };
+      const result = await this.neonFetch(`/api_keys`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create API key: ${error.message}`);
+    }
+  }
+
+  // PERFORMANCE OPTIMIZATION (11 handlers)
+  private async neonDetectNPlusOne(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/detect_n_plus_one`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to detect N+1 queries: ${error.message}`);
+    }
+  }
+
+  private async neonSuggestPartitioning(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { table_name: args.table_name };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/suggest_partitioning`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to suggest partitioning: ${error.message}`);
+    }
+  }
+
+  private async neonAnalyzeTableStatistics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/tables/${args.table_name}/statistics`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to analyze table statistics: ${error.message}`);
+    }
+  }
+
+  private async neonSuggestVacuumStrategy(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/suggest_vacuum_strategy`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to suggest vacuum strategy: ${error.message}`);
+    }
+  }
+
+  private async neonDetectMissingIndexes(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/detect_missing_indexes`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to detect missing indexes: ${error.message}`);
+    }
+  }
+
+  private async neonAnalyzeJoinPerformance(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { query: args.query };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/analyze_join_performance`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to analyze join performance: ${error.message}`);
+    }
+  }
+
+  private async neonSuggestMaterializedViews(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/suggest_materialized_views`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to suggest materialized views: ${error.message}`);
+    }
+  }
+
+  private async neonGetTableDependencies(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/tables/${args.table_name}/dependencies`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get table dependencies: ${error.message}`);
+    }
+  }
+
+  private async neonSuggestQueryRewrite(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { query: args.query };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/suggest_query_rewrite`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to suggest query rewrite: ${error.message}`);
+    }
+  }
+
+  private async neonAnalyzeDeadlocks(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/analyze_deadlocks`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to analyze deadlocks: ${error.message}`);
+    }
+  }
+
+  private async neonProvisionNeonAuth(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { config: args.config };
+      const result = await this.neonFetch(`/projects/${args.project_id}/provision_neon_auth`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to provision Neon Auth: ${error.message}`);
+    }
+  }
+
+  // API KEY MANAGEMENT (5 handlers)
+  private async neonListApiKeys(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/api_keys`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list API keys: ${error.message}`);
+    }
+  }
+
+  private async neonCreateApiKeyForProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { api_key: { name: args.name, project_id: args.project_id } };
+      const result = await this.neonFetch(`/api_keys`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create API key for project: ${error.message}`);
+    }
+  }
+
+  private async neonRevokeApiKey(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/api_keys/${args.api_key_id}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to revoke API key: ${error.message}`);
+    }
+  }
+
+  // CONNECTION POOLING (3 handlers)
+  private async neonGetConnectionPoolerConfig(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/connection_pooler`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get connection pooler config: ${error.message}`);
+    }
+  }
+
+  private async neonUpdateConnectionPoolerConfig(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { config: args.config };
+      const result = await this.neonFetch(`/projects/${args.project_id}/connection_pooler`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to update connection pooler config: ${error.message}`);
+    }
+  }
+
+  // READ REPLICAS (3 handlers)
+  private async neonCreateReadReplica(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { replica: { branch_id: args.branch_id, region: args.region } };
+      const result = await this.neonFetch(`/projects/${args.project_id}/read_replicas`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create read replica: ${error.message}`);
+    }
+  }
+
+  private async neonListReadReplicas(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/read_replicas`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list read replicas: ${error.message}`);
+    }
+  }
+
+  // PROJECT SHARING (3 handlers)
+  private async neonShareProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { email: args.email, role: args.role };
+      const result = await this.neonFetch(`/projects/${args.project_id}/share`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to share project: ${error.message}`);
+    }
+  }
+
+  private async neonListProjectShares(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/shares`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list project shares: ${error.message}`);
+    }
+  }
+
+  private async neonRevokeProjectShare(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/shares/${args.share_id}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to revoke project share: ${error.message}`);
+    }
+  }
+
+  // EXTENSIONS (5 handlers)
+  private async neonListExtensions(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/extensions`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list extensions: ${error.message}`);
+    }
+  }
+
+  private async neonEnableExtension(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { extension_name: args.extension_name };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/extensions`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to enable extension: ${error.message}`);
+    }
+  }
+
+  private async neonDisableExtension(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/extensions/${args.extension_name}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to disable extension: ${error.message}`);
+    }
+  }
+
+  private async neonGetExtensionDetails(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/extensions/${args.extension_name}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get extension details: ${error.message}`);
+    }
+  }
+
+  private async neonUpdateExtension(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { version: args.version };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/databases/${args.database_name}/extensions/${args.extension_name}`, { method: 'PATCH', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to update extension: ${error.message}`);
+    }
+  }
+
+  // MIGRATIONS (3 handlers)
+  private async neonCreateMigration(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { migration: { name: args.name, sql: args.sql } };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/migrations`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create migration: ${error.message}`);
+    }
+  }
+
+  private async neonListMigrations(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/migrations`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list migrations: ${error.message}`);
+    }
+  }
+
+  private async neonRollbackMigration(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/migrations/${args.migration_id}/rollback`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to rollback migration: ${error.message}`);
+    }
+  }
+
+  // CONNECTION UTILITIES (3 handlers)
+  private async neonGetConnectionUriFormatted(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.role_name) params.append('role_name', args.role_name);
+      if (args.database_name) params.append('database_name', args.database_name);
+      if (args.pooled !== undefined) params.append('pooled', String(args.pooled));
+      if (args.format) params.append('format', args.format);
+      const result = await this.neonFetch(`/projects/${args.project_id}/connection_uri_formatted?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get formatted connection URI: ${error.message}`);
+    }
+  }
+
+  private async neonTestConnection(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { connection_string: args.connection_string };
+      const result = await this.neonFetch(`/projects/${args.project_id}/test_connection`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to test connection: ${error.message}`);
+    }
+  }
+
+  private async neonGetConnectionExamples(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.language) params.append('language', args.language);
+      const result = await this.neonFetch(`/projects/${args.project_id}/connection_examples?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get connection examples: ${error.message}`);
+    }
+  }
+
+  // TEMPLATES (2 handlers)
+  private async neonCreateFromTemplate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { template_id: args.template_id, project_name: args.project_name };
+      const result = await this.neonFetch(`/projects/from_template`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create from template: ${error.message}`);
+    }
+  }
+
+  private async neonListTemplates(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/templates`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list templates: ${error.message}`);
+    }
+  }
+
+  // METRICS EXPORT (2 handlers)
+  private async neonGetRealTimeMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/projects/${args.project_id}/real_time_metrics`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get real-time metrics: ${error.message}`);
+    }
+  }
+
+  private async neonExportMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.format) params.append('format', args.format);
+      if (args.from) params.append('from', args.from);
+      if (args.to) params.append('to', args.to);
+      const result = await this.neonFetch(`/projects/${args.project_id}/export_metrics?${params.toString()}`, { method: 'POST' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to export metrics: ${error.message}`);
+    }
+  }
+
+  // RAD SETUP (6 handlers)
+  private async neonCreateProjectForRad(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { project: { name: args.name || 'RAD Production', region_id: args.region_id || 'aws-us-east-1' } };
+      const result = await this.neonFetch(`/projects`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create project for RAD: ${error.message}`);
+    }
+  }
+
+  private async neonDeploySchema(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { schema_sql: args.schema_sql };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/deploy_schema`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to deploy schema: ${error.message}`);
+    }
+  }
+
+  private async neonVerifySchema(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { expected_tables: args.expected_tables };
+      const result = await this.neonFetch(`/projects/${args.project_id}/branches/${args.branch_id}/verify_schema`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to verify schema: ${error.message}`);
+    }
+  }
+
+  private async neonGetConnectionUri(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const params = new URLSearchParams();
+      if (args.role_name) params.append('role_name', args.role_name);
+      if (args.database_name) params.append('database_name', args.database_name);
+      if (args.pooled !== undefined) params.append('pooled', String(args.pooled));
+      const result = await this.neonFetch(`/projects/${args.project_id}/connection_uri?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get connection URI: ${error.message}`);
+    }
+  }
+
+  private async neonSetupRadDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const body = { database_name: args.database_name || 'rad_production', schema_sql: args.schema_sql };
+      const result = await this.neonFetch(`/projects/${args.project_id}/setup_rad_database`, { method: 'POST', body: JSON.stringify(body) });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to setup RAD database: ${error.message}`);
+    }
+  }
+
+  private async neonCheckApiKey(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/users/me`);
+      return { content: [{ type: 'text', text: JSON.stringify({ valid: true, user: result }, null, 2) }] };
+    } catch (error: any) {
+      return { content: [{ type: 'text', text: JSON.stringify({ valid: false, error: error.message }, null, 2) }] };
+    }
+  }
+
 }
 
 console.error("[Robinson Toolkit] Initializing...");
