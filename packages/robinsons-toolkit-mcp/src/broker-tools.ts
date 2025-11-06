@@ -97,6 +97,7 @@ export const BROKER_TOOLS: Tool[] = [
         arguments: {
           type: 'object',
           description: 'Tool arguments as key-value pairs',
+          additionalProperties: true,
         },
       },
       required: ['category', 'tool_name', 'arguments'],
