@@ -330,7 +330,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'openai_worker_run_job',
         description: 'Execute a job with specified agent (mini-worker, balanced-worker, premium-worker)',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             agent: {
               type: 'string',
@@ -348,7 +348,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             caps: {
               type: 'object',
-              additionalProperties: false,
               properties: {
                 max_tokens: { type: 'number' },
                 timeout_seconds: { type: 'number' },
@@ -362,13 +361,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'openai_worker_queue_batch',
         description: 'Queue multiple jobs for batch processing (cheaper, slower)',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             jobs: {
               type: 'array',
               items: {
                 type: 'object',
-                additionalProperties: false,
                 properties: {
                   agent: { type: 'string' },
                   task: { type: 'string' },
@@ -384,7 +382,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'openai_worker_get_job_status',
         description: 'Get status of a job',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             job_id: {
               type: 'string',
@@ -399,13 +397,13 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         description: 'Get monthly spend statistics',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       {
         name: 'openai_worker_estimate_cost',
         description: 'Estimate cost for a job before running it (helps decide between free Ollama vs paid OpenAI)',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             agent: {
               type: 'string',
@@ -429,20 +427,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         description: 'Get current capacity and availability of OpenAI workers',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       {
         name: 'openai_worker_refresh_pricing',
         description: 'Force refresh OpenAI pricing from live source (normally auto-refreshes every 24 hours)',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       {
         name: 'openai_worker_get_token_analytics',
         description: 'Get detailed token usage analytics. Shows actual tokens used, real costs, and spending patterns.',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             period: {
               type: 'string',
@@ -456,7 +454,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'execute_versatile_task_paid-agent-mcp',
         description: 'Execute ANY task using PAID models (OpenAI, Claude, etc.). This agent is VERSATILE and can handle all types of work including coding, DB setup, deployment, account management, thinking/planning. Supports multi-provider execution with smart model selection and cost optimization. Has access to Robinson\'s Toolkit (1165 tools) and Thinking Tools (64 cognitive frameworks).',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             task: {
               type: 'string',
@@ -493,7 +491,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'discover_toolkit_tools_openai-worker-mcp',
         description: 'Search for tools in Robinson\'s Toolkit by keyword. Dynamically discovers tools as new ones are added to the toolkit.',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             query: {
               type: 'string',
@@ -512,13 +510,13 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         description: 'List all available categories in Robinson\'s Toolkit (github, vercel, neon, upstash, google, etc.). Dynamically updates as new categories are added.',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       {
         name: 'list_toolkit_tools_openai-worker-mcp',
         description: 'List all tools in a specific category. Dynamically updates as new tools are added to Robinson\'s Toolkit.',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             category: {
               type: 'string',
@@ -533,7 +531,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'discover_thinking_tools_paid-agent-mcp',
         description: 'Search for thinking tools by keyword. Find cognitive frameworks (devils_advocate, swot_analysis, etc.) and context engine tools (context_query, docs_find, etc.).',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             query: {
               type: 'string',
@@ -552,14 +550,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         description: 'List all available thinking tools (64 total: 24 cognitive frameworks + 8 Context Engine tools + 32 others).',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       // Quality Gates Pipeline Tools (using PAID models)
       {
         name: 'paid_agent_execute_with_quality_gates',
         description: 'Execute code generation with FULL quality gates pipeline (Synthesize-Execute-Critique-Refine). Runs formatter, linter, type checker, tests, coverage, security checks. Returns code that ACTUALLY WORKS with structured verdict. Uses PAID models (OpenAI/Claude).',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             task: {
               type: 'string',
@@ -571,7 +569,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             designCard: {
               type: 'object',
-              additionalProperties: false,
               description: 'Optional Design Card with goals, acceptance criteria, constraints',
               properties: {
                 name: { type: 'string' },
@@ -614,7 +611,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'paid_agent_judge_code_quality',
         description: 'Evaluate code quality using LLM Judge with structured rubric. Returns scores for compilation, tests, types, style, security, and conventions. Uses PAID models (OpenAI/Claude).',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             code: {
               type: 'string',
@@ -636,7 +633,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'paid_agent_refine_code',
         description: 'Fix code issues based on judge feedback. Applies fixes from structured fix plan. Uses PAID models (OpenAI/Claude).',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             code: {
               type: 'string',
@@ -658,7 +655,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'paid_agent_generate_project_brief',
         description: 'Auto-generate Project Brief from repository. Analyzes naming conventions, import patterns, architecture, testing patterns, and builds domain glossary. Use this for repo-native code generation. Uses static analysis (no AI credits).',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             repoPath: {
               type: 'string',

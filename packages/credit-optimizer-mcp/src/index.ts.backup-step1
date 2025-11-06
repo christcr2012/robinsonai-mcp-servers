@@ -487,7 +487,7 @@ class CreditOptimizerServer {
         name: 'discover_tools',
         description: 'Search for tools in Robinson\'s Toolkit. Find tools instantly without AI!',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             query: { type: 'string', description: 'Search query (e.g., "deploy", "database", "email")' },
             limit: { type: 'number', description: 'Max results (default: 10)' },
@@ -499,7 +499,7 @@ class CreditOptimizerServer {
         name: 'suggest_workflow',
         description: 'Get workflow suggestions for a goal',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             goal: { type: 'string', description: 'What you want to accomplish' },
           },
@@ -510,7 +510,7 @@ class CreditOptimizerServer {
         name: 'list_tools_by_category',
         description: 'List all tools in a category',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             category: { type: 'string', description: 'Category name' },
           },
@@ -521,7 +521,7 @@ class CreditOptimizerServer {
         name: 'list_tools_by_server',
         description: 'List all tools from a specific server',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             server: { type: 'string', description: 'Server name (e.g., "github-mcp", "vercel-mcp")' },
           },
@@ -532,7 +532,7 @@ class CreditOptimizerServer {
         name: 'get_tool_details',
         description: 'Get detailed information about a specific tool',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             toolName: { type: 'string', description: 'Tool name' },
           },
@@ -543,7 +543,7 @@ class CreditOptimizerServer {
         name: 'find_similar_tools',
         description: 'Find tools similar to a given tool',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             toolName: { type: 'string', description: 'Tool name' },
           },
@@ -554,7 +554,7 @@ class CreditOptimizerServer {
         name: 'get_workflow_suggestions',
         description: 'Get suggested workflows for a task',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             task: { type: 'string', description: 'Task description' },
           },
@@ -566,14 +566,13 @@ class CreditOptimizerServer {
         name: 'execute_autonomous_workflow',
         description: 'Execute multi-step workflow WITHOUT stopping for confirmation! Saves 99% credits on bulk operations.',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             workflow: {
               type: 'array',
               description: 'Steps to execute',
               items: {
                 type: 'object',
-                additionalProperties: false,
                 properties: {
                   action: { type: 'string', enum: ['fix-imports', 'fix-types', 'refactor', 'add-tests', 'custom'] },
                   pattern: { type: 'string' },
@@ -592,7 +591,7 @@ class CreditOptimizerServer {
         name: 'execute_bulk_fix',
         description: 'Fix repeated errors across many files (fully autonomous!)',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             errorType: { type: 'string', enum: ['import', 'type', 'lint', 'format', 'custom'] },
             find: { type: 'string', description: 'What to find (regex supported)' },
@@ -607,7 +606,7 @@ class CreditOptimizerServer {
         name: 'execute_refactor_pattern',
         description: 'Apply refactoring pattern autonomously',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             pattern: { type: 'string', enum: ['extract-component', 'extract-function', 'rename-symbol', 'move-to-file', 'apply-solid', 'custom'] },
             target: { type: 'string', description: 'What to refactor' },
@@ -621,7 +620,7 @@ class CreditOptimizerServer {
         name: 'execute_test_generation',
         description: 'Generate tests for multiple files autonomously',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             files: { type: 'array', items: { type: 'string' } },
             framework: { type: 'string', enum: ['jest', 'vitest', 'mocha'] },
@@ -635,7 +634,7 @@ class CreditOptimizerServer {
         name: 'execute_migration',
         description: 'Execute migration autonomously (with rollback!)',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             type: { type: 'string', enum: ['database', 'code', 'dependency'] },
             migration: { type: 'string', description: 'Migration to execute' },
@@ -649,7 +648,7 @@ class CreditOptimizerServer {
         name: 'get_workflow_result',
         description: 'Retrieve full workflow result by ID (for large results that were persisted)',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             result_id: { type: 'string', description: 'Result ID from execute_autonomous_workflow' },
           },
@@ -661,11 +660,10 @@ class CreditOptimizerServer {
         name: 'execute_parallel_workflow',
         description: 'Execute work plan with parallel execution! Analyzes dependencies and runs tasks simultaneously on multiple agents.',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             plan: {
               type: 'object',
-              additionalProperties: false,
               description: 'Work plan from Architect MCP',
               properties: {
                 name: { type: 'string' },
@@ -675,7 +673,6 @@ class CreditOptimizerServer {
                   type: 'array',
                   items: {
                     type: 'object',
-                    additionalProperties: false,
                     properties: {
                       id: { type: 'string' },
                       assignTo: { type: 'string' },
@@ -698,21 +695,21 @@ class CreditOptimizerServer {
         description: 'Get agent pool statistics (total, busy, available, free, paid, waiting)',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       {
         name: 'list_agents',
         description: 'List all agents in the pool with their status',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       // Template Scaffolding (5 tools)
       {
         name: 'scaffold_feature',
         description: 'Scaffold complete feature (component + API + tests) - 0 AI credits!',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             name: { type: 'string', description: 'Feature name' },
             variables: { type: 'object', description: 'Template variables' },
@@ -725,7 +722,7 @@ class CreditOptimizerServer {
         name: 'scaffold_component',
         description: 'Scaffold React component - 0 AI credits!',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             name: { type: 'string', description: 'Component name' },
             variables: { type: 'object' },
@@ -738,7 +735,7 @@ class CreditOptimizerServer {
         name: 'scaffold_api_endpoint',
         description: 'Scaffold API endpoint - 0 AI credits!',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             name: { type: 'string', description: 'Endpoint name' },
             variables: { type: 'object' },
@@ -751,7 +748,7 @@ class CreditOptimizerServer {
         name: 'scaffold_database_schema',
         description: 'Scaffold database schema - 0 AI credits!',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             name: { type: 'string', description: 'Table name' },
             variables: { type: 'object' },
@@ -764,7 +761,7 @@ class CreditOptimizerServer {
         name: 'scaffold_test_suite',
         description: 'Scaffold test suite - 0 AI credits!',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             name: { type: 'string', description: 'Test suite name' },
             variables: { type: 'object' },
@@ -778,7 +775,7 @@ class CreditOptimizerServer {
         name: 'cache_analysis',
         description: 'Cache analysis results to avoid re-doing AI work',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             key: { type: 'string', description: 'Cache key' },
             data: { type: 'object', description: 'Data to cache' },
@@ -791,7 +788,7 @@ class CreditOptimizerServer {
         name: 'get_cached_analysis',
         description: 'Get cached analysis results',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             key: { type: 'string', description: 'Cache key' },
           },
@@ -802,7 +799,7 @@ class CreditOptimizerServer {
         name: 'cache_decision',
         description: 'Cache decision to avoid re-asking AI',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             key: { type: 'string', description: 'Cache key' },
             data: { type: 'object', description: 'Decision data' },
@@ -815,7 +812,7 @@ class CreditOptimizerServer {
         name: 'get_cached_decision',
         description: 'Get cached decision',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             key: { type: 'string', description: 'Cache key' },
           },
@@ -826,7 +823,7 @@ class CreditOptimizerServer {
         name: 'clear_cache',
         description: 'Clear cache (specific key or all expired)',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             key: { type: 'string', description: 'Specific key to clear (optional)' },
           },
@@ -837,7 +834,7 @@ class CreditOptimizerServer {
         name: 'get_credit_stats',
         description: 'Get credit usage statistics - see how much you\'ve saved!',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             period: { type: 'string', enum: ['today', 'week', 'month', 'all'] },
           },
@@ -848,7 +845,7 @@ class CreditOptimizerServer {
         description: 'Diagnose Credit Optimizer environment - check tool index, templates, caching status',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
 
       // Cost Tracking & Learning (7 tools)
@@ -856,7 +853,7 @@ class CreditOptimizerServer {
         name: 'estimate_task_cost',
         description: 'Estimate cost for a task using historical data and learning algorithm',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             taskType: { type: 'string', description: 'Type of task (e.g., "code_generation", "refactoring")' },
             linesOfCode: { type: 'number', description: 'Estimated lines of code' },
@@ -870,7 +867,7 @@ class CreditOptimizerServer {
         name: 'recommend_worker',
         description: 'Recommend which worker (Ollama/OpenAI) to use based on cost and quality requirements',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             taskType: { type: 'string', description: 'Type of task' },
             maxCost: { type: 'number', description: 'Maximum cost allowed (default: Infinity)' },
@@ -884,20 +881,20 @@ class CreditOptimizerServer {
         description: 'Get comprehensive cost analytics dashboard',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       {
         name: 'get_cost_accuracy',
         description: 'Get cost estimation accuracy metrics by task type',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       {
         name: 'get_cost_savings',
         description: 'Get cost savings report (Ollama vs OpenAI)',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             period: { type: 'string', enum: ['today', 'week', 'month', 'all'], description: 'Time period' },
           },
@@ -907,7 +904,7 @@ class CreditOptimizerServer {
         name: 'record_task_cost',
         description: 'Start tracking cost for a task',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             taskId: { type: 'string', description: 'Unique task ID' },
             taskType: { type: 'string', description: 'Type of task' },
@@ -924,7 +921,7 @@ class CreditOptimizerServer {
         name: 'complete_task_cost',
         description: 'Complete cost tracking for a task and record to database',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             taskId: { type: 'string', description: 'Task ID to complete' },
           },
@@ -937,7 +934,7 @@ class CreditOptimizerServer {
         name: 'open_pr_with_changes',
         description: 'Create a GitHub PR with file changes - autonomous Plan → Patch → PR workflow!',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             owner: { type: 'string', description: 'GitHub owner/org' },
             repo: { type: 'string', description: 'Repository name' },
@@ -948,7 +945,6 @@ class CreditOptimizerServer {
               description: 'File changes to include',
               items: {
                 type: 'object',
-                additionalProperties: false,
                 properties: {
                   path: { type: 'string', description: 'File path' },
                   content: { type: 'string', description: 'File content' },
@@ -969,7 +965,7 @@ class CreditOptimizerServer {
         name: 'list_recipes',
         description: 'List available pre-built workflow recipes',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             category: { type: 'string', description: 'Filter by category (auth, api, database, testing, devops)' },
             difficulty: { type: 'string', enum: ['simple', 'moderate', 'complex'], description: 'Filter by difficulty' },
@@ -980,7 +976,7 @@ class CreditOptimizerServer {
         name: 'get_recipe',
         description: 'Get details of a specific recipe',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             name: { type: 'string', description: 'Recipe name' },
           },
@@ -991,7 +987,7 @@ class CreditOptimizerServer {
         name: 'execute_recipe',
         description: 'Execute a recipe workflow autonomously',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             name: { type: 'string', description: 'Recipe name' },
             params: { type: 'object', description: 'Recipe parameters' },
@@ -1005,7 +1001,7 @@ class CreditOptimizerServer {
         name: 'list_blueprints',
         description: 'List available project blueprints',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             tags: { type: 'array', items: { type: 'string' }, description: 'Filter by tags (nextjs, typescript, etc.)' },
           },
@@ -1015,7 +1011,7 @@ class CreditOptimizerServer {
         name: 'get_blueprint',
         description: 'Get details of a specific blueprint',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             name: { type: 'string', description: 'Blueprint name' },
           },
@@ -1026,7 +1022,7 @@ class CreditOptimizerServer {
         name: 'execute_blueprint',
         description: 'Execute a blueprint to scaffold a project',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             name: { type: 'string', description: 'Blueprint name' },
             inputs: { type: 'object', description: 'Blueprint inputs' },
@@ -1041,12 +1037,11 @@ class CreditOptimizerServer {
         name: 'credit_optimize_execute',
         description: 'Run a prompt under a budget and quality policy. Will try free local (Ollama) first, then escalate to paid if gates fail.',
         inputSchema: {
-          type: 'object', additionalProperties: false,
+          type: 'object',
           properties: {
             task: { type: 'string', enum: ['codegen', 'analysis', 'classification', 'embedding'], description: 'Task type' },
             prompt: {
               type: 'object',
-              additionalProperties: false,
               properties: {
                 system: { type: 'string', description: 'System prompt (optional)' },
                 user: { type: 'string', description: 'User prompt' },
@@ -1055,7 +1050,6 @@ class CreditOptimizerServer {
             },
             budget: {
               type: 'object',
-              additionalProperties: false,
               properties: {
                 maxUsd: { type: 'number', description: 'Maximum cost in USD (default: 0.50)' },
                 preferFree: { type: 'boolean', description: 'Prefer free models (default: true)' },
@@ -1072,14 +1066,14 @@ class CreditOptimizerServer {
         description: 'List enabled providers and environment readiness.',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
       {
         name: 'credit_ollama_health',
         description: 'Check Ollama availability and loaded models.',
         inputSchema: {
       type: 'object'
-        , additionalProperties: false },
+        },
       },
     ];
   }

@@ -348,7 +348,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             caps: {
               type: 'object',
-              additionalProperties: false,
               properties: {
                 max_tokens: { type: 'number' },
                 timeout_seconds: { type: 'number' },
@@ -368,7 +367,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: 'array',
               items: {
                 type: 'object',
-                additionalProperties: false,
                 properties: {
                   agent: { type: 'string' },
                   task: { type: 'string' },
@@ -571,7 +569,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             designCard: {
               type: 'object',
-              additionalProperties: false,
               description: 'Optional Design Card with goals, acceptance criteria, constraints',
               properties: {
                 name: { type: 'string' },

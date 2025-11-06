@@ -185,7 +185,7 @@ const registry: Record<string, Entry> = {
   // Healthcheck (legacy)
   healthcheck: {
     description: 'Return ok + workspace root (server wiring test)',
-    inputSchema: { type: 'object' , additionalProperties: false },
+    inputSchema: { type: 'object' },
     handler: async (_args, ctx) => ({ ok: true, workspaceRoot: ctx.workspaceRoot }),
   },
   
@@ -193,7 +193,7 @@ const registry: Record<string, Entry> = {
   devils_advocate: {
     description: 'Challenge assumptions and find flaws in plans. Enhanced with optional context search to find relevant code/docs.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         context: { type: 'string', description: 'The plan or idea to challenge' },
         goal: { type: 'string', description: 'What you\'re trying to achieve' },
@@ -211,7 +211,7 @@ const registry: Record<string, Entry> = {
   first_principles: {
     description: 'Break down complex problems to fundamental truths. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         problem: { type: 'string', description: 'The problem to analyze' },
         domain: { type: 'string', description: 'Problem domain' },
@@ -228,7 +228,7 @@ const registry: Record<string, Entry> = {
   root_cause: {
     description: 'Use 5 Whys technique to find underlying causes. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         problem: { type: 'string', description: 'The problem to analyze' },
         context: { type: 'string', description: 'Additional context' },
@@ -245,7 +245,7 @@ const registry: Record<string, Entry> = {
   swot_analysis: {
     description: 'Analyze Strengths, Weaknesses, Opportunities, Threats. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         subject: { type: 'string', description: 'What to analyze' },
         context: { type: 'string', description: 'Additional context' },
@@ -263,7 +263,7 @@ const registry: Record<string, Entry> = {
   premortem_analysis: {
     description: 'Imagine project failure and work backward. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         project: { type: 'string', description: 'The project or initiative' },
         context: { type: 'string', description: 'Additional context' },
@@ -280,7 +280,7 @@ const registry: Record<string, Entry> = {
   critical_thinking: {
     description: 'Evaluate arguments, evidence, and logical reasoning. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         argument: { type: 'string', description: 'The argument to evaluate' },
         context: { type: 'string', description: 'Additional context' },
@@ -298,7 +298,7 @@ const registry: Record<string, Entry> = {
   lateral_thinking: {
     description: 'Generate creative, non-obvious solutions. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         problem: { type: 'string', description: 'The problem to solve creatively' },
         context: { type: 'string', description: 'Additional context' },
@@ -316,7 +316,7 @@ const registry: Record<string, Entry> = {
   red_team: {
     description: 'Attack the plan/design to find vulnerabilities. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         plan: { type: 'string', description: 'The plan or design to attack' },
         context: { type: 'string', description: 'Additional context' },
@@ -334,7 +334,7 @@ const registry: Record<string, Entry> = {
   blue_team: {
     description: 'Defend against attacks and strengthen the plan. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         plan: { type: 'string', description: 'The plan or design to defend' },
         threats: { type: 'array', items: { type: 'string' } },
@@ -352,7 +352,7 @@ const registry: Record<string, Entry> = {
   decision_matrix: {
     description: 'Weighted decision-making for comparing options. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         options: { type: 'array', items: { type: 'string' } },
         criteria: { type: 'array', items: { type: 'string' } },
@@ -382,7 +382,7 @@ const registry: Record<string, Entry> = {
   socratic_questioning: {
     description: 'Deep inquiry through probing questions. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         topic: { type: 'string', description: 'The topic to explore' },
         context: { type: 'string', description: 'Additional context' },
@@ -400,7 +400,7 @@ const registry: Record<string, Entry> = {
   systems_thinking: {
     description: 'Understand interconnections and feedback loops. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         system: { type: 'string', description: 'The system to analyze' },
         context: { type: 'string', description: 'Additional context' },
@@ -417,7 +417,7 @@ const registry: Record<string, Entry> = {
   scenario_planning: {
     description: 'Explore multiple possible futures. Enhanced with optional context search.',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         situation: { type: 'string', description: 'The current situation' },
         timeframe: { type: 'string', description: 'Time horizon' },
@@ -435,7 +435,7 @@ const registry: Record<string, Entry> = {
   brainstorming: {
     description: 'Generate many ideas quickly without judgment',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         prompt: { type: 'string', description: 'What to brainstorm about' },
         context: { type: 'string', description: 'Additional context' },
@@ -449,7 +449,7 @@ const registry: Record<string, Entry> = {
   mind_mapping: {
     description: 'Visual organization of ideas and concepts',
     inputSchema: {
-      type: 'object', additionalProperties: false,
+      type: 'object',
       properties: {
         topic: { type: 'string', description: 'Central topic' },
         context: { type: 'string', description: 'Additional context' },
@@ -464,7 +464,7 @@ const registry: Record<string, Entry> = {
 registry.sequential_thinking = {
   description: 'Step-by-step reasoning with state tracking',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       problem: { type: 'string', description: 'Problem to solve' },
       steps: { type: 'number', description: 'Number of steps' },
@@ -477,7 +477,7 @@ registry.sequential_thinking = {
 registry.parallel_thinking = {
   description: 'Explore multiple solution paths simultaneously',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       problem: { type: 'string', description: 'Problem to solve' },
       paths: { type: 'number', description: 'Number of parallel paths' },
@@ -490,7 +490,7 @@ registry.parallel_thinking = {
 registry.reflective_thinking = {
   description: 'Review and critique previous reasoning',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       reasoning: { type: 'string', description: 'Previous reasoning to reflect on' },
     },
@@ -503,7 +503,7 @@ registry.reflective_thinking = {
 registry.context7_resolve_library_id = {
   description: 'Resolve library name to Context7 ID',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       library: { type: 'string', description: 'Library name' },
     },
@@ -515,7 +515,7 @@ registry.context7_resolve_library_id = {
 registry.context7_get_library_docs = {
   description: 'Get documentation for a library',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       library: { type: 'string', description: 'Library name or ID' },
       version: { type: 'string', description: 'Version' },
@@ -528,7 +528,7 @@ registry.context7_get_library_docs = {
 registry.context7_search_libraries = {
   description: 'Search across library documentation',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       query: { type: 'string', description: 'Search query' },
       libraries: { type: 'array', items: { type: 'string' } },
@@ -541,7 +541,7 @@ registry.context7_search_libraries = {
 registry.context7_compare_versions = {
   description: 'Compare library versions',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       library: { type: 'string', description: 'Library name' },
       from: { type: 'string', description: 'From version' },
@@ -555,7 +555,7 @@ registry.context7_compare_versions = {
 registry.context7_get_examples = {
   description: 'Get code examples for a library',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       library: { type: 'string', description: 'Library name' },
       topic: { type: 'string', description: 'Topic or feature' },
@@ -568,7 +568,7 @@ registry.context7_get_examples = {
 registry.context7_get_migration_guide = {
   description: 'Get migration guide between versions',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       library: { type: 'string', description: 'Library name' },
       from: { type: 'string', description: 'From version' },
@@ -582,7 +582,7 @@ registry.context7_get_migration_guide = {
 // Additional context tools
 registry.context_reset = {
   description: 'Reset context engine index',
-  inputSchema: { type: 'object' , additionalProperties: false },
+  inputSchema: { type: 'object' },
   handler: async (args, ctx) => {
     await ctx.ctx.reset();
     return { ok: true };
@@ -592,7 +592,7 @@ registry.context_reset = {
 registry.context_web_search = {
   description: 'Search the web with DuckDuckGo',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       q: { type: 'string', description: 'Search query' },
       k: { type: 'number', description: 'Number of results' },
@@ -608,7 +608,7 @@ registry.context_web_search = {
 registry.context_ingest_urls = {
   description: 'Ingest URLs into context',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       urls: { type: 'array', items: { type: 'string' } },
       tags: { type: 'array', items: { type: 'string' } },
@@ -621,7 +621,7 @@ registry.context_ingest_urls = {
 registry.context_summarize_diff = {
   description: 'Summarize git diff',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       range: { type: 'string', description: 'Git range (e.g., HEAD~1..HEAD)' },
     },
@@ -632,7 +632,7 @@ registry.context_summarize_diff = {
 registry.context_neighborhood = {
   description: 'Get code neighborhood for a file',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       file: { type: 'string', description: 'File path' },
     },
@@ -644,7 +644,7 @@ registry.context_neighborhood = {
 registry.context_retrieve_code = {
   description: 'Retrieve code by semantic query',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       query: { type: 'string', description: 'What code to retrieve' },
       top_k: { type: 'number', description: 'Number of results' },
@@ -657,7 +657,7 @@ registry.context_retrieve_code = {
 registry.context_find_symbol = {
   description: 'Find symbol definition',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       symbol: { type: 'string', description: 'Symbol name' },
     },
@@ -669,7 +669,7 @@ registry.context_find_symbol = {
 registry.context_find_callers = {
   description: 'Find callers of a function',
   inputSchema: {
-    type: 'object', additionalProperties: false,
+    type: 'object',
     properties: {
       function: { type: 'string', description: 'Function name' },
     },

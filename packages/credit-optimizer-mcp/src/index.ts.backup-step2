@@ -573,7 +573,6 @@ class CreditOptimizerServer {
               description: 'Steps to execute',
               items: {
                 type: 'object',
-                additionalProperties: false,
                 properties: {
                   action: { type: 'string', enum: ['fix-imports', 'fix-types', 'refactor', 'add-tests', 'custom'] },
                   pattern: { type: 'string' },
@@ -665,7 +664,6 @@ class CreditOptimizerServer {
           properties: {
             plan: {
               type: 'object',
-              additionalProperties: false,
               description: 'Work plan from Architect MCP',
               properties: {
                 name: { type: 'string' },
@@ -675,7 +673,6 @@ class CreditOptimizerServer {
                   type: 'array',
                   items: {
                     type: 'object',
-                    additionalProperties: false,
                     properties: {
                       id: { type: 'string' },
                       assignTo: { type: 'string' },
@@ -948,7 +945,6 @@ class CreditOptimizerServer {
               description: 'File changes to include',
               items: {
                 type: 'object',
-                additionalProperties: false,
                 properties: {
                   path: { type: 'string', description: 'File path' },
                   content: { type: 'string', description: 'File content' },
@@ -1046,7 +1042,6 @@ class CreditOptimizerServer {
             task: { type: 'string', enum: ['codegen', 'analysis', 'classification', 'embedding'], description: 'Task type' },
             prompt: {
               type: 'object',
-              additionalProperties: false,
               properties: {
                 system: { type: 'string', description: 'System prompt (optional)' },
                 user: { type: 'string', description: 'User prompt' },
@@ -1055,7 +1050,6 @@ class CreditOptimizerServer {
             },
             budget: {
               type: 'object',
-              additionalProperties: false,
               properties: {
                 maxUsd: { type: 'number', description: 'Maximum cost in USD (default: 0.50)' },
                 preferFree: { type: 'boolean', description: 'Prefer free models (default: true)' },
