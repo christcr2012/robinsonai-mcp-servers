@@ -11558,13 +11558,28 @@ private async driveWatchChanges(args: any): Promise<{ content: Array<{ type: str
   }
 
   private async formsCreateForm(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement forms_create_form
-    return { content: [{ type: 'text', text: 'Not implemented: forms_create_form' }] };
+    try {
+      const form = await this.forms.forms.create({
+        requestBody: {
+          info: {
+            title: args.title,
+            documentTitle: args.documentTitle || args.title
+          }
+        }
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(form.data, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create form: ${error.message}`);
+    }
   }
 
   private async formsGetForm(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement forms_get_form
-    return { content: [{ type: 'text', text: 'Not implemented: forms_get_form' }] };
+    try {
+      const form = await this.forms.forms.get({ formId: args.formId });
+      return { content: [{ type: 'text', text: JSON.stringify(form.data, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get form: ${error.message}`);
+    }
   }
 
 private async formsListResponses(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
@@ -11706,8 +11721,16 @@ private async slidesCreateImage(args: any): Promise<{ content: Array<{ type: str
   }
 
   private async slidesCreatePresentation(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement slides_create_presentation
-    return { content: [{ type: 'text', text: 'Not implemented: slides_create_presentation' }] };
+    try {
+      const presentation = await this.slides.presentations.create({
+        requestBody: {
+          title: args.title
+        }
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(presentation.data, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create presentation: ${error.message}`);
+    }
   }
 
 private async slidesCreateShape(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
@@ -11745,8 +11768,12 @@ private async slidesDeleteText(args: any): Promise<{ content: Array<{ type: stri
   }
 
   private async slidesGetPresentation(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement slides_get_presentation
-    return { content: [{ type: 'text', text: 'Not implemented: slides_get_presentation' }] };
+    try {
+      const presentation = await this.slides.presentations.get({ presentationId: args.presentationId });
+      return { content: [{ type: 'text', text: JSON.stringify(presentation.data, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get presentation: ${error.message}`);
+    }
   }
 
 private async slidesInsertText(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
@@ -12125,103 +12152,237 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
   }
 
   private async vercelAddDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_add_domain
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_add_domain' }] };
+    try {
+      const result = await this.vercelFetch(`/v9/projects/${args.projectId}/domains`, {
+        method: 'POST',
+        body: JSON.stringify({ name: args.name })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to add domain: ${error.message}`);
+    }
   }
 
   private async vercelAssignAlias(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_assign_alias
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_assign_alias' }] };
+    try {
+      const result = await this.vercelFetch(`/v2/deployments/${args.deploymentId}/aliases`, {
+        method: 'POST',
+        body: JSON.stringify({ alias: args.alias })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to assign alias: ${error.message}`);
+    }
   }
 
   private async vercelBlobDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_blob_delete
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_blob_delete' }] };
+    try {
+      const result = await this.vercelFetch(`/v5/blob/${args.url}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete blob: ${error.message}`);
+    }
   }
 
   private async vercelBlobHead(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_blob_head
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_blob_head' }] };
+    try {
+      const result = await this.vercelFetch(`/v5/blob/${args.url}`, { method: 'HEAD' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get blob metadata: ${error.message}`);
+    }
   }
 
   private async vercelBlobList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_blob_list
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_blob_list' }] };
+    try {
+      const params = new URLSearchParams();
+      if (args.prefix) params.append('prefix', args.prefix);
+      if (args.limit) params.append('limit', String(args.limit));
+      if (args.cursor) params.append('cursor', args.cursor);
+      const result = await this.vercelFetch(`/v5/blob?${params.toString()}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list blobs: ${error.message}`);
+    }
   }
 
   private async vercelBlobPut(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_blob_put
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_blob_put' }] };
+    try {
+      const result = await this.vercelFetch(`/v5/blob/${args.pathname}`, {
+        method: 'PUT',
+        body: args.body
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to put blob: ${error.message}`);
+    }
   }
 
   private async vercelBlockIp(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_block_ip
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_block_ip' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/security/blocked-ips`, {
+        method: 'POST',
+        body: JSON.stringify({ ip: args.ip, notes: args.notes })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to block IP: ${error.message}`);
+    }
   }
 
   private async vercelBulkCreateEnvVars(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_bulk_create_env_vars
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_bulk_create_env_vars' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/env`, {
+        method: 'POST',
+        body: JSON.stringify(args.envVars)
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to bulk create env vars: ${error.message}`);
+    }
   }
 
   private async vercelCancelDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_cancel_deployment
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_cancel_deployment' }] };
+    try {
+      const result = await this.vercelFetch(`/v12/deployments/${args.deploymentId}/cancel`, {
+        method: 'PATCH'
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to cancel deployment: ${error.message}`);
+    }
   }
 
   private async vercelCloneStorage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_clone_storage
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_clone_storage' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/storage/${args.storeId}/clone`, {
+        method: 'POST',
+        body: JSON.stringify({ target: args.target })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to clone storage: ${error.message}`);
+    }
   }
 
   private async vercelConnectGitRepository(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_connect_git_repository
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_connect_git_repository' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/link`, {
+        method: 'POST',
+        body: JSON.stringify({ type: args.type, repo: args.repo })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to connect git repository: ${error.message}`);
+    }
   }
 
   private async vercelCreateAlert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_alert
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_alert' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/integrations/alerts`, {
+        method: 'POST',
+        body: JSON.stringify({ name: args.name, projectId: args.projectId, targets: args.targets })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create alert: ${error.message}`);
+    }
   }
 
   private async vercelCreateCheck(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_check
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_check' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/checks`, {
+        method: 'POST',
+        body: JSON.stringify({ name: args.name, path: args.path })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create check: ${error.message}`);
+    }
   }
 
   private async vercelCreateComment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_comment
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_comment' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ deploymentId: args.deploymentId, text: args.text })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create comment: ${error.message}`);
+    }
   }
 
   private async vercelCreateCronJob(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_cron_job
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_cron_job' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/crons`, {
+        method: 'POST',
+        body: JSON.stringify({ path: args.path, schedule: args.schedule })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create cron job: ${error.message}`);
+    }
   }
 
   private async vercelCreateCustomHeader(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_custom_header
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_custom_header' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/headers`, {
+        method: 'POST',
+        body: JSON.stringify({ source: args.source, headers: args.headers })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create custom header: ${error.message}`);
+    }
   }
 
   private async vercelCreateDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_deployment
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_deployment' }] };
+    try {
+      const result = await this.vercelFetch(`/v13/deployments`, {
+        method: 'POST',
+        body: JSON.stringify({ name: args.name, files: args.files, projectSettings: args.projectSettings })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create deployment: ${error.message}`);
+    }
   }
 
   private async vercelCreateDnsRecord(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_dns_record
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_dns_record' }] };
+    try {
+      const result = await this.vercelFetch(`/v4/domains/${args.domain}/records`, {
+        method: 'POST',
+        body: JSON.stringify({ name: args.name, type: args.type, value: args.value })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create DNS record: ${error.message}`);
+    }
   }
 
   private async vercelCreateEdgeConfig(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_edge_config
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_edge_config' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/edge-config`, {
+        method: 'POST',
+        body: JSON.stringify({ slug: args.slug })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create edge config: ${error.message}`);
+    }
   }
 
   private async vercelCreateEnvVar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_env_var
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_env_var' }] };
+    try {
+      const result = await this.vercelFetch(`/v10/projects/${args.projectId}/env`, {
+        method: 'POST',
+        body: JSON.stringify({ key: args.key, value: args.value, target: args.target })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create env var: ${error.message}`);
+    }
   }
 
   private async vercelCreateFirewallRule(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
