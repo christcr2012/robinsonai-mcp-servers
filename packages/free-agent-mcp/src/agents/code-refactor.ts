@@ -9,7 +9,7 @@ import { OllamaClient, GenerateOptions } from '../ollama-client.js';
 import { PromptBuilder } from '../utils/prompt-builder.js';
 import { iterateTask, PipelineResult } from '../pipeline/index.js';
 import { ValidationResult } from '../types/validation.js';
-import { formatGMCode, formatUnifiedDiffs, type OutputFile } from '../utils/output-format.js';
+import { formatGMCode, formatUnifiedDiffs, stripCodeFences, type OutputFile } from '../utils/output-format.js';
 
 export interface RefactorRequest {
   code: string;
@@ -90,7 +90,7 @@ Requirements:
 
     // Extract refactored code from pipeline result
     const mainFile = pipelineResult.files[0];
-    const code = mainFile?.content || request.code; // Fallback to original if failed
+    const code = stripCodeFences(mainFile?.content || request.code); // Fallback to original if failed
 
     // Extract changes from pipeline verdict
     const changes: Change[] = pipelineResult.verdict?.fix_plan?.map(fix => ({
@@ -116,7 +116,7 @@ Requirements:
 
     const detailedFiles: OutputFile[] = (pipelineResult.files ?? []).map((file, index) => ({
       path: file.path || `refactored-${index}.ts`,
-      content: file.content,
+      content: stripCodeFences(file.content || ''),
       originalContent: index === 0 ? request.code : undefined,
     }));
 
