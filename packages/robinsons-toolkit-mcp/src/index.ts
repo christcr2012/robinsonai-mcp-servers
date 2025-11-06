@@ -12386,228 +12386,429 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
   }
 
   private async vercelCreateFirewallRule(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_firewall_rule
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_firewall_rule' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/security/firewall`, {
+        method: 'POST',
+        body: JSON.stringify({ projectId: args.projectId, action: args.action, conditionGroup: args.conditionGroup })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create firewall rule: ${error.message}`);
+    }
   }
 
   private async vercelCreateProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_project
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_project' }] };
+    try {
+      const result = await this.vercelFetch(`/v10/projects`, {
+        method: 'POST',
+        body: JSON.stringify({ name: args.name })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create project: ${error.message}`);
+    }
   }
 
   private async vercelCreateRedirect(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_redirect
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_redirect' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/redirects`, {
+        method: 'POST',
+        body: JSON.stringify({ source: args.source, destination: args.destination })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create redirect: ${error.message}`);
+    }
   }
 
   private async vercelCreateSecret(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_secret
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_secret' }] };
+    try {
+      const result = await this.vercelFetch(`/v3/secrets`, {
+        method: 'POST',
+        body: JSON.stringify({ name: args.name, value: args.value })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create secret: ${error.message}`);
+    }
   }
 
   private async vercelCreateWebhook(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_create_webhook
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_webhook' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/webhooks`, {
+        method: 'POST',
+        body: JSON.stringify({ url: args.url, events: args.events })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create webhook: ${error.message}`);
+    }
   }
 
   private async vercelDeleteAlias(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_alias
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_alias' }] };
+    try {
+      const result = await this.vercelFetch(`/v2/aliases/${args.aliasId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete alias: ${error.message}`);
+    }
   }
 
   private async vercelDeleteComment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_comment
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_comment' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/comments/${args.commentId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete comment: ${error.message}`);
+    }
   }
 
   private async vercelDeleteCronJob(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_cron_job
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_cron_job' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/crons/${args.cronId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete cron job: ${error.message}`);
+    }
   }
 
   private async vercelDeleteCustomHeader(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_custom_header
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_custom_header' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/headers/${args.headerId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete custom header: ${error.message}`);
+    }
   }
 
   private async vercelDeleteDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_deployment
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_deployment' }] };
+    try {
+      const result = await this.vercelFetch(`/v13/deployments/${args.deploymentId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete deployment: ${error.message}`);
+    }
   }
 
   private async vercelDeleteDnsRecord(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_dns_record
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_dns_record' }] };
+    try {
+      const result = await this.vercelFetch(`/v2/domains/${args.domain}/records/${args.recordId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete DNS record: ${error.message}`);
+    }
   }
 
   private async vercelDeleteEnvVar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_env_var
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_env_var' }] };
+    try {
+      const result = await this.vercelFetch(`/v9/projects/${args.projectId}/env/${args.envId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete env var: ${error.message}`);
+    }
   }
 
   private async vercelDeleteFirewallRule(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_firewall_rule
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_firewall_rule' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/security/firewall/${args.ruleId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete firewall rule: ${error.message}`);
+    }
   }
 
   private async vercelDeleteProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_project
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_project' }] };
+    try {
+      const result = await this.vercelFetch(`/v9/projects/${args.projectId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete project: ${error.message}`);
+    }
   }
 
   private async vercelDeleteRedirect(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_redirect
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_redirect' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/redirects/${args.redirectId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete redirect: ${error.message}`);
+    }
   }
 
   private async vercelDeleteSecret(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_secret
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_secret' }] };
+    try {
+      const result = await this.vercelFetch(`/v2/secrets/${args.secretId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete secret: ${error.message}`);
+    }
   }
 
   private async vercelDeleteWebhook(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_delete_webhook
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_webhook' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/webhooks/${args.webhookId}`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete webhook: ${error.message}`);
+    }
   }
 
   private async vercelDeployMiddleware(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_deploy_middleware
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_deploy_middleware' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/edge-middleware`, {
+        method: 'POST',
+        body: JSON.stringify({ projectId: args.projectId, middleware: args.middleware })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to deploy middleware: ${error.message}`);
+    }
   }
 
   private async vercelDisconnectGitRepository(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_disconnect_git_repository
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_disconnect_git_repository' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/link`, { method: 'DELETE' });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to disconnect git repository: ${error.message}`);
+    }
   }
 
   private async vercelEnableAttackChallengeMode(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_enable_attack_challenge_mode
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_enable_attack_challenge_mode' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/security/attack-challenge-mode`, {
+        method: 'POST',
+        body: JSON.stringify({ projectId: args.projectId, enabled: args.enabled })
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to enable attack challenge mode: ${error.message}`);
+    }
   }
 
   private async vercelExportAuditLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_export_audit_logs
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_export_audit_logs' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/audit-logs/export`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to export audit logs: ${error.message}`);
+    }
   }
 
   private async vercelExportBlobData(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_export_blob_data
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_export_blob_data' }] };
+    try {
+      const result = await this.vercelFetch(`/v5/blob/export`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to export blob data: ${error.message}`);
+    }
   }
 
   private async vercelExportUsageReport(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_export_usage_report
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_export_usage_report' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/usage/export`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to export usage report: ${error.message}`);
+    }
   }
 
   private async vercelGetAuditLog(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_audit_log
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_audit_log' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/audit-logs/${args.logId}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get audit log: ${error.message}`);
+    }
   }
 
   private async vercelGetBandwidthUsage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_bandwidth_usage
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_bandwidth_usage' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/usage/bandwidth`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get bandwidth usage: ${error.message}`);
+    }
   }
 
   private async vercelGetBillingSummary(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_billing_summary
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_billing_summary' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/billing/summary`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get billing summary: ${error.message}`);
+    }
   }
 
   private async vercelGetBuildLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_build_logs
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_build_logs' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/builds/${args.buildId}/logs`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get build logs: ${error.message}`);
+    }
   }
 
   private async vercelGetCacheMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_cache_metrics
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_cache_metrics' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/cache/metrics`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get cache metrics: ${error.message}`);
+    }
   }
 
   private async vercelGetComplianceReport(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_compliance_report
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_compliance_report' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/compliance/report`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get compliance report: ${error.message}`);
+    }
   }
 
   private async vercelGetCostBreakdown(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_cost_breakdown
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_cost_breakdown' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/billing/cost-breakdown`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get cost breakdown: ${error.message}`);
+    }
   }
 
   private async vercelGetDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_deployment
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment' }] };
+    try {
+      const result = await this.vercelFetch(`/v13/deployments/${args.deploymentId}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get deployment: ${error.message}`);
+    }
   }
 
   private async vercelGetDeploymentDiff(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_deployment_diff
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_diff' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/diff`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get deployment diff: ${error.message}`);
+    }
   }
 
   private async vercelGetDeploymentEvents(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_deployment_events
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_events' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/events`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get deployment events: ${error.message}`);
+    }
   }
 
   private async vercelGetDeploymentFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_deployment_file
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_file' }] };
+    try {
+      const result = await this.vercelFetch(`/v6/deployments/${args.deploymentId}/files/${args.fileId}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get deployment file: ${error.message}`);
+    }
   }
 
   private async vercelGetDeploymentHealth(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_deployment_health
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_health' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/deployments/${args.deploymentId}/health`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get deployment health: ${error.message}`);
+    }
   }
 
   private async vercelGetDeploymentLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_deployment_logs
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_logs' }] };
+    try {
+      const result = await this.vercelFetch(`/v2/deployments/${args.deploymentId}/events`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get deployment logs: ${error.message}`);
+    }
   }
 
   private async vercelGetDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_domain
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_domain' }] };
+    try {
+      const result = await this.vercelFetch(`/v5/domains/${args.domain}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get domain: ${error.message}`);
+    }
   }
 
   private async vercelGetEdgeConfigItems(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_edge_config_items
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_edge_config_items' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/edge-config/${args.edgeConfigId}/items`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get edge config items: ${error.message}`);
+    }
   }
 
   private async vercelGetErrorLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_error_logs
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_error_logs' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/errors`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get error logs: ${error.message}`);
+    }
   }
 
   private async vercelGetErrorRate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_error_rate
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_error_rate' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/error-rate`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get error rate: ${error.message}`);
+    }
   }
 
   private async vercelGetFirewallAnalytics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_firewall_analytics
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_firewall_analytics' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/security/firewall/analytics`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get firewall analytics: ${error.message}`);
+    }
   }
 
   private async vercelGetFunctionInvocations(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_function_invocations
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_function_invocations' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/functions/${args.functionId}/invocations`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get function invocations: ${error.message}`);
+    }
   }
 
   private async vercelGetGitIntegrationStatus(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_git_integration_status
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_git_integration_status' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/projects/${args.projectId}/git/status`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get git integration status: ${error.message}`);
+    }
   }
 
   private async vercelGetIntegration(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_integration
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_integration' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/integrations/${args.integrationId}`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get integration: ${error.message}`);
+    }
   }
 
   private async vercelGetIntegrationLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement vercel_get_integration_logs
-    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_integration_logs' }] };
+    try {
+      const result = await this.vercelFetch(`/v1/integrations/${args.integrationId}/logs`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get integration logs: ${error.message}`);
+    }
   }
 
   private async vercelGetInvoice(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
