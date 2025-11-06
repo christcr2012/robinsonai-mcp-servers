@@ -83,6 +83,20 @@ function getAnthropic(): Anthropic {
 
 type VoyageChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
+function getVoyageBaseUrl(): string {
+  const raw = (process.env.VOYAGE_BASE_URL || '').trim();
+  if (!raw) {
+    return 'https://api.voyageai.com/v1';
+  }
+
+  const normalized = raw.replace(/\/$/, '');
+  if (/\/v\d+$/.test(normalized)) {
+    return normalized;
+  }
+
+  return `${normalized}/v1`;
+}
+
 async function callVoyageChatCompletion(params: {
   model: string;
   messages: VoyageChatMessage[];
@@ -95,7 +109,7 @@ async function callVoyageChatCompletion(params: {
     throw new Error('Voyage API key missing. Set VOYAGE_API_KEY or reuse ANTHROPIC_API_KEY');
   }
 
-  const baseUrl = (process.env.VOYAGE_BASE_URL || 'https://api.voyageai.com/v1').replace(/\/$/, '');
+  const baseUrl = getVoyageBaseUrl();
   const maxRetries = params.maxRetries ?? 3;
   let lastError: Error | null = null;
 
