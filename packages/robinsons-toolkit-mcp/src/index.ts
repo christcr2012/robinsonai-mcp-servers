@@ -11814,153 +11814,314 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
   }
 
   private async githubCreateProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement github_create_project
-    return { content: [{ type: 'text', text: 'Not implemented: github_create_project' }] };
+    try {
+      const body: any = { name: args.name };
+      if (args.body) body.body = args.body;
+      const response = await this.client.post('/user/projects', body);
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create project: ${error.message}`);
+    }
   }
 
   private async githubGetProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement github_get_project
-    return { content: [{ type: 'text', text: 'Not implemented: github_get_project' }] };
+    try {
+      const response = await this.client.get(`/projects/${args.project_id}`);
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get project: ${error.message}`);
+    }
   }
 
   private async githubListProjects(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement github_list_projects
-    return { content: [{ type: 'text', text: 'Not implemented: github_list_projects' }] };
+    try {
+      const params: any = {};
+      if (args.state) params.state = args.state;
+      if (args.per_page) params.per_page = args.per_page;
+      if (args.page) params.page = args.page;
+      const path = args.username ? `/users/${args.username}/projects` : '/user/projects';
+      const response = await this.client.get(path, params);
+      return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list projects: ${error.message}`);
+    }
   }
 
   private async openaiCancelVectorStoreFileBatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_cancel_vector_store_file_batch
-    return { content: [{ type: 'text', text: 'Not implemented: openai_cancel_vector_store_file_batch' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const result = await this.openaiClient.beta.vectorStores.fileBatches.cancel(args.vector_store_id, args.batch_id);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to cancel vector store file batch: ${error.message}`);
+    }
   }
 
   private async openaiCreateVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_create_vector_store
-    return { content: [{ type: 'text', text: 'Not implemented: openai_create_vector_store' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const params: any = {};
+      if (args.name) params.name = args.name;
+      if (args.file_ids) params.file_ids = args.file_ids;
+      if (args.expires_after) params.expires_after = args.expires_after;
+      const result = await this.openaiClient.beta.vectorStores.create(params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create vector store: ${error.message}`);
+    }
   }
 
   private async openaiCreateVectorStoreFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_create_vector_store_file
-    return { content: [{ type: 'text', text: 'Not implemented: openai_create_vector_store_file' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const result = await this.openaiClient.beta.vectorStores.files.create(args.vector_store_id, { file_id: args.file_id });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create vector store file: ${error.message}`);
+    }
   }
 
   private async openaiCreateVectorStoreFileBatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_create_vector_store_file_batch
-    return { content: [{ type: 'text', text: 'Not implemented: openai_create_vector_store_file_batch' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const result = await this.openaiClient.beta.vectorStores.fileBatches.create(args.vector_store_id, { file_ids: args.file_ids });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to create vector store file batch: ${error.message}`);
+    }
   }
 
   private async openaiDeleteVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_delete_vector_store
-    return { content: [{ type: 'text', text: 'Not implemented: openai_delete_vector_store' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const result = await this.openaiClient.beta.vectorStores.del(args.vector_store_id);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete vector store: ${error.message}`);
+    }
   }
 
   private async openaiDeleteVectorStoreFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_delete_vector_store_file
-    return { content: [{ type: 'text', text: 'Not implemented: openai_delete_vector_store_file' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const result = await this.openaiClient.beta.vectorStores.files.del(args.vector_store_id, args.file_id);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to delete vector store file: ${error.message}`);
+    }
   }
 
   private async openaiListVectorStoreFiles(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_list_vector_store_files
-    return { content: [{ type: 'text', text: 'Not implemented: openai_list_vector_store_files' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const params: any = {};
+      if (args.limit) params.limit = args.limit;
+      if (args.order) params.order = args.order;
+      if (args.after) params.after = args.after;
+      if (args.before) params.before = args.before;
+      const result = await this.openaiClient.beta.vectorStores.files.list(args.vector_store_id, params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list vector store files: ${error.message}`);
+    }
   }
 
   private async openaiListVectorStores(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_list_vector_stores
-    return { content: [{ type: 'text', text: 'Not implemented: openai_list_vector_stores' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const params: any = {};
+      if (args.limit) params.limit = args.limit;
+      if (args.order) params.order = args.order;
+      if (args.after) params.after = args.after;
+      if (args.before) params.before = args.before;
+      const result = await this.openaiClient.beta.vectorStores.list(params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to list vector stores: ${error.message}`);
+    }
   }
 
   private async openaiModifyVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_modify_vector_store
-    return { content: [{ type: 'text', text: 'Not implemented: openai_modify_vector_store' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const params: any = {};
+      if (args.name) params.name = args.name;
+      if (args.expires_after) params.expires_after = args.expires_after;
+      const result = await this.openaiClient.beta.vectorStores.update(args.vector_store_id, params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to modify vector store: ${error.message}`);
+    }
   }
 
   private async openaiRetrieveVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_retrieve_vector_store
-    return { content: [{ type: 'text', text: 'Not implemented: openai_retrieve_vector_store' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const result = await this.openaiClient.beta.vectorStores.retrieve(args.vector_store_id);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to retrieve vector store: ${error.message}`);
+    }
   }
 
   private async openaiRetrieveVectorStoreFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_retrieve_vector_store_file
-    return { content: [{ type: 'text', text: 'Not implemented: openai_retrieve_vector_store_file' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const result = await this.openaiClient.beta.vectorStores.files.retrieve(args.vector_store_id, args.file_id);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to retrieve vector store file: ${error.message}`);
+    }
   }
 
   private async openaiRetrieveVectorStoreFileBatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement openai_retrieve_vector_store_file_batch
-    return { content: [{ type: 'text', text: 'Not implemented: openai_retrieve_vector_store_file_batch' }] };
+    try {
+      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+      const result = await this.openaiClient.beta.vectorStores.fileBatches.retrieve(args.vector_store_id, args.batch_id);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to retrieve vector store file batch: ${error.message}`);
+    }
   }
 
   private async upstashAddTeamMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_add_team_member
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_add_team_member' }] };
+    try {
+      const result = await this.upstashManagementFetch(`/team/${args.team_id}/members`, 'POST', { email: args.email, role: args.role });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to add team member: ${error.message}`);
+    }
   }
 
   private async upstashBackupRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_backup_redis_database
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_backup_redis_database' }] };
+    try {
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/backup`, 'POST');
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to backup Redis database: ${error.message}`);
+    }
   }
 
   private async upstashDisableRedisEviction(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_disable_redis_eviction
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_disable_redis_eviction' }] };
+    try {
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/eviction/disable`, 'POST');
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to disable Redis eviction: ${error.message}`);
+    }
   }
 
   private async upstashDisableRedisTls(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_disable_redis_tls
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_disable_redis_tls' }] };
+    try {
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/tls/disable`, 'POST');
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to disable Redis TLS: ${error.message}`);
+    }
   }
 
   private async upstashGetRedisUsage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_get_redis_usage
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_get_redis_usage' }] };
+    try {
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/usage`, 'GET');
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get Redis usage: ${error.message}`);
+    }
   }
 
   private async upstashRedisBgsave(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_redis_bgsave
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_bgsave' }] };
+    try {
+      const result = await this.upstashRedisFetch(['BGSAVE']);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to BGSAVE: ${error.message}`);
+    }
   }
 
   private async upstashRedisGetrange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_redis_getrange
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_getrange' }] };
+    try {
+      const { key, start, end } = args;
+      const result = await this.upstashRedisFetch(['GETRANGE', key, String(start), String(end)]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to GETRANGE: ${error.message}`);
+    }
   }
 
   private async upstashRedisLastsave(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_redis_lastsave
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_lastsave' }] };
+    try {
+      const result = await this.upstashRedisFetch(['LASTSAVE']);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to LASTSAVE: ${error.message}`);
+    }
   }
 
   private async upstashRedisPttl(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_redis_pttl
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_pttl' }] };
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['PTTL', key]);
+      return { content: [{ type: 'text', text: result !== null ? String(result) : 'null' }] };
+    } catch (error: any) {
+      throw new Error(`Failed to PTTL: ${error.message}`);
+    }
   }
 
   private async upstashRedisSave(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_redis_save
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_save' }] };
+    try {
+      const result = await this.upstashRedisFetch(['SAVE']);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SAVE: ${error.message}`);
+    }
   }
 
   private async upstashRedisSetrange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_redis_setrange
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_setrange' }] };
+    try {
+      const { key, offset, value } = args;
+      const result = await this.upstashRedisFetch(['SETRANGE', key, String(offset), value]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to SETRANGE: ${error.message}`);
+    }
   }
 
   private async upstashRedisStrlen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_redis_strlen
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_strlen' }] };
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['STRLEN', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to STRLEN: ${error.message}`);
+    }
   }
 
   private async upstashRedisType(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_redis_type
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_type' }] };
+    try {
+      const { key } = args;
+      const result = await this.upstashRedisFetch(['TYPE', key]);
+      return { content: [{ type: 'text', text: String(result) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to TYPE: ${error.message}`);
+    }
   }
 
   private async upstashRemoveTeamMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_remove_team_member
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_remove_team_member' }] };
+    try {
+      const result = await this.upstashManagementFetch(`/team/${args.team_id}/members/${args.member_id}`, 'DELETE');
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to remove team member: ${error.message}`);
+    }
   }
 
   private async upstashRestoreRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement upstash_restore_redis_database
-    return { content: [{ type: 'text', text: 'Not implemented: upstash_restore_redis_database' }] };
+    try {
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/restore`, 'POST', { backup_id: args.backup_id });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to restore Redis database: ${error.message}`);
+    }
   }
 
   private async vercelAddDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
