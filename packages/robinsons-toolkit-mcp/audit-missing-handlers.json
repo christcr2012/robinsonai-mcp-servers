@@ -1,4 +1,9 @@
 [
+  "admin_create_orgunit",
+  "admin_delete_orgunit",
+  "admin_get_orgunit",
+  "admin_list_orgunits",
+  "admin_update_orgunit",
   "calendar_create_event",
   "calendar_delete_event",
   "calendar_get_event",

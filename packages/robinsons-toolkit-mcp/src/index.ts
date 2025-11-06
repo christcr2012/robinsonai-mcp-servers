@@ -2982,6 +2982,302 @@ class UnifiedToolkit {
           case 'admin_create_role': return await this.adminCreateRole(args);
           case 'admin_update_role': return await this.adminUpdateRole(args);
           case 'admin_delete_role': return await this.adminDeleteRole(args);
+          case 'admin_action_chrome_device': return await this.adminActionChromeDevice(args);
+          case 'admin_action_mobile_device': return await this.adminActionMobileDevice(args);
+          case 'admin_create_building': return await this.adminCreateBuilding(args);
+          case 'admin_create_calendar_resource': return await this.adminCreateCalendarResource(args);
+          case 'admin_create_feature': return await this.adminCreateFeature(args);
+          case 'admin_create_role_assignment': return await this.adminCreateRoleAssignment(args);
+          case 'admin_create_schema': return await this.adminCreateSchema(args);
+          case 'admin_delete_alert': return await this.adminDeleteAlert(args);
+          case 'admin_delete_asp': return await this.adminDeleteAsp(args);
+          case 'admin_delete_building': return await this.adminDeleteBuilding(args);
+          case 'admin_delete_calendar_resource': return await this.adminDeleteCalendarResource(args);
+          case 'admin_delete_feature': return await this.adminDeleteFeature(args);
+          case 'admin_delete_mobile_device': return await this.adminDeleteMobileDevice(args);
+          case 'admin_delete_role_assignment': return await this.adminDeleteRoleAssignment(args);
+          case 'admin_delete_schema': return await this.adminDeleteSchema(args);
+          case 'admin_delete_token': return await this.adminDeleteToken(args);
+          case 'admin_get_alert': return await this.adminGetAlert(args);
+          case 'admin_get_asp': return await this.adminGetAsp(args);
+          case 'admin_get_building': return await this.adminGetBuilding(args);
+          case 'admin_get_calendar_resource': return await this.adminGetCalendarResource(args);
+          case 'admin_get_chrome_device': return await this.adminGetChromeDevice(args);
+          case 'admin_get_customer_info': return await this.adminGetCustomerInfo(args);
+          case 'admin_get_mobile_device': return await this.adminGetMobileDevice(args);
+          case 'admin_get_role_assignment': return await this.adminGetRoleAssignment(args);
+          case 'admin_get_schema': return await this.adminGetSchema(args);
+          case 'admin_get_security_settings': return await this.adminGetSecuritySettings(args);
+          case 'admin_get_token': return await this.adminGetToken(args);
+          case 'admin_list_alerts': return await this.adminListAlerts(args);
+          case 'admin_list_asp': return await this.adminListAsp(args);
+          case 'admin_list_buildings': return await this.adminListBuildings(args);
+          case 'admin_list_calendar_resources': return await this.adminListCalendarResources(args);
+          case 'admin_list_chrome_devices': return await this.adminListChromeDevices(args);
+          case 'admin_list_features': return await this.adminListFeatures(args);
+          case 'admin_list_mobile_devices': return await this.adminListMobileDevices(args);
+          case 'admin_list_role_assignments': return await this.adminListRoleAssignments(args);
+          case 'admin_list_schemas': return await this.adminListSchemas(args);
+          case 'admin_list_tokens': return await this.adminListTokens(args);
+          case 'admin_update_building': return await this.adminUpdateBuilding(args);
+          case 'admin_update_calendar_resource': return await this.adminUpdateCalendarResource(args);
+          case 'admin_update_chrome_device': return await this.adminUpdateChromeDevice(args);
+          case 'admin_update_schema': return await this.adminUpdateSchema(args);
+          case 'admin_update_security_settings': return await this.adminUpdateSecuritySettings(args);
+          case 'calendar_import_event': return await this.calendarImportEvent(args);
+          case 'calendar_quick_add': return await this.calendarQuickAdd(args);
+          case 'calendar_watch_events': return await this.calendarWatchEvents(args);
+          case 'chat_create_message': return await this.chatCreateMessage(args);
+          case 'chat_create_space': return await this.chatCreateSpace(args);
+          case 'chat_delete_message': return await this.chatDeleteMessage(args);
+          case 'chat_get_space': return await this.chatGetSpace(args);
+          case 'chat_list_members': return await this.chatListMembers(args);
+          case 'chat_list_messages': return await this.chatListMessages(args);
+          case 'chat_list_spaces': return await this.chatListSpaces(args);
+          case 'classroom_add_student': return await this.classroomAddStudent(args);
+          case 'classroom_add_teacher': return await this.classroomAddTeacher(args);
+          case 'classroom_create_course': return await this.classroomCreateCourse(args);
+          case 'classroom_create_coursework': return await this.classroomCreateCoursework(args);
+          case 'classroom_delete_course': return await this.classroomDeleteCourse(args);
+          case 'classroom_get_course': return await this.classroomGetCourse(args);
+          case 'classroom_list_courses': return await this.classroomListCourses(args);
+          case 'classroom_list_coursework': return await this.classroomListCoursework(args);
+          case 'classroom_list_students': return await this.classroomListStudents(args);
+          case 'classroom_list_submissions': return await this.classroomListSubmissions(args);
+          case 'classroom_list_teachers': return await this.classroomListTeachers(args);
+          case 'classroom_remove_student': return await this.classroomRemoveStudent(args);
+          case 'classroom_update_course': return await this.classroomUpdateCourse(args);
+          case 'drive_empty_trash': return await this.driveEmptyTrash(args);
+          case 'drive_get_about': return await this.driveGetAbout(args);
+          case 'drive_get_start_page_token': return await this.driveGetStartPageToken(args);
+          case 'drive_list_changes': return await this.driveListChanges(args);
+          case 'drive_watch_changes': return await this.driveWatchChanges(args);
+          case 'forms_batch_update': return await this.formsBatchUpdate(args);
+          case 'forms_create_form': return await this.formsCreateForm(args);
+          case 'forms_get_form': return await this.formsGetForm(args);
+          case 'forms_get_response': return await this.formsGetResponse(args);
+          case 'forms_list_responses': return await this.formsListResponses(args);
+          case 'github_create_project': return await this.githubCreateProject(args);
+          case 'github_get_project': return await this.githubGetProject(args);
+          case 'github_list_projects': return await this.githubListProjects(args);
+          case 'gmail_batch_modify': return await this.gmailBatchModify(args);
+          case 'gmail_import_message': return await this.gmailImportMessage(args);
+          case 'gmail_insert_message': return await this.gmailInsertMessage(args);
+          case 'gmail_stop_watch': return await this.gmailStopWatch(args);
+          case 'gmail_watch': return await this.gmailWatch(args);
+          case 'licensing_assign_license': return await this.licensingAssignLicense(args);
+          case 'licensing_delete_assignment': return await this.licensingDeleteAssignment(args);
+          case 'licensing_get_assignment': return await this.licensingGetAssignment(args);
+          case 'licensing_list_assignments': return await this.licensingListAssignments(args);
+          case 'licensing_update_assignment': return await this.licensingUpdateAssignment(args);
+          case 'openai_cancel_vector_store_file_batch': return await this.openaiCancelVectorStoreFileBatch(args);
+          case 'openai_create_vector_store': return await this.openaiCreateVectorStore(args);
+          case 'openai_create_vector_store_file': return await this.openaiCreateVectorStoreFile(args);
+          case 'openai_create_vector_store_file_batch': return await this.openaiCreateVectorStoreFileBatch(args);
+          case 'openai_delete_vector_store': return await this.openaiDeleteVectorStore(args);
+          case 'openai_delete_vector_store_file': return await this.openaiDeleteVectorStoreFile(args);
+          case 'openai_list_vector_store_files': return await this.openaiListVectorStoreFiles(args);
+          case 'openai_list_vector_stores': return await this.openaiListVectorStores(args);
+          case 'openai_modify_vector_store': return await this.openaiModifyVectorStore(args);
+          case 'openai_retrieve_vector_store': return await this.openaiRetrieveVectorStore(args);
+          case 'openai_retrieve_vector_store_file': return await this.openaiRetrieveVectorStoreFile(args);
+          case 'openai_retrieve_vector_store_file_batch': return await this.openaiRetrieveVectorStoreFileBatch(args);
+          case 'people_create_contact': return await this.peopleCreateContact(args);
+          case 'people_delete_contact': return await this.peopleDeleteContact(args);
+          case 'people_get_person': return await this.peopleGetPerson(args);
+          case 'people_list_connections': return await this.peopleListConnections(args);
+          case 'people_update_contact': return await this.peopleUpdateContact(args);
+          case 'reports_activity_entity': return await this.reportsActivityEntity(args);
+          case 'reports_activity_user': return await this.reportsActivityUser(args);
+          case 'reports_usage_customer': return await this.reportsUsageCustomer(args);
+          case 'reports_usage_user': return await this.reportsUsageUser(args);
+          case 'sheets_batch_clear': return await this.sheetsBatchClear(args);
+          case 'slides_batch_update': return await this.slidesBatchUpdate(args);
+          case 'slides_create_image': return await this.slidesCreateImage(args);
+          case 'slides_create_presentation': return await this.slidesCreatePresentation(args);
+          case 'slides_create_shape': return await this.slidesCreateShape(args);
+          case 'slides_create_slide': return await this.slidesCreateSlide(args);
+          case 'slides_create_textbox': return await this.slidesCreateTextbox(args);
+          case 'slides_delete_slide': return await this.slidesDeleteSlide(args);
+          case 'slides_delete_text': return await this.slidesDeleteText(args);
+          case 'slides_get_presentation': return await this.slidesGetPresentation(args);
+          case 'slides_insert_text': return await this.slidesInsertText(args);
+          case 'tasks_clear_completed': return await this.tasksClearCompleted(args);
+          case 'tasks_create_task': return await this.tasksCreateTask(args);
+          case 'tasks_create_tasklist': return await this.tasksCreateTasklist(args);
+          case 'tasks_delete_task': return await this.tasksDeleteTask(args);
+          case 'tasks_delete_tasklist': return await this.tasksDeleteTasklist(args);
+          case 'tasks_get_task': return await this.tasksGetTask(args);
+          case 'tasks_get_tasklist': return await this.tasksGetTasklist(args);
+          case 'tasks_list_tasklists': return await this.tasksListTasklists(args);
+          case 'tasks_list_tasks': return await this.tasksListTasks(args);
+          case 'tasks_update_task': return await this.tasksUpdateTask(args);
+          case 'tasks_update_tasklist': return await this.tasksUpdateTasklist(args);
+          case 'upstash_add_team_member': return await this.upstashAddTeamMember(args);
+          case 'upstash_backup_redis_database': return await this.upstashBackupRedisDatabase(args);
+          case 'upstash_disable_redis_eviction': return await this.upstashDisableRedisEviction(args);
+          case 'upstash_disable_redis_tls': return await this.upstashDisableRedisTls(args);
+          case 'upstash_get_redis_usage': return await this.upstashGetRedisUsage(args);
+          case 'upstash_redis_bgsave': return await this.upstashRedisBgsave(args);
+          case 'upstash_redis_getrange': return await this.upstashRedisGetrange(args);
+          case 'upstash_redis_lastsave': return await this.upstashRedisLastsave(args);
+          case 'upstash_redis_pttl': return await this.upstashRedisPttl(args);
+          case 'upstash_redis_save': return await this.upstashRedisSave(args);
+          case 'upstash_redis_setrange': return await this.upstashRedisSetrange(args);
+          case 'upstash_redis_strlen': return await this.upstashRedisStrlen(args);
+          case 'upstash_redis_type': return await this.upstashRedisType(args);
+          case 'upstash_remove_team_member': return await this.upstashRemoveTeamMember(args);
+          case 'upstash_restore_redis_database': return await this.upstashRestoreRedisDatabase(args);
+          case 'vercel_add_domain': return await this.vercelAddDomain(args);
+          case 'vercel_assign_alias': return await this.vercelAssignAlias(args);
+          case 'vercel_blob_delete': return await this.vercelBlobDelete(args);
+          case 'vercel_blob_head': return await this.vercelBlobHead(args);
+          case 'vercel_blob_list': return await this.vercelBlobList(args);
+          case 'vercel_blob_put': return await this.vercelBlobPut(args);
+          case 'vercel_block_ip': return await this.vercelBlockIp(args);
+          case 'vercel_bulk_create_env_vars': return await this.vercelBulkCreateEnvVars(args);
+          case 'vercel_cancel_deployment': return await this.vercelCancelDeployment(args);
+          case 'vercel_clone_storage': return await this.vercelCloneStorage(args);
+          case 'vercel_connect_git_repository': return await this.vercelConnectGitRepository(args);
+          case 'vercel_create_alert': return await this.vercelCreateAlert(args);
+          case 'vercel_create_check': return await this.vercelCreateCheck(args);
+          case 'vercel_create_comment': return await this.vercelCreateComment(args);
+          case 'vercel_create_cron_job': return await this.vercelCreateCronJob(args);
+          case 'vercel_create_custom_header': return await this.vercelCreateCustomHeader(args);
+          case 'vercel_create_deployment': return await this.vercelCreateDeployment(args);
+          case 'vercel_create_dns_record': return await this.vercelCreateDnsRecord(args);
+          case 'vercel_create_edge_config': return await this.vercelCreateEdgeConfig(args);
+          case 'vercel_create_env_var': return await this.vercelCreateEnvVar(args);
+          case 'vercel_create_firewall_rule': return await this.vercelCreateFirewallRule(args);
+          case 'vercel_create_project': return await this.vercelCreateProject(args);
+          case 'vercel_create_redirect': return await this.vercelCreateRedirect(args);
+          case 'vercel_create_secret': return await this.vercelCreateSecret(args);
+          case 'vercel_create_webhook': return await this.vercelCreateWebhook(args);
+          case 'vercel_delete_alias': return await this.vercelDeleteAlias(args);
+          case 'vercel_delete_comment': return await this.vercelDeleteComment(args);
+          case 'vercel_delete_cron_job': return await this.vercelDeleteCronJob(args);
+          case 'vercel_delete_custom_header': return await this.vercelDeleteCustomHeader(args);
+          case 'vercel_delete_deployment': return await this.vercelDeleteDeployment(args);
+          case 'vercel_delete_dns_record': return await this.vercelDeleteDnsRecord(args);
+          case 'vercel_delete_env_var': return await this.vercelDeleteEnvVar(args);
+          case 'vercel_delete_firewall_rule': return await this.vercelDeleteFirewallRule(args);
+          case 'vercel_delete_project': return await this.vercelDeleteProject(args);
+          case 'vercel_delete_redirect': return await this.vercelDeleteRedirect(args);
+          case 'vercel_delete_secret': return await this.vercelDeleteSecret(args);
+          case 'vercel_delete_webhook': return await this.vercelDeleteWebhook(args);
+          case 'vercel_deploy_middleware': return await this.vercelDeployMiddleware(args);
+          case 'vercel_disconnect_git_repository': return await this.vercelDisconnectGitRepository(args);
+          case 'vercel_enable_attack_challenge_mode': return await this.vercelEnableAttackChallengeMode(args);
+          case 'vercel_export_audit_logs': return await this.vercelExportAuditLogs(args);
+          case 'vercel_export_blob_data': return await this.vercelExportBlobData(args);
+          case 'vercel_export_usage_report': return await this.vercelExportUsageReport(args);
+          case 'vercel_get_audit_log': return await this.vercelGetAuditLog(args);
+          case 'vercel_get_bandwidth_usage': return await this.vercelGetBandwidthUsage(args);
+          case 'vercel_get_billing_summary': return await this.vercelGetBillingSummary(args);
+          case 'vercel_get_build_logs': return await this.vercelGetBuildLogs(args);
+          case 'vercel_get_cache_metrics': return await this.vercelGetCacheMetrics(args);
+          case 'vercel_get_compliance_report': return await this.vercelGetComplianceReport(args);
+          case 'vercel_get_cost_breakdown': return await this.vercelGetCostBreakdown(args);
+          case 'vercel_get_deployment': return await this.vercelGetDeployment(args);
+          case 'vercel_get_deployment_diff': return await this.vercelGetDeploymentDiff(args);
+          case 'vercel_get_deployment_events': return await this.vercelGetDeploymentEvents(args);
+          case 'vercel_get_deployment_file': return await this.vercelGetDeploymentFile(args);
+          case 'vercel_get_deployment_health': return await this.vercelGetDeploymentHealth(args);
+          case 'vercel_get_deployment_logs': return await this.vercelGetDeploymentLogs(args);
+          case 'vercel_get_domain': return await this.vercelGetDomain(args);
+          case 'vercel_get_edge_config_items': return await this.vercelGetEdgeConfigItems(args);
+          case 'vercel_get_error_logs': return await this.vercelGetErrorLogs(args);
+          case 'vercel_get_error_rate': return await this.vercelGetErrorRate(args);
+          case 'vercel_get_firewall_analytics': return await this.vercelGetFirewallAnalytics(args);
+          case 'vercel_get_function_invocations': return await this.vercelGetFunctionInvocations(args);
+          case 'vercel_get_git_integration_status': return await this.vercelGetGitIntegrationStatus(args);
+          case 'vercel_get_integration': return await this.vercelGetIntegration(args);
+          case 'vercel_get_integration_logs': return await this.vercelGetIntegrationLogs(args);
+          case 'vercel_get_invoice': return await this.vercelGetInvoice(args);
+          case 'vercel_get_middleware_logs': return await this.vercelGetMiddlewareLogs(args);
+          case 'vercel_get_middleware_metrics': return await this.vercelGetMiddlewareMetrics(args);
+          case 'vercel_get_performance_insights': return await this.vercelGetPerformanceInsights(args);
+          case 'vercel_get_project': return await this.vercelGetProject(args);
+          case 'vercel_get_project_analytics': return await this.vercelGetProjectAnalytics(args);
+          case 'vercel_get_response_time': return await this.vercelGetResponseTime(args);
+          case 'vercel_get_runtime_logs_stream': return await this.vercelGetRuntimeLogsStream(args);
+          case 'vercel_get_security_events': return await this.vercelGetSecurityEvents(args);
+          case 'vercel_get_security_headers': return await this.vercelGetSecurityHeaders(args);
+          case 'vercel_get_spending_limits': return await this.vercelGetSpendingLimits(args);
+          case 'vercel_get_storage_usage': return await this.vercelGetStorageUsage(args);
+          case 'vercel_get_team': return await this.vercelGetTeam(args);
+          case 'vercel_get_team_activity': return await this.vercelGetTeamActivity(args);
+          case 'vercel_get_team_usage': return await this.vercelGetTeamUsage(args);
+          case 'vercel_get_traces': return await this.vercelGetTraces(args);
+          case 'vercel_get_uptime_metrics': return await this.vercelGetUptimeMetrics(args);
+          case 'vercel_get_usage_metrics': return await this.vercelGetUsageMetrics(args);
+          case 'vercel_get_web_vitals': return await this.vercelGetWebVitals(args);
+          case 'vercel_import_blob_data': return await this.vercelImportBlobData(args);
+          case 'vercel_install_integration': return await this.vercelInstallIntegration(args);
+          case 'vercel_invite_team_member': return await this.vercelInviteTeamMember(args);
+          case 'vercel_kv_delete': return await this.vercelKvDelete(args);
+          case 'vercel_kv_get': return await this.vercelKvGet(args);
+          case 'vercel_kv_list_keys': return await this.vercelKvListKeys(args);
+          case 'vercel_kv_set': return await this.vercelKvSet(args);
+          case 'vercel_list_access_events': return await this.vercelListAccessEvents(args);
+          case 'vercel_list_aliases': return await this.vercelListAliases(args);
+          case 'vercel_list_audit_logs': return await this.vercelListAuditLogs(args);
+          case 'vercel_list_blocked_ips': return await this.vercelListBlockedIps(args);
+          case 'vercel_list_checks': return await this.vercelListChecks(args);
+          case 'vercel_list_comments': return await this.vercelListComments(args);
+          case 'vercel_list_cron_jobs': return await this.vercelListCronJobs(args);
+          case 'vercel_list_custom_headers': return await this.vercelListCustomHeaders(args);
+          case 'vercel_list_deployment_files': return await this.vercelListDeploymentFiles(args);
+          case 'vercel_list_deployments': return await this.vercelListDeployments(args);
+          case 'vercel_list_dns_records': return await this.vercelListDnsRecords(args);
+          case 'vercel_list_domains': return await this.vercelListDomains(args);
+          case 'vercel_list_edge_configs': return await this.vercelListEdgeConfigs(args);
+          case 'vercel_list_env_vars': return await this.vercelListEnvVars(args);
+          case 'vercel_list_firewall_rules': return await this.vercelListFirewallRules(args);
+          case 'vercel_list_git_repositories': return await this.vercelListGitRepositories(args);
+          case 'vercel_list_integration_configurations': return await this.vercelListIntegrationConfigurations(args);
+          case 'vercel_list_integrations': return await this.vercelListIntegrations(args);
+          case 'vercel_list_invoices': return await this.vercelListInvoices(args);
+          case 'vercel_list_middleware': return await this.vercelListMiddleware(args);
+          case 'vercel_list_projects': return await this.vercelListProjects(args);
+          case 'vercel_list_redirects': return await this.vercelListRedirects(args);
+          case 'vercel_list_secrets': return await this.vercelListSecrets(args);
+          case 'vercel_list_team_members': return await this.vercelListTeamMembers(args);
+          case 'vercel_list_teams': return await this.vercelListTeams(args);
+          case 'vercel_list_webhooks': return await this.vercelListWebhooks(args);
+          case 'vercel_optimize_storage': return await this.vercelOptimizeStorage(args);
+          case 'vercel_pause_deployment': return await this.vercelPauseDeployment(args);
+          case 'vercel_postgres_create_database': return await this.vercelPostgresCreateDatabase(args);
+          case 'vercel_postgres_delete_database': return await this.vercelPostgresDeleteDatabase(args);
+          case 'vercel_postgres_get_connection_string': return await this.vercelPostgresGetConnectionString(args);
+          case 'vercel_postgres_list_databases': return await this.vercelPostgresListDatabases(args);
+          case 'vercel_promote_deployment': return await this.vercelPromoteDeployment(args);
+          case 'vercel_redeploy': return await this.vercelRedeploy(args);
+          case 'vercel_remove_domain': return await this.vercelRemoveDomain(args);
+          case 'vercel_remove_team_member': return await this.vercelRemoveTeamMember(args);
+          case 'vercel_rename_secret': return await this.vercelRenameSecret(args);
+          case 'vercel_resolve_comment': return await this.vercelResolveComment(args);
+          case 'vercel_resume_deployment': return await this.vercelResumeDeployment(args);
+          case 'vercel_rollback_deployment': return await this.vercelRollbackDeployment(args);
+          case 'vercel_scan_deployment_security': return await this.vercelScanDeploymentSecurity(args);
+          case 'vercel_sync_git_repository': return await this.vercelSyncGitRepository(args);
+          case 'vercel_test_middleware': return await this.vercelTestMiddleware(args);
+          case 'vercel_trigger_cron_job': return await this.vercelTriggerCronJob(args);
+          case 'vercel_trigger_integration_sync': return await this.vercelTriggerIntegrationSync(args);
+          case 'vercel_unblock_ip': return await this.vercelUnblockIp(args);
+          case 'vercel_uninstall_integration': return await this.vercelUninstallIntegration(args);
+          case 'vercel_update_check': return await this.vercelUpdateCheck(args);
+          case 'vercel_update_comment': return await this.vercelUpdateComment(args);
+          case 'vercel_update_cron_job': return await this.vercelUpdateCronJob(args);
+          case 'vercel_update_edge_config_items': return await this.vercelUpdateEdgeConfigItems(args);
+          case 'vercel_update_env_var': return await this.vercelUpdateEnvVar(args);
+          case 'vercel_update_firewall_rule': return await this.vercelUpdateFirewallRule(args);
+          case 'vercel_update_integration_configuration': return await this.vercelUpdateIntegrationConfiguration(args);
+          case 'vercel_update_project': return await this.vercelUpdateProject(args);
+          case 'vercel_update_security_headers': return await this.vercelUpdateSecurityHeaders(args);
+          case 'vercel_update_spending_limits': return await this.vercelUpdateSpendingLimits(args);
+          case 'vercel_update_team_member_role': return await this.vercelUpdateTeamMemberRole(args);
+          case 'vercel_verify_domain': return await this.vercelVerifyDomain(args);
 
           default:
             return {
@@ -10735,6 +11031,1564 @@ ${args.body}`;
     await this.admin.roles.delete({ customer: args.customerId, roleId: args.roleId });
     return { content: [{ type: 'text', text: 'Role deleted' }] };
   }
+
+  // ========== AUTO-GENERATED HANDLERS ==========
+
+private async adminActionChromeDevice(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.chromeosdevices.action({ customerId: args.customerId, resourceId: args.deviceId, requestBody: { action: args.action } });
+    return { content: [{ type: 'text', text: 'Action performed on Chrome device: ' + args.action }] };
+  }
+
+private async adminActionMobileDevice(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.mobiledevices.action({ customerId: args.customerId, resourceId: args.resourceId, requestBody: { action: args.action } });
+    return { content: [{ type: 'text', text: 'Action performed on mobile device: ' + args.action }] };
+  }
+
+private async adminCreateBuilding(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const building = { buildingId: args.buildingId, buildingName: args.buildingName };
+    const result = await this.admin.resources.buildings.insert({ customer: args.customer, requestBody: building });
+    return { content: [{ type: 'text', text: 'Building created: ' + result.data.buildingId }] };
+  }
+
+private async adminCreateCalendarResource(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const resource = { resourceId: args.resourceId, resourceName: args.resourceName };
+    const result = await this.admin.resources.calendars.insert({ customer: args.customer, requestBody: resource });
+    return { content: [{ type: 'text', text: 'Calendar resource created: ' + result.data.resourceId }] };
+  }
+
+private async adminCreateFeature(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.resources.features.insert({ customer: args.customer, requestBody: { name: args.name } });
+    return { content: [{ type: 'text', text: 'Feature created: ' + result.data.name }] };
+  }
+
+private async adminCreateRoleAssignment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const assignment = { roleId: args.roleId, assignedTo: args.assignedTo };
+    const result = await this.admin.roleAssignments.insert({ customer: args.customer, requestBody: assignment });
+    return { content: [{ type: 'text', text: 'Role assignment created: ' + result.data.roleAssignmentId }] };
+  }
+
+private async adminCreateSchema(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const schema = { schemaName: args.schemaName, fields: args.fields };
+    const result = await this.admin.schemas.insert({ customerId: args.customerId, requestBody: schema });
+    return { content: [{ type: 'text', text: 'Schema created: ' + result.data.schemaId }] };
+  }
+
+private async adminDeleteAlert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    return { content: [{ type: 'text', text: 'Alert Center API integration required. Use Google Admin Console for alerts.' }] };
+  }
+
+private async adminDeleteAsp(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.asps.delete({ userKey: args.userKey, codeId: args.codeId });
+    return { content: [{ type: 'text', text: 'App-specific password deleted' }] };
+  }
+
+private async adminDeleteBuilding(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.resources.buildings.delete({ customer: args.customer, buildingId: args.buildingId });
+    return { content: [{ type: 'text', text: 'Building deleted' }] };
+  }
+
+private async adminDeleteCalendarResource(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.resources.calendars.delete({ customer: args.customer, calendarResourceId: args.calendarResourceId });
+    return { content: [{ type: 'text', text: 'Calendar resource deleted' }] };
+  }
+
+private async adminDeleteFeature(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.resources.features.delete({ customer: args.customer, featureKey: args.featureKey });
+    return { content: [{ type: 'text', text: 'Feature deleted' }] };
+  }
+
+private async adminDeleteMobileDevice(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.mobiledevices.delete({ customerId: args.customerId, resourceId: args.resourceId });
+    return { content: [{ type: 'text', text: 'Mobile device deleted' }] };
+  }
+
+private async adminDeleteRoleAssignment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.roleAssignments.delete({ customer: args.customer, roleAssignmentId: args.roleAssignmentId });
+    return { content: [{ type: 'text', text: 'Role assignment deleted' }] };
+  }
+
+private async adminDeleteSchema(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.schemas.delete({ customerId: args.customerId, schemaKey: args.schemaKey });
+    return { content: [{ type: 'text', text: 'Schema deleted' }] };
+  }
+
+private async adminDeleteToken(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.tokens.delete({ userKey: args.userKey, clientId: args.clientId });
+    return { content: [{ type: 'text', text: 'Token deleted' }] };
+  }
+
+private async adminGetAlert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    return { content: [{ type: 'text', text: 'Alert Center API integration required. Use Google Admin Console for alerts.' }] };
+  }
+
+private async adminGetAsp(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.asps.get({ userKey: args.userKey, codeId: args.codeId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminGetBuilding(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.resources.buildings.get({ customer: args.customer, buildingId: args.buildingId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminGetCalendarResource(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.resources.calendars.get({ customer: args.customer, calendarResourceId: args.calendarResourceId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminGetChromeDevice(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.chromeosdevices.get({ customerId: args.customerId, deviceId: args.deviceId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminGetCustomerInfo(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.customers.get({ customerKey: args.customer });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminGetMobileDevice(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.mobiledevices.get({ customerId: args.customerId, resourceId: args.resourceId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminGetRoleAssignment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.roleAssignments.get({ customer: args.customer, roleAssignmentId: args.roleAssignmentId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminGetSchema(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.schemas.get({ customerId: args.customerId, schemaKey: args.schemaKey });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminGetSecuritySettings(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.customers.get({ customerKey: args.customer });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminGetToken(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.tokens.get({ userKey: args.userKey, clientId: args.clientId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async adminListAlerts(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // Note: Requires Alert Center API
+    return { content: [{ type: 'text', text: 'Alert Center API integration required. Use Google Admin Console for alerts.' }] };
+  }
+
+private async adminListAsp(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.asps.list({ userKey: args.userKey });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+private async adminListBuildings(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.resources.buildings.list({ customer: args.customer });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.buildings || [], null, 2) }] };
+  }
+
+private async adminListCalendarResources(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.resources.calendars.list({ customer: args.customer });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+private async adminListChromeDevices(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.chromeosdevices.list({ customerId: args.customerId || 'my_customer', maxResults: args.maxResults || 100 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.chromeosdevices || [], null, 2) }] };
+  }
+
+private async adminListFeatures(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.resources.features.list({ customer: args.customer });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.features || [], null, 2) }] };
+  }
+
+private async adminListMobileDevices(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.mobiledevices.list({ customerId: args.customerId || 'my_customer', maxResults: args.maxResults || 100 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.mobiledevices || [], null, 2) }] };
+  }
+
+private async adminListRoleAssignments(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.roleAssignments.list({ customer: args.customer });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+private async adminListSchemas(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.schemas.list({ customerId: args.customerId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.schemas || [], null, 2) }] };
+  }
+
+private async adminListTokens(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.tokens.list({ userKey: args.userKey });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+private async adminUpdateBuilding(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.resources.buildings.update({ customer: args.customer, buildingId: args.buildingId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Building updated' }] };
+  }
+
+private async adminUpdateCalendarResource(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.resources.calendars.update({ customer: args.customer, calendarResourceId: args.calendarResourceId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Calendar resource updated' }] };
+  }
+
+private async adminUpdateChromeDevice(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.chromeosdevices.update({ customerId: args.customerId, deviceId: args.deviceId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Chrome device updated' }] };
+  }
+
+private async adminUpdateSchema(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.admin.schemas.update({ customerId: args.customerId, schemaKey: args.schemaKey, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Schema updated' }] };
+  }
+
+private async adminUpdateSecuritySettings(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.admin.customers.patch({ customerKey: args.customer, requestBody: args.settings });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async calendarImportEvent(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.calendar.events.import({
+      calendarId: args.calendarId,
+      requestBody: args.event
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async calendarQuickAdd(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.calendar.events.quickAdd({
+      calendarId: args.calendarId,
+      text: args.text
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async calendarWatchEvents(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.calendar.events.watch({
+      calendarId: args.calendarId,
+      requestBody: {
+        id: Date.now().toString(),
+        type: args.type || 'web_hook',
+        address: args.address
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async chatCreateMessage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.chat.spaces.messages.create({ parent: args.spaceName, requestBody: { text: args.text } });
+    return { content: [{ type: 'text', text: 'Message created: ' + result.data.name }] };
+  }
+
+private async chatCreateSpace(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.chat.spaces.create({ requestBody: { displayName: args.displayName, spaceType: 'SPACE' } });
+    return { content: [{ type: 'text', text: 'Space created: ' + result.data.name }] };
+  }
+
+private async chatDeleteMessage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.chat.spaces.messages.delete({ name: args.messageName });
+    return { content: [{ type: 'text', text: 'Message deleted' }] };
+  }
+
+private async chatGetSpace(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.chat.spaces.get({ name: args.spaceName });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async chatListMembers(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.chat.spaces.members.list({ parent: args.spaceName });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.memberships || [], null, 2) }] };
+  }
+
+private async chatListMessages(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.chat.spaces.messages.list({ parent: args.spaceName });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.messages || [], null, 2) }] };
+  }
+
+private async chatListSpaces(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.chat.spaces.list({ pageSize: args.pageSize || 100 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.spaces || [], null, 2) }] };
+  }
+
+private async classroomAddStudent(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.classroom.courses.students.create({ courseId: args.courseId, requestBody: { userId: args.userId } });
+    return { content: [{ type: 'text', text: 'Student added to course' }] };
+  }
+
+private async classroomAddTeacher(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.classroom.courses.teachers.create({ courseId: args.courseId, requestBody: { userId: args.userId } });
+    return { content: [{ type: 'text', text: 'Teacher added to course' }] };
+  }
+
+private async classroomCreateCourse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const course: any = { name: args.name };
+    if (args.section) course.section = args.section;
+    if (args.ownerId) course.ownerId = args.ownerId;
+    const result = await this.classroom.courses.create({ requestBody: course });
+    return { content: [{ type: 'text', text: 'Course created. ID: ' + result.data.id }] };
+  }
+
+private async classroomCreateCoursework(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const coursework: any = { title: args.title, workType: 'ASSIGNMENT' };
+    if (args.description) coursework.description = args.description;
+    const result = await this.classroom.courses.courseWork.create({ courseId: args.courseId, requestBody: coursework });
+    return { content: [{ type: 'text', text: 'Coursework created. ID: ' + result.data.id }] };
+  }
+
+private async classroomDeleteCourse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.classroom.courses.delete({ id: args.courseId });
+    return { content: [{ type: 'text', text: 'Course deleted' }] };
+  }
+
+private async classroomGetCourse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.classroom.courses.get({ id: args.courseId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async classroomListCourses(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.classroom.courses.list({ pageSize: args.pageSize || 100 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.courses || [], null, 2) }] };
+  }
+
+private async classroomListCoursework(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.classroom.courses.courseWork.list({ courseId: args.courseId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.courseWork || [], null, 2) }] };
+  }
+
+private async classroomListStudents(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.classroom.courses.students.list({ courseId: args.courseId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.students || [], null, 2) }] };
+  }
+
+private async classroomListSubmissions(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.classroom.courses.courseWork.studentSubmissions.list({ courseId: args.courseId, courseWorkId: args.courseWorkId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.studentSubmissions || [], null, 2) }] };
+  }
+
+private async classroomListTeachers(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.classroom.courses.teachers.list({ courseId: args.courseId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.teachers || [], null, 2) }] };
+  }
+
+private async classroomRemoveStudent(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.classroom.courses.students.delete({ courseId: args.courseId, userId: args.userId });
+    return { content: [{ type: 'text', text: 'Student removed from course' }] };
+  }
+
+private async classroomUpdateCourse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.classroom.courses.update({ id: args.courseId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Course updated' }] };
+  }
+
+private async driveEmptyTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.drive.files.emptyTrash({});
+    return { content: [{ type: 'text', text: 'Trash emptied successfully' }] };
+  }
+
+private async driveGetAbout(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.about.get({
+      fields: args.fields || 'storageQuota,user'
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async driveGetStartPageToken(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.changes.getStartPageToken({});
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async driveListChanges(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.changes.list({
+      pageToken: args.pageToken,
+      includeRemoved: args.includeRemoved
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async driveWatchChanges(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.drive.changes.watch({
+      pageToken: args.pageToken,
+      requestBody: {
+        id: Date.now().toString(),
+        type: args.type || 'web_hook',
+        address: args.address
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async formsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement forms_batch_update
+    return { content: [{ type: 'text', text: 'Not implemented: forms_batch_update' }] };
+  }
+
+  private async formsCreateForm(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement forms_create_form
+    return { content: [{ type: 'text', text: 'Not implemented: forms_create_form' }] };
+  }
+
+  private async formsGetForm(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement forms_get_form
+    return { content: [{ type: 'text', text: 'Not implemented: forms_get_form' }] };
+  }
+
+private async formsGetResponse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.forms.forms.responses.get({ formId: args.formId, responseId: args.responseId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async formsListResponses(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.forms.forms.responses.list({ formId: args.formId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.responses || [], null, 2) }] };
+  }
+
+private async gmailBatchModify(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.messages.batchModify({
+      userId: args.userId || 'me',
+      requestBody: {
+        ids: args.ids,
+        addLabelIds: args.addLabelIds,
+        removeLabelIds: args.removeLabelIds
+      }
+    });
+    return { content: [{ type: 'text', text: 'Messages modified successfully' }] };
+  }
+
+private async gmailImportMessage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.messages.import({
+      userId: args.userId || 'me',
+      requestBody: args.message,
+      internalDateSource: args.internalDateSource
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async gmailInsertMessage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.messages.insert({
+      userId: args.userId || 'me',
+      requestBody: args.message
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async gmailStopWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.gmail.users.stop({ userId: args.userId || 'me' });
+    return { content: [{ type: 'text', text: 'Push notifications stopped' }] };
+  }
+
+private async gmailWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.gmail.users.watch({
+      userId: args.userId || 'me',
+      requestBody: {
+        labelIds: args.labelIds,
+        topicName: args.topicName
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async licensingAssignLicense(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.licensing.licenseAssignments.insert({ productId: args.productId, skuId: args.skuId, requestBody: { userId: args.userId } });
+    return { content: [{ type: 'text', text: 'License assigned to user: ' + args.userId }] };
+  }
+
+private async licensingDeleteAssignment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.licensing.licenseAssignments.delete({ productId: args.productId, skuId: args.skuId, userId: args.userId });
+    return { content: [{ type: 'text', text: 'License assignment deleted' }] };
+  }
+
+private async licensingGetAssignment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.licensing.licenseAssignments.get({ productId: args.productId, skuId: args.skuId, userId: args.userId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async licensingListAssignments(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.licensing.licenseAssignments.listForProductAndSku({ productId: args.productId, skuId: args.skuId, customerId: 'my_customer' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+private async licensingUpdateAssignment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.licensing.licenseAssignments.update({ productId: args.productId, skuId: args.skuId, userId: args.userId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'License assignment updated' }] };
+  }
+
+private async peopleCreateContact(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const contact: any = {};
+    if (args.names) contact.names = args.names;
+    if (args.emailAddresses) contact.emailAddresses = args.emailAddresses;
+    if (args.phoneNumbers) contact.phoneNumbers = args.phoneNumbers;
+    const result = await this.people.people.createContact({ requestBody: contact });
+    return { content: [{ type: 'text', text: 'Contact created. Resource: ' + result.data.resourceName }] };
+  }
+
+private async peopleDeleteContact(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.people.people.deleteContact({ resourceName: args.resourceName });
+    return { content: [{ type: 'text', text: 'Contact deleted' }] };
+  }
+
+private async peopleGetPerson(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.people.people.get({ resourceName: args.resourceName, personFields: 'names,emailAddresses,phoneNumbers' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async peopleListConnections(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.people.people.connections.list({ resourceName: 'people/me', pageSize: args.pageSize || 100, personFields: 'names,emailAddresses' });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.connections || [], null, 2) }] };
+  }
+
+private async peopleUpdateContact(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.people.people.updateContact({ resourceName: args.resourceName, updatePersonFields: 'names,emailAddresses,phoneNumbers', requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Contact updated' }] };
+  }
+
+private async reportsActivityEntity(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.reports.activities.list({ applicationName: args.applicationName, customerId: args.entityType === 'customer' ? args.entityKey : undefined, userKey: args.entityType === 'user' ? args.entityKey : undefined });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+private async reportsActivityUser(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.reports.activities.list({ userKey: args.userKey, applicationName: args.applicationName });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+private async reportsUsageCustomer(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.reports.customerUsageReports.get({ date: args.date, parameters: args.parameters });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async reportsUsageUser(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.reports.userUsageReport.get({ userKey: args.userKey, date: args.date });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async sheetsBatchClear(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.values.batchClear({
+      spreadsheetId: args.spreadsheetId,
+      requestBody: { ranges: args.ranges }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async slidesBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement slides_batch_update
+    return { content: [{ type: 'text', text: 'Not implemented: slides_batch_update' }] };
+  }
+
+private async slidesCreateImage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const requests = [{ createImage: { url: args.url, elementProperties: { pageObjectId: args.pageId } } }];
+    await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests } });
+    return { content: [{ type: 'text', text: 'Image created' }] };
+  }
+
+  private async slidesCreatePresentation(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement slides_create_presentation
+    return { content: [{ type: 'text', text: 'Not implemented: slides_create_presentation' }] };
+  }
+
+private async slidesCreateShape(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const requests = [{ createShape: { shapeType: args.shapeType, elementProperties: { pageObjectId: args.pageId } } }];
+    await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests } });
+    return { content: [{ type: 'text', text: 'Shape created' }] };
+  }
+
+private async slidesCreateSlide(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const requests = [{ createSlide: { insertionIndex: args.insertionIndex || 0 } }];
+    await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests } });
+    return { content: [{ type: 'text', text: 'Slide created' }] };
+  }
+
+private async slidesCreateTextbox(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const objectId = 'textbox_' + Date.now();
+    const requests = [
+      { createShape: { objectId, shapeType: 'TEXT_BOX', elementProperties: { pageObjectId: args.pageId } } },
+      { insertText: { objectId, text: args.text } }
+    ];
+    await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests } });
+    return { content: [{ type: 'text', text: 'Text box created' }] };
+  }
+
+private async slidesDeleteSlide(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const requests = [{ deleteObject: { objectId: args.objectId } }];
+    await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests } });
+    return { content: [{ type: 'text', text: 'Slide deleted' }] };
+  }
+
+private async slidesDeleteText(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const requests = [{ deleteText: { objectId: args.objectId, textRange: { startIndex: args.startIndex, endIndex: args.endIndex } } }];
+    await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests } });
+    return { content: [{ type: 'text', text: 'Text deleted' }] };
+  }
+
+  private async slidesGetPresentation(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement slides_get_presentation
+    return { content: [{ type: 'text', text: 'Not implemented: slides_get_presentation' }] };
+  }
+
+private async slidesInsertText(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const requests = [{ insertText: { objectId: args.objectId, text: args.text } }];
+    await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests } });
+    return { content: [{ type: 'text', text: 'Text inserted' }] };
+  }
+
+private async tasksClearCompleted(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.tasks.tasks.clear({ tasklist: args.tasklistId });
+    return { content: [{ type: 'text', text: 'Completed tasks cleared' }] };
+  }
+
+private async tasksCreateTask(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const task: any = { title: args.title };
+    if (args.notes) task.notes = args.notes;
+    if (args.due) task.due = args.due;
+    const result = await this.tasks.tasks.insert({ tasklist: args.tasklistId, requestBody: task });
+    return { content: [{ type: 'text', text: 'Task created. ID: ' + result.data.id }] };
+  }
+
+private async tasksCreateTasklist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.tasks.tasklists.insert({ requestBody: { title: args.title } });
+    return { content: [{ type: 'text', text: 'Task list created. ID: ' + result.data.id }] };
+  }
+
+private async tasksDeleteTask(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.tasks.tasks.delete({ tasklist: args.tasklistId, task: args.taskId });
+    return { content: [{ type: 'text', text: 'Task deleted' }] };
+  }
+
+private async tasksDeleteTasklist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.tasks.tasklists.delete({ tasklist: args.tasklistId });
+    return { content: [{ type: 'text', text: 'Task list deleted' }] };
+  }
+
+private async tasksGetTask(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.tasks.tasks.get({ tasklist: args.tasklistId, task: args.taskId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async tasksGetTasklist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.tasks.tasklists.get({ tasklist: args.tasklistId });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+private async tasksListTasklists(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.tasks.tasklists.list({ maxResults: args.maxResults || 10 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+private async tasksListTasks(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.tasks.tasks.list({ tasklist: args.tasklistId, maxResults: args.maxResults || 100 });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data.items || [], null, 2) }] };
+  }
+
+private async tasksUpdateTask(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.tasks.tasks.update({ tasklist: args.tasklistId, task: args.taskId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: 'Task updated' }] };
+  }
+
+private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.tasks.tasklists.update({ tasklist: args.tasklistId, requestBody: { title: args.title } });
+    return { content: [{ type: 'text', text: 'Task list updated' }] };
+  }
+
+  private async githubCreateProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement github_create_project
+    return { content: [{ type: 'text', text: 'Not implemented: github_create_project' }] };
+  }
+
+  private async githubGetProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement github_get_project
+    return { content: [{ type: 'text', text: 'Not implemented: github_get_project' }] };
+  }
+
+  private async githubListProjects(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement github_list_projects
+    return { content: [{ type: 'text', text: 'Not implemented: github_list_projects' }] };
+  }
+
+  private async openaiCancelVectorStoreFileBatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_cancel_vector_store_file_batch
+    return { content: [{ type: 'text', text: 'Not implemented: openai_cancel_vector_store_file_batch' }] };
+  }
+
+  private async openaiCreateVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_create_vector_store
+    return { content: [{ type: 'text', text: 'Not implemented: openai_create_vector_store' }] };
+  }
+
+  private async openaiCreateVectorStoreFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_create_vector_store_file
+    return { content: [{ type: 'text', text: 'Not implemented: openai_create_vector_store_file' }] };
+  }
+
+  private async openaiCreateVectorStoreFileBatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_create_vector_store_file_batch
+    return { content: [{ type: 'text', text: 'Not implemented: openai_create_vector_store_file_batch' }] };
+  }
+
+  private async openaiDeleteVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_delete_vector_store
+    return { content: [{ type: 'text', text: 'Not implemented: openai_delete_vector_store' }] };
+  }
+
+  private async openaiDeleteVectorStoreFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_delete_vector_store_file
+    return { content: [{ type: 'text', text: 'Not implemented: openai_delete_vector_store_file' }] };
+  }
+
+  private async openaiListVectorStoreFiles(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_list_vector_store_files
+    return { content: [{ type: 'text', text: 'Not implemented: openai_list_vector_store_files' }] };
+  }
+
+  private async openaiListVectorStores(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_list_vector_stores
+    return { content: [{ type: 'text', text: 'Not implemented: openai_list_vector_stores' }] };
+  }
+
+  private async openaiModifyVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_modify_vector_store
+    return { content: [{ type: 'text', text: 'Not implemented: openai_modify_vector_store' }] };
+  }
+
+  private async openaiRetrieveVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_retrieve_vector_store
+    return { content: [{ type: 'text', text: 'Not implemented: openai_retrieve_vector_store' }] };
+  }
+
+  private async openaiRetrieveVectorStoreFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_retrieve_vector_store_file
+    return { content: [{ type: 'text', text: 'Not implemented: openai_retrieve_vector_store_file' }] };
+  }
+
+  private async openaiRetrieveVectorStoreFileBatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement openai_retrieve_vector_store_file_batch
+    return { content: [{ type: 'text', text: 'Not implemented: openai_retrieve_vector_store_file_batch' }] };
+  }
+
+  private async upstashAddTeamMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_add_team_member
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_add_team_member' }] };
+  }
+
+  private async upstashBackupRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_backup_redis_database
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_backup_redis_database' }] };
+  }
+
+  private async upstashDisableRedisEviction(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_disable_redis_eviction
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_disable_redis_eviction' }] };
+  }
+
+  private async upstashDisableRedisTls(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_disable_redis_tls
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_disable_redis_tls' }] };
+  }
+
+  private async upstashGetRedisUsage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_get_redis_usage
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_get_redis_usage' }] };
+  }
+
+  private async upstashRedisBgsave(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_redis_bgsave
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_bgsave' }] };
+  }
+
+  private async upstashRedisGetrange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_redis_getrange
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_getrange' }] };
+  }
+
+  private async upstashRedisLastsave(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_redis_lastsave
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_lastsave' }] };
+  }
+
+  private async upstashRedisPttl(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_redis_pttl
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_pttl' }] };
+  }
+
+  private async upstashRedisSave(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_redis_save
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_save' }] };
+  }
+
+  private async upstashRedisSetrange(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_redis_setrange
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_setrange' }] };
+  }
+
+  private async upstashRedisStrlen(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_redis_strlen
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_strlen' }] };
+  }
+
+  private async upstashRedisType(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_redis_type
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_redis_type' }] };
+  }
+
+  private async upstashRemoveTeamMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_remove_team_member
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_remove_team_member' }] };
+  }
+
+  private async upstashRestoreRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement upstash_restore_redis_database
+    return { content: [{ type: 'text', text: 'Not implemented: upstash_restore_redis_database' }] };
+  }
+
+  private async vercelAddDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_add_domain
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_add_domain' }] };
+  }
+
+  private async vercelAssignAlias(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_assign_alias
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_assign_alias' }] };
+  }
+
+  private async vercelBlobDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_blob_delete
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_blob_delete' }] };
+  }
+
+  private async vercelBlobHead(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_blob_head
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_blob_head' }] };
+  }
+
+  private async vercelBlobList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_blob_list
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_blob_list' }] };
+  }
+
+  private async vercelBlobPut(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_blob_put
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_blob_put' }] };
+  }
+
+  private async vercelBlockIp(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_block_ip
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_block_ip' }] };
+  }
+
+  private async vercelBulkCreateEnvVars(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_bulk_create_env_vars
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_bulk_create_env_vars' }] };
+  }
+
+  private async vercelCancelDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_cancel_deployment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_cancel_deployment' }] };
+  }
+
+  private async vercelCloneStorage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_clone_storage
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_clone_storage' }] };
+  }
+
+  private async vercelConnectGitRepository(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_connect_git_repository
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_connect_git_repository' }] };
+  }
+
+  private async vercelCreateAlert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_alert
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_alert' }] };
+  }
+
+  private async vercelCreateCheck(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_check
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_check' }] };
+  }
+
+  private async vercelCreateComment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_comment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_comment' }] };
+  }
+
+  private async vercelCreateCronJob(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_cron_job
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_cron_job' }] };
+  }
+
+  private async vercelCreateCustomHeader(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_custom_header
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_custom_header' }] };
+  }
+
+  private async vercelCreateDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_deployment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_deployment' }] };
+  }
+
+  private async vercelCreateDnsRecord(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_dns_record
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_dns_record' }] };
+  }
+
+  private async vercelCreateEdgeConfig(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_edge_config
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_edge_config' }] };
+  }
+
+  private async vercelCreateEnvVar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_env_var
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_env_var' }] };
+  }
+
+  private async vercelCreateFirewallRule(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_firewall_rule
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_firewall_rule' }] };
+  }
+
+  private async vercelCreateProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_project
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_project' }] };
+  }
+
+  private async vercelCreateRedirect(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_redirect
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_redirect' }] };
+  }
+
+  private async vercelCreateSecret(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_secret
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_secret' }] };
+  }
+
+  private async vercelCreateWebhook(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_create_webhook
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_create_webhook' }] };
+  }
+
+  private async vercelDeleteAlias(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_alias
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_alias' }] };
+  }
+
+  private async vercelDeleteComment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_comment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_comment' }] };
+  }
+
+  private async vercelDeleteCronJob(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_cron_job
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_cron_job' }] };
+  }
+
+  private async vercelDeleteCustomHeader(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_custom_header
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_custom_header' }] };
+  }
+
+  private async vercelDeleteDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_deployment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_deployment' }] };
+  }
+
+  private async vercelDeleteDnsRecord(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_dns_record
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_dns_record' }] };
+  }
+
+  private async vercelDeleteEnvVar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_env_var
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_env_var' }] };
+  }
+
+  private async vercelDeleteFirewallRule(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_firewall_rule
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_firewall_rule' }] };
+  }
+
+  private async vercelDeleteProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_project
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_project' }] };
+  }
+
+  private async vercelDeleteRedirect(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_redirect
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_redirect' }] };
+  }
+
+  private async vercelDeleteSecret(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_secret
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_secret' }] };
+  }
+
+  private async vercelDeleteWebhook(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_delete_webhook
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_delete_webhook' }] };
+  }
+
+  private async vercelDeployMiddleware(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_deploy_middleware
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_deploy_middleware' }] };
+  }
+
+  private async vercelDisconnectGitRepository(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_disconnect_git_repository
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_disconnect_git_repository' }] };
+  }
+
+  private async vercelEnableAttackChallengeMode(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_enable_attack_challenge_mode
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_enable_attack_challenge_mode' }] };
+  }
+
+  private async vercelExportAuditLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_export_audit_logs
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_export_audit_logs' }] };
+  }
+
+  private async vercelExportBlobData(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_export_blob_data
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_export_blob_data' }] };
+  }
+
+  private async vercelExportUsageReport(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_export_usage_report
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_export_usage_report' }] };
+  }
+
+  private async vercelGetAuditLog(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_audit_log
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_audit_log' }] };
+  }
+
+  private async vercelGetBandwidthUsage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_bandwidth_usage
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_bandwidth_usage' }] };
+  }
+
+  private async vercelGetBillingSummary(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_billing_summary
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_billing_summary' }] };
+  }
+
+  private async vercelGetBuildLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_build_logs
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_build_logs' }] };
+  }
+
+  private async vercelGetCacheMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_cache_metrics
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_cache_metrics' }] };
+  }
+
+  private async vercelGetComplianceReport(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_compliance_report
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_compliance_report' }] };
+  }
+
+  private async vercelGetCostBreakdown(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_cost_breakdown
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_cost_breakdown' }] };
+  }
+
+  private async vercelGetDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_deployment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment' }] };
+  }
+
+  private async vercelGetDeploymentDiff(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_deployment_diff
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_diff' }] };
+  }
+
+  private async vercelGetDeploymentEvents(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_deployment_events
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_events' }] };
+  }
+
+  private async vercelGetDeploymentFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_deployment_file
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_file' }] };
+  }
+
+  private async vercelGetDeploymentHealth(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_deployment_health
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_health' }] };
+  }
+
+  private async vercelGetDeploymentLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_deployment_logs
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_deployment_logs' }] };
+  }
+
+  private async vercelGetDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_domain
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_domain' }] };
+  }
+
+  private async vercelGetEdgeConfigItems(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_edge_config_items
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_edge_config_items' }] };
+  }
+
+  private async vercelGetErrorLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_error_logs
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_error_logs' }] };
+  }
+
+  private async vercelGetErrorRate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_error_rate
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_error_rate' }] };
+  }
+
+  private async vercelGetFirewallAnalytics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_firewall_analytics
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_firewall_analytics' }] };
+  }
+
+  private async vercelGetFunctionInvocations(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_function_invocations
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_function_invocations' }] };
+  }
+
+  private async vercelGetGitIntegrationStatus(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_git_integration_status
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_git_integration_status' }] };
+  }
+
+  private async vercelGetIntegration(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_integration
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_integration' }] };
+  }
+
+  private async vercelGetIntegrationLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_integration_logs
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_integration_logs' }] };
+  }
+
+  private async vercelGetInvoice(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_invoice
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_invoice' }] };
+  }
+
+  private async vercelGetMiddlewareLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_middleware_logs
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_middleware_logs' }] };
+  }
+
+  private async vercelGetMiddlewareMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_middleware_metrics
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_middleware_metrics' }] };
+  }
+
+  private async vercelGetPerformanceInsights(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_performance_insights
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_performance_insights' }] };
+  }
+
+  private async vercelGetProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_project
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_project' }] };
+  }
+
+  private async vercelGetProjectAnalytics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_project_analytics
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_project_analytics' }] };
+  }
+
+  private async vercelGetResponseTime(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_response_time
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_response_time' }] };
+  }
+
+  private async vercelGetRuntimeLogsStream(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_runtime_logs_stream
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_runtime_logs_stream' }] };
+  }
+
+  private async vercelGetSecurityEvents(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_security_events
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_security_events' }] };
+  }
+
+  private async vercelGetSecurityHeaders(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_security_headers
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_security_headers' }] };
+  }
+
+  private async vercelGetSpendingLimits(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_spending_limits
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_spending_limits' }] };
+  }
+
+  private async vercelGetStorageUsage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_storage_usage
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_storage_usage' }] };
+  }
+
+  private async vercelGetTeam(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_team
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_team' }] };
+  }
+
+  private async vercelGetTeamActivity(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_team_activity
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_team_activity' }] };
+  }
+
+  private async vercelGetTeamUsage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_team_usage
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_team_usage' }] };
+  }
+
+  private async vercelGetTraces(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_traces
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_traces' }] };
+  }
+
+  private async vercelGetUptimeMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_uptime_metrics
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_uptime_metrics' }] };
+  }
+
+  private async vercelGetUsageMetrics(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_usage_metrics
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_usage_metrics' }] };
+  }
+
+  private async vercelGetWebVitals(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_get_web_vitals
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_get_web_vitals' }] };
+  }
+
+  private async vercelImportBlobData(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_import_blob_data
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_import_blob_data' }] };
+  }
+
+  private async vercelInstallIntegration(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_install_integration
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_install_integration' }] };
+  }
+
+  private async vercelInviteTeamMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_invite_team_member
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_invite_team_member' }] };
+  }
+
+  private async vercelKvDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_kv_delete
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_kv_delete' }] };
+  }
+
+  private async vercelKvGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_kv_get
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_kv_get' }] };
+  }
+
+  private async vercelKvListKeys(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_kv_list_keys
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_kv_list_keys' }] };
+  }
+
+  private async vercelKvSet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_kv_set
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_kv_set' }] };
+  }
+
+  private async vercelListAccessEvents(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_access_events
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_access_events' }] };
+  }
+
+  private async vercelListAliases(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_aliases
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_aliases' }] };
+  }
+
+  private async vercelListAuditLogs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_audit_logs
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_audit_logs' }] };
+  }
+
+  private async vercelListBlockedIps(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_blocked_ips
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_blocked_ips' }] };
+  }
+
+  private async vercelListChecks(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_checks
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_checks' }] };
+  }
+
+  private async vercelListComments(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_comments
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_comments' }] };
+  }
+
+  private async vercelListCronJobs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_cron_jobs
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_cron_jobs' }] };
+  }
+
+  private async vercelListCustomHeaders(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_custom_headers
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_custom_headers' }] };
+  }
+
+  private async vercelListDeploymentFiles(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_deployment_files
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_deployment_files' }] };
+  }
+
+  private async vercelListDeployments(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_deployments
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_deployments' }] };
+  }
+
+  private async vercelListDnsRecords(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_dns_records
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_dns_records' }] };
+  }
+
+  private async vercelListDomains(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_domains
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_domains' }] };
+  }
+
+  private async vercelListEdgeConfigs(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_edge_configs
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_edge_configs' }] };
+  }
+
+  private async vercelListEnvVars(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_env_vars
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_env_vars' }] };
+  }
+
+  private async vercelListFirewallRules(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_firewall_rules
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_firewall_rules' }] };
+  }
+
+  private async vercelListGitRepositories(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_git_repositories
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_git_repositories' }] };
+  }
+
+  private async vercelListIntegrationConfigurations(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_integration_configurations
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_integration_configurations' }] };
+  }
+
+  private async vercelListIntegrations(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_integrations
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_integrations' }] };
+  }
+
+  private async vercelListInvoices(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_invoices
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_invoices' }] };
+  }
+
+  private async vercelListMiddleware(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_middleware
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_middleware' }] };
+  }
+
+  private async vercelListProjects(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_projects
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_projects' }] };
+  }
+
+  private async vercelListRedirects(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_redirects
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_redirects' }] };
+  }
+
+  private async vercelListSecrets(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_secrets
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_secrets' }] };
+  }
+
+  private async vercelListTeamMembers(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_team_members
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_team_members' }] };
+  }
+
+  private async vercelListTeams(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_teams
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_teams' }] };
+  }
+
+  private async vercelListWebhooks(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_list_webhooks
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_list_webhooks' }] };
+  }
+
+  private async vercelOptimizeStorage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_optimize_storage
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_optimize_storage' }] };
+  }
+
+  private async vercelPauseDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_pause_deployment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_pause_deployment' }] };
+  }
+
+  private async vercelPostgresCreateDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_postgres_create_database
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_postgres_create_database' }] };
+  }
+
+  private async vercelPostgresDeleteDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_postgres_delete_database
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_postgres_delete_database' }] };
+  }
+
+  private async vercelPostgresGetConnectionString(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_postgres_get_connection_string
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_postgres_get_connection_string' }] };
+  }
+
+  private async vercelPostgresListDatabases(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_postgres_list_databases
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_postgres_list_databases' }] };
+  }
+
+  private async vercelPromoteDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_promote_deployment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_promote_deployment' }] };
+  }
+
+  private async vercelRedeploy(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_redeploy
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_redeploy' }] };
+  }
+
+  private async vercelRemoveDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_remove_domain
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_remove_domain' }] };
+  }
+
+  private async vercelRemoveTeamMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_remove_team_member
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_remove_team_member' }] };
+  }
+
+  private async vercelRenameSecret(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_rename_secret
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_rename_secret' }] };
+  }
+
+  private async vercelResolveComment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_resolve_comment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_resolve_comment' }] };
+  }
+
+  private async vercelResumeDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_resume_deployment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_resume_deployment' }] };
+  }
+
+  private async vercelRollbackDeployment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_rollback_deployment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_rollback_deployment' }] };
+  }
+
+  private async vercelScanDeploymentSecurity(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_scan_deployment_security
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_scan_deployment_security' }] };
+  }
+
+  private async vercelSyncGitRepository(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_sync_git_repository
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_sync_git_repository' }] };
+  }
+
+  private async vercelTestMiddleware(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_test_middleware
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_test_middleware' }] };
+  }
+
+  private async vercelTriggerCronJob(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_trigger_cron_job
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_trigger_cron_job' }] };
+  }
+
+  private async vercelTriggerIntegrationSync(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_trigger_integration_sync
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_trigger_integration_sync' }] };
+  }
+
+  private async vercelUnblockIp(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_unblock_ip
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_unblock_ip' }] };
+  }
+
+  private async vercelUninstallIntegration(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_uninstall_integration
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_uninstall_integration' }] };
+  }
+
+  private async vercelUpdateCheck(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_check
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_check' }] };
+  }
+
+  private async vercelUpdateComment(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_comment
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_comment' }] };
+  }
+
+  private async vercelUpdateCronJob(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_cron_job
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_cron_job' }] };
+  }
+
+  private async vercelUpdateEdgeConfigItems(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_edge_config_items
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_edge_config_items' }] };
+  }
+
+  private async vercelUpdateEnvVar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_env_var
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_env_var' }] };
+  }
+
+  private async vercelUpdateFirewallRule(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_firewall_rule
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_firewall_rule' }] };
+  }
+
+  private async vercelUpdateIntegrationConfiguration(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_integration_configuration
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_integration_configuration' }] };
+  }
+
+  private async vercelUpdateProject(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_project
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_project' }] };
+  }
+
+  private async vercelUpdateSecurityHeaders(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_security_headers
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_security_headers' }] };
+  }
+
+  private async vercelUpdateSpendingLimits(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_spending_limits
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_spending_limits' }] };
+  }
+
+  private async vercelUpdateTeamMemberRole(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_update_team_member_role
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_update_team_member_role' }] };
+  }
+
+  private async vercelVerifyDomain(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    // TODO: Implement vercel_verify_domain
+    return { content: [{ type: 'text', text: 'Not implemented: vercel_verify_domain' }] };
+  }
+
+  // ========== END AUTO-GENERATED HANDLERS ==========
+
 }
 
 console.error("[Robinson Toolkit] Initializing...");
