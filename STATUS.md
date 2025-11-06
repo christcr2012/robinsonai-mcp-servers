@@ -45,7 +45,40 @@
    - Script: `fix-gpt5-schemas-step3.mjs` (not created yet)
    - Will handle properties like `maxAttempts`, `acceptThreshold`, etc.
 
-**Current Status:** Ready to apply Step 1 to free-agent-mcp
+**Current Status:** ⚠️ Scripts created, testing revealed issues
+
+**Testing Results:**
+- ✅ Step 1: Works perfectly (23 schemas, clean preview)
+- ⚠️ Step 2: Works but preview formatting unclear (21 nested objects)
+- ❌ Step 3: FLAWED - marks required properties as optional!
+
+**Problem with Step 3:**
+- Script processes properties BEFORE seeing the `required` array
+- Would incorrectly change `task: { type: 'string' }` to `type: ['string', 'null']`
+- But `task` is in `required: ['task', 'context']` array!
+- Need to fix script logic
+
+**Revised Understanding (from FREE agent analysis):**
+- FREE agent said to use `type: ['type', 'null']` for optional properties
+- But we need to ONLY apply this to properties NOT in required array
+- Required properties should stay as `type: 'string'` (single type)
+- Optional properties (not in required) should become `type: ['string', 'null']`
+
+**CRITICAL REALIZATION:** Step 3 might not be needed at all!
+
+**JSON Schema Fact Check:**
+- In JSON Schema, properties NOT in `required` array are already optional
+- GPT-5 doesn't require `type: ['string', 'null']` for optional properties
+- The FREE agent's recommendation might be overly strict
+- Need to verify: Does GPT-5 actually require this, or just `additionalProperties: false`?
+
+**Action Needed:**
+1. Test Steps 1 & 2 ONLY on free-agent-mcp
+2. Build and test with GPT-5
+3. If it works, Step 3 is unnecessary
+4. If it fails, revisit Step 3 logic
+
+**Hypothesis:** Steps 1 & 2 might be sufficient for GPT-5 compatibility
 
 ---
 
