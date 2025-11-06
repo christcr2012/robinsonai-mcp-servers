@@ -7,6 +7,7 @@
 
 import { OllamaClient, GenerateOptions } from '../ollama-client.js';
 import { PromptBuilder } from '../utils/prompt-builder.js';
+import { stripCodeFences } from '../utils/output-format.js';
 
 export interface AnalyzeRequest {
   code?: string;
@@ -56,9 +57,10 @@ export class CodeAnalyzer {
     };
 
     const result = await this.ollama.generate(prompt, options);
+    const analysisText = stripCodeFences(result.text);
 
     // Parse issues from the analysis
-    const issues = this.parseIssues(result.text);
+    const issues = this.parseIssues(analysisText);
 
     // Calculate credit savings
     // Augment would use ~5,000 credits for analysis
@@ -67,7 +69,7 @@ export class CodeAnalyzer {
     const creditsSaved = 5000 - augmentCreditsUsed;
 
     return {
-      analysis: result.text,
+      analysis: analysisText,
       issues,
       augmentCreditsUsed,
       creditsSaved,

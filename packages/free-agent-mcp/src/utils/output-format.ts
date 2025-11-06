@@ -10,13 +10,28 @@ export interface OutputFile {
 /**
  * Format files as GMCode blocks for downstream agents.
  */
+export function stripCodeFences(text: string): string {
+  if (!text) {
+    return text;
+  }
+
+  let result = text.trim();
+  const fencePattern = /^```[\w+-]*\n([\s\S]*?)\n```$/;
+
+  while (fencePattern.test(result)) {
+    result = result.replace(fencePattern, '$1').trim();
+  }
+
+  return result;
+}
+
 export function formatGMCode(files: OutputFile[]): string {
   const blocks = files
     .filter(file => !file.deleted)
     .map(file => [
       '```gmcode',
       `path: ${file.path}`,
-      file.content,
+      stripCodeFences(file.content),
       '```'
     ].join('\n'));
 

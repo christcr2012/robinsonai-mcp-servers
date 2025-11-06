@@ -49,7 +49,7 @@ import { FeedbackCapture, FeedbackSource } from './learning/feedback-capture.js'
 import { join } from 'path';
 import { homedir } from 'os';
 import { loadBetterSqlite } from './utils/sqlite.js';
-import { formatGMCode, formatUnifiedDiffs, type OutputFile } from './utils/output-format.js';
+import { formatGMCode, formatUnifiedDiffs, stripCodeFences, type OutputFile } from './utils/output-format.js';
 
 type VersatileTaskType =
   | 'code_generation'
@@ -1227,7 +1227,10 @@ Generate the modified section now:`;
 
     const filtered = files.filter(file => file);
     return {
-      files: filtered.filter(file => !file.deleted).map(file => ({ path: file.path, content: file.content })),
+      files: filtered.filter(file => !file.deleted).map(file => ({
+        path: file.path,
+        content: stripCodeFences(file.content || ''),
+      })),
       gmcode: formatGMCode(filtered),
       diff: formatUnifiedDiffs(filtered),
     };

@@ -12,7 +12,7 @@ import { ValidationResult } from '../types/validation.js';
 import { getModelManager } from '../utils/model-manager.js';
 import { isDockerAvailable, runDockerSandboxPipeline } from '../pipeline/docker-sandbox.js';
 import { runSandboxPipeline } from '../pipeline/sandbox.js';
-import { formatGMCode, formatUnifiedDiffs, type OutputFile } from '../utils/output-format.js';
+import { formatGMCode, formatUnifiedDiffs, stripCodeFences, type OutputFile } from '../utils/output-format.js';
 
 export interface GenerateRequest {
   task: string;
@@ -88,8 +88,12 @@ export class CodeGenerator {
 
     // Extract code and files from pipeline result
     const mainFile = pipelineResult.files[0];
-    const code = mainFile?.content || '';
-    const files = pipelineResult.files;
+    const code = stripCodeFences(mainFile?.content || '');
+    const detailedFiles: OutputFile[] = (pipelineResult.files ?? []).map((file, index) => ({
+      path: file.path || `generated-${index}.ts`,
+      content: stripCodeFences(file.content || ''),
+      originalContent: '',
+    }));
 
     // Convert pipeline validation to old format for compatibility
     const validation: ValidationResult = {
@@ -107,19 +111,13 @@ export class CodeGenerator {
     const augmentCreditsUsed = 500;
     const creditsSaved = 13000 - augmentCreditsUsed;
 
-    const detailedFiles: OutputFile[] = (files ?? []).map((file, index) => ({
-      path: file.path || `generated-${index}.ts`,
-      content: file.content,
-      originalContent: '',
-    }));
-
     if (detailedFiles.length === 0 && code) {
       detailedFiles.push({ path: 'generated.ts', content: code, originalContent: '' });
     }
 
     return {
       code,
-      files,
+      files: detailedFiles.filter(file => !file.deleted).map(file => ({ path: file.path, content: file.content })),
       augmentCreditsUsed,
       creditsSaved,
       model: request.model || 'qwen2.5:3b',
@@ -179,7 +177,7 @@ Requirements:
 
     // Extract test files
     const testFiles = pipelineResult.files.filter(f => f.path.includes('.test.') || f.path.includes('.spec.'));
-    const code = testFiles[0]?.content || '';
+    const code = stripCodeFences(testFiles[0]?.content || '');
 
     const validation: ValidationResult = {
       valid: pipelineResult.ok,
@@ -194,7 +192,7 @@ Requirements:
 
     const detailedFiles: OutputFile[] = (testFiles.length > 0 ? testFiles : pipelineResult.files).map((file, index) => ({
       path: file.path || `tests-${index}.ts`,
-      content: file.content,
+      content: stripCodeFences(file.content || ''),
       originalContent: '',
     }));
 
@@ -204,7 +202,10 @@ Requirements:
 
     return {
       code,
-      files: testFiles,
+      files: (testFiles.length > 0 ? testFiles : pipelineResult.files).map(file => ({
+        path: file.path,
+        content: stripCodeFences(file.content || ''),
+      })),
       augmentCreditsUsed: 400,
       creditsSaved: 8000,
       model: request.model || 'qwen2.5:3b',
@@ -406,14 +407,15 @@ Requirements:
 
     const result = await this.ollama.generate(prompt, options);
 
+    const sanitizedDoc = stripCodeFences(result.text);
     const detailedFiles: OutputFile[] = [{
       path: 'documentation.md',
-      content: result.text,
+      content: sanitizedDoc,
       originalContent: '',
     }];
 
     return {
-      code: result.text,
+      code: sanitizedDoc,
       augmentCreditsUsed: 200,
       creditsSaved: 3000,
       model: result.model,
