@@ -95,7 +95,14 @@ async function callVoyageChatCompletion(params: {
     throw new Error('Voyage API key missing. Set VOYAGE_API_KEY or reuse ANTHROPIC_API_KEY');
   }
 
-  const baseUrl = (process.env.VOYAGE_BASE_URL || 'https://api.voyageai.com/v1').replace(/\/$/, '');
+  const rawBaseUrl = process.env.VOYAGE_BASE_URL || 'https://api.voyageai.com/v1';
+  let baseUrl = rawBaseUrl.replace(/\/+$/, '');
+
+  // Some configurations point directly at the embeddings endpoint. Normalize so we can
+  // append `/chat/completions` without producing a 404 such as `/embeddings/chat/completions`.
+  if (/\/embeddings$/i.test(baseUrl)) {
+    baseUrl = baseUrl.replace(/\/embeddings$/i, '');
+  }
   const maxRetries = params.maxRetries ?? 3;
   let lastError: Error | null = null;
 

@@ -434,14 +434,7 @@ class AutonomousAgentServer {
             });
           }
 
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(result, null, 2),
-              },
-            ],
-          };
+          return this.formatToolResponse(result);
         } finally {
           // Always release job slot
           this.releaseJobSlot();
@@ -1231,6 +1224,115 @@ Generate the modified section now:`;
       gmcode: formatGMCode(filtered),
       diff: formatUnifiedDiffs(filtered),
     };
+  }
+
+  private formatToolResponse(result: any): { content: Array<{ type: 'text'; text: string }> } {
+    if (result === undefined || result === null) {
+      return { content: [{ type: 'text', text: 'No result was returned.' }] };
+    }
+
+    if (typeof result === 'string') {
+      return { content: [{ type: 'text', text: result }] };
+    }
+
+    if (Array.isArray(result)) {
+      const text = result
+        .map(item => (typeof item === 'string' ? item : JSON.stringify(item, null, 2)))
+        .join('\n');
+      return { content: [{ type: 'text', text }] };
+    }
+
+    const { gmcode, diff, files, filesDetailed, code, message, summary, ...rest } = result as Record<string, any>;
+    const meta: Record<string, any> = { ...rest };
+    const content: Array<{ type: 'text'; text: string }> = [];
+    const summaryLines: string[] = [];
+
+    if (typeof summary === 'string' && summary.trim().length > 0) {
+      summaryLines.push(summary.trim());
+    }
+
+    if (typeof message === 'string' && message.trim().length > 0 && message.trim() !== summaryLines[summaryLines.length - 1]) {
+      summaryLines.push(message.trim());
+    }
+
+    if (typeof meta.success === 'boolean') {
+      summaryLines.push(meta.success ? 'Status: ✅ Success' : 'Status: ❌ Failed');
+      delete meta.success;
+    }
+
+    if (typeof meta.runId === 'string') {
+      summaryLines.push(`Run ID: ${meta.runId}`);
+    }
+
+    if (typeof meta.model === 'string') {
+      summaryLines.push(`Model: ${meta.model}`);
+    }
+
+    if (typeof meta.timeMs === 'number') {
+      summaryLines.push(`Duration: ${(meta.timeMs / 1000).toFixed(2)}s`);
+    }
+
+    const creditsUsed = meta.augmentCreditsUsed;
+    const creditsSaved = meta.creditsSaved;
+    if (typeof creditsUsed === 'number' || typeof creditsSaved === 'number') {
+      const usedText = typeof creditsUsed === 'number' ? creditsUsed.toString() : '0';
+      const savedText = typeof creditsSaved === 'number' ? creditsSaved.toString() : '0';
+      summaryLines.push(`Augment credits used: ${usedText} (saved ${savedText})`);
+    }
+
+    if (meta.tokens && typeof meta.tokens === 'object') {
+      const { input, output, total } = meta.tokens as Record<string, number | undefined>;
+      const tokenParts = [
+        typeof input === 'number' ? `input=${input}` : '',
+        typeof output === 'number' ? `output=${output}` : '',
+        typeof total === 'number' ? `total=${total}` : '',
+      ].filter(Boolean);
+      if (tokenParts.length > 0) {
+        summaryLines.push(`Tokens: ${tokenParts.join(', ')}`);
+      }
+    }
+
+    if (Array.isArray(files) && files.length > 0) {
+      const fileList = files
+        .map(file => (typeof file?.path === 'string' ? file.path : '(unknown file)'))
+        .join(', ');
+      summaryLines.push(`Files: ${fileList}`);
+    }
+
+    if (summaryLines.length > 0) {
+      content.push({ type: 'text', text: summaryLines.join('\n') });
+    }
+
+    if (typeof code === 'string' && code.trim().length > 0 && (typeof gmcode !== 'string' || gmcode.trim().length === 0)) {
+      content.push({ type: 'text', text: `\`\`\`\n${code.trim()}\n\`\`\`` });
+    }
+
+    if (typeof gmcode === 'string' && gmcode.trim().length > 0) {
+      content.push({ type: 'text', text: gmcode });
+    }
+
+    if (typeof diff === 'string' && diff.trim().length > 0) {
+      const diffText = diff.trim().startsWith('```') ? diff.trim() : `\`\`\`diff\n${diff.trim()}\n\`\`\``;
+      content.push({ type: 'text', text: diffText });
+    }
+
+    const metaForJson: Record<string, any> = { ...meta };
+    if (Array.isArray(files) && files.length > 0) {
+      metaForJson.files = files;
+    }
+    if (Array.isArray(filesDetailed) && filesDetailed.length > 0) {
+      metaForJson.filesDetailed = filesDetailed;
+    }
+
+    if (Object.keys(metaForJson).length > 0) {
+      content.push({ type: 'text', text: JSON.stringify(metaForJson, null, 2) });
+    }
+
+    if (content.length === 0) {
+      content.push({ type: 'text', text: JSON.stringify(result, null, 2) });
+    }
+
+    return { content };
   }
 
   private extractKeywords(text: string): string[] {
