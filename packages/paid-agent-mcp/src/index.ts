@@ -89,12 +89,19 @@ function getVoyageBaseUrl(): string {
     return 'https://api.voyageai.com/v1';
   }
 
-  const normalized = raw.replace(/\/$/, '');
-  if (/\/v\d+$/.test(normalized)) {
-    return normalized;
+  let normalized = raw.replace(/\/+$/, '');
+
+  // Remove /embeddings suffix if present (prevents /embeddings/chat/completions 404)
+  if (/\/embeddings$/i.test(normalized)) {
+    normalized = normalized.replace(/\/embeddings$/i, '');
   }
 
-  return `${normalized}/v1`;
+  // Ensure /v1 suffix is present
+  if (!/\/v\d+$/.test(normalized)) {
+    normalized = `${normalized}/v1`;
+  }
+
+  return normalized;
 }
 
 async function callVoyageChatCompletion(params: {
