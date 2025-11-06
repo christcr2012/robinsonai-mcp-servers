@@ -443,30 +443,104 @@ Requirements:
     code: string;
     files?: Array<{ path: string; content: string }>;
   } {
-    // Check if response contains multiple files
-    const filePattern = /```(\w+)?\s*\/\/\s*(.+?)\n([\s\S]+?)```/g;
-    const matches = Array.from(text.matchAll(filePattern));
+    const codeBlocks = Array.from(text.matchAll(/```([^\n]*)\n([\s\S]*?)```/g));
+    const files: Array<{ path: string; content: string }> = [];
 
-    if (matches.length > 1) {
-      // Multiple files
-      const files = matches.map((match) => ({
-        path: match[2].trim(),
-        content: match[3].trim(),
-      }));
+    for (const block of codeBlocks) {
+      let meta = (block[1] || '').trim();
+      let body = (block[2] || '').replace(/\r\n/g, '\n');
 
-      return { code: '', files };
+      let inlinePath: string | undefined;
+      if (meta.includes('//')) {
+        const [languagePart, ...rest] = meta.split('//');
+        meta = languagePart.trim();
+        inlinePath = rest.join('//').trim();
+      }
+
+      let path = this.extractPathCandidate(inlinePath);
+
+      const lines = body.split('\n');
+      if (!path && lines.length > 0) {
+        const firstLinePath = this.extractPathCandidate(lines[0]);
+        if (firstLinePath) {
+          path = firstLinePath;
+          lines.shift();
+        }
+      }
+
+      if (!path) {
+        const metaPath = this.extractPathCandidate(meta);
+        if (metaPath) {
+          path = metaPath;
+        }
+      }
+
+      const content = lines.join('\n').trimEnd();
+
+      if (content.length === 0 && !path) {
+        continue;
+      }
+
+      files.push({
+        path: path || `generated-${files.length}.ts`,
+        content,
+      });
     }
 
-    // Single code block
-    const codeBlockPattern = /```(?:\w+)?\n([\s\S]+?)```/;
-    const match = text.match(codeBlockPattern);
-
-    if (match) {
-      return { code: match[1].trim() };
+    if (files.length > 0) {
+      return { code: files[0]?.content || '', files };
     }
 
-    // No code blocks, return as-is
+    const singleMatch = text.match(/```(?:\w+)?\n([\s\S]+?)```/);
+    if (singleMatch) {
+      const code = singleMatch[1].trim();
+      return {
+        code,
+        files: [
+          {
+            path: 'generated.ts',
+            content: code,
+          },
+        ],
+      };
+    }
+
     return { code: text.trim() };
+  }
+
+  private extractPathCandidate(raw?: string): string | undefined {
+    if (!raw) return undefined;
+
+    let candidate = raw.trim();
+    if (!candidate) return undefined;
+
+    if (candidate.startsWith('//')) {
+      candidate = candidate.replace(/^\/\//, '').trim();
+    }
+
+    const prefixed = candidate.match(/^(?:path|file|filepath|filename)\s*: ?(.+)$/i);
+    if (prefixed) {
+      candidate = prefixed[1].trim();
+    }
+
+    candidate = candidate.replace(/^['"`]|['"`]$/g, '').trim();
+
+    const commentIndex = candidate.indexOf(' //');
+    if (commentIndex !== -1) {
+      candidate = candidate.slice(0, commentIndex).trim();
+    }
+
+    candidate = candidate.replace(/\s+/g, ' ').trim();
+
+    if (!candidate) {
+      return undefined;
+    }
+
+    if (!/[./]/.test(candidate)) {
+      return undefined;
+    }
+
+    return candidate;
   }
 }
 
