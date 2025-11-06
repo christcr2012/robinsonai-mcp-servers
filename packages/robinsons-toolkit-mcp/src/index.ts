@@ -11876,8 +11876,16 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiCancelVectorStoreFileBatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const result = await this.openaiClient.beta.vectorStores.fileBatches.cancel(args.vector_store_id, args.batch_id);
+      // Using direct API call since vectorStores may not be in all SDK versions
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}/file_batches/${args.batch_id}/cancel`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to cancel vector store file batch: ${error.message}`);
@@ -11886,12 +11894,20 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiCreateVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
       const params: any = {};
       if (args.name) params.name = args.name;
       if (args.file_ids) params.file_ids = args.file_ids;
       if (args.expires_after) params.expires_after = args.expires_after;
-      const result = await this.openaiClient.beta.vectorStores.create(params);
+      const response = await fetch('https://api.openai.com/v1/vector_stores', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        },
+        body: JSON.stringify(params)
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to create vector store: ${error.message}`);
@@ -11900,8 +11916,16 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiCreateVectorStoreFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const result = await this.openaiClient.beta.vectorStores.files.create(args.vector_store_id, { file_id: args.file_id });
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}/files`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        },
+        body: JSON.stringify({ file_id: args.file_id })
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to create vector store file: ${error.message}`);
@@ -11910,8 +11934,16 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiCreateVectorStoreFileBatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const result = await this.openaiClient.beta.vectorStores.fileBatches.create(args.vector_store_id, { file_ids: args.file_ids });
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}/file_batches`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        },
+        body: JSON.stringify({ file_ids: args.file_ids })
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to create vector store file batch: ${error.message}`);
@@ -11920,8 +11952,15 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiDeleteVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const result = await this.openaiClient.beta.vectorStores.del(args.vector_store_id);
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to delete vector store: ${error.message}`);
@@ -11930,8 +11969,15 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiDeleteVectorStoreFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const result = await this.openaiClient.beta.vectorStores.files.del(args.vector_store_id, args.file_id);
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}/files/${args.file_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to delete vector store file: ${error.message}`);
@@ -11940,13 +11986,20 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiListVectorStoreFiles(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const params: any = {};
-      if (args.limit) params.limit = args.limit;
-      if (args.order) params.order = args.order;
-      if (args.after) params.after = args.after;
-      if (args.before) params.before = args.before;
-      const result = await this.openaiClient.beta.vectorStores.files.list(args.vector_store_id, params);
+      const params = new URLSearchParams();
+      if (args.limit) params.append('limit', args.limit);
+      if (args.order) params.append('order', args.order);
+      if (args.after) params.append('after', args.after);
+      if (args.before) params.append('before', args.before);
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}/files${queryString}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to list vector store files: ${error.message}`);
@@ -11955,13 +12008,20 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiListVectorStores(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const params: any = {};
-      if (args.limit) params.limit = args.limit;
-      if (args.order) params.order = args.order;
-      if (args.after) params.after = args.after;
-      if (args.before) params.before = args.before;
-      const result = await this.openaiClient.beta.vectorStores.list(params);
+      const params = new URLSearchParams();
+      if (args.limit) params.append('limit', args.limit);
+      if (args.order) params.append('order', args.order);
+      if (args.after) params.append('after', args.after);
+      if (args.before) params.append('before', args.before);
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const response = await fetch(`https://api.openai.com/v1/vector_stores${queryString}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to list vector stores: ${error.message}`);
@@ -11970,11 +12030,19 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiModifyVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
       const params: any = {};
       if (args.name) params.name = args.name;
       if (args.expires_after) params.expires_after = args.expires_after;
-      const result = await this.openaiClient.beta.vectorStores.update(args.vector_store_id, params);
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        },
+        body: JSON.stringify(params)
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to modify vector store: ${error.message}`);
@@ -11983,8 +12051,14 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiRetrieveVectorStore(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const result = await this.openaiClient.beta.vectorStores.retrieve(args.vector_store_id);
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to retrieve vector store: ${error.message}`);
@@ -11993,8 +12067,14 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiRetrieveVectorStoreFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const result = await this.openaiClient.beta.vectorStores.files.retrieve(args.vector_store_id, args.file_id);
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}/files/${args.file_id}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to retrieve vector store file: ${error.message}`);
@@ -12003,8 +12083,14 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async openaiRetrieveVectorStoreFileBatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      if (!this.openaiClient) throw new Error('OpenAI client not initialized');
-      const result = await this.openaiClient.beta.vectorStores.fileBatches.retrieve(args.vector_store_id, args.batch_id);
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${args.vector_store_id}/file_batches/${args.batch_id}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      const result = await response.json();
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to retrieve vector store file batch: ${error.message}`);
@@ -12013,7 +12099,10 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async upstashAddTeamMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      const result = await this.upstashManagementFetch(`/team/${args.team_id}/members`, 'POST', { email: args.email, role: args.role });
+      const result = await this.upstashManagementFetch(`/team/${args.team_id}/members`, {
+        method: 'POST',
+        body: JSON.stringify({ email: args.email, role: args.role })
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to add team member: ${error.message}`);
@@ -12022,7 +12111,9 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async upstashBackupRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/backup`, 'POST');
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/backup`, {
+        method: 'POST'
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to backup Redis database: ${error.message}`);
@@ -12031,7 +12122,9 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async upstashDisableRedisEviction(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/eviction/disable`, 'POST');
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/eviction/disable`, {
+        method: 'POST'
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to disable Redis eviction: ${error.message}`);
@@ -12040,7 +12133,9 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async upstashDisableRedisTls(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/tls/disable`, 'POST');
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/tls/disable`, {
+        method: 'POST'
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to disable Redis TLS: ${error.message}`);
@@ -12049,7 +12144,9 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async upstashGetRedisUsage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/usage`, 'GET');
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/usage`, {
+        method: 'GET'
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to get Redis usage: ${error.message}`);
@@ -12135,7 +12232,9 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async upstashRemoveTeamMember(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      const result = await this.upstashManagementFetch(`/team/${args.team_id}/members/${args.member_id}`, 'DELETE');
+      const result = await this.upstashManagementFetch(`/team/${args.team_id}/members/${args.member_id}`, {
+        method: 'DELETE'
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to remove team member: ${error.message}`);
@@ -12144,7 +12243,10 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async upstashRestoreRedisDatabase(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/restore`, 'POST', { backup_id: args.backup_id });
+      const result = await this.upstashManagementFetch(`/databases/${args.database_id}/restore`, {
+        method: 'POST',
+        body: JSON.stringify({ backup_id: args.backup_id })
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to restore Redis database: ${error.message}`);
