@@ -1,7 +1,7 @@
 export const optimizerHealthDescriptor = {
   name: "credit_optimizer_health",
   description: "List enabled providers and environment readiness.",
-  inputSchema: { type: "object", properties: {} },
+  inputSchema: { type: "object" },
 };
 
 export async function optimizerHealthTool() {

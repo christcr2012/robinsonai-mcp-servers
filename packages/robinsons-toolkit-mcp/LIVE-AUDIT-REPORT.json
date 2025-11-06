@@ -1,0 +1,2037 @@
+{
+  "timestamp": "2025-11-06T05:48:14.347Z",
+  "summary": {
+    "totalDefinitions": 1055,
+    "totalCases": 1232,
+    "totalHandlers": 1214,
+    "complete": 573,
+    "missingCases": 0,
+    "missingHandlers": 482,
+    "missingDefinitions": 21,
+    "completionRate": "54.31%"
+  },
+  "missingHandlersByCategory": {
+    "github": [],
+    "vercel": [],
+    "neon": [
+      {
+        "toolName": "neon_create_project_for_rad",
+        "expectedMethod": "createProjectForRad"
+      },
+      {
+        "toolName": "neon_setup_rad_database",
+        "expectedMethod": "setupRadDatabase"
+      },
+      {
+        "toolName": "neon_get_connection_uri_formatted",
+        "expectedMethod": "getConnectionUriFormatted"
+      }
+    ],
+    "upstash": [
+      {
+        "toolName": "upstash_list_redis_databases",
+        "expectedMethod": "listRedisDatabases"
+      },
+      {
+        "toolName": "upstash_get_redis_database",
+        "expectedMethod": "getRedisDatabase"
+      },
+      {
+        "toolName": "upstash_create_redis_database",
+        "expectedMethod": "createRedisDatabase"
+      },
+      {
+        "toolName": "upstash_delete_redis_database",
+        "expectedMethod": "deleteRedisDatabase"
+      },
+      {
+        "toolName": "upstash_rename_redis_database",
+        "expectedMethod": "renameRedisDatabase"
+      },
+      {
+        "toolName": "upstash_reset_redis_password",
+        "expectedMethod": "resetRedisPassword"
+      },
+      {
+        "toolName": "upstash_enable_redis_eviction",
+        "expectedMethod": "enableRedisEviction"
+      },
+      {
+        "toolName": "upstash_disable_redis_eviction",
+        "expectedMethod": "disableRedisEviction"
+      },
+      {
+        "toolName": "upstash_enable_redis_tls",
+        "expectedMethod": "enableRedisTls"
+      },
+      {
+        "toolName": "upstash_disable_redis_tls",
+        "expectedMethod": "disableRedisTls"
+      },
+      {
+        "toolName": "upstash_get_redis_stats",
+        "expectedMethod": "getRedisStats"
+      },
+      {
+        "toolName": "upstash_backup_redis_database",
+        "expectedMethod": "backupRedisDatabase"
+      },
+      {
+        "toolName": "upstash_restore_redis_database",
+        "expectedMethod": "restoreRedisDatabase"
+      },
+      {
+        "toolName": "upstash_update_redis_database",
+        "expectedMethod": "updateRedisDatabase"
+      },
+      {
+        "toolName": "upstash_get_redis_usage",
+        "expectedMethod": "getRedisUsage"
+      },
+      {
+        "toolName": "upstash_add_team_member",
+        "expectedMethod": "addTeamMember"
+      },
+      {
+        "toolName": "upstash_redis_get",
+        "expectedMethod": "redisGet"
+      },
+      {
+        "toolName": "upstash_redis_set",
+        "expectedMethod": "redisSet"
+      },
+      {
+        "toolName": "upstash_redis_mget",
+        "expectedMethod": "redisMget"
+      },
+      {
+        "toolName": "upstash_redis_mset",
+        "expectedMethod": "redisMset"
+      },
+      {
+        "toolName": "upstash_redis_incr",
+        "expectedMethod": "redisIncr"
+      },
+      {
+        "toolName": "upstash_redis_decr",
+        "expectedMethod": "redisDecr"
+      },
+      {
+        "toolName": "upstash_redis_incrby",
+        "expectedMethod": "redisIncrby"
+      },
+      {
+        "toolName": "upstash_redis_decrby",
+        "expectedMethod": "redisDecrby"
+      },
+      {
+        "toolName": "upstash_redis_incrbyfloat",
+        "expectedMethod": "redisIncrbyfloat"
+      },
+      {
+        "toolName": "upstash_redis_append",
+        "expectedMethod": "redisAppend"
+      },
+      {
+        "toolName": "upstash_redis_getrange",
+        "expectedMethod": "redisGetrange"
+      },
+      {
+        "toolName": "upstash_redis_setrange",
+        "expectedMethod": "redisSetrange"
+      },
+      {
+        "toolName": "upstash_redis_strlen",
+        "expectedMethod": "redisStrlen"
+      },
+      {
+        "toolName": "upstash_redis_getset",
+        "expectedMethod": "redisGetset"
+      },
+      {
+        "toolName": "upstash_redis_setnx",
+        "expectedMethod": "redisSetnx"
+      },
+      {
+        "toolName": "upstash_redis_setex",
+        "expectedMethod": "redisSetex"
+      },
+      {
+        "toolName": "upstash_redis_psetex",
+        "expectedMethod": "redisPsetex"
+      },
+      {
+        "toolName": "upstash_redis_del",
+        "expectedMethod": "redisDel"
+      },
+      {
+        "toolName": "upstash_redis_exists",
+        "expectedMethod": "redisExists"
+      },
+      {
+        "toolName": "upstash_redis_expire",
+        "expectedMethod": "redisExpire"
+      },
+      {
+        "toolName": "upstash_redis_expireat",
+        "expectedMethod": "redisExpireat"
+      },
+      {
+        "toolName": "upstash_redis_ttl",
+        "expectedMethod": "redisTtl"
+      },
+      {
+        "toolName": "upstash_redis_pttl",
+        "expectedMethod": "redisPttl"
+      },
+      {
+        "toolName": "upstash_redis_persist",
+        "expectedMethod": "redisPersist"
+      },
+      {
+        "toolName": "upstash_redis_keys",
+        "expectedMethod": "redisKeys"
+      },
+      {
+        "toolName": "upstash_redis_scan",
+        "expectedMethod": "redisScan"
+      },
+      {
+        "toolName": "upstash_redis_rename",
+        "expectedMethod": "redisRename"
+      },
+      {
+        "toolName": "upstash_redis_type",
+        "expectedMethod": "redisType"
+      },
+      {
+        "toolName": "upstash_redis_ping",
+        "expectedMethod": "redisPing"
+      },
+      {
+        "toolName": "upstash_redis_echo",
+        "expectedMethod": "redisEcho"
+      },
+      {
+        "toolName": "upstash_redis_dbsize",
+        "expectedMethod": "redisDbsize"
+      },
+      {
+        "toolName": "upstash_redis_flushdb",
+        "expectedMethod": "redisFlushdb"
+      },
+      {
+        "toolName": "upstash_redis_flushall",
+        "expectedMethod": "redisFlushall"
+      },
+      {
+        "toolName": "upstash_redis_info",
+        "expectedMethod": "redisInfo"
+      },
+      {
+        "toolName": "upstash_redis_time",
+        "expectedMethod": "redisTime"
+      },
+      {
+        "toolName": "upstash_redis_lastsave",
+        "expectedMethod": "redisLastsave"
+      },
+      {
+        "toolName": "upstash_redis_save",
+        "expectedMethod": "redisSave"
+      },
+      {
+        "toolName": "upstash_redis_bgsave",
+        "expectedMethod": "redisBgsave"
+      },
+      {
+        "toolName": "upstash_redis_publish",
+        "expectedMethod": "redisPublish"
+      },
+      {
+        "toolName": "upstash_redis_pubsub_channels",
+        "expectedMethod": "redisPubsubChannels"
+      },
+      {
+        "toolName": "upstash_redis_pipeline",
+        "expectedMethod": "redisPipeline"
+      },
+      {
+        "toolName": "upstash_redis_transaction",
+        "expectedMethod": "redisTransaction"
+      },
+      {
+        "toolName": "upstash_redis_hset",
+        "expectedMethod": "redisHset"
+      },
+      {
+        "toolName": "upstash_redis_hget",
+        "expectedMethod": "redisHget"
+      },
+      {
+        "toolName": "upstash_redis_hgetall",
+        "expectedMethod": "redisHgetall"
+      },
+      {
+        "toolName": "upstash_redis_hdel",
+        "expectedMethod": "redisHdel"
+      },
+      {
+        "toolName": "upstash_redis_hexists",
+        "expectedMethod": "redisHexists"
+      },
+      {
+        "toolName": "upstash_redis_hkeys",
+        "expectedMethod": "redisHkeys"
+      },
+      {
+        "toolName": "upstash_redis_hvals",
+        "expectedMethod": "redisHvals"
+      },
+      {
+        "toolName": "upstash_redis_hlen",
+        "expectedMethod": "redisHlen"
+      },
+      {
+        "toolName": "upstash_redis_hincrby",
+        "expectedMethod": "redisHincrby"
+      },
+      {
+        "toolName": "upstash_redis_hincrbyfloat",
+        "expectedMethod": "redisHincrbyfloat"
+      },
+      {
+        "toolName": "upstash_redis_hmget",
+        "expectedMethod": "redisHmget"
+      },
+      {
+        "toolName": "upstash_redis_hmset",
+        "expectedMethod": "redisHmset"
+      },
+      {
+        "toolName": "upstash_redis_hsetnx",
+        "expectedMethod": "redisHsetnx"
+      },
+      {
+        "toolName": "upstash_redis_hstrlen",
+        "expectedMethod": "redisHstrlen"
+      },
+      {
+        "toolName": "upstash_redis_hscan",
+        "expectedMethod": "redisHscan"
+      },
+      {
+        "toolName": "upstash_redis_lpush",
+        "expectedMethod": "redisLpush"
+      },
+      {
+        "toolName": "upstash_redis_rpush",
+        "expectedMethod": "redisRpush"
+      },
+      {
+        "toolName": "upstash_redis_lpop",
+        "expectedMethod": "redisLpop"
+      },
+      {
+        "toolName": "upstash_redis_rpop",
+        "expectedMethod": "redisRpop"
+      },
+      {
+        "toolName": "upstash_redis_lrange",
+        "expectedMethod": "redisLrange"
+      },
+      {
+        "toolName": "upstash_redis_llen",
+        "expectedMethod": "redisLlen"
+      },
+      {
+        "toolName": "upstash_redis_lindex",
+        "expectedMethod": "redisLindex"
+      },
+      {
+        "toolName": "upstash_redis_lset",
+        "expectedMethod": "redisLset"
+      },
+      {
+        "toolName": "upstash_redis_lrem",
+        "expectedMethod": "redisLrem"
+      },
+      {
+        "toolName": "upstash_redis_ltrim",
+        "expectedMethod": "redisLtrim"
+      },
+      {
+        "toolName": "upstash_redis_linsert",
+        "expectedMethod": "redisLinsert"
+      },
+      {
+        "toolName": "upstash_redis_rpoplpush",
+        "expectedMethod": "redisRpoplpush"
+      },
+      {
+        "toolName": "upstash_redis_lpos",
+        "expectedMethod": "redisLpos"
+      },
+      {
+        "toolName": "upstash_redis_lmove",
+        "expectedMethod": "redisLmove"
+      },
+      {
+        "toolName": "upstash_redis_sadd",
+        "expectedMethod": "redisSadd"
+      },
+      {
+        "toolName": "upstash_redis_smembers",
+        "expectedMethod": "redisSmembers"
+      },
+      {
+        "toolName": "upstash_redis_srem",
+        "expectedMethod": "redisSrem"
+      },
+      {
+        "toolName": "upstash_redis_sismember",
+        "expectedMethod": "redisSismember"
+      },
+      {
+        "toolName": "upstash_redis_scard",
+        "expectedMethod": "redisScard"
+      },
+      {
+        "toolName": "upstash_redis_spop",
+        "expectedMethod": "redisSpop"
+      },
+      {
+        "toolName": "upstash_redis_srandmember",
+        "expectedMethod": "redisSrandmember"
+      },
+      {
+        "toolName": "upstash_redis_smove",
+        "expectedMethod": "redisSmove"
+      },
+      {
+        "toolName": "upstash_redis_sunion",
+        "expectedMethod": "redisSunion"
+      },
+      {
+        "toolName": "upstash_redis_sinter",
+        "expectedMethod": "redisSinter"
+      },
+      {
+        "toolName": "upstash_redis_sdiff",
+        "expectedMethod": "redisSdiff"
+      },
+      {
+        "toolName": "upstash_redis_sunionstore",
+        "expectedMethod": "redisSunionstore"
+      },
+      {
+        "toolName": "upstash_redis_sinterstore",
+        "expectedMethod": "redisSinterstore"
+      },
+      {
+        "toolName": "upstash_redis_sdiffstore",
+        "expectedMethod": "redisSdiffstore"
+      },
+      {
+        "toolName": "upstash_redis_sscan",
+        "expectedMethod": "redisSscan"
+      },
+      {
+        "toolName": "upstash_redis_zadd",
+        "expectedMethod": "redisZadd"
+      },
+      {
+        "toolName": "upstash_redis_zrange",
+        "expectedMethod": "redisZrange"
+      },
+      {
+        "toolName": "upstash_redis_zrem",
+        "expectedMethod": "redisZrem"
+      },
+      {
+        "toolName": "upstash_redis_zscore",
+        "expectedMethod": "redisZscore"
+      },
+      {
+        "toolName": "upstash_redis_zcard",
+        "expectedMethod": "redisZcard"
+      },
+      {
+        "toolName": "upstash_redis_zrank",
+        "expectedMethod": "redisZrank"
+      },
+      {
+        "toolName": "upstash_redis_zrevrank",
+        "expectedMethod": "redisZrevrank"
+      },
+      {
+        "toolName": "upstash_redis_zrangebyscore",
+        "expectedMethod": "redisZrangebyscore"
+      },
+      {
+        "toolName": "upstash_redis_zrevrangebyscore",
+        "expectedMethod": "redisZrevrangebyscore"
+      },
+      {
+        "toolName": "upstash_redis_zremrangebyrank",
+        "expectedMethod": "redisZremrangebyrank"
+      },
+      {
+        "toolName": "upstash_redis_zremrangebyscore",
+        "expectedMethod": "redisZremrangebyscore"
+      },
+      {
+        "toolName": "upstash_redis_zpopmin",
+        "expectedMethod": "redisZpopmin"
+      },
+      {
+        "toolName": "upstash_redis_zpopmax",
+        "expectedMethod": "redisZpopmax"
+      },
+      {
+        "toolName": "upstash_redis_zincrby",
+        "expectedMethod": "redisZincrby"
+      },
+      {
+        "toolName": "upstash_redis_zcount",
+        "expectedMethod": "redisZcount"
+      },
+      {
+        "toolName": "upstash_redis_zunionstore",
+        "expectedMethod": "redisZunionstore"
+      },
+      {
+        "toolName": "upstash_redis_zinterstore",
+        "expectedMethod": "redisZinterstore"
+      },
+      {
+        "toolName": "upstash_redis_zscan",
+        "expectedMethod": "redisZscan"
+      },
+      {
+        "toolName": "upstash_redis_zrangebylex",
+        "expectedMethod": "redisZrangebylex"
+      },
+      {
+        "toolName": "upstash_redis_zrevrangebylex",
+        "expectedMethod": "redisZrevrangebylex"
+      },
+      {
+        "toolName": "upstash_redis_zremrangebylex",
+        "expectedMethod": "redisZremrangebylex"
+      },
+      {
+        "toolName": "upstash_redis_zlexcount",
+        "expectedMethod": "redisZlexcount"
+      },
+      {
+        "toolName": "upstash_redis_zmscore",
+        "expectedMethod": "redisZmscore"
+      },
+      {
+        "toolName": "upstash_redis_geoadd",
+        "expectedMethod": "redisGeoadd"
+      },
+      {
+        "toolName": "upstash_redis_geodist",
+        "expectedMethod": "redisGeodist"
+      },
+      {
+        "toolName": "upstash_redis_geohash",
+        "expectedMethod": "redisGeohash"
+      },
+      {
+        "toolName": "upstash_redis_geopos",
+        "expectedMethod": "redisGeopos"
+      },
+      {
+        "toolName": "upstash_redis_georadius",
+        "expectedMethod": "redisGeoradius"
+      },
+      {
+        "toolName": "upstash_redis_georadiusbymember",
+        "expectedMethod": "redisGeoradiusbymember"
+      },
+      {
+        "toolName": "upstash_redis_geosearch",
+        "expectedMethod": "redisGeosearch"
+      },
+      {
+        "toolName": "upstash_redis_pfadd",
+        "expectedMethod": "redisPfadd"
+      },
+      {
+        "toolName": "upstash_redis_pfcount",
+        "expectedMethod": "redisPfcount"
+      },
+      {
+        "toolName": "upstash_redis_pfmerge",
+        "expectedMethod": "redisPfmerge"
+      },
+      {
+        "toolName": "upstash_redis_setbit",
+        "expectedMethod": "redisSetbit"
+      },
+      {
+        "toolName": "upstash_redis_getbit",
+        "expectedMethod": "redisGetbit"
+      },
+      {
+        "toolName": "upstash_redis_bitcount",
+        "expectedMethod": "redisBitcount"
+      },
+      {
+        "toolName": "upstash_redis_bitpos",
+        "expectedMethod": "redisBitpos"
+      },
+      {
+        "toolName": "upstash_redis_bitop",
+        "expectedMethod": "redisBitop"
+      },
+      {
+        "toolName": "upstash_redis_xadd",
+        "expectedMethod": "redisXadd"
+      },
+      {
+        "toolName": "upstash_redis_xread",
+        "expectedMethod": "redisXread"
+      },
+      {
+        "toolName": "upstash_redis_xrange",
+        "expectedMethod": "redisXrange"
+      },
+      {
+        "toolName": "upstash_redis_xrevrange",
+        "expectedMethod": "redisXrevrange"
+      },
+      {
+        "toolName": "upstash_redis_xlen",
+        "expectedMethod": "redisXlen"
+      },
+      {
+        "toolName": "upstash_redis_xdel",
+        "expectedMethod": "redisXdel"
+      },
+      {
+        "toolName": "upstash_redis_xtrim",
+        "expectedMethod": "redisXtrim"
+      },
+      {
+        "toolName": "upstash_redis_xack",
+        "expectedMethod": "redisXack"
+      },
+      {
+        "toolName": "upstash_redis_xpending",
+        "expectedMethod": "redisXpending"
+      },
+      {
+        "toolName": "upstash_redis_xclaim",
+        "expectedMethod": "redisXclaim"
+      },
+      {
+        "toolName": "upstash_redis_xinfo",
+        "expectedMethod": "redisXinfo"
+      },
+      {
+        "toolName": "upstash_redis_xgroup",
+        "expectedMethod": "redisXgroup"
+      }
+    ],
+    "google": [],
+    "gmail": [
+      {
+        "toolName": "gmail_send_message",
+        "expectedMethod": "sendMessage"
+      },
+      {
+        "toolName": "gmail_list_messages",
+        "expectedMethod": "listMessages"
+      },
+      {
+        "toolName": "gmail_get_message",
+        "expectedMethod": "getMessage"
+      },
+      {
+        "toolName": "gmail_delete_message",
+        "expectedMethod": "deleteMessage"
+      },
+      {
+        "toolName": "gmail_list_drafts",
+        "expectedMethod": "listDrafts"
+      },
+      {
+        "toolName": "gmail_create_draft",
+        "expectedMethod": "createDraft"
+      },
+      {
+        "toolName": "gmail_get_profile",
+        "expectedMethod": "getProfile"
+      },
+      {
+        "toolName": "gmail_batch_modify",
+        "expectedMethod": "batchModify"
+      },
+      {
+        "toolName": "gmail_import_message",
+        "expectedMethod": "importMessage"
+      },
+      {
+        "toolName": "gmail_insert_message",
+        "expectedMethod": "insertMessage"
+      },
+      {
+        "toolName": "gmail_stop_watch",
+        "expectedMethod": "stopWatch"
+      },
+      {
+        "toolName": "gmail_watch",
+        "expectedMethod": "watch"
+      },
+      {
+        "toolName": "gmail_drafts_list",
+        "expectedMethod": "draftsList"
+      },
+      {
+        "toolName": "gmail_drafts_get",
+        "expectedMethod": "draftsGet"
+      },
+      {
+        "toolName": "gmail_drafts_create",
+        "expectedMethod": "draftsCreate"
+      },
+      {
+        "toolName": "gmail_drafts_update",
+        "expectedMethod": "draftsUpdate"
+      },
+      {
+        "toolName": "gmail_drafts_delete",
+        "expectedMethod": "draftsDelete"
+      },
+      {
+        "toolName": "gmail_drafts_send",
+        "expectedMethod": "draftsSend"
+      },
+      {
+        "toolName": "gmail_threads_list",
+        "expectedMethod": "threadsList"
+      },
+      {
+        "toolName": "gmail_threads_get",
+        "expectedMethod": "threadsGet"
+      },
+      {
+        "toolName": "gmail_threads_modify",
+        "expectedMethod": "threadsModify"
+      },
+      {
+        "toolName": "gmail_threads_trash",
+        "expectedMethod": "threadsTrash"
+      },
+      {
+        "toolName": "gmail_threads_untrash",
+        "expectedMethod": "threadsUntrash"
+      },
+      {
+        "toolName": "gmail_threads_delete",
+        "expectedMethod": "threadsDelete"
+      },
+      {
+        "toolName": "gmail_history_list",
+        "expectedMethod": "historyList"
+      }
+    ],
+    "drive": [
+      {
+        "toolName": "drive_list_files",
+        "expectedMethod": "listFiles"
+      },
+      {
+        "toolName": "drive_get_file",
+        "expectedMethod": "getFile"
+      },
+      {
+        "toolName": "drive_create_folder",
+        "expectedMethod": "createFolder"
+      },
+      {
+        "toolName": "drive_copy_file",
+        "expectedMethod": "copyFile"
+      },
+      {
+        "toolName": "drive_share_file",
+        "expectedMethod": "shareFile"
+      },
+      {
+        "toolName": "drive_list_permissions",
+        "expectedMethod": "listPermissions"
+      },
+      {
+        "toolName": "drive_search_files",
+        "expectedMethod": "searchFiles"
+      },
+      {
+        "toolName": "drive_export_file",
+        "expectedMethod": "exportFile"
+      },
+      {
+        "toolName": "drive_get_file_content",
+        "expectedMethod": "getFileContent"
+      },
+      {
+        "toolName": "drive_empty_trash",
+        "expectedMethod": "emptyTrash"
+      },
+      {
+        "toolName": "drive_get_about",
+        "expectedMethod": "getAbout"
+      },
+      {
+        "toolName": "drive_list_changes",
+        "expectedMethod": "listChanges"
+      },
+      {
+        "toolName": "drive_get_start_page_token",
+        "expectedMethod": "getStartPageToken"
+      },
+      {
+        "toolName": "drive_watch_changes",
+        "expectedMethod": "watchChanges"
+      },
+      {
+        "toolName": "drive_permissions_list",
+        "expectedMethod": "permissionsList"
+      },
+      {
+        "toolName": "drive_permissions_get",
+        "expectedMethod": "permissionsGet"
+      },
+      {
+        "toolName": "drive_permissions_create",
+        "expectedMethod": "permissionsCreate"
+      },
+      {
+        "toolName": "drive_permissions_update",
+        "expectedMethod": "permissionsUpdate"
+      },
+      {
+        "toolName": "drive_permissions_delete",
+        "expectedMethod": "permissionsDelete"
+      },
+      {
+        "toolName": "drive_comments_list",
+        "expectedMethod": "commentsList"
+      },
+      {
+        "toolName": "drive_comments_get",
+        "expectedMethod": "commentsGet"
+      },
+      {
+        "toolName": "drive_comments_create",
+        "expectedMethod": "commentsCreate"
+      },
+      {
+        "toolName": "drive_comments_update",
+        "expectedMethod": "commentsUpdate"
+      },
+      {
+        "toolName": "drive_comments_delete",
+        "expectedMethod": "commentsDelete"
+      },
+      {
+        "toolName": "drive_replies_list",
+        "expectedMethod": "repliesList"
+      },
+      {
+        "toolName": "drive_replies_get",
+        "expectedMethod": "repliesGet"
+      },
+      {
+        "toolName": "drive_replies_create",
+        "expectedMethod": "repliesCreate"
+      },
+      {
+        "toolName": "drive_replies_update",
+        "expectedMethod": "repliesUpdate"
+      },
+      {
+        "toolName": "drive_replies_delete",
+        "expectedMethod": "repliesDelete"
+      },
+      {
+        "toolName": "drive_copy_file",
+        "expectedMethod": "copyFile"
+      },
+      {
+        "toolName": "drive_empty_trash",
+        "expectedMethod": "emptyTrash"
+      },
+      {
+        "toolName": "drive_generate_ids",
+        "expectedMethod": "generateIds"
+      },
+      {
+        "toolName": "drive_watch_file",
+        "expectedMethod": "watchFile"
+      }
+    ],
+    "calendar": [
+      {
+        "toolName": "calendar_list_events",
+        "expectedMethod": "listEvents"
+      },
+      {
+        "toolName": "calendar_get_event",
+        "expectedMethod": "getEvent"
+      },
+      {
+        "toolName": "calendar_create_event",
+        "expectedMethod": "createEvent"
+      },
+      {
+        "toolName": "calendar_update_event",
+        "expectedMethod": "updateEvent"
+      },
+      {
+        "toolName": "calendar_delete_event",
+        "expectedMethod": "deleteEvent"
+      },
+      {
+        "toolName": "calendar_import_event",
+        "expectedMethod": "importEvent"
+      },
+      {
+        "toolName": "calendar_quick_add",
+        "expectedMethod": "quickAdd"
+      },
+      {
+        "toolName": "calendar_watch_events",
+        "expectedMethod": "watchEvents"
+      },
+      {
+        "toolName": "calendar_create",
+        "expectedMethod": "create"
+      },
+      {
+        "toolName": "calendar_get_calendar",
+        "expectedMethod": "getCalendar"
+      },
+      {
+        "toolName": "calendar_update_calendar",
+        "expectedMethod": "updateCalendar"
+      },
+      {
+        "toolName": "calendar_patch_calendar",
+        "expectedMethod": "patchCalendar"
+      },
+      {
+        "toolName": "calendar_delete_calendar",
+        "expectedMethod": "deleteCalendar"
+      },
+      {
+        "toolName": "calendar_clear_calendar",
+        "expectedMethod": "clearCalendar"
+      },
+      {
+        "toolName": "calendar_list_calendars",
+        "expectedMethod": "listCalendars"
+      },
+      {
+        "toolName": "calendar_list_insert",
+        "expectedMethod": "listInsert"
+      },
+      {
+        "toolName": "calendar_list_get",
+        "expectedMethod": "listGet"
+      },
+      {
+        "toolName": "calendar_list_update",
+        "expectedMethod": "listUpdate"
+      },
+      {
+        "toolName": "calendar_list_patch",
+        "expectedMethod": "listPatch"
+      },
+      {
+        "toolName": "calendar_list_delete",
+        "expectedMethod": "listDelete"
+      },
+      {
+        "toolName": "calendar_list_watch",
+        "expectedMethod": "listWatch"
+      },
+      {
+        "toolName": "calendar_acl_list",
+        "expectedMethod": "aclList"
+      },
+      {
+        "toolName": "calendar_acl_get",
+        "expectedMethod": "aclGet"
+      },
+      {
+        "toolName": "calendar_acl_insert",
+        "expectedMethod": "aclInsert"
+      },
+      {
+        "toolName": "calendar_acl_update",
+        "expectedMethod": "aclUpdate"
+      },
+      {
+        "toolName": "calendar_acl_patch",
+        "expectedMethod": "aclPatch"
+      },
+      {
+        "toolName": "calendar_acl_delete",
+        "expectedMethod": "aclDelete"
+      },
+      {
+        "toolName": "calendar_acl_watch",
+        "expectedMethod": "aclWatch"
+      },
+      {
+        "toolName": "calendar_event_instances",
+        "expectedMethod": "eventInstances"
+      },
+      {
+        "toolName": "calendar_event_move",
+        "expectedMethod": "eventMove"
+      },
+      {
+        "toolName": "calendar_event_patch",
+        "expectedMethod": "eventPatch"
+      },
+      {
+        "toolName": "calendar_freebusy_query",
+        "expectedMethod": "freebusyQuery"
+      },
+      {
+        "toolName": "calendar_colors_get",
+        "expectedMethod": "colorsGet"
+      },
+      {
+        "toolName": "calendar_settings_list",
+        "expectedMethod": "settingsList"
+      },
+      {
+        "toolName": "calendar_settings_get",
+        "expectedMethod": "settingsGet"
+      },
+      {
+        "toolName": "calendar_settings_watch",
+        "expectedMethod": "settingsWatch"
+      }
+    ],
+    "sheets": [
+      {
+        "toolName": "sheets_get_values",
+        "expectedMethod": "getValues"
+      },
+      {
+        "toolName": "sheets_update_values",
+        "expectedMethod": "updateValues"
+      },
+      {
+        "toolName": "sheets_append_values",
+        "expectedMethod": "appendValues"
+      },
+      {
+        "toolName": "sheets_create_spreadsheet",
+        "expectedMethod": "createSpreadsheet"
+      },
+      {
+        "toolName": "sheets_get_spreadsheet",
+        "expectedMethod": "getSpreadsheet"
+      },
+      {
+        "toolName": "sheets_batch_update",
+        "expectedMethod": "batchUpdate"
+      },
+      {
+        "toolName": "sheets_clear_values",
+        "expectedMethod": "clearValues"
+      },
+      {
+        "toolName": "sheets_add_sheet",
+        "expectedMethod": "addSheet"
+      },
+      {
+        "toolName": "sheets_delete_sheet",
+        "expectedMethod": "deleteSheet"
+      },
+      {
+        "toolName": "sheets_copy_sheet",
+        "expectedMethod": "copySheet"
+      },
+      {
+        "toolName": "sheets_batch_clear",
+        "expectedMethod": "batchClear"
+      },
+      {
+        "toolName": "sheets_create",
+        "expectedMethod": "create"
+      },
+      {
+        "toolName": "sheets_batch_update",
+        "expectedMethod": "batchUpdate"
+      },
+      {
+        "toolName": "sheets_values_append",
+        "expectedMethod": "valuesAppend"
+      },
+      {
+        "toolName": "sheets_values_batch_get",
+        "expectedMethod": "valuesBatchGet"
+      },
+      {
+        "toolName": "sheets_values_batch_update",
+        "expectedMethod": "valuesBatchUpdate"
+      }
+    ],
+    "docs": [
+      {
+        "toolName": "docs_get_document",
+        "expectedMethod": "getDocument"
+      },
+      {
+        "toolName": "docs_create_document",
+        "expectedMethod": "createDocument"
+      },
+      {
+        "toolName": "docs_insert_text",
+        "expectedMethod": "insertText"
+      },
+      {
+        "toolName": "docs_delete_text",
+        "expectedMethod": "deleteText"
+      },
+      {
+        "toolName": "docs_replace_text",
+        "expectedMethod": "replaceText"
+      },
+      {
+        "toolName": "docs_create",
+        "expectedMethod": "create"
+      },
+      {
+        "toolName": "docs_get",
+        "expectedMethod": "get"
+      },
+      {
+        "toolName": "docs_batch_update",
+        "expectedMethod": "batchUpdate"
+      }
+    ],
+    "slides": [
+      {
+        "toolName": "slides_get_presentation",
+        "expectedMethod": "getPresentation"
+      },
+      {
+        "toolName": "slides_create_presentation",
+        "expectedMethod": "createPresentation"
+      },
+      {
+        "toolName": "slides_batch_update",
+        "expectedMethod": "batchUpdate"
+      },
+      {
+        "toolName": "slides_create_slide",
+        "expectedMethod": "createSlide"
+      },
+      {
+        "toolName": "slides_delete_slide",
+        "expectedMethod": "deleteSlide"
+      },
+      {
+        "toolName": "slides_create_shape",
+        "expectedMethod": "createShape"
+      },
+      {
+        "toolName": "slides_create_textbox",
+        "expectedMethod": "createTextbox"
+      },
+      {
+        "toolName": "slides_insert_text",
+        "expectedMethod": "insertText"
+      },
+      {
+        "toolName": "slides_delete_text",
+        "expectedMethod": "deleteText"
+      },
+      {
+        "toolName": "slides_create_image",
+        "expectedMethod": "createImage"
+      },
+      {
+        "toolName": "slides_create",
+        "expectedMethod": "create"
+      },
+      {
+        "toolName": "slides_batch_update",
+        "expectedMethod": "batchUpdate"
+      },
+      {
+        "toolName": "slides_get_page",
+        "expectedMethod": "getPage"
+      },
+      {
+        "toolName": "slides_get_page_thumbnail",
+        "expectedMethod": "getPageThumbnail"
+      }
+    ],
+    "forms": [
+      {
+        "toolName": "forms_get_form",
+        "expectedMethod": "getForm"
+      },
+      {
+        "toolName": "forms_create_form",
+        "expectedMethod": "createForm"
+      },
+      {
+        "toolName": "forms_batch_update",
+        "expectedMethod": "batchUpdate"
+      },
+      {
+        "toolName": "forms_list_responses",
+        "expectedMethod": "listResponses"
+      },
+      {
+        "toolName": "forms_get_response",
+        "expectedMethod": "getResponse"
+      },
+      {
+        "toolName": "forms_create",
+        "expectedMethod": "create"
+      },
+      {
+        "toolName": "forms_batch_update",
+        "expectedMethod": "batchUpdate"
+      },
+      {
+        "toolName": "forms_get_responses",
+        "expectedMethod": "getResponses"
+      },
+      {
+        "toolName": "forms_get_response",
+        "expectedMethod": "getResponse"
+      }
+    ],
+    "admin": [
+      {
+        "toolName": "admin_list_users",
+        "expectedMethod": "listUsers"
+      },
+      {
+        "toolName": "admin_create_user",
+        "expectedMethod": "createUser"
+      },
+      {
+        "toolName": "admin_update_user",
+        "expectedMethod": "updateUser"
+      },
+      {
+        "toolName": "admin_delete_user",
+        "expectedMethod": "deleteUser"
+      },
+      {
+        "toolName": "admin_list_user_aliases",
+        "expectedMethod": "listUserAliases"
+      },
+      {
+        "toolName": "admin_add_user_alias",
+        "expectedMethod": "addUserAlias"
+      },
+      {
+        "toolName": "admin_delete_user_alias",
+        "expectedMethod": "deleteUserAlias"
+      },
+      {
+        "toolName": "admin_suspend_user",
+        "expectedMethod": "suspendUser"
+      },
+      {
+        "toolName": "admin_unsuspend_user",
+        "expectedMethod": "unsuspendUser"
+      },
+      {
+        "toolName": "admin_list_groups",
+        "expectedMethod": "listGroups"
+      },
+      {
+        "toolName": "admin_get_group",
+        "expectedMethod": "getGroup"
+      },
+      {
+        "toolName": "admin_create_group",
+        "expectedMethod": "createGroup"
+      },
+      {
+        "toolName": "admin_update_group",
+        "expectedMethod": "updateGroup"
+      },
+      {
+        "toolName": "admin_delete_group",
+        "expectedMethod": "deleteGroup"
+      },
+      {
+        "toolName": "admin_list_group_members",
+        "expectedMethod": "listGroupMembers"
+      },
+      {
+        "toolName": "admin_add_group_member",
+        "expectedMethod": "addGroupMember"
+      },
+      {
+        "toolName": "admin_remove_group_member",
+        "expectedMethod": "removeGroupMember"
+      },
+      {
+        "toolName": "admin_list_group_aliases",
+        "expectedMethod": "listGroupAliases"
+      },
+      {
+        "toolName": "admin_add_group_alias",
+        "expectedMethod": "addGroupAlias"
+      },
+      {
+        "toolName": "admin_delete_group_alias",
+        "expectedMethod": "deleteGroupAlias"
+      },
+      {
+        "toolName": "admin_list_orgunits",
+        "expectedMethod": "listOrgunits"
+      },
+      {
+        "toolName": "admin_get_orgunit",
+        "expectedMethod": "getOrgunit"
+      },
+      {
+        "toolName": "admin_create_orgunit",
+        "expectedMethod": "createOrgunit"
+      },
+      {
+        "toolName": "admin_update_orgunit",
+        "expectedMethod": "updateOrgunit"
+      },
+      {
+        "toolName": "admin_delete_orgunit",
+        "expectedMethod": "deleteOrgunit"
+      },
+      {
+        "toolName": "admin_create_domain",
+        "expectedMethod": "createDomain"
+      },
+      {
+        "toolName": "admin_delete_domain",
+        "expectedMethod": "deleteDomain"
+      },
+      {
+        "toolName": "admin_list_domain_aliases",
+        "expectedMethod": "listDomainAliases"
+      },
+      {
+        "toolName": "admin_get_role",
+        "expectedMethod": "getRole"
+      },
+      {
+        "toolName": "admin_list_mobile_devices",
+        "expectedMethod": "listMobileDevices"
+      },
+      {
+        "toolName": "admin_get_mobile_device",
+        "expectedMethod": "getMobileDevice"
+      },
+      {
+        "toolName": "admin_delete_mobile_device",
+        "expectedMethod": "deleteMobileDevice"
+      },
+      {
+        "toolName": "admin_action_mobile_device",
+        "expectedMethod": "actionMobileDevice"
+      },
+      {
+        "toolName": "admin_list_chrome_devices",
+        "expectedMethod": "listChromeDevices"
+      },
+      {
+        "toolName": "admin_get_chrome_device",
+        "expectedMethod": "getChromeDevice"
+      },
+      {
+        "toolName": "admin_update_chrome_device",
+        "expectedMethod": "updateChromeDevice"
+      },
+      {
+        "toolName": "admin_action_chrome_device",
+        "expectedMethod": "actionChromeDevice"
+      },
+      {
+        "toolName": "admin_list_calendar_resources",
+        "expectedMethod": "listCalendarResources"
+      },
+      {
+        "toolName": "admin_get_calendar_resource",
+        "expectedMethod": "getCalendarResource"
+      },
+      {
+        "toolName": "admin_create_calendar_resource",
+        "expectedMethod": "createCalendarResource"
+      },
+      {
+        "toolName": "admin_update_calendar_resource",
+        "expectedMethod": "updateCalendarResource"
+      },
+      {
+        "toolName": "admin_delete_calendar_resource",
+        "expectedMethod": "deleteCalendarResource"
+      },
+      {
+        "toolName": "admin_list_buildings",
+        "expectedMethod": "listBuildings"
+      },
+      {
+        "toolName": "admin_get_building",
+        "expectedMethod": "getBuilding"
+      },
+      {
+        "toolName": "admin_create_building",
+        "expectedMethod": "createBuilding"
+      },
+      {
+        "toolName": "admin_update_building",
+        "expectedMethod": "updateBuilding"
+      },
+      {
+        "toolName": "admin_delete_building",
+        "expectedMethod": "deleteBuilding"
+      },
+      {
+        "toolName": "admin_list_features",
+        "expectedMethod": "listFeatures"
+      },
+      {
+        "toolName": "admin_create_feature",
+        "expectedMethod": "createFeature"
+      },
+      {
+        "toolName": "admin_delete_feature",
+        "expectedMethod": "deleteFeature"
+      },
+      {
+        "toolName": "admin_list_schemas",
+        "expectedMethod": "listSchemas"
+      },
+      {
+        "toolName": "admin_get_schema",
+        "expectedMethod": "getSchema"
+      },
+      {
+        "toolName": "admin_create_schema",
+        "expectedMethod": "createSchema"
+      },
+      {
+        "toolName": "admin_update_schema",
+        "expectedMethod": "updateSchema"
+      },
+      {
+        "toolName": "admin_delete_schema",
+        "expectedMethod": "deleteSchema"
+      },
+      {
+        "toolName": "admin_list_tokens",
+        "expectedMethod": "listTokens"
+      },
+      {
+        "toolName": "admin_get_token",
+        "expectedMethod": "getToken"
+      },
+      {
+        "toolName": "admin_delete_token",
+        "expectedMethod": "deleteToken"
+      },
+      {
+        "toolName": "admin_list_asp",
+        "expectedMethod": "listAsp"
+      },
+      {
+        "toolName": "admin_get_asp",
+        "expectedMethod": "getAsp"
+      },
+      {
+        "toolName": "admin_delete_asp",
+        "expectedMethod": "deleteAsp"
+      },
+      {
+        "toolName": "admin_list_role_assignments",
+        "expectedMethod": "listRoleAssignments"
+      },
+      {
+        "toolName": "admin_get_role_assignment",
+        "expectedMethod": "getRoleAssignment"
+      },
+      {
+        "toolName": "admin_create_role_assignment",
+        "expectedMethod": "createRoleAssignment"
+      },
+      {
+        "toolName": "admin_delete_role_assignment",
+        "expectedMethod": "deleteRoleAssignment"
+      },
+      {
+        "toolName": "admin_get_security_settings",
+        "expectedMethod": "getSecuritySettings"
+      },
+      {
+        "toolName": "admin_update_security_settings",
+        "expectedMethod": "updateSecuritySettings"
+      },
+      {
+        "toolName": "admin_list_alerts",
+        "expectedMethod": "listAlerts"
+      },
+      {
+        "toolName": "admin_get_alert",
+        "expectedMethod": "getAlert"
+      },
+      {
+        "toolName": "admin_delete_alert",
+        "expectedMethod": "deleteAlert"
+      },
+      {
+        "toolName": "admin_get_customer_info",
+        "expectedMethod": "getCustomerInfo"
+      }
+    ],
+    "classroom": [
+      {
+        "toolName": "classroom_list_courses",
+        "expectedMethod": "listCourses"
+      },
+      {
+        "toolName": "classroom_get_course",
+        "expectedMethod": "getCourse"
+      },
+      {
+        "toolName": "classroom_create_course",
+        "expectedMethod": "createCourse"
+      },
+      {
+        "toolName": "classroom_update_course",
+        "expectedMethod": "updateCourse"
+      },
+      {
+        "toolName": "classroom_delete_course",
+        "expectedMethod": "deleteCourse"
+      },
+      {
+        "toolName": "classroom_list_students",
+        "expectedMethod": "listStudents"
+      },
+      {
+        "toolName": "classroom_add_student",
+        "expectedMethod": "addStudent"
+      },
+      {
+        "toolName": "classroom_remove_student",
+        "expectedMethod": "removeStudent"
+      },
+      {
+        "toolName": "classroom_list_teachers",
+        "expectedMethod": "listTeachers"
+      },
+      {
+        "toolName": "classroom_add_teacher",
+        "expectedMethod": "addTeacher"
+      },
+      {
+        "toolName": "classroom_list_coursework",
+        "expectedMethod": "listCoursework"
+      },
+      {
+        "toolName": "classroom_create_coursework",
+        "expectedMethod": "createCoursework"
+      },
+      {
+        "toolName": "classroom_list_submissions",
+        "expectedMethod": "listSubmissions"
+      }
+    ],
+    "chat": [
+      {
+        "toolName": "chat_list_spaces",
+        "expectedMethod": "listSpaces"
+      },
+      {
+        "toolName": "chat_get_space",
+        "expectedMethod": "getSpace"
+      },
+      {
+        "toolName": "chat_create_space",
+        "expectedMethod": "createSpace"
+      },
+      {
+        "toolName": "chat_list_messages",
+        "expectedMethod": "listMessages"
+      },
+      {
+        "toolName": "chat_create_message",
+        "expectedMethod": "createMessage"
+      },
+      {
+        "toolName": "chat_delete_message",
+        "expectedMethod": "deleteMessage"
+      },
+      {
+        "toolName": "chat_list_members",
+        "expectedMethod": "listMembers"
+      }
+    ],
+    "people": [
+      {
+        "toolName": "people_get_person",
+        "expectedMethod": "getPerson"
+      },
+      {
+        "toolName": "people_list_connections",
+        "expectedMethod": "listConnections"
+      },
+      {
+        "toolName": "people_create_contact",
+        "expectedMethod": "createContact"
+      },
+      {
+        "toolName": "people_update_contact",
+        "expectedMethod": "updateContact"
+      },
+      {
+        "toolName": "people_delete_contact",
+        "expectedMethod": "deleteContact"
+      }
+    ],
+    "tasks": [
+      {
+        "toolName": "tasks_list_tasklists",
+        "expectedMethod": "listTasklists"
+      },
+      {
+        "toolName": "tasks_get_tasklist",
+        "expectedMethod": "getTasklist"
+      },
+      {
+        "toolName": "tasks_create_tasklist",
+        "expectedMethod": "createTasklist"
+      },
+      {
+        "toolName": "tasks_update_tasklist",
+        "expectedMethod": "updateTasklist"
+      },
+      {
+        "toolName": "tasks_delete_tasklist",
+        "expectedMethod": "deleteTasklist"
+      },
+      {
+        "toolName": "tasks_list_tasks",
+        "expectedMethod": "listTasks"
+      },
+      {
+        "toolName": "tasks_get_task",
+        "expectedMethod": "getTask"
+      },
+      {
+        "toolName": "tasks_create_task",
+        "expectedMethod": "createTask"
+      },
+      {
+        "toolName": "tasks_update_task",
+        "expectedMethod": "updateTask"
+      },
+      {
+        "toolName": "tasks_delete_task",
+        "expectedMethod": "deleteTask"
+      },
+      {
+        "toolName": "tasks_clear_completed",
+        "expectedMethod": "clearCompleted"
+      }
+    ],
+    "reports": [
+      {
+        "toolName": "reports_usage_user",
+        "expectedMethod": "usageUser"
+      },
+      {
+        "toolName": "reports_usage_customer",
+        "expectedMethod": "usageCustomer"
+      },
+      {
+        "toolName": "reports_activity_user",
+        "expectedMethod": "activityUser"
+      },
+      {
+        "toolName": "reports_activity_entity",
+        "expectedMethod": "activityEntity"
+      }
+    ],
+    "openai": [
+      {
+        "toolName": "openai_chat_completion",
+        "expectedMethod": "chatCompletion"
+      },
+      {
+        "toolName": "openai_chat_completion_stream",
+        "expectedMethod": "chatCompletionStream"
+      },
+      {
+        "toolName": "openai_chat_with_functions",
+        "expectedMethod": "chatWithFunctions"
+      },
+      {
+        "toolName": "openai_create_embedding",
+        "expectedMethod": "createEmbedding"
+      },
+      {
+        "toolName": "openai_batch_embeddings",
+        "expectedMethod": "batchEmbeddings"
+      },
+      {
+        "toolName": "openai_generate_image",
+        "expectedMethod": "generateImage"
+      },
+      {
+        "toolName": "openai_edit_image",
+        "expectedMethod": "editImage"
+      },
+      {
+        "toolName": "openai_create_image_variation",
+        "expectedMethod": "createImageVariation"
+      },
+      {
+        "toolName": "openai_text_to_speech",
+        "expectedMethod": "textToSpeech"
+      },
+      {
+        "toolName": "openai_speech_to_text",
+        "expectedMethod": "speechToText"
+      },
+      {
+        "toolName": "openai_translate_audio",
+        "expectedMethod": "translateAudio"
+      },
+      {
+        "toolName": "openai_moderate_content",
+        "expectedMethod": "moderateContent"
+      },
+      {
+        "toolName": "openai_list_models",
+        "expectedMethod": "listModels"
+      },
+      {
+        "toolName": "openai_get_model",
+        "expectedMethod": "getModel"
+      },
+      {
+        "toolName": "openai_delete_model",
+        "expectedMethod": "deleteModel"
+      },
+      {
+        "toolName": "openai_upload_file",
+        "expectedMethod": "uploadFile"
+      },
+      {
+        "toolName": "openai_list_files",
+        "expectedMethod": "listFiles"
+      },
+      {
+        "toolName": "openai_retrieve_file",
+        "expectedMethod": "retrieveFile"
+      },
+      {
+        "toolName": "openai_retrieve_file_content",
+        "expectedMethod": "retrieveFileContent"
+      },
+      {
+        "toolName": "openai_create_fine_tune",
+        "expectedMethod": "createFineTune"
+      },
+      {
+        "toolName": "openai_list_fine_tunes",
+        "expectedMethod": "listFineTunes"
+      },
+      {
+        "toolName": "openai_retrieve_fine_tune",
+        "expectedMethod": "retrieveFineTune"
+      },
+      {
+        "toolName": "openai_cancel_fine_tune",
+        "expectedMethod": "cancelFineTune"
+      },
+      {
+        "toolName": "openai_list_fine_tune_events",
+        "expectedMethod": "listFineTuneEvents"
+      },
+      {
+        "toolName": "openai_list_fine_tune_checkpoints",
+        "expectedMethod": "listFineTuneCheckpoints"
+      },
+      {
+        "toolName": "openai_create_batch",
+        "expectedMethod": "createBatch"
+      },
+      {
+        "toolName": "openai_retrieve_batch",
+        "expectedMethod": "retrieveBatch"
+      },
+      {
+        "toolName": "openai_cancel_batch",
+        "expectedMethod": "cancelBatch"
+      },
+      {
+        "toolName": "openai_list_batches",
+        "expectedMethod": "listBatches"
+      },
+      {
+        "toolName": "openai_create_assistant",
+        "expectedMethod": "createAssistant"
+      },
+      {
+        "toolName": "openai_list_assistants",
+        "expectedMethod": "listAssistants"
+      },
+      {
+        "toolName": "openai_retrieve_assistant",
+        "expectedMethod": "retrieveAssistant"
+      },
+      {
+        "toolName": "openai_modify_assistant",
+        "expectedMethod": "modifyAssistant"
+      },
+      {
+        "toolName": "openai_delete_assistant",
+        "expectedMethod": "deleteAssistant"
+      },
+      {
+        "toolName": "openai_create_thread",
+        "expectedMethod": "createThread"
+      },
+      {
+        "toolName": "openai_retrieve_thread",
+        "expectedMethod": "retrieveThread"
+      },
+      {
+        "toolName": "openai_modify_thread",
+        "expectedMethod": "modifyThread"
+      },
+      {
+        "toolName": "openai_delete_thread",
+        "expectedMethod": "deleteThread"
+      },
+      {
+        "toolName": "openai_create_message",
+        "expectedMethod": "createMessage"
+      },
+      {
+        "toolName": "openai_list_messages",
+        "expectedMethod": "listMessages"
+      },
+      {
+        "toolName": "openai_retrieve_message",
+        "expectedMethod": "retrieveMessage"
+      },
+      {
+        "toolName": "openai_modify_message",
+        "expectedMethod": "modifyMessage"
+      },
+      {
+        "toolName": "openai_delete_message",
+        "expectedMethod": "deleteMessage"
+      },
+      {
+        "toolName": "openai_create_run",
+        "expectedMethod": "createRun"
+      },
+      {
+        "toolName": "openai_create_thread_and_run",
+        "expectedMethod": "createThreadAndRun"
+      },
+      {
+        "toolName": "openai_list_runs",
+        "expectedMethod": "listRuns"
+      },
+      {
+        "toolName": "openai_retrieve_run",
+        "expectedMethod": "retrieveRun"
+      },
+      {
+        "toolName": "openai_modify_run",
+        "expectedMethod": "modifyRun"
+      },
+      {
+        "toolName": "openai_cancel_run",
+        "expectedMethod": "cancelRun"
+      },
+      {
+        "toolName": "openai_submit_tool_outputs",
+        "expectedMethod": "submitToolOutputs"
+      },
+      {
+        "toolName": "openai_list_run_steps",
+        "expectedMethod": "listRunSteps"
+      },
+      {
+        "toolName": "openai_retrieve_run_step",
+        "expectedMethod": "retrieveRunStep"
+      },
+      {
+        "toolName": "openai_create_vector_store",
+        "expectedMethod": "createVectorStore"
+      },
+      {
+        "toolName": "openai_list_vector_stores",
+        "expectedMethod": "listVectorStores"
+      },
+      {
+        "toolName": "openai_retrieve_vector_store",
+        "expectedMethod": "retrieveVectorStore"
+      },
+      {
+        "toolName": "openai_modify_vector_store",
+        "expectedMethod": "modifyVectorStore"
+      },
+      {
+        "toolName": "openai_delete_vector_store",
+        "expectedMethod": "deleteVectorStore"
+      },
+      {
+        "toolName": "openai_create_vector_store_file",
+        "expectedMethod": "createVectorStoreFile"
+      },
+      {
+        "toolName": "openai_list_vector_store_files",
+        "expectedMethod": "listVectorStoreFiles"
+      },
+      {
+        "toolName": "openai_retrieve_vector_store_file",
+        "expectedMethod": "retrieveVectorStoreFile"
+      },
+      {
+        "toolName": "openai_delete_vector_store_file",
+        "expectedMethod": "deleteVectorStoreFile"
+      },
+      {
+        "toolName": "openai_create_vector_store_file_batch",
+        "expectedMethod": "createVectorStoreFileBatch"
+      },
+      {
+        "toolName": "openai_retrieve_vector_store_file_batch",
+        "expectedMethod": "retrieveVectorStoreFileBatch"
+      },
+      {
+        "toolName": "openai_cancel_vector_store_file_batch",
+        "expectedMethod": "cancelVectorStoreFileBatch"
+      },
+      {
+        "toolName": "openai_estimate_cost",
+        "expectedMethod": "estimateCost"
+      },
+      {
+        "toolName": "openai_get_budget_status",
+        "expectedMethod": "getBudgetStatus"
+      },
+      {
+        "toolName": "openai_compare_models",
+        "expectedMethod": "compareModels"
+      },
+      {
+        "toolName": "openai_optimize_prompt",
+        "expectedMethod": "optimizePrompt"
+      },
+      {
+        "toolName": "openai_get_token_analytics",
+        "expectedMethod": "getTokenAnalytics"
+      },
+      {
+        "toolName": "openai_suggest_cheaper_alternative",
+        "expectedMethod": "suggestCheaperAlternative"
+      }
+    ],
+    "other": [
+      {
+        "toolName": "licensing_list_assignments",
+        "expectedMethod": "listAssignments"
+      },
+      {
+        "toolName": "licensing_get_assignment",
+        "expectedMethod": "getAssignment"
+      },
+      {
+        "toolName": "licensing_assign_license",
+        "expectedMethod": "assignLicense"
+      },
+      {
+        "toolName": "licensing_update_assignment",
+        "expectedMethod": "updateAssignment"
+      },
+      {
+        "toolName": "licensing_delete_assignment",
+        "expectedMethod": "deleteAssignment"
+      }
+    ]
+  },
+  "missingCasesByCategory": {
+    "github": [],
+    "vercel": [],
+    "neon": [],
+    "upstash": [],
+    "google": [],
+    "gmail": [],
+    "drive": [],
+    "calendar": [],
+    "sheets": [],
+    "docs": [],
+    "slides": [],
+    "forms": [],
+    "admin": [],
+    "classroom": [],
+    "chat": [],
+    "people": [],
+    "tasks": [],
+    "reports": [],
+    "openai": [],
+    "other": []
+  },
+  "missingDefinitions": [
+    "list_projects",
+    "get_project",
+    "create_project",
+    "github_download_workflow_logs",
+    "github_list_workflow_jobs",
+    "github_get_workflow_job",
+    "github_create_repo_secret",
+    "upstash_get_redis_backup_config",
+    "upstash_create_redis_backup",
+    "upstash_restore_redis_backup",
+    "upstash_list_redis_regions",
+    "upstash_get_redis_database_details",
+    "upstash_update_team",
+    "upstash_list_team_members",
+    "upstash_redis_getdel",
+    "upstash_redis_getex",
+    "upstash_redis_msetnx",
+    "upstash_redis_randomkey",
+    "upstash_redis_config_get",
+    "upstash_redis_config_set",
+    "upstash_redis_command_count"
+  ],
+  "sampleComplete": [
+    "github_list_repos",
+    "github_get_repo",
+    "github_create_repo",
+    "github_update_repo",
+    "github_delete_repo",
+    "github_list_repo_topics",
+    "github_replace_repo_topics",
+    "github_list_repo_languages",
+    "github_list_repo_tags",
+    "github_list_repo_teams"
+  ]
+}

@@ -8,7 +8,7 @@ function normTitle(s:string){
 export const docsDupesDescriptor = {
   name: 'docs_find_duplicates',
   description: 'Find near-duplicate docs by normalized title and date; flag older as deprecated.',
-  inputSchema: { type: 'object', properties: {} }
+  inputSchema: { type: 'object' }
 };
 
 export async function docsDupesTool(_: {}, ctx: ServerContext){

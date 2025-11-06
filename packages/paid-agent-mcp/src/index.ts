@@ -354,8 +354,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'openai_worker_get_spend_stats',
         description: 'Get monthly spend statistics',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
@@ -385,16 +384,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'openai_worker_get_capacity',
         description: 'Get current capacity and availability of OpenAI workers',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
         name: 'openai_worker_refresh_pricing',
         description: 'Force refresh OpenAI pricing from live source (normally auto-refreshes every 24 hours)',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
@@ -470,8 +467,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'list_toolkit_categories_openai-worker-mcp',
         description: 'List all available categories in Robinson\'s Toolkit (github, vercel, neon, upstash, google, etc.). Dynamically updates as new categories are added.',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
@@ -511,8 +507,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'list_thinking_tools_paid-agent-mcp',
         description: 'List all available thinking tools (64 total: 24 cognitive frameworks + 8 Context Engine tools + 32 others).',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       // Quality Gates Pipeline Tools (using PAID models)

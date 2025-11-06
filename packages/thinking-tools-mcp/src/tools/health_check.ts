@@ -3,7 +3,7 @@
 export const healthDescriptor = {
   name: "thinking_tools_health_check",
   description: "Report MCP server health and tool count.",
-  inputSchema: { type: "object", properties: {} }
+  inputSchema: { type: "object" }
 };
 
 export async function healthTool(_: {}, __: any, allTools: string[] = []) {

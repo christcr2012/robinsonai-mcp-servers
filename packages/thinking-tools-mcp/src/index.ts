@@ -185,7 +185,7 @@ const registry: Record<string, Entry> = {
   // Healthcheck (legacy)
   healthcheck: {
     description: 'Return ok + workspace root (server wiring test)',
-    inputSchema: { type: 'object', properties: {} },
+    inputSchema: { type: 'object' },
     handler: async (_args, ctx) => ({ ok: true, workspaceRoot: ctx.workspaceRoot }),
   },
   
@@ -582,7 +582,7 @@ registry.context7_get_migration_guide = {
 // Additional context tools
 registry.context_reset = {
   description: 'Reset context engine index',
-  inputSchema: { type: 'object', properties: {} },
+  inputSchema: { type: 'object' },
   handler: async (args, ctx) => {
     await ctx.ctx.reset();
     return { ok: true };

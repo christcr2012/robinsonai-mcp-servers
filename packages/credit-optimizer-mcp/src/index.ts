@@ -694,16 +694,14 @@ class CreditOptimizerServer {
         name: 'get_agent_pool_stats',
         description: 'Get agent pool statistics (total, busy, available, free, paid, waiting)',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
         name: 'list_agents',
         description: 'List all agents in the pool with their status',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       // Template Scaffolding (5 tools)
@@ -846,8 +844,7 @@ class CreditOptimizerServer {
         name: 'diagnose_credit_optimizer',
         description: 'Diagnose Credit Optimizer environment - check tool index, templates, caching status',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
 
@@ -883,16 +880,14 @@ class CreditOptimizerServer {
         name: 'get_cost_analytics',
         description: 'Get comprehensive cost analytics dashboard',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
         name: 'get_cost_accuracy',
         description: 'Get cost estimation accuracy metrics by task type',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
@@ -1070,16 +1065,14 @@ class CreditOptimizerServer {
         name: 'credit_optimizer_health',
         description: 'List enabled providers and environment readiness.',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
         name: 'credit_ollama_health',
         description: 'Check Ollama availability and loaded models.',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
     ];

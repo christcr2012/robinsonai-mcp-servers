@@ -1436,8 +1436,7 @@ Generate the modified section now:`;
         name: 'diagnose_autonomous_agent',
         description: 'Diagnose Autonomous Agent environment - check Ollama connection, models, stats DB',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
@@ -1462,8 +1461,7 @@ Generate the modified section now:`;
         name: 'list_toolkit_categories_autonomous-agent-mcp',
         description: 'List all available categories in Robinson\'s Toolkit (github, vercel, neon, upstash, google, etc.). Dynamically updates as new categories are added.',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
       {
@@ -1725,8 +1723,7 @@ Generate the modified section now:`;
         name: 'get_feedback_stats',
         description: 'Get statistics about feedback received from primary coding agents. Shows what types of edits are most common and helps identify areas for improvement.',
         inputSchema: {
-          type: 'object',
-          properties: {},
+      type: 'object'
         },
       },
     ];

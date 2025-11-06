@@ -1,7 +1,7 @@
 export const ollamaHealthDescriptor = {
   name: "credit_ollama_health",
   description: "Check Ollama availability and loaded models.",
-  inputSchema: { type: "object", properties: {} },
+  inputSchema: { type: "object" },
 };
 
 export async function ollamaHealthTool() {
