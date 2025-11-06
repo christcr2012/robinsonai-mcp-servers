@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/shared-pipeline",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,4 +19,3 @@
     "typescript": "^5.7.2"
   }
 }
-
