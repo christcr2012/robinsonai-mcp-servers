@@ -1592,6 +1592,90 @@ class UnifiedToolkit {
       { name: 'sheets_batch_clear', description: 'Batch clear ranges', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, ranges: { type: 'array', items: { type: 'string' } } }, required: ['spreadsheetId', 'ranges'] } },
 
       // ============================================================
+      // NEW GOOGLE WORKSPACE TOOLS (76 tools) - COMPREHENSIVE API COVERAGE
+      // ============================================================
+      // PHASE 1: CRITICAL (11 tools) - Calendar Calendars + Drive Permissions
+      { name: 'calendar_create', description: 'Create a secondary calendar', inputSchema: { type: 'object', properties: { summary: { type: 'string' }, description: { type: 'string' }, timeZone: { type: 'string' }, location: { type: 'string' } }, required: ['summary'] } },
+      { name: 'calendar_get_calendar', description: 'Get calendar metadata', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+      { name: 'calendar_update_calendar', description: 'Update calendar metadata', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, summary: { type: 'string' }, description: { type: 'string' }, timeZone: { type: 'string' }, location: { type: 'string' } }, required: ['calendarId'] } },
+      { name: 'calendar_patch_calendar', description: 'Patch calendar metadata', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, updates: { type: 'object' } }, required: ['calendarId', 'updates'] } },
+      { name: 'calendar_delete_calendar', description: 'Delete a secondary calendar', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+      { name: 'calendar_clear_calendar', description: 'Clear all events from primary calendar', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+      { name: 'drive_permissions_list', description: 'List file permissions', inputSchema: { type: 'object', properties: { fileId: { type: 'string' } }, required: ['fileId'] } },
+      { name: 'drive_permissions_get', description: 'Get file permission', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, permissionId: { type: 'string' } }, required: ['fileId', 'permissionId'] } },
+      { name: 'drive_permissions_create', description: 'Create file permission (share file)', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, type: { type: 'string' }, role: { type: 'string' }, emailAddress: { type: 'string' }, domain: { type: 'string' }, sendNotificationEmail: { type: 'boolean' } }, required: ['fileId', 'type', 'role'] } },
+      { name: 'drive_permissions_update', description: 'Update file permission', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, permissionId: { type: 'string' }, role: { type: 'string' } }, required: ['fileId', 'permissionId', 'role'] } },
+      { name: 'drive_permissions_delete', description: 'Delete file permission (unshare)', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, permissionId: { type: 'string' } }, required: ['fileId', 'permissionId'] } },
+      // PHASE 2: HIGH PRIORITY (24 tools) - CalendarList + Gmail Drafts/Threads + Sheets
+      { name: 'calendar_list_calendars', description: 'List user calendars', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' }, showHidden: { type: 'boolean' } } } },
+      { name: 'calendar_list_insert', description: 'Add existing calendar to user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, colorId: { type: 'string' }, hidden: { type: 'boolean' } }, required: ['calendarId'] } },
+      { name: 'calendar_list_get', description: 'Get calendar from user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+      { name: 'calendar_list_update', description: 'Update calendar in user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, colorId: { type: 'string' }, hidden: { type: 'boolean' }, summaryOverride: { type: 'string' } }, required: ['calendarId'] } },
+      { name: 'calendar_list_patch', description: 'Patch calendar in user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, updates: { type: 'object' } }, required: ['calendarId', 'updates'] } },
+      { name: 'calendar_list_delete', description: 'Remove calendar from user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+      { name: 'calendar_list_watch', description: 'Watch for calendar list changes', inputSchema: { type: 'object', properties: { address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['address', 'type', 'id'] } },
+      { name: 'gmail_drafts_list', description: 'List email drafts', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, maxResults: { type: 'number' }, q: { type: 'string' } } } },
+      { name: 'gmail_drafts_get', description: 'Get email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+      { name: 'gmail_drafts_create', description: 'Create email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, to: { type: 'string' }, subject: { type: 'string' }, body: { type: 'string' } }, required: ['to', 'subject', 'body'] } },
+      { name: 'gmail_drafts_update', description: 'Update email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' }, to: { type: 'string' }, subject: { type: 'string' }, body: { type: 'string' } }, required: ['id'] } },
+      { name: 'gmail_drafts_delete', description: 'Delete email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+      { name: 'gmail_drafts_send', description: 'Send email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+      { name: 'gmail_threads_list', description: 'List email threads', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, maxResults: { type: 'number' }, q: { type: 'string' } } } },
+      { name: 'gmail_threads_get', description: 'Get email thread', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+      { name: 'gmail_threads_modify', description: 'Modify email thread labels', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' }, addLabelIds: { type: 'array' }, removeLabelIds: { type: 'array' } }, required: ['id'] } },
+      { name: 'gmail_threads_trash', description: 'Move thread to trash', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+      { name: 'gmail_threads_untrash', description: 'Remove thread from trash', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+      { name: 'gmail_threads_delete', description: 'Permanently delete thread', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+      { name: 'sheets_create', description: 'Create spreadsheet', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+      { name: 'sheets_batch_update', description: 'Batch update spreadsheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, requests: { type: 'array' } }, required: ['spreadsheetId', 'requests'] } },
+      { name: 'sheets_values_append', description: 'Append values to range', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, range: { type: 'string' }, values: { type: 'array' } }, required: ['spreadsheetId', 'range', 'values'] } },
+      { name: 'sheets_values_batch_get', description: 'Batch get values from multiple ranges', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, ranges: { type: 'array' } }, required: ['spreadsheetId', 'ranges'] } },
+      { name: 'sheets_values_batch_update', description: 'Batch update values in multiple ranges', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, data: { type: 'array' } }, required: ['spreadsheetId', 'data'] } },
+      // PHASE 3: MEDIUM PRIORITY (25 tools) - Calendar ACL + Drive Comments/Replies + Drive Misc
+      { name: 'calendar_acl_list', description: 'List calendar ACL rules', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+      { name: 'calendar_acl_get', description: 'Get calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, ruleId: { type: 'string' } }, required: ['calendarId', 'ruleId'] } },
+      { name: 'calendar_acl_insert', description: 'Create calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, scope: { type: 'object' }, role: { type: 'string' } }, required: ['calendarId', 'scope', 'role'] } },
+      { name: 'calendar_acl_update', description: 'Update calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, ruleId: { type: 'string' }, role: { type: 'string' } }, required: ['calendarId', 'ruleId', 'role'] } },
+      { name: 'calendar_acl_patch', description: 'Patch calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, ruleId: { type: 'string' }, updates: { type: 'object' } }, required: ['calendarId', 'ruleId', 'updates'] } },
+      { name: 'calendar_acl_delete', description: 'Delete calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, ruleId: { type: 'string' } }, required: ['calendarId', 'ruleId'] } },
+      { name: 'calendar_acl_watch', description: 'Watch calendar ACL changes', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['calendarId', 'address', 'type', 'id'] } },
+      { name: 'drive_comments_list', description: 'List file comments', inputSchema: { type: 'object', properties: { fileId: { type: 'string' } }, required: ['fileId'] } },
+      { name: 'drive_comments_get', description: 'Get file comment', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' } }, required: ['fileId', 'commentId'] } },
+      { name: 'drive_comments_create', description: 'Create file comment', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, content: { type: 'string' } }, required: ['fileId', 'content'] } },
+      { name: 'drive_comments_update', description: 'Update file comment', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, content: { type: 'string' } }, required: ['fileId', 'commentId', 'content'] } },
+      { name: 'drive_comments_delete', description: 'Delete file comment', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' } }, required: ['fileId', 'commentId'] } },
+      { name: 'drive_replies_list', description: 'List comment replies', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' } }, required: ['fileId', 'commentId'] } },
+      { name: 'drive_replies_get', description: 'Get comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, replyId: { type: 'string' } }, required: ['fileId', 'commentId', 'replyId'] } },
+      { name: 'drive_replies_create', description: 'Create comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, content: { type: 'string' } }, required: ['fileId', 'commentId', 'content'] } },
+      { name: 'drive_replies_update', description: 'Update comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, replyId: { type: 'string' }, content: { type: 'string' } }, required: ['fileId', 'commentId', 'replyId', 'content'] } },
+      { name: 'drive_replies_delete', description: 'Delete comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, replyId: { type: 'string' } }, required: ['fileId', 'commentId', 'replyId'] } },
+      { name: 'drive_copy_file', description: 'Copy file', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, name: { type: 'string' } }, required: ['fileId'] } },
+      { name: 'drive_empty_trash', description: 'Empty trash', inputSchema: { type: 'object', properties: {} } },
+      { name: 'drive_generate_ids', description: 'Generate file IDs', inputSchema: { type: 'object', properties: { count: { type: 'number' } } } },
+      { name: 'drive_watch_file', description: 'Watch file for changes', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['fileId', 'address', 'type', 'id'] } },
+      { name: 'calendar_event_instances', description: 'Get recurring event instances', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, eventId: { type: 'string' } }, required: ['calendarId', 'eventId'] } },
+      { name: 'calendar_event_move', description: 'Move event to another calendar', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, eventId: { type: 'string' }, destination: { type: 'string' } }, required: ['calendarId', 'eventId', 'destination'] } },
+      { name: 'calendar_event_patch', description: 'Patch event', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, eventId: { type: 'string' }, updates: { type: 'object' } }, required: ['calendarId', 'eventId', 'updates'] } },
+      { name: 'calendar_freebusy_query', description: 'Query free/busy information', inputSchema: { type: 'object', properties: { timeMin: { type: 'string' }, timeMax: { type: 'string' }, items: { type: 'array' } }, required: ['timeMin', 'timeMax', 'items'] } },
+      // PHASE 4-6: LOW PRIORITY + DOCS + SLIDES (16 tools)
+      { name: 'calendar_colors_get', description: 'Get color definitions', inputSchema: { type: 'object', properties: {} } },
+      { name: 'calendar_settings_list', description: 'List calendar settings', inputSchema: { type: 'object', properties: {} } },
+      { name: 'calendar_settings_get', description: 'Get calendar setting', inputSchema: { type: 'object', properties: { setting: { type: 'string' } }, required: ['setting'] } },
+      { name: 'calendar_settings_watch', description: 'Watch calendar settings', inputSchema: { type: 'object', properties: { address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['address', 'type', 'id'] } },
+      { name: 'gmail_history_list', description: 'List mailbox history', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, startHistoryId: { type: 'string' } }, required: ['startHistoryId'] } },
+      { name: 'forms_create', description: 'Create form', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+      { name: 'forms_batch_update', description: 'Batch update form', inputSchema: { type: 'object', properties: { formId: { type: 'string' }, requests: { type: 'array' } }, required: ['formId', 'requests'] } },
+      { name: 'forms_get_responses', description: 'Get form responses', inputSchema: { type: 'object', properties: { formId: { type: 'string' } }, required: ['formId'] } },
+      { name: 'forms_get_response', description: 'Get form response', inputSchema: { type: 'object', properties: { formId: { type: 'string' }, responseId: { type: 'string' } }, required: ['formId', 'responseId'] } },
+      { name: 'docs_create', description: 'Create Google Doc', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+      { name: 'docs_get', description: 'Get Google Doc', inputSchema: { type: 'object', properties: { documentId: { type: 'string' } }, required: ['documentId'] } },
+      { name: 'docs_batch_update', description: 'Batch update Google Doc', inputSchema: { type: 'object', properties: { documentId: { type: 'string' }, requests: { type: 'array' } }, required: ['documentId', 'requests'] } },
+      { name: 'slides_create', description: 'Create presentation', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+      { name: 'slides_batch_update', description: 'Batch update presentation', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, requests: { type: 'array' } }, required: ['presentationId', 'requests'] } },
+      { name: 'slides_get_page', description: 'Get presentation page', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, pageObjectId: { type: 'string' } }, required: ['presentationId', 'pageObjectId'] } },
+      { name: 'slides_get_page_thumbnail', description: 'Get page thumbnail', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, pageObjectId: { type: 'string' } }, required: ['presentationId', 'pageObjectId'] } },
+
+      // ============================================================
       // OPENAI (259 tools) - NEWLY INTEGRATED
       // ============================================================
 
@@ -2922,7 +3006,7 @@ class UnifiedToolkit {
           // CALENDAR
           case 'calendar_list_events': return await this.calendarList(args);
           case 'calendar_get_event': return await this.calendarGet(args);
-          case 'calendar_create_event': return await this.calendarCreate(args);
+          case 'calendar_create_event': return await this.calendarCreateEvent(args);
           case 'calendar_update_event': return await this.calendarUpdate(args);
           case 'calendar_delete_event': return await this.calendarDelete(args);
 
@@ -3027,6 +3111,83 @@ class UnifiedToolkit {
           case 'calendar_import_event': return await this.calendarImportEvent(args);
           case 'calendar_quick_add': return await this.calendarQuickAdd(args);
           case 'calendar_watch_events': return await this.calendarWatchEvents(args);
+          // NEW GOOGLE WORKSPACE TOOLS (76 case statements)
+          case 'calendar_create': return await this.calendarCreate(args);
+          case 'calendar_get_calendar': return await this.calendarGetCalendar(args);
+          case 'calendar_update_calendar': return await this.calendarUpdateCalendar(args);
+          case 'calendar_patch_calendar': return await this.calendarPatchCalendar(args);
+          case 'calendar_delete_calendar': return await this.calendarDeleteCalendar(args);
+          case 'calendar_clear_calendar': return await this.calendarClearCalendar(args);
+          case 'drive_permissions_list': return await this.drivePermissionsList(args);
+          case 'drive_permissions_get': return await this.drivePermissionsGet(args);
+          case 'drive_permissions_create': return await this.drivePermissionsCreate(args);
+          case 'drive_permissions_update': return await this.drivePermissionsUpdate(args);
+          case 'drive_permissions_delete': return await this.drivePermissionsDelete(args);
+          case 'calendar_list_calendars': return await this.calendarListCalendars(args);
+          case 'calendar_list_insert': return await this.calendarListInsert(args);
+          case 'calendar_list_get': return await this.calendarListGet(args);
+          case 'calendar_list_update': return await this.calendarListUpdate(args);
+          case 'calendar_list_patch': return await this.calendarListPatch(args);
+          case 'calendar_list_delete': return await this.calendarListDelete(args);
+          case 'calendar_list_watch': return await this.calendarListWatch(args);
+          case 'gmail_drafts_list': return await this.gmailDraftsList(args);
+          case 'gmail_drafts_get': return await this.gmailDraftsGet(args);
+          case 'gmail_drafts_create': return await this.gmailDraftsCreate(args);
+          case 'gmail_drafts_update': return await this.gmailDraftsUpdate(args);
+          case 'gmail_drafts_delete': return await this.gmailDraftsDelete(args);
+          case 'gmail_drafts_send': return await this.gmailDraftsSend(args);
+          case 'gmail_threads_list': return await this.gmailThreadsList(args);
+          case 'gmail_threads_get': return await this.gmailThreadsGet(args);
+          case 'gmail_threads_modify': return await this.gmailThreadsModify(args);
+          case 'gmail_threads_trash': return await this.gmailThreadsTrash(args);
+          case 'gmail_threads_untrash': return await this.gmailThreadsUntrash(args);
+          case 'gmail_threads_delete': return await this.gmailThreadsDelete(args);
+          case 'sheets_create': return await this.sheetsCreate(args);
+          case 'sheets_batch_update': return await this.sheetsBatchUpdate(args);
+          case 'sheets_values_append': return await this.sheetsValuesAppend(args);
+          case 'sheets_values_batch_get': return await this.sheetsValuesBatchGet(args);
+          case 'sheets_values_batch_update': return await this.sheetsValuesBatchUpdate(args);
+          case 'calendar_acl_list': return await this.calendarAclList(args);
+          case 'calendar_acl_get': return await this.calendarAclGet(args);
+          case 'calendar_acl_insert': return await this.calendarAclInsert(args);
+          case 'calendar_acl_update': return await this.calendarAclUpdate(args);
+          case 'calendar_acl_patch': return await this.calendarAclPatch(args);
+          case 'calendar_acl_delete': return await this.calendarAclDelete(args);
+          case 'calendar_acl_watch': return await this.calendarAclWatch(args);
+          case 'drive_comments_list': return await this.driveCommentsList(args);
+          case 'drive_comments_get': return await this.driveCommentsGet(args);
+          case 'drive_comments_create': return await this.driveCommentsCreate(args);
+          case 'drive_comments_update': return await this.driveCommentsUpdate(args);
+          case 'drive_comments_delete': return await this.driveCommentsDelete(args);
+          case 'drive_replies_list': return await this.driveRepliesList(args);
+          case 'drive_replies_get': return await this.driveRepliesGet(args);
+          case 'drive_replies_create': return await this.driveRepliesCreate(args);
+          case 'drive_replies_update': return await this.driveRepliesUpdate(args);
+          case 'drive_replies_delete': return await this.driveRepliesDelete(args);
+          case 'drive_copy_file': return await this.driveCopyFile(args);
+          case 'drive_empty_trash': return await this.driveEmptyTrash(args);
+          case 'drive_generate_ids': return await this.driveGenerateIds(args);
+          case 'drive_watch_file': return await this.driveWatchFile(args);
+          case 'calendar_event_instances': return await this.calendarEventInstances(args);
+          case 'calendar_event_move': return await this.calendarEventMove(args);
+          case 'calendar_event_patch': return await this.calendarEventPatch(args);
+          case 'calendar_freebusy_query': return await this.calendarFreebusyQuery(args);
+          case 'calendar_colors_get': return await this.calendarColorsGet(args);
+          case 'calendar_settings_list': return await this.calendarSettingsList(args);
+          case 'calendar_settings_get': return await this.calendarSettingsGet(args);
+          case 'calendar_settings_watch': return await this.calendarSettingsWatch(args);
+          case 'gmail_history_list': return await this.gmailHistoryList(args);
+          case 'forms_create': return await this.formsCreate(args);
+          case 'forms_batch_update': return await this.formsBatchUpdate(args);
+          case 'forms_get_responses': return await this.formsGetResponses(args);
+          case 'forms_get_response': return await this.formsGetResponse(args);
+          case 'docs_create': return await this.docsCreate(args);
+          case 'docs_get': return await this.docsGet(args);
+          case 'docs_batch_update': return await this.docsBatchUpdate(args);
+          case 'slides_create': return await this.slidesCreate(args);
+          case 'slides_batch_update': return await this.slidesBatchUpdate(args);
+          case 'slides_get_page': return await this.slidesGetPage(args);
+          case 'slides_get_page_thumbnail': return await this.slidesGetPageThumbnail(args);
           case 'chat_create_message': return await this.chatCreateMessage(args);
           case 'chat_create_space': return await this.chatCreateSpace(args);
           case 'chat_delete_message': return await this.chatDeleteMessage(args);
@@ -10757,7 +10918,7 @@ ${args.body}`;
     return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
   }
 
-  private async calendarCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  private async calendarCreateEvent(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     const event = { summary: args.summary, start: { dateTime: args.start }, end: { dateTime: args.end } };
     const result = await this.calendar.events.insert({ calendarId: 'primary', requestBody: event });
     return { content: [{ type: 'text', text: 'Event created. ID: ' + result.data.id }] };
@@ -10798,11 +10959,6 @@ ${args.body}`;
     return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
   }
 
-  private async sheetsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    const result = await this.sheets.spreadsheets.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { requests: args.requests } });
-    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
-  }
-
   private async sheetsClearValues(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     await this.sheets.spreadsheets.values.clear({ spreadsheetId: args.spreadsheetId, range: args.range });
     return { content: [{ type: 'text', text: 'Values cleared' }] };
@@ -10821,16 +10977,6 @@ ${args.body}`;
   private async sheetsCopySheet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     await this.sheets.spreadsheets.sheets.copyTo({ spreadsheetId: args.spreadsheetId, sheetId: args.sheetId, requestBody: { destinationSpreadsheetId: args.destinationSpreadsheetId } });
     return { content: [{ type: 'text', text: 'Sheet copied' }] };
-  }
-
-  private async docsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    const result = await this.docs.documents.get({ documentId: args.documentId });
-    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
-  }
-
-  private async docsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    const result = await this.docs.documents.create({ requestBody: { title: args.title } });
-    return { content: [{ type: 'text', text: 'Document created. ID: ' + result.data.documentId }] };
   }
 
   private async docsInsertText(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
@@ -11379,11 +11525,6 @@ private async classroomUpdateCourse(args: any): Promise<{ content: Array<{ type:
     return { content: [{ type: 'text', text: 'Course updated' }] };
   }
 
-private async driveEmptyTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    await this.drive.files.emptyTrash({});
-    return { content: [{ type: 'text', text: 'Trash emptied successfully' }] };
-  }
-
 private async driveGetAbout(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     const result = await this.drive.about.get({
       fields: args.fields || 'storageQuota,user'
@@ -11416,11 +11557,6 @@ private async driveWatchChanges(args: any): Promise<{ content: Array<{ type: str
     return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
   }
 
-  private async formsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement forms_batch_update
-    return { content: [{ type: 'text', text: 'Not implemented: forms_batch_update' }] };
-  }
-
   private async formsCreateForm(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     // TODO: Implement forms_create_form
     return { content: [{ type: 'text', text: 'Not implemented: forms_create_form' }] };
@@ -11429,11 +11565,6 @@ private async driveWatchChanges(args: any): Promise<{ content: Array<{ type: str
   private async formsGetForm(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     // TODO: Implement forms_get_form
     return { content: [{ type: 'text', text: 'Not implemented: forms_get_form' }] };
-  }
-
-private async formsGetResponse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    const result = await this.forms.forms.responses.get({ formId: args.formId, responseId: args.responseId });
-    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
   }
 
 private async formsListResponses(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
@@ -11566,11 +11697,6 @@ private async sheetsBatchClear(args: any): Promise<{ content: Array<{ type: stri
       requestBody: { ranges: args.ranges }
     });
     return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
-  }
-
-  private async slidesBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
-    // TODO: Implement slides_batch_update
-    return { content: [{ type: 'text', text: 'Not implemented: slides_batch_update' }] };
   }
 
 private async slidesCreateImage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
@@ -12588,6 +12714,421 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
   }
 
   // ========== END AUTO-GENERATED HANDLERS ==========
+
+  // ========== NEW GOOGLE WORKSPACE HANDLERS (76 methods) ==========
+  // PHASE 1: CRITICAL (11 handlers) - Calendar Calendars + Drive Permissions
+  private async calendarCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendars.insert({
+      requestBody: {
+        summary: args.summary,
+        description: args.description,
+        timeZone: args.timeZone || 'UTC',
+        location: args.location
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+  private async calendarGetCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendars.get({ calendarId: args.calendarId });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+  private async calendarUpdateCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendars.update({
+      calendarId: args.calendarId,
+      requestBody: { summary: args.summary, description: args.description, timeZone: args.timeZone, location: args.location }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+  private async calendarPatchCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendars.patch({ calendarId: args.calendarId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+  private async calendarDeleteCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.calendar.calendars.delete({ calendarId: args.calendarId });
+    return { content: [{ type: 'text', text: 'Calendar deleted successfully' }] };
+  }
+
+  private async calendarClearCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.calendar.calendars.clear({ calendarId: args.calendarId });
+    return { content: [{ type: 'text', text: 'Calendar cleared successfully' }] };
+  }
+
+  private async drivePermissionsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const permissions = await this.drive.permissions.list({
+      fileId: args.fileId,
+      fields: 'permissions(id,type,role,emailAddress,domain,displayName)'
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(permissions.data, null, 2) }] };
+  }
+
+  private async drivePermissionsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const permission = await this.drive.permissions.get({
+      fileId: args.fileId,
+      permissionId: args.permissionId,
+      fields: 'id,type,role,emailAddress,domain,displayName'
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(permission.data, null, 2) }] };
+  }
+
+  private async drivePermissionsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const permission = await this.drive.permissions.create({
+      fileId: args.fileId,
+      sendNotificationEmail: args.sendNotificationEmail !== false,
+      requestBody: { type: args.type, role: args.role, emailAddress: args.emailAddress, domain: args.domain }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(permission.data, null, 2) }] };
+  }
+
+  private async drivePermissionsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const permission = await this.drive.permissions.update({
+      fileId: args.fileId,
+      permissionId: args.permissionId,
+      requestBody: { role: args.role }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(permission.data, null, 2) }] };
+  }
+
+  private async drivePermissionsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.drive.permissions.delete({ fileId: args.fileId, permissionId: args.permissionId });
+    return { content: [{ type: 'text', text: 'Permission deleted successfully' }] };
+  }
+
+  // PHASE 2: HIGH PRIORITY (24 handlers) - CalendarList + Gmail Drafts/Threads + Sheets
+  private async calendarListCalendars(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendars = await this.calendar.calendarList.list({ maxResults: args.maxResults || 250, showHidden: args.showHidden || false });
+    return { content: [{ type: 'text', text: JSON.stringify(calendars.data, null, 2) }] };
+  }
+
+  private async calendarListInsert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendarList.insert({ requestBody: { id: args.calendarId, colorId: args.colorId, hidden: args.hidden } });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+  private async calendarListGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendarList.get({ calendarId: args.calendarId });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+  private async calendarListUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendarList.update({ calendarId: args.calendarId, requestBody: { colorId: args.colorId, hidden: args.hidden, summaryOverride: args.summaryOverride } });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+  private async calendarListPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendarList.patch({ calendarId: args.calendarId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+  private async calendarListDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.calendar.calendarList.delete({ calendarId: args.calendarId });
+    return { content: [{ type: 'text', text: 'Calendar removed from list successfully' }] };
+  }
+
+  private async calendarListWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const channel = await this.calendar.calendarList.watch({ requestBody: { id: args.id, type: args.type, address: args.address } });
+    return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+  }
+
+  private async gmailDraftsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const drafts = await this.gmail.users.drafts.list({ userId: args.userId || 'me', maxResults: args.maxResults, q: args.q });
+    return { content: [{ type: 'text', text: JSON.stringify(drafts.data, null, 2) }] };
+  }
+
+  private async gmailDraftsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const draft = await this.gmail.users.drafts.get({ userId: args.userId || 'me', id: args.id });
+    return { content: [{ type: 'text', text: JSON.stringify(draft.data, null, 2) }] };
+  }
+
+  private async gmailDraftsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const message = `To: ${args.to}\nSubject: ${args.subject}\n\n${args.body}`;
+    const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const draft = await this.gmail.users.drafts.create({ userId: args.userId || 'me', requestBody: { message: { raw: encodedMessage } } });
+    return { content: [{ type: 'text', text: JSON.stringify(draft.data, null, 2) }] };
+  }
+
+  private async gmailDraftsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const message = `To: ${args.to}\nSubject: ${args.subject}\n\n${args.body}`;
+    const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const draft = await this.gmail.users.drafts.update({ userId: args.userId || 'me', id: args.id, requestBody: { message: { raw: encodedMessage } } });
+    return { content: [{ type: 'text', text: JSON.stringify(draft.data, null, 2) }] };
+  }
+
+  private async gmailDraftsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.gmail.users.drafts.delete({ userId: args.userId || 'me', id: args.id });
+    return { content: [{ type: 'text', text: 'Draft deleted successfully' }] };
+  }
+
+  private async gmailDraftsSend(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const message = await this.gmail.users.drafts.send({ userId: args.userId || 'me', requestBody: { id: args.id } });
+    return { content: [{ type: 'text', text: JSON.stringify(message.data, null, 2) }] };
+  }
+
+  private async gmailThreadsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const threads = await this.gmail.users.threads.list({ userId: args.userId || 'me', maxResults: args.maxResults, q: args.q });
+    return { content: [{ type: 'text', text: JSON.stringify(threads.data, null, 2) }] };
+  }
+
+  private async gmailThreadsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const thread = await this.gmail.users.threads.get({ userId: args.userId || 'me', id: args.id });
+    return { content: [{ type: 'text', text: JSON.stringify(thread.data, null, 2) }] };
+  }
+
+  private async gmailThreadsModify(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const thread = await this.gmail.users.threads.modify({ userId: args.userId || 'me', id: args.id, requestBody: { addLabelIds: args.addLabelIds, removeLabelIds: args.removeLabelIds } });
+    return { content: [{ type: 'text', text: JSON.stringify(thread.data, null, 2) }] };
+  }
+
+  private async gmailThreadsTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const thread = await this.gmail.users.threads.trash({ userId: args.userId || 'me', id: args.id });
+    return { content: [{ type: 'text', text: JSON.stringify(thread.data, null, 2) }] };
+  }
+
+  private async gmailThreadsUntrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const thread = await this.gmail.users.threads.untrash({ userId: args.userId || 'me', id: args.id });
+    return { content: [{ type: 'text', text: JSON.stringify(thread.data, null, 2) }] };
+  }
+
+  private async gmailThreadsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.gmail.users.threads.delete({ userId: args.userId || 'me', id: args.id });
+    return { content: [{ type: 'text', text: 'Thread deleted successfully' }] };
+  }
+
+  private async sheetsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const spreadsheet = await this.sheets.spreadsheets.create({ requestBody: { properties: { title: args.title } } });
+    return { content: [{ type: 'text', text: JSON.stringify(spreadsheet.data, null, 2) }] };
+  }
+
+  private async sheetsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { requests: args.requests } });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async sheetsValuesAppend(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.values.append({ spreadsheetId: args.spreadsheetId, range: args.range, valueInputOption: 'USER_ENTERED', requestBody: { values: args.values } });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async sheetsValuesBatchGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.values.batchGet({ spreadsheetId: args.spreadsheetId, ranges: args.ranges });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async sheetsValuesBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.sheets.spreadsheets.values.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { valueInputOption: 'USER_ENTERED', data: args.data } });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  // PHASE 3: MEDIUM PRIORITY (25 handlers) - Calendar ACL + Drive Comments/Replies + Drive Misc
+  private async calendarAclList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const acl = await this.calendar.acl.list({ calendarId: args.calendarId });
+    return { content: [{ type: 'text', text: JSON.stringify(acl.data, null, 2) }] };
+  }
+
+  private async calendarAclGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const rule = await this.calendar.acl.get({ calendarId: args.calendarId, ruleId: args.ruleId });
+    return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+  }
+
+  private async calendarAclInsert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const rule = await this.calendar.acl.insert({ calendarId: args.calendarId, requestBody: { scope: args.scope, role: args.role } });
+    return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+  }
+
+  private async calendarAclUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const rule = await this.calendar.acl.update({ calendarId: args.calendarId, ruleId: args.ruleId, requestBody: { role: args.role } });
+    return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+  }
+
+  private async calendarAclPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const rule = await this.calendar.acl.patch({ calendarId: args.calendarId, ruleId: args.ruleId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+  }
+
+  private async calendarAclDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.calendar.acl.delete({ calendarId: args.calendarId, ruleId: args.ruleId });
+    return { content: [{ type: 'text', text: 'ACL rule deleted successfully' }] };
+  }
+
+  private async calendarAclWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const channel = await this.calendar.acl.watch({ calendarId: args.calendarId, requestBody: { id: args.id, type: args.type, address: args.address } });
+    return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+  }
+
+  private async driveCommentsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const comments = await this.drive.comments.list({ fileId: args.fileId, fields: 'comments(id,content,author,createdTime)' });
+    return { content: [{ type: 'text', text: JSON.stringify(comments.data, null, 2) }] };
+  }
+
+  private async driveCommentsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const comment = await this.drive.comments.get({ fileId: args.fileId, commentId: args.commentId, fields: 'id,content,author,createdTime' });
+    return { content: [{ type: 'text', text: JSON.stringify(comment.data, null, 2) }] };
+  }
+
+  private async driveCommentsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const comment = await this.drive.comments.create({ fileId: args.fileId, requestBody: { content: args.content } });
+    return { content: [{ type: 'text', text: JSON.stringify(comment.data, null, 2) }] };
+  }
+
+  private async driveCommentsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const comment = await this.drive.comments.update({ fileId: args.fileId, commentId: args.commentId, requestBody: { content: args.content } });
+    return { content: [{ type: 'text', text: JSON.stringify(comment.data, null, 2) }] };
+  }
+
+  private async driveCommentsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.drive.comments.delete({ fileId: args.fileId, commentId: args.commentId });
+    return { content: [{ type: 'text', text: 'Comment deleted successfully' }] };
+  }
+
+  private async driveRepliesList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const replies = await this.drive.replies.list({ fileId: args.fileId, commentId: args.commentId, fields: 'replies(id,content,author,createdTime)' });
+    return { content: [{ type: 'text', text: JSON.stringify(replies.data, null, 2) }] };
+  }
+
+  private async driveRepliesGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const reply = await this.drive.replies.get({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId, fields: 'id,content,author,createdTime' });
+    return { content: [{ type: 'text', text: JSON.stringify(reply.data, null, 2) }] };
+  }
+
+  private async driveRepliesCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const reply = await this.drive.replies.create({ fileId: args.fileId, commentId: args.commentId, requestBody: { content: args.content } });
+    return { content: [{ type: 'text', text: JSON.stringify(reply.data, null, 2) }] };
+  }
+
+  private async driveRepliesUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const reply = await this.drive.replies.update({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId, requestBody: { content: args.content } });
+    return { content: [{ type: 'text', text: JSON.stringify(reply.data, null, 2) }] };
+  }
+
+  private async driveRepliesDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.drive.replies.delete({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId });
+    return { content: [{ type: 'text', text: 'Reply deleted successfully' }] };
+  }
+
+  private async driveCopyFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const file = await this.drive.files.copy({ fileId: args.fileId, requestBody: { name: args.name } });
+    return { content: [{ type: 'text', text: JSON.stringify(file.data, null, 2) }] };
+  }
+
+  private async driveEmptyTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.drive.files.emptyTrash({});
+    return { content: [{ type: 'text', text: 'Trash emptied successfully' }] };
+  }
+
+  private async driveGenerateIds(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const ids = await this.drive.files.generateIds({ count: args.count || 10 });
+    return { content: [{ type: 'text', text: JSON.stringify(ids.data, null, 2) }] };
+  }
+
+  private async driveWatchFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const channel = await this.drive.files.watch({ fileId: args.fileId, requestBody: { id: args.id, type: args.type, address: args.address } });
+    return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+  }
+
+  private async calendarEventInstances(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const instances = await this.calendar.events.instances({ calendarId: args.calendarId, eventId: args.eventId });
+    return { content: [{ type: 'text', text: JSON.stringify(instances.data, null, 2) }] };
+  }
+
+  private async calendarEventMove(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const event = await this.calendar.events.move({ calendarId: args.calendarId, eventId: args.eventId, destination: args.destination });
+    return { content: [{ type: 'text', text: JSON.stringify(event.data, null, 2) }] };
+  }
+
+  private async calendarEventPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const event = await this.calendar.events.patch({ calendarId: args.calendarId, eventId: args.eventId, requestBody: args.updates });
+    return { content: [{ type: 'text', text: JSON.stringify(event.data, null, 2) }] };
+  }
+
+  private async calendarFreebusyQuery(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const freebusy = await this.calendar.freebusy.query({ requestBody: { timeMin: args.timeMin, timeMax: args.timeMax, items: args.items } });
+    return { content: [{ type: 'text', text: JSON.stringify(freebusy.data, null, 2) }] };
+  }
+
+  // PHASE 4-6: LOW PRIORITY + DOCS + SLIDES (16 handlers)
+  private async calendarColorsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const colors = await this.calendar.colors.get({});
+    return { content: [{ type: 'text', text: JSON.stringify(colors.data, null, 2) }] };
+  }
+
+  private async calendarSettingsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const settings = await this.calendar.settings.list({});
+    return { content: [{ type: 'text', text: JSON.stringify(settings.data, null, 2) }] };
+  }
+
+  private async calendarSettingsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const setting = await this.calendar.settings.get({ setting: args.setting });
+    return { content: [{ type: 'text', text: JSON.stringify(setting.data, null, 2) }] };
+  }
+
+  private async calendarSettingsWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const channel = await this.calendar.settings.watch({ requestBody: { id: args.id, type: args.type, address: args.address } });
+    return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+  }
+
+  private async gmailHistoryList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const history = await this.gmail.users.history.list({ userId: args.userId || 'me', startHistoryId: args.startHistoryId });
+    return { content: [{ type: 'text', text: JSON.stringify(history.data, null, 2) }] };
+  }
+
+  private async formsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const form = await this.forms.forms.create({ requestBody: { info: { title: args.title } } });
+    return { content: [{ type: 'text', text: JSON.stringify(form.data, null, 2) }] };
+  }
+
+  private async formsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.forms.forms.batchUpdate({ formId: args.formId, requestBody: { requests: args.requests } });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async formsGetResponses(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const responses = await this.forms.forms.responses.list({ formId: args.formId });
+    return { content: [{ type: 'text', text: JSON.stringify(responses.data, null, 2) }] };
+  }
+
+  private async formsGetResponse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const response = await this.forms.forms.responses.get({ formId: args.formId, responseId: args.responseId });
+    return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
+  }
+
+  private async docsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const doc = await this.docs.documents.create({ requestBody: { title: args.title } });
+    return { content: [{ type: 'text', text: JSON.stringify(doc.data, null, 2) }] };
+  }
+
+  private async docsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const doc = await this.docs.documents.get({ documentId: args.documentId });
+    return { content: [{ type: 'text', text: JSON.stringify(doc.data, null, 2) }] };
+  }
+
+  private async docsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.docs.documents.batchUpdate({ documentId: args.documentId, requestBody: { requests: args.requests } });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async slidesCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const presentation = await this.slides.presentations.create({ requestBody: { title: args.title } });
+    return { content: [{ type: 'text', text: JSON.stringify(presentation.data, null, 2) }] };
+  }
+
+  private async slidesBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const result = await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests: args.requests } });
+    return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+  }
+
+  private async slidesGetPage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const presentation = await this.slides.presentations.get({ presentationId: args.presentationId });
+    const page = presentation.data.slides?.find((s: any) => s.objectId === args.pageObjectId);
+    return { content: [{ type: 'text', text: JSON.stringify(page, null, 2) }] };
+  }
+
+  private async slidesGetPageThumbnail(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const thumbnail = await this.slides.presentations.pages.getThumbnail({ presentationId: args.presentationId, pageObjectId: args.pageObjectId });
+    return { content: [{ type: 'text', text: JSON.stringify(thumbnail.data, null, 2) }] };
+  }
 
 }
 

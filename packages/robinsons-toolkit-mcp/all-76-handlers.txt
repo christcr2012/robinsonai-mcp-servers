@@ -1,0 +1,252 @@
+private async calendarCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendars.insert({
+    requestBody: {
+      summary: args.summary,
+      description: args.description,
+      timeZone: args.timeZone || 'UTC',
+      location: args.location
+    }
+  });
+
+private async calendarGetCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendars.get({ calendarId: args.calendarId });
+
+private async calendarUpdateCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendars.update({
+    calendarId: args.calendarId,
+    requestBody: { summary: args.summary, description: args.description, timeZone: args.timeZone, location: args.location }
+  });
+
+private async calendarPatchCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendars.patch({ calendarId: args.calendarId, requestBody: args.updates });
+
+private async calendarDeleteCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.calendar.calendars.delete({ calendarId: args.calendarId });
+
+private async calendarClearCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.calendar.calendars.clear({ calendarId: args.calendarId });
+
+private async drivePermissionsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const permissions = await this.drive.permissions.list({
+    fileId: args.fileId,
+    fields: 'permissions(id,type,role,emailAddress,domain,displayName)'
+  });
+
+private async drivePermissionsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const permission = await this.drive.permissions.get({
+    fileId: args.fileId,
+    permissionId: args.permissionId,
+    fields: 'id,type,role,emailAddress,domain,displayName'
+  });
+
+private async drivePermissionsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const permission = await this.drive.permissions.create({
+    fileId: args.fileId,
+    sendNotificationEmail: args.sendNotificationEmail !== false,
+    requestBody: { type: args.type, role: args.role, emailAddress: args.emailAddress, domain: args.domain }
+  });
+
+private async drivePermissionsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const permission = await this.drive.permissions.update({
+    fileId: args.fileId,
+    permissionId: args.permissionId,
+    requestBody: { role: args.role }
+  });
+
+private async drivePermissionsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.permissions.delete({ fileId: args.fileId, permissionId: args.permissionId });
+
+private async calendarListCalendars(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendars = await this.calendar.calendarList.list({ maxResults: args.maxResults || 250, showHidden: args.showHidden || false });
+
+private async calendarListInsert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendarList.insert({ requestBody: { id: args.calendarId, colorId: args.colorId, hidden: args.hidden } });
+
+private async calendarListGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendarList.get({ calendarId: args.calendarId });
+
+private async calendarListUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendarList.update({ calendarId: args.calendarId, requestBody: { colorId: args.colorId, hidden: args.hidden, summaryOverride: args.summaryOverride } });
+
+private async calendarListPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendarList.patch({ calendarId: args.calendarId, requestBody: args.updates });
+
+private async calendarListDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.calendar.calendarList.delete({ calendarId: args.calendarId });
+
+private async calendarListWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.calendar.calendarList.watch({ requestBody: { id: args.id, type: args.type, address: args.address } });
+
+private async gmailDraftsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const drafts = await this.gmail.users.drafts.list({ userId: args.userId || 'me', maxResults: args.maxResults, q: args.q });
+
+private async gmailDraftsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const draft = await this.gmail.users.drafts.get({ userId: args.userId || 'me', id: args.id });
+
+private async gmailDraftsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const message = `To: ${args.to}\nSubject: ${args.subject}\n\n${args.body}`;
+
+private async gmailDraftsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const message = `To: ${args.to}\nSubject: ${args.subject}\n\n${args.body}`;
+
+private async gmailDraftsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.gmail.users.drafts.delete({ userId: args.userId || 'me', id: args.id });
+
+private async gmailDraftsSend(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const message = await this.gmail.users.drafts.send({ userId: args.userId || 'me', requestBody: { id: args.id } });
+
+private async gmailThreadsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const threads = await this.gmail.users.threads.list({ userId: args.userId || 'me', maxResults: args.maxResults, q: args.q });
+
+private async gmailThreadsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thread = await this.gmail.users.threads.get({ userId: args.userId || 'me', id: args.id });
+
+private async gmailThreadsModify(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thread = await this.gmail.users.threads.modify({ userId: args.userId || 'me', id: args.id, requestBody: { addLabelIds: args.addLabelIds, removeLabelIds: args.removeLabelIds } });
+
+private async gmailThreadsTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thread = await this.gmail.users.threads.trash({ userId: args.userId || 'me', id: args.id });
+
+private async gmailThreadsUntrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thread = await this.gmail.users.threads.untrash({ userId: args.userId || 'me', id: args.id });
+
+private async gmailThreadsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.gmail.users.threads.delete({ userId: args.userId || 'me', id: args.id });
+
+private async sheetsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const spreadsheet = await this.sheets.spreadsheets.create({ requestBody: { properties: { title: args.title } } });
+
+private async sheetsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.sheets.spreadsheets.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { requests: args.requests } });
+
+private async sheetsValuesAppend(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.sheets.spreadsheets.values.append({ spreadsheetId: args.spreadsheetId, range: args.range, valueInputOption: 'USER_ENTERED', requestBody: { values: args.values } });
+
+private async sheetsValuesBatchGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.sheets.spreadsheets.values.batchGet({ spreadsheetId: args.spreadsheetId, ranges: args.ranges });
+
+private async sheetsValuesBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.sheets.spreadsheets.values.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { valueInputOption: 'USER_ENTERED', data: args.data } });
+
+private async calendarAclList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const acl = await this.calendar.acl.list({ calendarId: args.calendarId });
+
+private async calendarAclGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.get({ calendarId: args.calendarId, ruleId: args.ruleId });
+
+private async calendarAclInsert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.insert({ calendarId: args.calendarId, requestBody: { scope: args.scope, role: args.role } });
+
+private async calendarAclUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.update({ calendarId: args.calendarId, ruleId: args.ruleId, requestBody: { role: args.role } });
+
+private async calendarAclPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.patch({ calendarId: args.calendarId, ruleId: args.ruleId, requestBody: args.updates });
+
+private async calendarAclDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.calendar.acl.delete({ calendarId: args.calendarId, ruleId: args.ruleId });
+
+private async calendarAclWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.calendar.acl.watch({ calendarId: args.calendarId, requestBody: { id: args.id, type: args.type, address: args.address } });
+
+private async driveCommentsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comments = await this.drive.comments.list({ fileId: args.fileId, fields: 'comments(id,content,author,createdTime)' });
+
+private async driveCommentsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comment = await this.drive.comments.get({ fileId: args.fileId, commentId: args.commentId, fields: 'id,content,author,createdTime' });
+
+private async driveCommentsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comment = await this.drive.comments.create({ fileId: args.fileId, requestBody: { content: args.content } });
+
+private async driveCommentsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comment = await this.drive.comments.update({ fileId: args.fileId, commentId: args.commentId, requestBody: { content: args.content } });
+
+private async driveCommentsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.comments.delete({ fileId: args.fileId, commentId: args.commentId });
+
+private async driveRepliesList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const replies = await this.drive.replies.list({ fileId: args.fileId, commentId: args.commentId, fields: 'replies(id,content,author,createdTime)' });
+
+private async driveRepliesGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const reply = await this.drive.replies.get({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId, fields: 'id,content,author,createdTime' });
+
+private async driveRepliesCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const reply = await this.drive.replies.create({ fileId: args.fileId, commentId: args.commentId, requestBody: { content: args.content } });
+
+private async driveRepliesUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const reply = await this.drive.replies.update({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId, requestBody: { content: args.content } });
+
+private async driveRepliesDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.replies.delete({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId });
+
+private async driveCopyFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const file = await this.drive.files.copy({ fileId: args.fileId, requestBody: { name: args.name } });
+
+private async driveEmptyTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.files.emptyTrash({});
+
+private async driveGenerateIds(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const ids = await this.drive.files.generateIds({ count: args.count || 10 });
+
+private async driveWatchFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.drive.files.watch({ fileId: args.fileId, requestBody: { id: args.id, type: args.type, address: args.address } });
+
+private async calendarEventInstances(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const instances = await this.calendar.events.instances({ calendarId: args.calendarId, eventId: args.eventId });
+
+private async calendarEventMove(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const event = await this.calendar.events.move({ calendarId: args.calendarId, eventId: args.eventId, destination: args.destination });
+
+private async calendarEventPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const event = await this.calendar.events.patch({ calendarId: args.calendarId, eventId: args.eventId, requestBody: args.updates });
+
+private async calendarFreebusyQuery(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const freebusy = await this.calendar.freebusy.query({ requestBody: { timeMin: args.timeMin, timeMax: args.timeMax, items: args.items } });
+
+private async calendarColorsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const colors = await this.calendar.colors.get({});
+
+private async calendarSettingsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const settings = await this.calendar.settings.list({});
+
+private async calendarSettingsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const setting = await this.calendar.settings.get({ setting: args.setting });
+
+private async calendarSettingsWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.calendar.settings.watch({ requestBody: { id: args.id, type: args.type, address: args.address } });
+
+private async gmailHistoryList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const history = await this.gmail.users.history.list({ userId: args.userId || 'me', startHistoryId: args.startHistoryId });
+
+private async formsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const form = await this.forms.forms.create({ requestBody: { info: { title: args.title } } });
+
+private async formsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.forms.forms.batchUpdate({ formId: args.formId, requestBody: { requests: args.requests } });
+
+private async formsGetResponses(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const responses = await this.forms.forms.responses.list({ formId: args.formId });
+
+private async formsGetResponse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const response = await this.forms.forms.responses.get({ formId: args.formId, responseId: args.responseId });
+
+private async docsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const doc = await this.docs.documents.create({ requestBody: { title: args.title } });
+
+private async docsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const doc = await this.docs.documents.get({ documentId: args.documentId });
+
+private async docsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.docs.documents.batchUpdate({ documentId: args.documentId, requestBody: { requests: args.requests } });
+
+private async slidesCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const presentation = await this.slides.presentations.create({ requestBody: { title: args.title } });
+
+private async slidesBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests: args.requests } });
+
+private async slidesGetPage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const presentation = await this.slides.presentations.get({ presentationId: args.presentationId });
+
+private async slidesGetPageThumbnail(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thumbnail = await this.slides.presentations.pages.getThumbnail({ presentationId: args.presentationId, pageObjectId: args.pageObjectId });

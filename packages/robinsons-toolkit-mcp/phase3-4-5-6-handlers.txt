@@ -1,0 +1,208 @@
+private async calendarAclList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const acl = await this.calendar.acl.list({ calendarId: args.calendarId });
+  return { content: [{ type: 'text', text: JSON.stringify(acl.data, null, 2) }] };
+}
+
+private async calendarAclGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.get({ calendarId: args.calendarId, ruleId: args.ruleId });
+  return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+}
+
+private async calendarAclInsert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.insert({ calendarId: args.calendarId, requestBody: { scope: args.scope, role: args.role } });
+  return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+}
+
+private async calendarAclUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.update({ calendarId: args.calendarId, ruleId: args.ruleId, requestBody: { role: args.role } });
+  return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+}
+
+private async calendarAclPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.patch({ calendarId: args.calendarId, ruleId: args.ruleId, requestBody: args.updates });
+  return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+}
+
+private async calendarAclDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.calendar.acl.delete({ calendarId: args.calendarId, ruleId: args.ruleId });
+  return { content: [{ type: 'text', text: 'ACL rule deleted successfully' }] };
+}
+
+private async calendarAclWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.calendar.acl.watch({ calendarId: args.calendarId, requestBody: { id: args.id, type: args.type, address: args.address } });
+  return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+}
+
+private async driveCommentsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comments = await this.drive.comments.list({ fileId: args.fileId, fields: 'comments(id,content,author,createdTime)' });
+  return { content: [{ type: 'text', text: JSON.stringify(comments.data, null, 2) }] };
+}
+
+private async driveCommentsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comment = await this.drive.comments.get({ fileId: args.fileId, commentId: args.commentId, fields: 'id,content,author,createdTime' });
+  return { content: [{ type: 'text', text: JSON.stringify(comment.data, null, 2) }] };
+}
+
+private async driveCommentsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comment = await this.drive.comments.create({ fileId: args.fileId, requestBody: { content: args.content } });
+  return { content: [{ type: 'text', text: JSON.stringify(comment.data, null, 2) }] };
+}
+
+private async driveCommentsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comment = await this.drive.comments.update({ fileId: args.fileId, commentId: args.commentId, requestBody: { content: args.content } });
+  return { content: [{ type: 'text', text: JSON.stringify(comment.data, null, 2) }] };
+}
+
+private async driveCommentsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.comments.delete({ fileId: args.fileId, commentId: args.commentId });
+  return { content: [{ type: 'text', text: 'Comment deleted successfully' }] };
+}
+
+private async driveRepliesList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const replies = await this.drive.replies.list({ fileId: args.fileId, commentId: args.commentId, fields: 'replies(id,content,author,createdTime)' });
+  return { content: [{ type: 'text', text: JSON.stringify(replies.data, null, 2) }] };
+}
+
+private async driveRepliesGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const reply = await this.drive.replies.get({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId, fields: 'id,content,author,createdTime' });
+  return { content: [{ type: 'text', text: JSON.stringify(reply.data, null, 2) }] };
+}
+
+private async driveRepliesCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const reply = await this.drive.replies.create({ fileId: args.fileId, commentId: args.commentId, requestBody: { content: args.content } });
+  return { content: [{ type: 'text', text: JSON.stringify(reply.data, null, 2) }] };
+}
+
+private async driveRepliesUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const reply = await this.drive.replies.update({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId, requestBody: { content: args.content } });
+  return { content: [{ type: 'text', text: JSON.stringify(reply.data, null, 2) }] };
+}
+
+private async driveRepliesDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.replies.delete({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId });
+  return { content: [{ type: 'text', text: 'Reply deleted successfully' }] };
+}
+
+private async driveCopyFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const file = await this.drive.files.copy({ fileId: args.fileId, requestBody: { name: args.name } });
+  return { content: [{ type: 'text', text: JSON.stringify(file.data, null, 2) }] };
+}
+
+private async driveEmptyTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.files.emptyTrash({});
+  return { content: [{ type: 'text', text: 'Trash emptied successfully' }] };
+}
+
+private async driveGenerateIds(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const ids = await this.drive.files.generateIds({ count: args.count || 10 });
+  return { content: [{ type: 'text', text: JSON.stringify(ids.data, null, 2) }] };
+}
+
+private async driveWatchFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.drive.files.watch({ fileId: args.fileId, requestBody: { id: args.id, type: args.type, address: args.address } });
+  return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+}
+
+private async calendarEventInstances(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const instances = await this.calendar.events.instances({ calendarId: args.calendarId, eventId: args.eventId });
+  return { content: [{ type: 'text', text: JSON.stringify(instances.data, null, 2) }] };
+}
+
+private async calendarEventMove(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const event = await this.calendar.events.move({ calendarId: args.calendarId, eventId: args.eventId, destination: args.destination });
+  return { content: [{ type: 'text', text: JSON.stringify(event.data, null, 2) }] };
+}
+
+private async calendarEventPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const event = await this.calendar.events.patch({ calendarId: args.calendarId, eventId: args.eventId, requestBody: args.updates });
+  return { content: [{ type: 'text', text: JSON.stringify(event.data, null, 2) }] };
+}
+
+private async calendarFreebusyQuery(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const freebusy = await this.calendar.freebusy.query({ requestBody: { timeMin: args.timeMin, timeMax: args.timeMax, items: args.items } });
+  return { content: [{ type: 'text', text: JSON.stringify(freebusy.data, null, 2) }] };
+}
+
+
+
+private async calendarColorsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const colors = await this.calendar.colors.get({});
+  return { content: [{ type: 'text', text: JSON.stringify(colors.data, null, 2) }] };
+}
+
+private async calendarSettingsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const settings = await this.calendar.settings.list({});
+  return { content: [{ type: 'text', text: JSON.stringify(settings.data, null, 2) }] };
+}
+
+private async calendarSettingsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const setting = await this.calendar.settings.get({ setting: args.setting });
+  return { content: [{ type: 'text', text: JSON.stringify(setting.data, null, 2) }] };
+}
+
+private async calendarSettingsWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.calendar.settings.watch({ requestBody: { id: args.id, type: args.type, address: args.address } });
+  return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+}
+
+private async gmailHistoryList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const history = await this.gmail.users.history.list({ userId: args.userId || 'me', startHistoryId: args.startHistoryId });
+  return { content: [{ type: 'text', text: JSON.stringify(history.data, null, 2) }] };
+}
+
+private async formsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const form = await this.forms.forms.create({ requestBody: { info: { title: args.title } } });
+  return { content: [{ type: 'text', text: JSON.stringify(form.data, null, 2) }] };
+}
+
+private async formsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.forms.forms.batchUpdate({ formId: args.formId, requestBody: { requests: args.requests } });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
+private async formsGetResponses(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const responses = await this.forms.forms.responses.list({ formId: args.formId });
+  return { content: [{ type: 'text', text: JSON.stringify(responses.data, null, 2) }] };
+}
+
+private async formsGetResponse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const response = await this.forms.forms.responses.get({ formId: args.formId, responseId: args.responseId });
+  return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
+}
+
+private async docsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const doc = await this.docs.documents.create({ requestBody: { title: args.title } });
+  return { content: [{ type: 'text', text: JSON.stringify(doc.data, null, 2) }] };
+}
+
+private async docsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const doc = await this.docs.documents.get({ documentId: args.documentId });
+  return { content: [{ type: 'text', text: JSON.stringify(doc.data, null, 2) }] };
+}
+
+private async docsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.docs.documents.batchUpdate({ documentId: args.documentId, requestBody: { requests: args.requests } });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
+private async slidesCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const presentation = await this.slides.presentations.create({ requestBody: { title: args.title } });
+  return { content: [{ type: 'text', text: JSON.stringify(presentation.data, null, 2) }] };
+}
+
+private async slidesBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests: args.requests } });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
+private async slidesGetPage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const presentation = await this.slides.presentations.get({ presentationId: args.presentationId });
+  const page = presentation.data.slides?.find((s: any) => s.objectId === args.pageObjectId);
+  return { content: [{ type: 'text', text: JSON.stringify(page, null, 2) }] };
+}
+
+private async slidesGetPageThumbnail(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thumbnail = await this.slides.presentations.pages.getThumbnail({ presentationId: args.presentationId, pageObjectId: args.pageObjectId });
+  return { content: [{ type: 'text', text: JSON.stringify(thumbnail.data, null, 2) }] };
+}
+

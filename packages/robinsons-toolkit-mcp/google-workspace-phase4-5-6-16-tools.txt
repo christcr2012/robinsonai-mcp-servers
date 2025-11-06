@@ -1,0 +1,127 @@
+// ========== PHASE 4: LOW PRIORITY (9 tools) ==========
+// Calendar Colors/Settings (4) + Gmail History (1) + Forms (4)
+
+// ========== PHASE 5: DOCS API (3 tools) ==========
+// Google Docs API
+
+// ========== PHASE 6: SLIDES API (4 tools) ==========
+// Google Slides API
+
+// ===== TOOL DEFINITIONS =====
+{ name: 'calendar_colors_get', description: 'Get color definitions', inputSchema: { type: 'object', properties: {} } },
+{ name: 'calendar_settings_list', description: 'List calendar settings', inputSchema: { type: 'object', properties: {} } },
+{ name: 'calendar_settings_get', description: 'Get calendar setting', inputSchema: { type: 'object', properties: { setting: { type: 'string' } }, required: ['setting'] } },
+{ name: 'calendar_settings_watch', description: 'Watch calendar settings', inputSchema: { type: 'object', properties: { address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['address', 'type', 'id'] } },
+{ name: 'gmail_history_list', description: 'List mailbox history', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, startHistoryId: { type: 'string' } }, required: ['startHistoryId'] } },
+{ name: 'forms_create', description: 'Create form', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+{ name: 'forms_batch_update', description: 'Batch update form', inputSchema: { type: 'object', properties: { formId: { type: 'string' }, requests: { type: 'array' } }, required: ['formId', 'requests'] } },
+{ name: 'forms_get_responses', description: 'Get form responses', inputSchema: { type: 'object', properties: { formId: { type: 'string' } }, required: ['formId'] } },
+{ name: 'forms_get_response', description: 'Get form response', inputSchema: { type: 'object', properties: { formId: { type: 'string' }, responseId: { type: 'string' } }, required: ['formId', 'responseId'] } },
+{ name: 'docs_create', description: 'Create Google Doc', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+{ name: 'docs_get', description: 'Get Google Doc', inputSchema: { type: 'object', properties: { documentId: { type: 'string' } }, required: ['documentId'] } },
+{ name: 'docs_batch_update', description: 'Batch update Google Doc', inputSchema: { type: 'object', properties: { documentId: { type: 'string' }, requests: { type: 'array' } }, required: ['documentId', 'requests'] } },
+{ name: 'slides_create', description: 'Create presentation', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+{ name: 'slides_batch_update', description: 'Batch update presentation', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, requests: { type: 'array' } }, required: ['presentationId', 'requests'] } },
+{ name: 'slides_get_page', description: 'Get presentation page', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, pageObjectId: { type: 'string' } }, required: ['presentationId', 'pageObjectId'] } },
+{ name: 'slides_get_page_thumbnail', description: 'Get page thumbnail', inputSchema: { type: 'object', properties: { presentationId: { type: 'string' }, pageObjectId: { type: 'string' } }, required: ['presentationId', 'pageObjectId'] } },
+
+// ===== CASE STATEMENTS =====
+case 'calendar_colors_get': return await this.calendarColorsGet(args);
+case 'calendar_settings_list': return await this.calendarSettingsList(args);
+case 'calendar_settings_get': return await this.calendarSettingsGet(args);
+case 'calendar_settings_watch': return await this.calendarSettingsWatch(args);
+case 'gmail_history_list': return await this.gmailHistoryList(args);
+case 'forms_create': return await this.formsCreate(args);
+case 'forms_batch_update': return await this.formsBatchUpdate(args);
+case 'forms_get_responses': return await this.formsGetResponses(args);
+case 'forms_get_response': return await this.formsGetResponse(args);
+case 'docs_create': return await this.docsCreate(args);
+case 'docs_get': return await this.docsGet(args);
+case 'docs_batch_update': return await this.docsBatchUpdate(args);
+case 'slides_create': return await this.slidesCreate(args);
+case 'slides_batch_update': return await this.slidesBatchUpdate(args);
+case 'slides_get_page': return await this.slidesGetPage(args);
+case 'slides_get_page_thumbnail': return await this.slidesGetPageThumbnail(args);
+
+// ===== HANDLER METHODS =====
+private async calendarColorsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const colors = await this.calendar.colors.get({});
+  return { content: [{ type: 'text', text: JSON.stringify(colors.data, null, 2) }] };
+}
+
+private async calendarSettingsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const settings = await this.calendar.settings.list({});
+  return { content: [{ type: 'text', text: JSON.stringify(settings.data, null, 2) }] };
+}
+
+private async calendarSettingsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const setting = await this.calendar.settings.get({ setting: args.setting });
+  return { content: [{ type: 'text', text: JSON.stringify(setting.data, null, 2) }] };
+}
+
+private async calendarSettingsWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.calendar.settings.watch({ requestBody: { id: args.id, type: args.type, address: args.address } });
+  return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+}
+
+private async gmailHistoryList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const history = await this.gmail.users.history.list({ userId: args.userId || 'me', startHistoryId: args.startHistoryId });
+  return { content: [{ type: 'text', text: JSON.stringify(history.data, null, 2) }] };
+}
+
+private async formsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const form = await this.forms.forms.create({ requestBody: { info: { title: args.title } } });
+  return { content: [{ type: 'text', text: JSON.stringify(form.data, null, 2) }] };
+}
+
+private async formsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.forms.forms.batchUpdate({ formId: args.formId, requestBody: { requests: args.requests } });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
+private async formsGetResponses(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const responses = await this.forms.forms.responses.list({ formId: args.formId });
+  return { content: [{ type: 'text', text: JSON.stringify(responses.data, null, 2) }] };
+}
+
+private async formsGetResponse(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const response = await this.forms.forms.responses.get({ formId: args.formId, responseId: args.responseId });
+  return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
+}
+
+private async docsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const doc = await this.docs.documents.create({ requestBody: { title: args.title } });
+  return { content: [{ type: 'text', text: JSON.stringify(doc.data, null, 2) }] };
+}
+
+private async docsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const doc = await this.docs.documents.get({ documentId: args.documentId });
+  return { content: [{ type: 'text', text: JSON.stringify(doc.data, null, 2) }] };
+}
+
+private async docsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.docs.documents.batchUpdate({ documentId: args.documentId, requestBody: { requests: args.requests } });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
+private async slidesCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const presentation = await this.slides.presentations.create({ requestBody: { title: args.title } });
+  return { content: [{ type: 'text', text: JSON.stringify(presentation.data, null, 2) }] };
+}
+
+private async slidesBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.slides.presentations.batchUpdate({ presentationId: args.presentationId, requestBody: { requests: args.requests } });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
+private async slidesGetPage(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const presentation = await this.slides.presentations.get({ presentationId: args.presentationId });
+  const page = presentation.data.slides?.find((s: any) => s.objectId === args.pageObjectId);
+  return { content: [{ type: 'text', text: JSON.stringify(page, null, 2) }] };
+}
+
+private async slidesGetPageThumbnail(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thumbnail = await this.slides.presentations.pages.getThumbnail({ presentationId: args.presentationId, pageObjectId: args.pageObjectId });
+  return { content: [{ type: 'text', text: JSON.stringify(thumbnail.data, null, 2) }] };
+}
+

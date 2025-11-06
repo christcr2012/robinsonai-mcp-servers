@@ -1,0 +1,103 @@
+private async calendarCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendars.insert({
+      requestBody: {
+        summary: args.summary,
+        description: args.description,
+        timeZone: args.timeZone || 'UTC',
+        location: args.location
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+private async calendarGetCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendars.get({
+      calendarId: args.calendarId
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+private async calendarUpdateCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendars.update({
+      calendarId: args.calendarId,
+      requestBody: {
+        summary: args.summary,
+        description: args.description,
+        timeZone: args.timeZone,
+        location: args.location
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+private async calendarPatchCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const calendar = await this.calendar.calendars.patch({
+      calendarId: args.calendarId,
+      requestBody: args.updates
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+  }
+
+private async calendarDeleteCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.calendar.calendars.delete({
+      calendarId: args.calendarId
+    });
+    return { content: [{ type: 'text', text: 'Calendar deleted successfully' }] };
+  }
+
+private async calendarClearCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.calendar.calendars.clear({
+      calendarId: args.calendarId
+    });
+    return { content: [{ type: 'text', text: 'Calendar cleared successfully' }] };
+  }
+
+private async drivePermissionsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const permissions = await this.drive.permissions.list({
+      fileId: args.fileId,
+      fields: 'permissions(id,type,role,emailAddress,domain,displayName)'
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(permissions.data, null, 2) }] };
+  }
+
+private async drivePermissionsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const permission = await this.drive.permissions.get({
+      fileId: args.fileId,
+      permissionId: args.permissionId,
+      fields: 'id,type,role,emailAddress,domain,displayName'
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(permission.data, null, 2) }] };
+  }
+
+private async drivePermissionsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const permission = await this.drive.permissions.create({
+      fileId: args.fileId,
+      sendNotificationEmail: args.sendNotificationEmail !== false,
+      requestBody: {
+        type: args.type,
+        role: args.role,
+        emailAddress: args.emailAddress,
+        domain: args.domain
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(permission.data, null, 2) }] };
+  }
+
+private async drivePermissionsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    const permission = await this.drive.permissions.update({
+      fileId: args.fileId,
+      permissionId: args.permissionId,
+      requestBody: {
+        role: args.role
+      }
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(permission.data, null, 2) }] };
+  }
+
+private async drivePermissionsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    await this.drive.permissions.delete({
+      fileId: args.fileId,
+      permissionId: args.permissionId
+    });
+    return { content: [{ type: 'text', text: 'Permission deleted successfully' }] };
+  }

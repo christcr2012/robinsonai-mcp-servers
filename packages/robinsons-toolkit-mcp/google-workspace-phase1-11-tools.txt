@@ -1,0 +1,110 @@
+// ========== PHASE 1: CRITICAL (11 tools) ==========
+// Calendar Calendars Resource (6 tools) + Drive Permissions (5 tools)
+
+// ===== TOOL DEFINITIONS =====
+{ name: 'calendar_create', description: 'Create a secondary calendar', inputSchema: { type: 'object', properties: { summary: { type: 'string' }, description: { type: 'string' }, timeZone: { type: 'string' }, location: { type: 'string' } }, required: ['summary'] } },
+{ name: 'calendar_get_calendar', description: 'Get calendar metadata', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+{ name: 'calendar_update_calendar', description: 'Update calendar metadata', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, summary: { type: 'string' }, description: { type: 'string' }, timeZone: { type: 'string' }, location: { type: 'string' } }, required: ['calendarId'] } },
+{ name: 'calendar_patch_calendar', description: 'Patch calendar metadata', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, updates: { type: 'object' } }, required: ['calendarId', 'updates'] } },
+{ name: 'calendar_delete_calendar', description: 'Delete a secondary calendar', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+{ name: 'calendar_clear_calendar', description: 'Clear all events from primary calendar', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+{ name: 'drive_permissions_list', description: 'List file permissions', inputSchema: { type: 'object', properties: { fileId: { type: 'string' } }, required: ['fileId'] } },
+{ name: 'drive_permissions_get', description: 'Get file permission', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, permissionId: { type: 'string' } }, required: ['fileId', 'permissionId'] } },
+{ name: 'drive_permissions_create', description: 'Create file permission (share file)', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, type: { type: 'string' }, role: { type: 'string' }, emailAddress: { type: 'string' }, domain: { type: 'string' }, sendNotificationEmail: { type: 'boolean' } }, required: ['fileId', 'type', 'role'] } },
+{ name: 'drive_permissions_update', description: 'Update file permission', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, permissionId: { type: 'string' }, role: { type: 'string' } }, required: ['fileId', 'permissionId', 'role'] } },
+{ name: 'drive_permissions_delete', description: 'Delete file permission (unshare)', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, permissionId: { type: 'string' } }, required: ['fileId', 'permissionId'] } },
+
+// ===== CASE STATEMENTS =====
+case 'calendar_create': return await this.calendarCreate(args);
+case 'calendar_get_calendar': return await this.calendarGetCalendar(args);
+case 'calendar_update_calendar': return await this.calendarUpdateCalendar(args);
+case 'calendar_patch_calendar': return await this.calendarPatchCalendar(args);
+case 'calendar_delete_calendar': return await this.calendarDeleteCalendar(args);
+case 'calendar_clear_calendar': return await this.calendarClearCalendar(args);
+case 'drive_permissions_list': return await this.drivePermissionsList(args);
+case 'drive_permissions_get': return await this.drivePermissionsGet(args);
+case 'drive_permissions_create': return await this.drivePermissionsCreate(args);
+case 'drive_permissions_update': return await this.drivePermissionsUpdate(args);
+case 'drive_permissions_delete': return await this.drivePermissionsDelete(args);
+
+// ===== HANDLER METHODS =====
+private async calendarCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendars.insert({
+    requestBody: {
+      summary: args.summary,
+      description: args.description,
+      timeZone: args.timeZone || 'UTC',
+      location: args.location
+    }
+  });
+  return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+}
+
+private async calendarGetCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendars.get({ calendarId: args.calendarId });
+  return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+}
+
+private async calendarUpdateCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendars.update({
+    calendarId: args.calendarId,
+    requestBody: { summary: args.summary, description: args.description, timeZone: args.timeZone, location: args.location }
+  });
+  return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+}
+
+private async calendarPatchCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendars.patch({ calendarId: args.calendarId, requestBody: args.updates });
+  return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+}
+
+private async calendarDeleteCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.calendar.calendars.delete({ calendarId: args.calendarId });
+  return { content: [{ type: 'text', text: 'Calendar deleted successfully' }] };
+}
+
+private async calendarClearCalendar(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.calendar.calendars.clear({ calendarId: args.calendarId });
+  return { content: [{ type: 'text', text: 'Calendar cleared successfully' }] };
+}
+
+private async drivePermissionsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const permissions = await this.drive.permissions.list({
+    fileId: args.fileId,
+    fields: 'permissions(id,type,role,emailAddress,domain,displayName)'
+  });
+  return { content: [{ type: 'text', text: JSON.stringify(permissions.data, null, 2) }] };
+}
+
+private async drivePermissionsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const permission = await this.drive.permissions.get({
+    fileId: args.fileId,
+    permissionId: args.permissionId,
+    fields: 'id,type,role,emailAddress,domain,displayName'
+  });
+  return { content: [{ type: 'text', text: JSON.stringify(permission.data, null, 2) }] };
+}
+
+private async drivePermissionsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const permission = await this.drive.permissions.create({
+    fileId: args.fileId,
+    sendNotificationEmail: args.sendNotificationEmail !== false,
+    requestBody: { type: args.type, role: args.role, emailAddress: args.emailAddress, domain: args.domain }
+  });
+  return { content: [{ type: 'text', text: JSON.stringify(permission.data, null, 2) }] };
+}
+
+private async drivePermissionsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const permission = await this.drive.permissions.update({
+    fileId: args.fileId,
+    permissionId: args.permissionId,
+    requestBody: { role: args.role }
+  });
+  return { content: [{ type: 'text', text: JSON.stringify(permission.data, null, 2) }] };
+}
+
+private async drivePermissionsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.permissions.delete({ fileId: args.fileId, permissionId: args.permissionId });
+  return { content: [{ type: 'text', text: 'Permission deleted successfully' }] };
+}
+

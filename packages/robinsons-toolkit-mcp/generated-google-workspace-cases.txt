@@ -1,0 +1,11 @@
+          case 'calendar_create': return await this.calendarCreate(args);
+          case 'calendar_get_calendar': return await this.calendarGetCalendar(args);
+          case 'calendar_update_calendar': return await this.calendarUpdateCalendar(args);
+          case 'calendar_patch_calendar': return await this.calendarPatchCalendar(args);
+          case 'calendar_delete_calendar': return await this.calendarDeleteCalendar(args);
+          case 'calendar_clear_calendar': return await this.calendarClearCalendar(args);
+          case 'drive_permissions_list': return await this.drivePermissionsList(args);
+          case 'drive_permissions_get': return await this.drivePermissionsGet(args);
+          case 'drive_permissions_create': return await this.drivePermissionsCreate(args);
+          case 'drive_permissions_update': return await this.drivePermissionsUpdate(args);
+          case 'drive_permissions_delete': return await this.drivePermissionsDelete(args);

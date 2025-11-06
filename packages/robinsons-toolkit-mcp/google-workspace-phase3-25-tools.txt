@@ -1,0 +1,183 @@
+// ========== PHASE 3: MEDIUM PRIORITY (25 tools) ==========
+// Calendar ACL (7) + Drive Comments (5) + Drive Replies (5) + Drive Misc (4) + Calendar Events (4)
+
+// ===== TOOL DEFINITIONS =====
+{ name: 'calendar_acl_list', description: 'List calendar ACL rules', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+{ name: 'calendar_acl_get', description: 'Get calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, ruleId: { type: 'string' } }, required: ['calendarId', 'ruleId'] } },
+{ name: 'calendar_acl_insert', description: 'Create calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, scope: { type: 'object' }, role: { type: 'string' } }, required: ['calendarId', 'scope', 'role'] } },
+{ name: 'calendar_acl_update', description: 'Update calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, ruleId: { type: 'string' }, role: { type: 'string' } }, required: ['calendarId', 'ruleId', 'role'] } },
+{ name: 'calendar_acl_patch', description: 'Patch calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, ruleId: { type: 'string' }, updates: { type: 'object' } }, required: ['calendarId', 'ruleId', 'updates'] } },
+{ name: 'calendar_acl_delete', description: 'Delete calendar ACL rule', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, ruleId: { type: 'string' } }, required: ['calendarId', 'ruleId'] } },
+{ name: 'calendar_acl_watch', description: 'Watch calendar ACL changes', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['calendarId', 'address', 'type', 'id'] } },
+{ name: 'drive_comments_list', description: 'List file comments', inputSchema: { type: 'object', properties: { fileId: { type: 'string' } }, required: ['fileId'] } },
+{ name: 'drive_comments_get', description: 'Get file comment', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' } }, required: ['fileId', 'commentId'] } },
+{ name: 'drive_comments_create', description: 'Create file comment', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, content: { type: 'string' } }, required: ['fileId', 'content'] } },
+{ name: 'drive_comments_update', description: 'Update file comment', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, content: { type: 'string' } }, required: ['fileId', 'commentId', 'content'] } },
+{ name: 'drive_comments_delete', description: 'Delete file comment', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' } }, required: ['fileId', 'commentId'] } },
+{ name: 'drive_replies_list', description: 'List comment replies', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' } }, required: ['fileId', 'commentId'] } },
+{ name: 'drive_replies_get', description: 'Get comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, replyId: { type: 'string' } }, required: ['fileId', 'commentId', 'replyId'] } },
+{ name: 'drive_replies_create', description: 'Create comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, content: { type: 'string' } }, required: ['fileId', 'commentId', 'content'] } },
+{ name: 'drive_replies_update', description: 'Update comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, replyId: { type: 'string' }, content: { type: 'string' } }, required: ['fileId', 'commentId', 'replyId', 'content'] } },
+{ name: 'drive_replies_delete', description: 'Delete comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, replyId: { type: 'string' } }, required: ['fileId', 'commentId', 'replyId'] } },
+{ name: 'drive_copy_file', description: 'Copy file', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, name: { type: 'string' } }, required: ['fileId'] } },
+{ name: 'drive_empty_trash', description: 'Empty trash', inputSchema: { type: 'object', properties: {} } },
+{ name: 'drive_generate_ids', description: 'Generate file IDs', inputSchema: { type: 'object', properties: { count: { type: 'number' } } } },
+{ name: 'drive_watch_file', description: 'Watch file for changes', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['fileId', 'address', 'type', 'id'] } },
+{ name: 'calendar_event_instances', description: 'Get recurring event instances', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, eventId: { type: 'string' } }, required: ['calendarId', 'eventId'] } },
+{ name: 'calendar_event_move', description: 'Move event to another calendar', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, eventId: { type: 'string' }, destination: { type: 'string' } }, required: ['calendarId', 'eventId', 'destination'] } },
+{ name: 'calendar_event_patch', description: 'Patch event', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, eventId: { type: 'string' }, updates: { type: 'object' } }, required: ['calendarId', 'eventId', 'updates'] } },
+{ name: 'calendar_freebusy_query', description: 'Query free/busy information', inputSchema: { type: 'object', properties: { timeMin: { type: 'string' }, timeMax: { type: 'string' }, items: { type: 'array' } }, required: ['timeMin', 'timeMax', 'items'] } },
+
+// ===== CASE STATEMENTS =====
+case 'calendar_acl_list': return await this.calendarAclList(args);
+case 'calendar_acl_get': return await this.calendarAclGet(args);
+case 'calendar_acl_insert': return await this.calendarAclInsert(args);
+case 'calendar_acl_update': return await this.calendarAclUpdate(args);
+case 'calendar_acl_patch': return await this.calendarAclPatch(args);
+case 'calendar_acl_delete': return await this.calendarAclDelete(args);
+case 'calendar_acl_watch': return await this.calendarAclWatch(args);
+case 'drive_comments_list': return await this.driveCommentsList(args);
+case 'drive_comments_get': return await this.driveCommentsGet(args);
+case 'drive_comments_create': return await this.driveCommentsCreate(args);
+case 'drive_comments_update': return await this.driveCommentsUpdate(args);
+case 'drive_comments_delete': return await this.driveCommentsDelete(args);
+case 'drive_replies_list': return await this.driveRepliesList(args);
+case 'drive_replies_get': return await this.driveRepliesGet(args);
+case 'drive_replies_create': return await this.driveRepliesCreate(args);
+case 'drive_replies_update': return await this.driveRepliesUpdate(args);
+case 'drive_replies_delete': return await this.driveRepliesDelete(args);
+case 'drive_copy_file': return await this.driveCopyFile(args);
+case 'drive_empty_trash': return await this.driveEmptyTrash(args);
+case 'drive_generate_ids': return await this.driveGenerateIds(args);
+case 'drive_watch_file': return await this.driveWatchFile(args);
+case 'calendar_event_instances': return await this.calendarEventInstances(args);
+case 'calendar_event_move': return await this.calendarEventMove(args);
+case 'calendar_event_patch': return await this.calendarEventPatch(args);
+case 'calendar_freebusy_query': return await this.calendarFreebusyQuery(args);
+
+// ===== HANDLER METHODS =====
+private async calendarAclList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const acl = await this.calendar.acl.list({ calendarId: args.calendarId });
+  return { content: [{ type: 'text', text: JSON.stringify(acl.data, null, 2) }] };
+}
+
+private async calendarAclGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.get({ calendarId: args.calendarId, ruleId: args.ruleId });
+  return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+}
+
+private async calendarAclInsert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.insert({ calendarId: args.calendarId, requestBody: { scope: args.scope, role: args.role } });
+  return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+}
+
+private async calendarAclUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.update({ calendarId: args.calendarId, ruleId: args.ruleId, requestBody: { role: args.role } });
+  return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+}
+
+private async calendarAclPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const rule = await this.calendar.acl.patch({ calendarId: args.calendarId, ruleId: args.ruleId, requestBody: args.updates });
+  return { content: [{ type: 'text', text: JSON.stringify(rule.data, null, 2) }] };
+}
+
+private async calendarAclDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.calendar.acl.delete({ calendarId: args.calendarId, ruleId: args.ruleId });
+  return { content: [{ type: 'text', text: 'ACL rule deleted successfully' }] };
+}
+
+private async calendarAclWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.calendar.acl.watch({ calendarId: args.calendarId, requestBody: { id: args.id, type: args.type, address: args.address } });
+  return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+}
+
+private async driveCommentsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comments = await this.drive.comments.list({ fileId: args.fileId, fields: 'comments(id,content,author,createdTime)' });
+  return { content: [{ type: 'text', text: JSON.stringify(comments.data, null, 2) }] };
+}
+
+private async driveCommentsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comment = await this.drive.comments.get({ fileId: args.fileId, commentId: args.commentId, fields: 'id,content,author,createdTime' });
+  return { content: [{ type: 'text', text: JSON.stringify(comment.data, null, 2) }] };
+}
+
+private async driveCommentsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comment = await this.drive.comments.create({ fileId: args.fileId, requestBody: { content: args.content } });
+  return { content: [{ type: 'text', text: JSON.stringify(comment.data, null, 2) }] };
+}
+
+private async driveCommentsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const comment = await this.drive.comments.update({ fileId: args.fileId, commentId: args.commentId, requestBody: { content: args.content } });
+  return { content: [{ type: 'text', text: JSON.stringify(comment.data, null, 2) }] };
+}
+
+private async driveCommentsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.comments.delete({ fileId: args.fileId, commentId: args.commentId });
+  return { content: [{ type: 'text', text: 'Comment deleted successfully' }] };
+}
+
+private async driveRepliesList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const replies = await this.drive.replies.list({ fileId: args.fileId, commentId: args.commentId, fields: 'replies(id,content,author,createdTime)' });
+  return { content: [{ type: 'text', text: JSON.stringify(replies.data, null, 2) }] };
+}
+
+private async driveRepliesGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const reply = await this.drive.replies.get({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId, fields: 'id,content,author,createdTime' });
+  return { content: [{ type: 'text', text: JSON.stringify(reply.data, null, 2) }] };
+}
+
+private async driveRepliesCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const reply = await this.drive.replies.create({ fileId: args.fileId, commentId: args.commentId, requestBody: { content: args.content } });
+  return { content: [{ type: 'text', text: JSON.stringify(reply.data, null, 2) }] };
+}
+
+private async driveRepliesUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const reply = await this.drive.replies.update({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId, requestBody: { content: args.content } });
+  return { content: [{ type: 'text', text: JSON.stringify(reply.data, null, 2) }] };
+}
+
+private async driveRepliesDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.replies.delete({ fileId: args.fileId, commentId: args.commentId, replyId: args.replyId });
+  return { content: [{ type: 'text', text: 'Reply deleted successfully' }] };
+}
+
+private async driveCopyFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const file = await this.drive.files.copy({ fileId: args.fileId, requestBody: { name: args.name } });
+  return { content: [{ type: 'text', text: JSON.stringify(file.data, null, 2) }] };
+}
+
+private async driveEmptyTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.drive.files.emptyTrash({});
+  return { content: [{ type: 'text', text: 'Trash emptied successfully' }] };
+}
+
+private async driveGenerateIds(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const ids = await this.drive.files.generateIds({ count: args.count || 10 });
+  return { content: [{ type: 'text', text: JSON.stringify(ids.data, null, 2) }] };
+}
+
+private async driveWatchFile(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.drive.files.watch({ fileId: args.fileId, requestBody: { id: args.id, type: args.type, address: args.address } });
+  return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+}
+
+private async calendarEventInstances(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const instances = await this.calendar.events.instances({ calendarId: args.calendarId, eventId: args.eventId });
+  return { content: [{ type: 'text', text: JSON.stringify(instances.data, null, 2) }] };
+}
+
+private async calendarEventMove(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const event = await this.calendar.events.move({ calendarId: args.calendarId, eventId: args.eventId, destination: args.destination });
+  return { content: [{ type: 'text', text: JSON.stringify(event.data, null, 2) }] };
+}
+
+private async calendarEventPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const event = await this.calendar.events.patch({ calendarId: args.calendarId, eventId: args.eventId, requestBody: args.updates });
+  return { content: [{ type: 'text', text: JSON.stringify(event.data, null, 2) }] };
+}
+
+private async calendarFreebusyQuery(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const freebusy = await this.calendar.freebusy.query({ requestBody: { timeMin: args.timeMin, timeMax: args.timeMax, items: args.items } });
+  return { content: [{ type: 'text', text: JSON.stringify(freebusy.data, null, 2) }] };
+}
+

@@ -1,0 +1,180 @@
+// ========== PHASE 2: HIGH PRIORITY (24 tools) ==========
+// CalendarList (7) + Gmail Drafts (6) + Gmail Threads (6) + Sheets (5)
+
+// ===== TOOL DEFINITIONS =====
+{ name: 'calendar_list_calendars', description: 'List user calendars', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' }, showHidden: { type: 'boolean' } } } },
+{ name: 'calendar_list_insert', description: 'Add existing calendar to user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, colorId: { type: 'string' }, hidden: { type: 'boolean' } }, required: ['calendarId'] } },
+{ name: 'calendar_list_get', description: 'Get calendar from user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+{ name: 'calendar_list_update', description: 'Update calendar in user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, colorId: { type: 'string' }, hidden: { type: 'boolean' }, summaryOverride: { type: 'string' } }, required: ['calendarId'] } },
+{ name: 'calendar_list_patch', description: 'Patch calendar in user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, updates: { type: 'object' } }, required: ['calendarId', 'updates'] } },
+{ name: 'calendar_list_delete', description: 'Remove calendar from user calendar list', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' } }, required: ['calendarId'] } },
+{ name: 'calendar_list_watch', description: 'Watch for calendar list changes', inputSchema: { type: 'object', properties: { address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['address', 'type', 'id'] } },
+{ name: 'gmail_drafts_list', description: 'List email drafts', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, maxResults: { type: 'number' }, q: { type: 'string' } } } },
+{ name: 'gmail_drafts_get', description: 'Get email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+{ name: 'gmail_drafts_create', description: 'Create email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, to: { type: 'string' }, subject: { type: 'string' }, body: { type: 'string' } }, required: ['to', 'subject', 'body'] } },
+{ name: 'gmail_drafts_update', description: 'Update email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' }, to: { type: 'string' }, subject: { type: 'string' }, body: { type: 'string' } }, required: ['id'] } },
+{ name: 'gmail_drafts_delete', description: 'Delete email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+{ name: 'gmail_drafts_send', description: 'Send email draft', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+{ name: 'gmail_threads_list', description: 'List email threads', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, maxResults: { type: 'number' }, q: { type: 'string' } } } },
+{ name: 'gmail_threads_get', description: 'Get email thread', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+{ name: 'gmail_threads_modify', description: 'Modify email thread labels', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' }, addLabelIds: { type: 'array' }, removeLabelIds: { type: 'array' } }, required: ['id'] } },
+{ name: 'gmail_threads_trash', description: 'Move thread to trash', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+{ name: 'gmail_threads_untrash', description: 'Remove thread from trash', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+{ name: 'gmail_threads_delete', description: 'Permanently delete thread', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, id: { type: 'string' } }, required: ['id'] } },
+{ name: 'sheets_create', description: 'Create spreadsheet', inputSchema: { type: 'object', properties: { title: { type: 'string' } }, required: ['title'] } },
+{ name: 'sheets_batch_update', description: 'Batch update spreadsheet', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, requests: { type: 'array' } }, required: ['spreadsheetId', 'requests'] } },
+{ name: 'sheets_values_append', description: 'Append values to range', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, range: { type: 'string' }, values: { type: 'array' } }, required: ['spreadsheetId', 'range', 'values'] } },
+{ name: 'sheets_values_batch_get', description: 'Batch get values from multiple ranges', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, ranges: { type: 'array' } }, required: ['spreadsheetId', 'ranges'] } },
+{ name: 'sheets_values_batch_update', description: 'Batch update values in multiple ranges', inputSchema: { type: 'object', properties: { spreadsheetId: { type: 'string' }, data: { type: 'array' } }, required: ['spreadsheetId', 'data'] } },
+
+// ===== CASE STATEMENTS =====
+case 'calendar_list_calendars': return await this.calendarListCalendars(args);
+case 'calendar_list_insert': return await this.calendarListInsert(args);
+case 'calendar_list_get': return await this.calendarListGet(args);
+case 'calendar_list_update': return await this.calendarListUpdate(args);
+case 'calendar_list_patch': return await this.calendarListPatch(args);
+case 'calendar_list_delete': return await this.calendarListDelete(args);
+case 'calendar_list_watch': return await this.calendarListWatch(args);
+case 'gmail_drafts_list': return await this.gmailDraftsList(args);
+case 'gmail_drafts_get': return await this.gmailDraftsGet(args);
+case 'gmail_drafts_create': return await this.gmailDraftsCreate(args);
+case 'gmail_drafts_update': return await this.gmailDraftsUpdate(args);
+case 'gmail_drafts_delete': return await this.gmailDraftsDelete(args);
+case 'gmail_drafts_send': return await this.gmailDraftsSend(args);
+case 'gmail_threads_list': return await this.gmailThreadsList(args);
+case 'gmail_threads_get': return await this.gmailThreadsGet(args);
+case 'gmail_threads_modify': return await this.gmailThreadsModify(args);
+case 'gmail_threads_trash': return await this.gmailThreadsTrash(args);
+case 'gmail_threads_untrash': return await this.gmailThreadsUntrash(args);
+case 'gmail_threads_delete': return await this.gmailThreadsDelete(args);
+case 'sheets_create': return await this.sheetsCreate(args);
+case 'sheets_batch_update': return await this.sheetsBatchUpdate(args);
+case 'sheets_values_append': return await this.sheetsValuesAppend(args);
+case 'sheets_values_batch_get': return await this.sheetsValuesBatchGet(args);
+case 'sheets_values_batch_update': return await this.sheetsValuesBatchUpdate(args);
+
+// ===== HANDLER METHODS =====
+private async calendarListCalendars(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendars = await this.calendar.calendarList.list({ maxResults: args.maxResults || 250, showHidden: args.showHidden || false });
+  return { content: [{ type: 'text', text: JSON.stringify(calendars.data, null, 2) }] };
+}
+
+private async calendarListInsert(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendarList.insert({ requestBody: { id: args.calendarId, colorId: args.colorId, hidden: args.hidden } });
+  return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+}
+
+private async calendarListGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendarList.get({ calendarId: args.calendarId });
+  return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+}
+
+private async calendarListUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendarList.update({ calendarId: args.calendarId, requestBody: { colorId: args.colorId, hidden: args.hidden, summaryOverride: args.summaryOverride } });
+  return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+}
+
+private async calendarListPatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const calendar = await this.calendar.calendarList.patch({ calendarId: args.calendarId, requestBody: args.updates });
+  return { content: [{ type: 'text', text: JSON.stringify(calendar.data, null, 2) }] };
+}
+
+private async calendarListDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.calendar.calendarList.delete({ calendarId: args.calendarId });
+  return { content: [{ type: 'text', text: 'Calendar removed from list successfully' }] };
+}
+
+private async calendarListWatch(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const channel = await this.calendar.calendarList.watch({ requestBody: { id: args.id, type: args.type, address: args.address } });
+  return { content: [{ type: 'text', text: JSON.stringify(channel.data, null, 2) }] };
+}
+
+private async gmailDraftsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const drafts = await this.gmail.users.drafts.list({ userId: args.userId || 'me', maxResults: args.maxResults, q: args.q });
+  return { content: [{ type: 'text', text: JSON.stringify(drafts.data, null, 2) }] };
+}
+
+private async gmailDraftsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const draft = await this.gmail.users.drafts.get({ userId: args.userId || 'me', id: args.id });
+  return { content: [{ type: 'text', text: JSON.stringify(draft.data, null, 2) }] };
+}
+
+private async gmailDraftsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const message = `To: ${args.to}\nSubject: ${args.subject}\n\n${args.body}`;
+  const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const draft = await this.gmail.users.drafts.create({ userId: args.userId || 'me', requestBody: { message: { raw: encodedMessage } } });
+  return { content: [{ type: 'text', text: JSON.stringify(draft.data, null, 2) }] };
+}
+
+private async gmailDraftsUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const message = `To: ${args.to}\nSubject: ${args.subject}\n\n${args.body}`;
+  const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const draft = await this.gmail.users.drafts.update({ userId: args.userId || 'me', id: args.id, requestBody: { message: { raw: encodedMessage } } });
+  return { content: [{ type: 'text', text: JSON.stringify(draft.data, null, 2) }] };
+}
+
+private async gmailDraftsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.gmail.users.drafts.delete({ userId: args.userId || 'me', id: args.id });
+  return { content: [{ type: 'text', text: 'Draft deleted successfully' }] };
+}
+
+private async gmailDraftsSend(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const message = await this.gmail.users.drafts.send({ userId: args.userId || 'me', requestBody: { id: args.id } });
+  return { content: [{ type: 'text', text: JSON.stringify(message.data, null, 2) }] };
+}
+
+private async gmailThreadsList(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const threads = await this.gmail.users.threads.list({ userId: args.userId || 'me', maxResults: args.maxResults, q: args.q });
+  return { content: [{ type: 'text', text: JSON.stringify(threads.data, null, 2) }] };
+}
+
+private async gmailThreadsGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thread = await this.gmail.users.threads.get({ userId: args.userId || 'me', id: args.id });
+  return { content: [{ type: 'text', text: JSON.stringify(thread.data, null, 2) }] };
+}
+
+private async gmailThreadsModify(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thread = await this.gmail.users.threads.modify({ userId: args.userId || 'me', id: args.id, requestBody: { addLabelIds: args.addLabelIds, removeLabelIds: args.removeLabelIds } });
+  return { content: [{ type: 'text', text: JSON.stringify(thread.data, null, 2) }] };
+}
+
+private async gmailThreadsTrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thread = await this.gmail.users.threads.trash({ userId: args.userId || 'me', id: args.id });
+  return { content: [{ type: 'text', text: JSON.stringify(thread.data, null, 2) }] };
+}
+
+private async gmailThreadsUntrash(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const thread = await this.gmail.users.threads.untrash({ userId: args.userId || 'me', id: args.id });
+  return { content: [{ type: 'text', text: JSON.stringify(thread.data, null, 2) }] };
+}
+
+private async gmailThreadsDelete(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  await this.gmail.users.threads.delete({ userId: args.userId || 'me', id: args.id });
+  return { content: [{ type: 'text', text: 'Thread deleted successfully' }] };
+}
+
+private async sheetsCreate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const spreadsheet = await this.sheets.spreadsheets.create({ requestBody: { properties: { title: args.title } } });
+  return { content: [{ type: 'text', text: JSON.stringify(spreadsheet.data, null, 2) }] };
+}
+
+private async sheetsBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.sheets.spreadsheets.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { requests: args.requests } });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
+private async sheetsValuesAppend(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.sheets.spreadsheets.values.append({ spreadsheetId: args.spreadsheetId, range: args.range, valueInputOption: 'USER_ENTERED', requestBody: { values: args.values } });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
+private async sheetsValuesBatchGet(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.sheets.spreadsheets.values.batchGet({ spreadsheetId: args.spreadsheetId, ranges: args.ranges });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
+private async sheetsValuesBatchUpdate(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+  const result = await this.sheets.spreadsheets.values.batchUpdate({ spreadsheetId: args.spreadsheetId, requestBody: { valueInputOption: 'USER_ENTERED', data: args.data } });
+  return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
+}
+
