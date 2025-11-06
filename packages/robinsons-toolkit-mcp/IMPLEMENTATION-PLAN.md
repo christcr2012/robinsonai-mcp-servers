@@ -41,7 +41,191 @@
 
 ---
 
-## 📋 IMPLEMENTATION ORDER
+## �️ CATEGORY SYSTEM ARCHITECTURE
+
+### Hierarchical Structure
+
+**Top-Level Categories** (Would typically be separate MCP servers):
+- GitHub, Vercel, Neon, Upstash, Google, OpenAI, Stripe, Supabase, Playwright, Twilio, Cloudflare, Resend, Context7, **Anthropic**, **Voyage AI**, **Ollama**
+
+**Subcategories** (Logical groupings within each top-level category):
+- Account Management
+- Project Management
+- Settings & Configuration
+- Resource-specific operations (Users, Repos, Databases, etc.)
+
+**Multi-Project Support**:
+- Ability to manage multiple instances/projects with different credentials
+- Example: Multiple Upstash Redis databases with different URLs
+- Example: Multiple Vercel projects across different teams
+
+### Category/Subcategory Breakdown
+
+#### **GitHub** (241 tools)
+**Subcategories:**
+- Account Management (user, profile, settings)
+- Repository Management (repos, branches, commits)
+- Collaboration (issues, PRs, reviews, discussions)
+- Code Management (files, commits, trees, blobs)
+- CI/CD (workflows, actions, runs)
+- Security (secrets, scanning, alerts)
+- Organization Management (orgs, teams, members)
+- Project Management (projects, milestones)
+
+#### **Vercel** (150 tools)
+**Subcategories:**
+- Account Management (user, teams)
+- Project Management (projects, settings)
+- Deployment Management (deployments, builds, logs)
+- Domain Management (domains, DNS, certificates)
+- Environment Variables (env vars, secrets)
+- Edge Config (edge config, items)
+- Monitoring (logs, analytics, metrics)
+
+#### **Neon** (166 tools)
+**Subcategories:**
+- Account Management (organizations, users)
+- Project Management (projects, settings)
+- Database Management (databases, branches, endpoints)
+- Connection Management (connection strings, pooling)
+- Operations (backups, migrations, monitoring)
+- Roles & Permissions (roles, grants)
+
+#### **Upstash** (157 tools + expansion)
+**Subcategories:**
+- Account Management (teams, members)
+- Redis Management (databases, create, delete, stats)
+- Redis Commands (GET, SET, HSET, ZADD, etc.)
+- QStash (message queue, scheduling)
+- Kafka (topics, producers, consumers)
+- Vector (vector databases, embeddings)
+- **Multi-Project Support:** Manage multiple Redis databases with different URLs
+
+#### **Google** (262 tools)
+**Subcategories:**
+- Account Management (admin, users, groups, domains)
+- Gmail (send, read, labels, threads)
+- Drive (files, folders, permissions, sharing)
+- Calendar (events, calendars, ACL)
+- Sheets (spreadsheets, cells, batch operations)
+- Docs (documents, editing, formatting)
+- Slides (presentations, slides, shapes)
+- Forms (forms, responses)
+- Tasks (task lists, tasks)
+- Classroom (courses, coursework, students)
+- Chat (spaces, messages, members)
+- People (contacts, connections)
+- Licensing (licenses, assignments)
+- Reports (activity, usage analytics)
+
+#### **OpenAI** (73 tools + expansion)
+**Subcategories:**
+- Account Management (organization, users, API keys)
+- Chat Completions (GPT-4, GPT-5, O3, O4-mini)
+- Embeddings (text-embedding-3-small/large)
+- Images (DALL-E 3, generation, editing)
+- Audio (TTS, Whisper, transcription)
+- Assistants (assistants, threads, messages, runs)
+- Fine-tuning (jobs, models, checkpoints)
+- Batch Processing (batches, requests)
+- Vector Stores (stores, files, search)
+- Realtime API (sessions, conversations)
+- Model Management (list, retrieve, delete)
+
+#### **Stripe** (150 tools) - NEW
+**Subcategories:**
+- Account Management (accounts, balance, settings)
+- Customer Management (customers, search)
+- Payment Processing (payment intents, charges, refunds)
+- Subscription Management (subscriptions, plans, invoices)
+- Product Management (products, prices, coupons)
+- Payment Methods (cards, bank accounts, sources)
+- Billing (invoices, invoice items, credit notes)
+- Connect (accounts, transfers, application fees)
+- Fraud Prevention (reviews, disputes, radar)
+- Reporting (reports, analytics)
+
+#### **Supabase** (120 tools) - NEW
+**Subcategories:**
+- Account Management (organizations, projects)
+- Database (PostgREST, queries, RPC)
+- Authentication (sign up, sign in, sessions, users)
+- Storage (buckets, objects, policies)
+- Realtime (channels, presence, broadcast)
+- Edge Functions (functions, invocations, logs)
+- Management API (projects, analytics, usage)
+
+#### **Playwright** (50 tools) - NEW
+**Subcategories:**
+- Browser Management (launch, close, contexts)
+- Page Operations (navigate, interact, screenshot)
+- Element Interaction (locators, click, fill, type)
+- Automation (keyboard, mouse, touchscreen)
+- Media (screenshots, PDFs, videos)
+- Debugging (tracing, logs)
+
+#### **Twilio** (85 tools) - NEW
+**Subcategories:**
+- Account Management (accounts, subaccounts, keys)
+- Messaging (SMS, MMS, WhatsApp)
+- Voice (calls, conferences, recordings)
+- Video (rooms, participants, recordings)
+- Verify (services, verifications)
+- Conversations (conversations, participants, messages)
+- Notify (services, notifications)
+
+#### **Cloudflare** (160 tools) - NEW
+**Subcategories:**
+- Account Management (accounts, users, tokens)
+- Zone Management (zones, DNS, settings)
+- Workers (scripts, routes, KV, R2)
+- Security (firewall, WAF, DDoS, bot management)
+- Performance (caching, load balancing, Argo)
+- SSL/TLS (certificates, settings)
+- Analytics (metrics, logs, insights)
+- Stream (videos, live streams)
+
+#### **Resend** (35-40 tools) - NEW
+**Subcategories:**
+- Account Management (API keys, settings)
+- Email Management (send, templates)
+- Domain Management (domains, verification)
+- Contact Management (contacts, audiences)
+- Webhooks (webhooks, events)
+
+#### **Context7** (10-12 tools) - NEW
+**Subcategories:**
+- Library Search (resolve, search)
+- Documentation (get docs, examples)
+- Version Management (compare, migration guides)
+
+#### **Anthropic** (TBD tools) - PLANNED
+**Subcategories:**
+- Account Management (organization, API keys, usage)
+- Messages API (Claude models, streaming)
+- Vision (image analysis, multimodal)
+- Tool Use (function calling, structured outputs)
+- Prompt Caching (cache management, optimization)
+- Batch Processing (batches, requests)
+- Model Management (list models, capabilities)
+
+#### **Voyage AI** (TBD tools) - PLANNED
+**Subcategories:**
+- Account Management (API keys, usage)
+- Embeddings (voyage-2, voyage-code-2, voyage-lite-02)
+- Reranking (rerank-1, rerank-lite-1)
+- Model Management (list models, capabilities)
+
+#### **Ollama** (TBD tools) - PLANNED
+**Subcategories:**
+- Model Management (list, pull, push, delete)
+- Generation (generate, chat, embeddings)
+- Model Info (show, inspect)
+- Server Management (status, version)
+
+---
+
+## �📋 IMPLEMENTATION ORDER
 
 Based on FREE agent's validation report and priority:
 
@@ -54,8 +238,154 @@ Based on FREE agent's validation report and priority:
 | 5 | **Cloudflare** | 160 | MEDIUM | ❌ Missing | Large API surface, complex |
 | 6 | **Resend** | 35-40 | LOW | ❌ Missing | Email, simpler API |
 | 7 | **Context7** | 10-12 | LOW | ❌ Missing | Documentation search, niche |
+| 8 | **Anthropic** | TBD | FUTURE | ❌ Missing | Claude API, high value |
+| 9 | **Voyage AI** | TBD | FUTURE | ❌ Missing | Embeddings, reranking |
+| 10 | **Ollama** | TBD | FUTURE | ❌ Missing | Local models, self-hosted |
 
-**Total:** 610-617 tools across 7 categories
+**Total (Current Plan):** 610-617 tools across 7 categories → v1.12.0
+**Total (Future):** 800-900+ tools across 10 categories → v1.15.0+
+
+---
+
+## 🏗️ IMPLEMENTING THE SUBCATEGORY SYSTEM
+
+### Technical Implementation
+
+**Tool Naming Convention:**
+```
+{category}_{subcategory}_{operation}_{resource}
+
+Examples:
+- stripe_customers_create
+- stripe_customers_retrieve
+- stripe_customers_update
+- stripe_payments_create_intent
+- stripe_payments_capture
+- upstash_redis_get
+- upstash_qstash_enqueue
+- google_gmail_send_message
+- google_drive_create_file
+```
+
+**Metadata in Tool Registry:**
+```typescript
+interface ToolSchema {
+  name: string;
+  description: string;
+  category: string;        // Top-level: "stripe", "google", etc.
+  subcategory: string;     // Subcategory: "customers", "payments", etc.
+  inputSchema: any;
+}
+
+// Example:
+{
+  name: 'stripe_customers_create',
+  description: 'Create a new Stripe customer',
+  category: 'stripe',
+  subcategory: 'customers',
+  inputSchema: { ... }
+}
+```
+
+**Broker API Enhancements:**
+
+1. **toolkit_list_categories** - Already exists, shows top-level categories
+2. **toolkit_list_subcategories** - NEW, list subcategories within a category
+3. **toolkit_list_tools** - Enhanced to support subcategory filtering
+4. **toolkit_discover** - Enhanced to search within subcategories
+
+**Example Usage:**
+```typescript
+// List all subcategories in Stripe
+toolkit_list_subcategories({ category: 'stripe' })
+// Returns: ["customers", "payments", "subscriptions", "products", ...]
+
+// List tools in a specific subcategory
+toolkit_list_tools({
+  category: 'stripe',
+  subcategory: 'customers',
+  limit: 50
+})
+// Returns: stripe_customers_create, stripe_customers_retrieve, etc.
+
+// Discover tools across subcategories
+toolkit_discover({
+  query: 'create customer',
+  category: 'stripe',  // Optional: filter by category
+  subcategory: 'customers'  // Optional: filter by subcategory
+})
+```
+
+### Multi-Project Support Implementation
+
+**Configuration Structure:**
+```typescript
+interface ProjectConfig {
+  id: string;
+  name: string;
+  category: string;
+  credentials: {
+    [key: string]: string;  // API keys, URLs, tokens, etc.
+  };
+}
+
+// Example: Multiple Upstash Redis databases
+const upstashProjects = [
+  {
+    id: 'upstash-prod',
+    name: 'Production Redis',
+    category: 'upstash',
+    credentials: {
+      url: 'https://prod-redis.upstash.io',
+      token: 'prod_token_xxx'
+    }
+  },
+  {
+    id: 'upstash-dev',
+    name: 'Development Redis',
+    category: 'upstash',
+    credentials: {
+      url: 'https://dev-redis.upstash.io',
+      token: 'dev_token_xxx'
+    }
+  }
+];
+```
+
+**Tool Invocation with Project Selection:**
+```typescript
+// Call tool with specific project
+toolkit_call({
+  category: 'upstash',
+  tool_name: 'upstash_redis_get',
+  arguments: {
+    key: 'user:123',
+    project_id: 'upstash-prod'  // NEW: Select which project to use
+  }
+})
+```
+
+**Environment Variable Pattern:**
+```bash
+# Single project (current)
+UPSTASH_REDIS_URL=https://redis.upstash.io
+UPSTASH_REDIS_TOKEN=token_xxx
+
+# Multi-project (new)
+UPSTASH_PROD_URL=https://prod-redis.upstash.io
+UPSTASH_PROD_TOKEN=prod_token_xxx
+UPSTASH_DEV_URL=https://dev-redis.upstash.io
+UPSTASH_DEV_TOKEN=dev_token_xxx
+
+# Or JSON config
+UPSTASH_PROJECTS='[{"id":"prod","url":"...","token":"..."},{"id":"dev","url":"...","token":"..."}]'
+```
+
+**Implementation Priority:**
+1. **Phase 1 (v1.6.0-v1.12.0):** Implement subcategories via naming convention only
+2. **Phase 2 (v1.13.0):** Add subcategory metadata to ToolRegistry
+3. **Phase 3 (v1.14.0):** Add toolkit_list_subcategories broker tool
+4. **Phase 4 (v1.15.0):** Implement multi-project support
 
 ---
 
