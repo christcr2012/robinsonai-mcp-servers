@@ -89,28 +89,52 @@ export function buildServerContext(args: any): ServerContext {
   };
 
   const blendedSearch = async (q: string, k = 12) => {
-    const localRaw = await ctx.search(q, Math.max(k, 12));
-    const importedRaw = await evidence.find({ source: 'context7', text: q });
+    try {
+      // Add timeout protection to prevent hangs (FIX: 6+ minute hang issue)
+      const SEARCH_TIMEOUT = 8000; // 8 seconds
 
-    const local = normalizeLocalHits(localRaw, k);
-    const imported = normalizeImportedHits(importedRaw.slice(0, k * 3), k);
+      const searchWithTimeout = async <T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> => {
+        const timeout = new Promise<T>((resolve) =>
+          setTimeout(() => resolve(fallback), timeoutMs)
+        );
+        return Promise.race([promise, timeout]);
+      };
 
-    if (_ranking === 'local') return local.slice(0, k);
-    if (_ranking === 'imported') return imported.slice(0, k);
+      const localRaw = await searchWithTimeout(
+        ctx.search(q, Math.max(k, 12)),
+        SEARCH_TIMEOUT,
+        []
+      );
 
-    const out: any[] = [];
-    let li = 0;
-    let ii = 0;
-    while ((li < local.length || ii < imported.length) && out.length < k) {
-      if (li < local.length) {
-        out.push(local[li++]);
+      const importedRaw = await searchWithTimeout(
+        evidence.find({ source: 'context7', text: q }),
+        SEARCH_TIMEOUT,
+        []
+      );
+
+      const local = normalizeLocalHits(localRaw, k);
+      const imported = normalizeImportedHits(importedRaw.slice(0, k * 3), k);
+
+      if (_ranking === 'local') return local.slice(0, k);
+      if (_ranking === 'imported') return imported.slice(0, k);
+
+      const out: any[] = [];
+      let li = 0;
+      let ii = 0;
+      while ((li < local.length || ii < imported.length) && out.length < k) {
+        if (li < local.length) {
+          out.push(local[li++]);
+        }
+        if (ii < imported.length && out.length < k) {
+          out.push(imported[ii++]);
+        }
       }
-      if (ii < imported.length && out.length < k) {
-        out.push(imported[ii++]);
-      }
+
+      return out;
+    } catch (error) {
+      console.error('[blendedSearch] Error:', error);
+      return []; // Return empty results on error (graceful degradation)
     }
-
-    return out;
   };
 
   return {

@@ -82,14 +82,21 @@ async function resolveEmbeddingProvider(): Promise<EmbeddingProvider> {
     return forced.toLowerCase() as EmbeddingProvider;
   }
 
-  // Priority order: Voyage AI > OpenAI > Ollama > Lexical
-  if (process.env.VOYAGE_API_KEY) {
-    return 'voyage';
-  }
-  if (process.env.OPENAI_API_KEY) {
+  // FIX: Intelligent provider selection based on availability
+  // - OpenAI: Best value for general content (good quality, lower cost)
+  // - Voyage: Best for specialized content (code, finance, legal)
+  // - Ollama: Free fallback
+  // - Lexical: Last resort
+
+  const hasVoyage = !!(process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY);
+  const hasOpenAI = !!process.env.OPENAI_API_KEY;
+
+  // If both available, prefer OpenAI for general use (better value)
+  // Voyage will be selected automatically for code/finance/legal via selectBestProvider()
+  if (hasOpenAI) {
     return 'openai';
   }
-  if (process.env.ANTHROPIC_API_KEY) {
+  if (hasVoyage) {
     return 'voyage'; // Anthropic uses Voyage for embeddings
   }
 

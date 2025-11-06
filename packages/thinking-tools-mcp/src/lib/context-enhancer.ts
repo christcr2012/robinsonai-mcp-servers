@@ -46,10 +46,16 @@ export function withContext<TInput extends ContextEnhancedInput, TOutput>(
     if (!query) {
       return result as TOutput & ContextEnhancedOutput;
     }
-    
+
     try {
-      // Search for relevant context
-      const hits = await ctx.blendedSearch(query, 8);
+      // Search for relevant context with timeout protection (FIX: prevent 6+ minute hangs)
+      const SEARCH_TIMEOUT_MS = 10000; // 10 seconds max
+      const searchPromise = ctx.blendedSearch(query, 8);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Context search timeout')), SEARCH_TIMEOUT_MS)
+      );
+
+      const hits = await Promise.race([searchPromise, timeoutPromise]);
 
       // Format evidence
       const contextEvidence = hits.map((hit: any) => ({
@@ -88,6 +94,7 @@ export function withContext<TInput extends ContextEnhancedInput, TOutput>(
       } as TOutput & ContextEnhancedOutput;
     } catch (e) {
       console.error('[context-enhancer] Search failed:', e);
+      // Return original result without context (graceful degradation)
       return result as TOutput & ContextEnhancedOutput;
     }
   };

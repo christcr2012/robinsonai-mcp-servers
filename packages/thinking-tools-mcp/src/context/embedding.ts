@@ -61,8 +61,53 @@ export function selectVoyageModel(contentType: ContentType): string {
 }
 
 /**
+ * Select best provider based on content type and availability
+ * FIX: Voyage is NOT always best - choose intelligently based on task
+ */
+function selectBestProvider(contentType: ContentType): string[] {
+  const hasVoyage = !!(process.env.VOYAGE_API_KEY || process.env.ANTHROPIC_API_KEY);
+  const hasOpenAI = !!process.env.OPENAI_API_KEY;
+  const hasOllama = !!process.env.OLLAMA_BASE_URL;
+
+  // Priority order based on content type
+  switch (contentType) {
+    case 'code':
+      // Voyage Code-3 is BEST for code
+      if (hasVoyage) return ['voyage', 'openai', 'ollama'];
+      if (hasOpenAI) return ['openai', 'ollama'];
+      return ['ollama'];
+
+    case 'finance':
+      // Voyage Finance-2 is specialized for finance
+      if (hasVoyage) return ['voyage', 'openai', 'ollama'];
+      if (hasOpenAI) return ['openai', 'ollama'];
+      return ['ollama'];
+
+    case 'legal':
+      // Voyage Law-2 is specialized for legal
+      if (hasVoyage) return ['voyage', 'openai', 'ollama'];
+      if (hasOpenAI) return ['openai', 'ollama'];
+      return ['ollama'];
+
+    case 'docs':
+      // OpenAI text-embedding-3-large is excellent for general docs and cheaper
+      if (hasOpenAI) return ['openai', 'voyage', 'ollama'];
+      if (hasVoyage) return ['voyage', 'ollama'];
+      return ['ollama'];
+
+    case 'general':
+    default:
+      // OpenAI is best value for general content (good quality, lower cost)
+      if (hasOpenAI) return ['openai', 'voyage', 'ollama'];
+      if (hasVoyage) return ['voyage', 'ollama'];
+      return ['ollama'];
+  }
+}
+
+/**
  * Embed batch of texts using configured provider with intelligent model selection
- * Supports: voyage (best), openai (good), ollama (free fallback)
+ * Supports: voyage (specialized), openai (general), ollama (free fallback)
+ * FIX: Choose best provider based on content type, not always Voyage
  */
 export async function embedBatch(texts: string[], options: EmbedOptions = {}): Promise<number[][]> {
   const {
@@ -81,10 +126,12 @@ export async function embedBatch(texts: string[], options: EmbedOptions = {}): P
 
   console.log(`[embedBatch] Type: ${detectedType}, Model: ${voyageModel}, Input: ${inputType}, Texts: ${texts.length}`);
 
-  // Build provider chain
+  // Build provider chain based on content type (intelligent selection)
   const providers = provider === 'auto'
-    ? ['voyage', 'openai', 'ollama']
+    ? selectBestProvider(detectedType)
     : [provider];
+
+  console.log(`[embedBatch] Provider priority: ${providers.join(' → ')}`);
 
   for (const prov of providers) {
     try {
