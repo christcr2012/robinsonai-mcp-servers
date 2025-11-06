@@ -1,0 +1,153 @@
+{
+  "jobs": [
+    {
+      "id": "job_1762446123501_qi3sfal9q",
+      "agent": "balanced-worker",
+      "task": "Analyze the Stripe API for comprehensive tool coverage. Current estimate: 105 tools.\n\nEvaluate:\n1. What Stripe API endpoints/features should be covered?\n2. Core operations: Payments, Subscriptions, Customers, Products, Invoices, Payment Methods\n3. Advanced features: Checkout Sessions, Payment Links, Billing Portal, Tax, Radar (fraud), Connect (marketplace), Terminal, Issuing (cards)\n4. Webhooks, Events, Disputes, Refunds, Payouts, Balance\n5. What's missing from 105 tools estimate?\n6. Recommended tool count for comprehensive coverage\n7. Priority areas (must-have vs nice-to-have)\n\nProvide detailed breakdown by feature area with tool counts.",
+      "input_refs": "[]",
+      "state": "completed",
+      "result": "To evaluate the Stripe API for comprehensive tool coverage, let's break down the features and determine the necessary tools for each area. We'll also identify any missing components from the 105 tools estimate and suggest a recommended tool count for comprehensive coverage.\n\n### Core Operations\n\n1. **Payments**\n   - Tools: Create, Retrieve, Update, Capture, List, Refund\n   - Estimated Tools: 6\n\n2. **Subscriptions**\n   - Tools: Create, Retrieve, Update, Cancel, List, Manage Subscription Items\n   - Estimated Tools: 6\n\n3. **Customers**\n   - Tools: Create, Retrieve, Update, Delete, List\n   - Estimated Tools: 5\n\n4. **Products**\n   - Tools: Create, Retrieve, Update, Delete, List\n   - Estimated Tools: 5\n\n5. **Invoices**\n   - Tools: Create, Retrieve, Update, Delete, List, Send, Pay\n   - Estimated Tools: 7\n\n6. **Payment Methods**\n   - Tools: Attach, Detach, Retrieve, List\n   - Estimated Tools: 4\n\n### Advanced Features\n\n1. **Checkout Sessions**\n   - Tools: Create, Retrieve, Expire\n   - Estimated Tools: 3\n\n2. **Payment Links**\n   - Tools: Create, Retrieve, Update, List\n   - Estimated Tools: 4\n\n3. **Billing Portal**\n   - Tools: Create Session\n   - Estimated Tools: 1\n\n4. **Tax**\n   - Tools: Calculate, Retrieve Rates, List Rates\n   - Estimated Tools: 3\n\n5. **Radar (Fraud)**\n   - Tools: List Rules, Create Rule, Update Rule\n   - Estimated Tools: 3\n\n6. **Connect (Marketplace)**\n   - Tools: Create Account, Retrieve Account, Update Account, List Accounts, Transfers\n   - Estimated Tools: 5\n\n7. **Terminal**\n   - Tools: Create Connection Token, List Locations, Create Reader\n   - Estimated Tools: 3\n\n8. **Issuing (Cards)**\n   - Tools: Create Card, Retrieve Card, Update Card, List Cards\n   - Estimated Tools: 4\n\n### Other Features\n\n1. **Webhooks**\n   - Tools: Create, Retrieve, Update, Delete, List Endpoints\n   - Estimated Tools: 5\n\n2. **Events**\n   - Tools: Retrieve, List\n   - Estimated Tools: 2\n\n3. **Disputes**\n   - Tools: Retrieve, Update, List\n   - Estimated Tools: 3\n\n4. **Refunds**\n   - Tools: Create, Retrieve, Update, List\n   - Estimated Tools: 4\n\n5. **Payouts**\n   - Tools: Create, Retrieve, Update, List\n   - Estimated Tools: 4\n\n6. **Balance**\n   - Tools: Retrieve, List Transactions\n   - Estimated Tools: 2\n\n### Missing from 105 Tools Estimate\n\nThe current estimate of 105 tools may not account for all the nuances and variations within each feature. For instance, specific operations like managing subscription items, handling disputes in detail, or advanced fraud detection rules could require additional tools.\n\n### Recommended Tool Count\n\nBased on the breakdown, a comprehensive coverage would require approximately 75 tools. This count allows for detailed operations within each feature area and accounts for any missing tools from the initial estimate.\n\n### Priority Areas\n\n- **Must-Have**: Payments, Subscriptions, Customers, Products, Invoices, Payment Methods, Webhooks, Refunds\n- **Nice-to-Have**: Checkout Sessions, Payment Links, Billing Portal, Tax, Radar, Connect, Terminal, Issuing, Events, Disputes, Payouts, Balance\n\nThis breakdown ensures that the core operations are prioritized while also providing a robust set of tools for advanced features and other necessary operations.",
+      "error": null,
+      "tokens_used": 968,
+      "cost": 0.008367500000000002,
+      "created_at": "2025-11-06T16:22:03.501Z",
+      "completed_at": "2025-11-06T16:22:26.511Z"
+    },
+    {
+      "id": "job_1762446162419_kqfgfpygp",
+      "agent": "balanced-worker",
+      "task": "Analyze the Supabase platform for comprehensive tool coverage. Current estimate: 80 tools.\n\nEvaluate:\n1. What Supabase features should be covered?\n2. Core operations: Database (PostgreSQL), Auth, Storage, Realtime, Edge Functions\n3. Database: Tables, Views, Functions, Triggers, RLS policies, Migrations\n4. Auth: Sign up/in, OAuth providers, MFA, Sessions, Users, Roles\n5. Storage: Buckets, Files, Policies, Transformations\n6. Realtime: Subscriptions, Broadcast, Presence\n7. Edge Functions: Deploy, Invoke, Logs\n8. Management: Projects, Organizations, API keys, Settings\n9. What's missing from 80 tools estimate?\n10. Recommended tool count for comprehensive coverage\n\nProvide detailed breakdown by feature area with tool counts.",
+      "input_refs": "[]",
+      "state": "completed",
+      "result": "To evaluate the comprehensive tool coverage for Supabase, let's break down the features and estimate the number of tools required for each area:\n\n1. **Database (PostgreSQL)**\n   - Tables: 2 tools (creation, management)\n   - Views: 2 tools (creation, management)\n   - Functions: 2 tools (creation, management)\n   - Triggers: 2 tools (creation, management)\n   - RLS Policies: 2 tools (creation, management)\n   - Migrations: 2 tools (creation, management)\n   - **Total for Database**: 12 tools\n\n2. **Auth**\n   - Sign up/in: 2 tools (user registration, login)\n   - OAuth Providers: 2 tools (configuration, management)\n   - MFA: 2 tools (setup, management)\n   - Sessions: 2 tools (management, monitoring)\n   - Users: 2 tools (management, roles)\n   - Roles: 2 tools (creation, management)\n   - **Total for Auth**: 12 tools\n\n3. **Storage**\n   - Buckets: 2 tools (creation, management)\n   - Files: 2 tools (upload, management)\n   - Policies: 2 tools (creation, management)\n   - Transformations: 2 tools (setup, management)\n   - **Total for Storage**: 8 tools\n\n4. **Realtime**\n   - Subscriptions: 2 tools (setup, management)\n   - Broadcast: 2 tools (setup, management)\n   - Presence: 2 tools (setup, management)\n   - **Total for Realtime**: 6 tools\n\n5. **Edge Functions**\n   - Deploy: 2 tools (setup, management)\n   - Invoke: 2 tools (setup, management)\n   - Logs: 2 tools (viewing, management)\n   - **Total for Edge Functions**: 6 tools\n\n6. **Management**\n   - Projects: 2 tools (creation, management)\n   - Organizations: 2 tools (creation, management)\n   - API Keys: 2 tools (creation, management)\n   - Settings: 2 tools (configuration, management)\n   - **Total for Management**: 8 tools\n\n**Current Total**: 52 tools\n\n**What's Missing from 80 Tools Estimate?**\n- Monitoring and Analytics: 4 tools (performance, usage)\n- Security: 4 tools (auditing, alerts)\n- Integrations: 4 tools (third-party services)\n- Custom Extensions: 4 tools (development, deployment)\n- Documentation and Support: 4 tools (guides, helpdesk)\n- Testing and Debugging: 4 tools (environments, logs)\n- Backup and Restore: 2 tools (setup, management)\n\n**Additional Tools**: 26 tools\n\n**Recommended Tool Count for Comprehensive Coverage**: 78 tools\n\nThis breakdown provides a detailed analysis of the tools required for comprehensive coverage of Supabase features.",
+      "error": null,
+      "tokens_used": 812,
+      "cost": 0.006620000000000001,
+      "created_at": "2025-11-06T16:22:42.419Z",
+      "completed_at": "2025-11-06T16:22:52.975Z"
+    },
+    {
+      "id": "job_1762446175159_n0p3n1r1b",
+      "agent": "balanced-worker",
+      "task": "Analyze the Cloudflare platform for comprehensive tool coverage. Current estimate: 90 tools.\n\nEvaluate:\n1. What Cloudflare features should be covered?\n2. Core operations: Workers, KV, R2, D1, Durable Objects, Queues\n3. DNS: Zones, Records, DNSSEC\n4. CDN: Cache, Page Rules, Firewall Rules, Rate Limiting\n5. Security: WAF, DDoS, Bot Management, Access, Zero Trust\n6. Analytics: Web Analytics, Logs, Metrics\n7. Pages, Images, Stream, Email Routing\n8. Account/Zone management, API tokens\n9. What's missing from 90 tools estimate?\n10. Recommended tool count for comprehensive coverage\n\nProvide detailed breakdown by feature area with tool counts.",
+      "input_refs": "[]",
+      "state": "completed",
+      "result": "To evaluate the Cloudflare platform for comprehensive tool coverage, we can break down the features and estimate the number of tools required for each area. Here’s a detailed breakdown:\n\n1. **Core Operations** (6 tools):\n   - Workers\n   - KV (Key-Value Storage)\n   - R2 (Object Storage)\n   - D1 (Database)\n   - Durable Objects\n   - Queues\n\n2. **DNS** (3 tools):\n   - Zones Management\n   - DNS Records Management\n   - DNSSEC Configuration\n\n3. **CDN** (4 tools):\n   - Cache Management\n   - Page Rules\n   - Firewall Rules\n   - Rate Limiting\n\n4. **Security** (5 tools):\n   - WAF (Web Application Firewall)\n   - DDoS Protection\n   - Bot Management\n   - Access Control\n   - Zero Trust Security\n\n5. **Analytics** (3 tools):\n   - Web Analytics\n   - Logs Analysis\n   - Metrics Monitoring\n\n6. **Additional Services** (4 tools):\n   - Pages (Static Site Hosting)\n   - Images (Image Optimization)\n   - Stream (Video Streaming)\n   - Email Routing\n\n7. **Account/Zone Management** (2 tools):\n   - Account Management\n   - Zone Management\n\n8. **API Tokens** (1 tool):\n   - API Token Management\n\n### Missing from 90 Tools Estimate:\n- **Load Balancing**: 1 tool\n- **SSL/TLS Management**: 1 tool\n- **Network Interconnects**: 1 tool\n- **Magic Transit**: 1 tool\n- **Argo Smart Routing**: 1 tool\n- **Spectrum (TCP/UDP Protection)**: 1 tool\n- **Workers Sites**: 1 tool\n- **Registrar**: 1 tool\n- **Mobile SDK**: 1 tool\n- **Rulesets (Advanced Firewall Rules)**: 1 tool\n\n### Recommended Tool Count:\nTo achieve comprehensive coverage, considering the above breakdown and additional features, a total of approximately **30-35 tools** would be recommended. This accounts for both the core and additional features, as well as some specialized tools not initially considered in the 90 tools estimate.",
+      "error": null,
+      "tokens_used": 648,
+      "cost": 0.0050625,
+      "created_at": "2025-11-06T16:22:55.160Z",
+      "completed_at": "2025-11-06T16:23:00.424Z"
+    },
+    {
+      "id": "job_1762446182571_2bnlwnt8m",
+      "agent": "balanced-worker",
+      "task": "Analyze the Twilio platform for comprehensive tool coverage. Current estimate: 70 tools.\n\nEvaluate:\n1. What Twilio features should be covered?\n2. Core operations: SMS, Voice, Video, Messaging, WhatsApp, Email\n3. SMS: Send, Receive, Status, Media, Short codes\n4. Voice: Calls, TwiML, Recordings, Transcriptions, Conferences\n5. Video: Rooms, Participants, Recordings, Compositions\n6. Messaging: Conversations, Chat, Notify, Verify (2FA)\n7. WhatsApp, Facebook Messenger integration\n8. SendGrid Email integration\n9. Phone Numbers, SIP, Trunking\n10. What's missing from 70 tools estimate?\n11. Recommended tool count for comprehensive coverage\n\nProvide detailed breakdown by feature area with tool counts.",
+      "input_refs": "[]",
+      "state": "completed",
+      "result": "To evaluate the Twilio platform for comprehensive tool coverage, we need to break down each feature area and estimate the number of tools required for each. Here's a detailed breakdown:\n\n1. **SMS (5 tools)**\n   - Send SMS\n   - Receive SMS\n   - Check SMS Status\n   - Send/Receive Media via SMS\n   - Manage Short Codes\n\n2. **Voice (5 tools)**\n   - Make and Receive Calls\n   - Use TwiML for Call Control\n   - Manage Call Recordings\n   - Transcribe Calls\n   - Set Up and Manage Conferences\n\n3. **Video (4 tools)**\n   - Manage Video Rooms\n   - Manage Participants\n   - Record Video Sessions\n   - Create and Manage Compositions\n\n4. **Messaging (4 tools)**\n   - Manage Conversations\n   - Implement Chat\n   - Use Notify for Notifications\n   - Implement Verify for Two-Factor Authentication (2FA)\n\n5. **WhatsApp & Facebook Messenger Integration (2 tools)**\n   - WhatsApp Messaging\n   - Facebook Messenger Integration\n\n6. **Email (SendGrid) (3 tools)**\n   - Send Emails\n   - Manage Email Templates\n   - Track Email Deliverability and Analytics\n\n7. **Phone Numbers (2 tools)**\n   - Purchase and Manage Phone Numbers\n   - Port Existing Numbers\n\n8. **SIP & Trunking (3 tools)**\n   - Set Up SIP Trunking\n   - Manage SIP Credentials\n   - Monitor Trunking Usage and Analytics\n\n9. **Additional Tools (to reach 70)**\n   - **Security & Compliance (3 tools)**\n     - Manage API Keys and Access\n     - Implement Security Best Practices\n     - Compliance and Regulatory Tools\n\n   - **Analytics & Monitoring (3 tools)**\n     - Real-time Monitoring\n     - Usage Analytics\n     - Performance Dashboards\n\n   - **Integration & Extensibility (3 tools)**\n     - API Integration\n     - Webhooks\n     - Third-party Integrations\n\n   - **Customer Engagement (3 tools)**\n     - Customer Feedback Tools\n     - Engagement Analytics\n     - Personalization Features\n\n   - **Developer Tools (3 tools)**\n     - SDKs and Libraries\n     - Sandbox Environments\n     - Developer Documentation and Support\n\n   - **Support & Maintenance (3 tools)**\n     - Incident Management\n     - Support Ticketing System\n     - Knowledge Base\n\n   - **Miscellaneous (3 tools)**\n     - Feature Toggles\n     - A/B Testing Tools\n     - Custom Reporting\n\n**Total Estimated Tools: 50**\n\n**What's Missing:**\nThe initial estimate of 70 tools might include more granular tools or sub-features within each category, such as more detailed analytics, advanced security features, or additional integrations.\n\n**Recommended Tool Count for Comprehensive Coverage:**\nTo achieve comprehensive coverage, consider expanding the tool count to around 70 by adding more detailed tools within each category, focusing on advanced features, integrations, and support mechanisms. This ensures all aspects of Twilio's offerings are thoroughly covered.",
+      "error": null,
+      "tokens_used": 832,
+      "cost": 0.0068425000000000005,
+      "created_at": "2025-11-06T16:23:02.571Z",
+      "completed_at": "2025-11-06T16:23:23.519Z"
+    },
+    {
+      "id": "job_1762446205688_w3nxqik44",
+      "agent": "balanced-worker",
+      "task": "Analyze the Resend email platform for comprehensive tool coverage. Current estimate: 60 tools.\n\nEvaluate:\n1. What Resend features should be covered?\n2. Core operations: Send emails, Templates, Domains, API keys\n3. Email sending: Single, Batch, Scheduled\n4. Templates: Create, Update, Delete, List, Variables\n5. Domains: Add, Verify, DNS records, SPF/DKIM\n6. Analytics: Opens, Clicks, Bounces, Complaints\n7. Webhooks: Events, Subscriptions\n8. Contacts, Audiences, Tags\n9. What's missing from 60 tools estimate?\n10. Recommended tool count for comprehensive coverage\n\nNote: Resend is a simpler platform than SendGrid/Mailgun, so 60 might be overestimate.\n\nProvide detailed breakdown by feature area with tool counts.",
+      "input_refs": "[]",
+      "state": "completed",
+      "result": "To evaluate the Resend email platform and determine the appropriate tool coverage, let's break down each feature area and estimate the number of tools required for comprehensive coverage. Given that Resend is simpler than platforms like SendGrid or Mailgun, 60 tools might indeed be an overestimate. Here's a detailed breakdown:\n\n### Core Operations\n1. **Send Emails**: \n   - Single Send: 1 tool\n   - Batch Send: 1 tool\n   - Scheduled Send: 1 tool\n\n2. **Templates**:\n   - Create: 1 tool\n   - Update: 1 tool\n   - Delete: 1 tool\n   - List: 1 tool\n   - Variables: 1 tool\n\n3. **Domains**:\n   - Add Domain: 1 tool\n   - Verify Domain: 1 tool\n   - Manage DNS Records: 1 tool\n   - SPF/DKIM Setup: 1 tool\n\n4. **API Keys**:\n   - Create API Key: 1 tool\n   - Manage API Keys: 1 tool\n\n### Analytics\n1. **Email Analytics**:\n   - Track Opens: 1 tool\n   - Track Clicks: 1 tool\n   - Track Bounces: 1 tool\n   - Track Complaints: 1 tool\n\n### Webhooks\n1. **Webhooks Management**:\n   - Manage Events: 1 tool\n   - Manage Subscriptions: 1 tool\n\n### Contacts and Audiences\n1. **Contacts Management**:\n   - Add Contacts: 1 tool\n   - Update Contacts: 1 tool\n   - Delete Contacts: 1 tool\n   - List Contacts: 1 tool\n\n2. **Audiences and Tags**:\n   - Manage Audiences: 1 tool\n   - Manage Tags: 1 tool\n\n### Additional Considerations\n- **User Management**: 1 tool (if applicable)\n- **Integration with Other Platforms**: 1 tool (if applicable)\n- **Testing and Debugging Tools**: 1 tool\n\n### Missing from 60 Tools Estimate\nThe original estimate of 60 tools likely includes redundant or overly granular tools. Given the simplicity of Resend, many operations can be combined or simplified.\n\n### Recommended Tool Count\nBased on the breakdown above, a more realistic estimate for comprehensive tool coverage is approximately 25 tools. This count considers the core functionalities and essential features without unnecessary duplication or excessive granularity.",
+      "error": null,
+      "tokens_used": 706,
+      "cost": 0.00553,
+      "created_at": "2025-11-06T16:23:25.688Z",
+      "completed_at": "2025-11-06T16:23:36.801Z"
+    },
+    {
+      "id": "job_1762446218930_vpktala3u",
+      "agent": "balanced-worker",
+      "task": "Analyze Playwright browser automation for comprehensive tool coverage. Current estimate: 33 tools.\n\nEvaluate:\n1. What Playwright operations should be covered?\n2. Core operations: Launch browser, Navigate, Interact, Extract data\n3. Browser management: Launch, Close, Contexts, Pages\n4. Navigation: Goto, Reload, Back, Forward, Wait for load\n5. Interaction: Click, Type, Select, Upload, Download\n6. Extraction: Text, HTML, Attributes, Screenshots, PDFs\n7. Waiting: Selectors, Network, Timeouts\n8. Advanced: Emulation (mobile, geolocation), Network interception, Authentication\n9. What's missing from 33 tools estimate?\n10. Recommended tool count for comprehensive coverage\n\nProvide detailed breakdown by feature area with tool counts.",
+      "input_refs": "[]",
+      "state": "completed",
+      "result": "To evaluate comprehensive tool coverage for Playwright browser automation, we need to break down the operations into distinct features and estimate the number of tools required for each. Here's a detailed breakdown:\n\n### Core Operations\n1. **Launch Browser**: 1 tool\n2. **Navigate**: 1 tool\n3. **Interact**: 1 tool\n4. **Extract Data**: 1 tool\n\n### Browser Management\n1. **Launch**: 1 tool\n2. **Close**: 1 tool\n3. **Contexts**: 1 tool\n4. **Pages**: 1 tool\n\n### Navigation\n1. **Goto**: 1 tool\n2. **Reload**: 1 tool\n3. **Back**: 1 tool\n4. **Forward**: 1 tool\n5. **Wait for Load**: 1 tool\n\n### Interaction\n1. **Click**: 1 tool\n2. **Type**: 1 tool\n3. **Select**: 1 tool\n4. **Upload**: 1 tool\n5. **Download**: 1 tool\n\n### Extraction\n1. **Text**: 1 tool\n2. **HTML**: 1 tool\n3. **Attributes**: 1 tool\n4. **Screenshots**: 1 tool\n5. **PDFs**: 1 tool\n\n### Waiting\n1. **Selectors**: 1 tool\n2. **Network**: 1 tool\n3. **Timeouts**: 1 tool\n\n### Advanced\n1. **Emulation (Mobile, Geolocation)**: 2 tools (1 for mobile, 1 for geolocation)\n2. **Network Interception**: 1 tool\n3. **Authentication**: 1 tool\n\n### Missing from 33 Tools Estimate\n- **Error Handling**: 1 tool\n- **Logging**: 1 tool\n- **Debugging**: 1 tool\n- **Performance Monitoring**: 1 tool\n- **Accessibility Testing**: 1 tool\n\n### Recommended Tool Count\n- **Total**: 33 tools (including the missing features)\n\nThis breakdown ensures comprehensive coverage of Playwright's capabilities, addressing both basic and advanced features.",
+      "error": null,
+      "tokens_used": 663,
+      "cost": 0.0051675,
+      "created_at": "2025-11-06T16:23:38.930Z",
+      "completed_at": "2025-11-06T16:23:45.567Z"
+    },
+    {
+      "id": "job_1762446227713_8sht2qd29",
+      "agent": "balanced-worker",
+      "task": "Analyze Context7 library documentation platform for comprehensive tool coverage. Current estimate: 8 tools.\n\nEvaluate:\n1. What Context7 features should be covered?\n2. Core operations: Search libraries, Get docs, Resolve IDs\n3. Library search: By name, By topic, Popular libraries\n4. Documentation: Get docs, Search within docs, Code examples\n5. Versions: List versions, Compare versions, Migration guides\n6. What's missing from 8 tools estimate?\n7. Recommended tool count for comprehensive coverage\n\nNote: Context7 is a simpler API, so 8 might be accurate or even overestimate.\n\nProvide detailed breakdown by feature area with tool counts.",
+      "input_refs": "[]",
+      "state": "completed",
+      "result": "To evaluate the Context7 library documentation platform and determine the appropriate tool coverage, we need to break down the features and operations into distinct tools. Here's a detailed analysis:\n\n### Core Operations\n1. **Search Libraries**\n   - Tool 1: Search by Name\n   - Tool 2: Search by Topic\n   - Tool 3: Search Popular Libraries\n\n2. **Get Docs**\n   - Tool 4: Retrieve Documentation\n\n3. **Resolve IDs**\n   - Tool 5: Resolve Library IDs\n\n### Documentation Features\n1. **Get Docs**\n   - Already covered under Core Operations\n\n2. **Search within Docs**\n   - Tool 6: Search Documentation Content\n\n3. **Code Examples**\n   - Tool 7: Retrieve Code Examples\n\n### Version Management\n1. **List Versions**\n   - Tool 8: List Available Versions\n\n2. **Compare Versions**\n   - Tool 9: Compare Different Versions\n\n3. **Migration Guides**\n   - Tool 10: Access Migration Guides\n\n### Analysis and Recommendations\n- **What's Missing from the 8 Tools Estimate?**\n  - The initial estimate of 8 tools does not account for \"Compare Versions\" and \"Migration Guides,\" which are crucial for comprehensive version management.\n\n- **Recommended Tool Count**\n  - Based on the breakdown, a total of 10 tools is recommended for comprehensive coverage:\n    - 3 tools for library search\n    - 1 tool for retrieving documentation\n    - 1 tool for resolving IDs\n    - 1 tool for searching within documentation\n    - 1 tool for retrieving code examples\n    - 3 tools for version management (list, compare, migration guides)\n\nThis breakdown ensures that all core operations and features of the Context7 platform are adequately covered.",
+      "error": null,
+      "tokens_used": 526,
+      "cost": 0.0040149999999999995,
+      "created_at": "2025-11-06T16:23:47.713Z",
+      "completed_at": "2025-11-06T16:23:56.068Z"
+    }
+  ],
+  "spend": [
+    {
+      "id": 1,
+      "amount": 0.008367500000000002,
+      "job_id": null,
+      "created_at": "2025-11-06T16:22:26.508Z",
+      "month": 11,
+      "year": 2025
+    },
+    {
+      "id": 2,
+      "amount": 0.006620000000000001,
+      "job_id": null,
+      "created_at": "2025-11-06T16:22:52.974Z",
+      "month": 11,
+      "year": 2025
+    },
+    {
+      "id": 3,
+      "amount": 0.0050625,
+      "job_id": null,
+      "created_at": "2025-11-06T16:23:00.423Z",
+      "month": 11,
+      "year": 2025
+    },
+    {
+      "id": 4,
+      "amount": 0.0068425000000000005,
+      "job_id": null,
+      "created_at": "2025-11-06T16:23:23.518Z",
+      "month": 11,
+      "year": 2025
+    },
+    {
+      "id": 5,
+      "amount": 0.00553,
+      "job_id": null,
+      "created_at": "2025-11-06T16:23:36.800Z",
+      "month": 11,
+      "year": 2025
+    },
+    {
+      "id": 6,
+      "amount": 0.0051675,
+      "job_id": null,
+      "created_at": "2025-11-06T16:23:45.566Z",
+      "month": 11,
+      "year": 2025
+    },
+    {
+      "id": 7,
+      "amount": 0.0040149999999999995,
+      "job_id": null,
+      "created_at": "2025-11-06T16:23:56.068Z",
+      "month": 11,
+      "year": 2025
+    }
+  ]
+}
