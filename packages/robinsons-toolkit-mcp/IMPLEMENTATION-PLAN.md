@@ -389,7 +389,318 @@ UPSTASH_PROJECTS='[{"id":"prod","url":"...","token":"..."},{"id":"dev","url":"..
 
 ---
 
-## 🔧 CATEGORY 1: STRIPE (150 tools)
+## � STANDARDIZATION SYSTEM
+
+### The Problem
+
+Currently, each category has different naming patterns and calling conventions:
+- GitHub: `github_create_repo`, `github_list_issues`
+- Vercel: `vercel_list_projects`, `vercel_create_deployment`
+- Neon: `neon_list_projects`, `neon_create_database`
+
+**Issues:**
+- ❌ Inconsistent parameter names across categories
+- ❌ Different response formats
+- ❌ No standard way to discover how to use tools
+- ❌ AI agents must learn each category separately
+
+### The Solution: Universal Standardization
+
+**1. Standardized Naming Convention**
+
+```
+{category}_{resource}_{action}
+
+Examples:
+- github_repo_create (not github_create_repo)
+- github_repo_list
+- github_repo_get
+- github_repo_update
+- github_repo_delete
+- vercel_project_create
+- vercel_project_list
+- vercel_project_get
+- neon_database_create
+- neon_database_list
+```
+
+**Standard Actions (CRUD + Common):**
+- `create` - Create new resource
+- `get` - Get single resource by ID
+- `list` - List multiple resources (with pagination)
+- `update` - Update existing resource
+- `delete` - Delete resource
+- `search` - Search resources (when different from list)
+- `execute` - Execute an operation (for non-CRUD actions)
+
+**2. Standardized Parameters**
+
+**Common Parameters (all tools):**
+```typescript
+{
+  // Pagination (for list operations)
+  limit?: number;        // Max results (default: 10, max: 100)
+  offset?: number;       // Skip N results (default: 0)
+  cursor?: string;       // Cursor-based pagination token
+
+  // Filtering (for list/search operations)
+  filter?: {
+    [key: string]: any;  // Resource-specific filters
+  };
+
+  // Sorting (for list operations)
+  sort?: {
+    field: string;       // Field to sort by
+    order: 'asc' | 'desc'; // Sort direction
+  };
+
+  // Multi-project support
+  project_id?: string;   // Which project/instance to use
+}
+```
+
+**Resource-Specific Parameters:**
+```typescript
+// For create operations
+{
+  name: string;          // Resource name (required)
+  description?: string;  // Resource description (optional)
+  ...                    // Other resource-specific fields
+}
+
+// For get/update/delete operations
+{
+  id: string;            // Resource ID (required)
+  ...                    // Other resource-specific fields
+}
+```
+
+**3. Standardized Response Format**
+
+```typescript
+{
+  success: boolean;      // Operation success status
+  data: any;             // Response data (resource or array of resources)
+  meta?: {
+    total?: number;      // Total count (for list operations)
+    limit?: number;      // Limit used
+    offset?: number;     // Offset used
+    cursor?: string;     // Next cursor (for pagination)
+    has_more?: boolean;  // More results available
+  };
+  error?: {
+    code: string;        // Error code
+    message: string;     // Error message
+    details?: any;       // Additional error details
+  };
+}
+```
+
+**4. Auto-Discovery via MCP Initialize Handler**
+
+**The Magic: Server Manifest in InitializeRequestSchema**
+
+```typescript
+// In src/index.ts
+this.server.setRequestHandler(InitializeRequestSchema, async (request) => ({
+  protocolVersion: "2024-11-05",
+  capabilities: {
+    tools: {},
+  },
+  serverInfo: {
+    name: "robinsons-toolkit-mcp",
+    version: "1.12.0",
+
+    // 🎯 THIS IS THE KEY - Custom metadata sent on EVERY connection!
+    metadata: {
+      // Usage guide
+      usage: {
+        naming_convention: "{category}_{resource}_{action}",
+        standard_actions: ["create", "get", "list", "update", "delete", "search", "execute"],
+        example: "github_repo_create, vercel_project_list, neon_database_get"
+      },
+
+      // Standard parameters
+      standard_parameters: {
+        pagination: {
+          limit: "Max results (default: 10, max: 100)",
+          offset: "Skip N results (default: 0)",
+          cursor: "Cursor-based pagination token"
+        },
+        filtering: {
+          filter: "Resource-specific filters as key-value pairs"
+        },
+        sorting: {
+          sort: "{ field: string, order: 'asc' | 'desc' }"
+        },
+        multi_project: {
+          project_id: "Which project/instance to use (for multi-project support)"
+        }
+      },
+
+      // Standard response format
+      standard_response: {
+        success: "boolean - Operation success status",
+        data: "any - Response data (resource or array)",
+        meta: "object - Pagination metadata (total, limit, offset, cursor, has_more)",
+        error: "object - Error details (code, message, details)"
+      },
+
+      // Categories and subcategories
+      categories: [
+        {
+          name: "github",
+          display_name: "GitHub",
+          description: "GitHub API integration",
+          tool_count: 241,
+          subcategories: ["repos", "issues", "prs", "workflows", "users", "orgs", "teams", "security"]
+        },
+        {
+          name: "vercel",
+          display_name: "Vercel",
+          description: "Vercel deployment platform",
+          tool_count: 150,
+          subcategories: ["projects", "deployments", "domains", "env_vars", "teams", "logs"]
+        },
+        {
+          name: "stripe",
+          display_name: "Stripe",
+          description: "Stripe payment processing",
+          tool_count: 150,
+          subcategories: ["customers", "payments", "subscriptions", "products", "invoices", "refunds"]
+        }
+        // ... all categories
+      ],
+
+      // Quick start examples
+      examples: [
+        {
+          description: "Create a GitHub repository",
+          tool: "github_repo_create",
+          arguments: {
+            name: "my-new-repo",
+            description: "My awesome project",
+            private: true
+          }
+        },
+        {
+          description: "List Vercel projects",
+          tool: "vercel_project_list",
+          arguments: {
+            limit: 20,
+            sort: { field: "created_at", order: "desc" }
+          }
+        },
+        {
+          description: "Create Stripe customer",
+          tool: "stripe_customer_create",
+          arguments: {
+            email: "customer@example.com",
+            name: "John Doe"
+          }
+        }
+      ],
+
+      // Broker tools (for discovery)
+      broker_tools: [
+        "toolkit_list_categories",
+        "toolkit_list_subcategories",
+        "toolkit_list_tools",
+        "toolkit_get_tool_schema",
+        "toolkit_discover",
+        "toolkit_call"
+      ]
+    }
+  },
+}));
+```
+
+**What This Achieves:**
+
+1. ✅ **Automatic Discovery** - AI agents receive usage guide on EVERY connection
+2. ✅ **No Manual Lookup** - Naming convention, parameters, response format all documented
+3. ✅ **Consistent Experience** - Same patterns across all 16 categories
+4. ✅ **Self-Documenting** - Server tells you how to use it
+5. ✅ **Examples Included** - Quick start examples for common operations
+6. ✅ **Category Overview** - See all categories and subcategories immediately
+
+**How AI Agents Use This:**
+
+```typescript
+// When Augment connects to Robinson's Toolkit MCP:
+// 1. MCP handshake happens
+// 2. InitializeRequestSchema returns serverInfo with metadata
+// 3. Augment receives complete usage guide automatically
+// 4. Augment knows:
+//    - Naming convention: {category}_{resource}_{action}
+//    - Standard parameters: limit, offset, cursor, filter, sort, project_id
+//    - Standard response format: { success, data, meta, error }
+//    - All categories and subcategories
+//    - Example usage patterns
+
+// Augment can now use ANY tool without looking up docs:
+toolkit_call({
+  category: "stripe",
+  tool_name: "stripe_customer_create",  // Follows standard naming
+  arguments: {
+    email: "user@example.com",          // Standard parameter
+    name: "John Doe",                   // Standard parameter
+    project_id: "stripe-prod"           // Multi-project support
+  }
+})
+
+// Response follows standard format:
+{
+  success: true,
+  data: {
+    id: "cus_123",
+    email: "user@example.com",
+    name: "John Doe"
+  },
+  meta: null,
+  error: null
+}
+```
+
+### Implementation Plan
+
+**Phase 1: Standardize Existing Tools (v1.13.0)**
+1. Audit all 976 existing tools
+2. Rename to follow `{category}_{resource}_{action}` convention
+3. Standardize parameters (limit, offset, cursor, filter, sort)
+4. Standardize response format ({ success, data, meta, error })
+5. Add migration guide for breaking changes
+
+**Phase 2: Add Server Manifest (v1.13.0)**
+1. Implement InitializeRequestSchema handler with metadata
+2. Include usage guide, standard parameters, response format
+3. Include category/subcategory list
+4. Include quick start examples
+5. Test with Augment to verify auto-discovery works
+
+**Phase 3: Apply to New Tools (v1.6.0-v1.12.0)**
+1. All new tools (Stripe, Supabase, etc.) follow standard from day 1
+2. No legacy patterns in new code
+3. Consistent experience across all categories
+
+**Phase 4: Documentation (v1.13.0)**
+1. Update README with standardization guide
+2. Create migration guide for users
+3. Add examples for each category
+4. Document multi-project support
+
+### Benefits
+
+1. ✅ **Zero Learning Curve** - AI agents know how to use server immediately
+2. ✅ **Consistent Experience** - Same patterns across all 16 categories
+3. ✅ **Self-Documenting** - Server tells you how to use it on connection
+4. ✅ **Future-Proof** - New categories automatically follow standard
+5. ✅ **Reduced Errors** - Standardization eliminates confusion
+6. ✅ **Better UX** - Predictable behavior across all tools
+
+---
+
+## �🔧 CATEGORY 1: STRIPE (150 tools)
 
 ### Current Status
 - Dependencies: ✅ `stripe@17.5.0` installed
