@@ -16,7 +16,6 @@ export const BROKER_TOOLS: Tool[] = [
     description: 'List all available integration categories (GitHub, Vercel, Neon, Upstash, Google, OpenAI). Returns category names, descriptions, and tool counts.',
     inputSchema: {
       type: 'object',
-      properties: {},
     },
   },
   {
@@ -108,7 +107,6 @@ export const BROKER_TOOLS: Tool[] = [
     description: 'Check MCP server health, connection status, and available integrations. Returns server status, loaded categories, and environment variable status.',
     inputSchema: {
       type: 'object',
-      properties: {},
     },
   },
   {
@@ -116,7 +114,6 @@ export const BROKER_TOOLS: Tool[] = [
     description: 'Validate all tools in the registry and surface invalid entries. Returns total count, invalid count, and sample of invalid tools with reasons. Use this to diagnose "NULL tools" or "invalid name" errors.',
     inputSchema: {
       type: 'object',
-      properties: {},
     },
   },
 ];

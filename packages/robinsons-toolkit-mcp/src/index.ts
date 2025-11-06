@@ -657,7 +657,7 @@ class UnifiedToolkit {
         { name: 'github_search_topics', description: 'Search topics', inputSchema: { type: 'object', properties: { q: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
 
         // USERS (8 tools)
-        { name: 'github_get_authenticated_user', description: 'Get authenticated user', inputSchema: { type: 'object', properties: {} } },
+        { name: 'github_get_authenticated_user', description: 'Get authenticated user', inputSchema: { type: 'object' } },
         { name: 'github_get_user', description: 'Get user details', inputSchema: { type: 'object', properties: { username: { type: 'string' } }, required: ['username'] } },
         { name: 'github_update_authenticated_user', description: 'Update authenticated user', inputSchema: { type: 'object', properties: { name: { type: 'string' }, email: { type: 'string' }, blog: { type: 'string' }, company: { type: 'string' }, location: { type: 'string' }, bio: { type: 'string' } } } },
         { name: 'github_list_user_repos', description: 'List user repositories', inputSchema: { type: 'object', properties: { username: { type: 'string' }, type: { type: 'string' }, sort: { type: 'string' }, direction: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['username'] } },
@@ -778,7 +778,7 @@ class UnifiedToolkit {
         { name: 'vercel_delete_dns_record', description: 'Delete a DNS record', inputSchema: { type: 'object', properties: {'domain':{'type':'string','description':'Domain name'},'recordId':{'type':'string','description':'DNS record ID'}}, required: ["domain", "recordId"] } },
 
         // ==================== TEAM MANAGEMENT ====================
-        { name: 'vercel_list_teams', description: 'List all teams', inputSchema: { type: 'object', properties: {} } },
+        { name: 'vercel_list_teams', description: 'List all teams', inputSchema: { type: 'object' } },
         { name: 'vercel_get_team', description: 'Get team details', inputSchema: { type: 'object', properties: {'teamId':{'type':'string','description':'Team ID'}}, required: ["teamId"] } },
         { name: 'vercel_list_team_members', description: 'List team members', inputSchema: { type: 'object', properties: {'teamId':{'type':'string','description':'Team ID'}}, required: ["teamId"] } },
 
@@ -1026,7 +1026,7 @@ class UnifiedToolkit {
         { name: 'neon_verify_schema', description: 'Verify that required tables exist in database.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string' }, databaseName: { type: 'string' }, requiredTables: { type: 'array', items: { type: 'string' }, description: 'List of table names that must exist' } }, required: ['projectId', 'requiredTables'] } },
         { name: 'neon_get_connection_uri', description: 'Get full PostgreSQL connection URI for application use.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, branchId: { type: 'string', description: 'Branch ID (optional, uses main if not specified)' }, databaseName: { type: 'string', description: 'Database name (optional, uses default if not specified)' }, pooled: { type: 'boolean', description: 'Use connection pooling (default: true)', default: true } }, required: ['projectId'] } },
         { name: 'neon_setup_rad_database', description: 'Complete autonomous setup: create project, database, deploy schema, verify. Returns connection URI.', inputSchema: { type: 'object', properties: { projectName: { type: 'string', default: 'RAD Crawler' }, databaseName: { type: 'string', default: 'rad_production' }, region: { type: 'string', default: 'us-east-1' }, schemaSQL: { type: 'string', description: 'Full SQL schema to deploy' }, org_id: { type: 'string' } }, required: ['schemaSQL'] } },
-        { name: 'neon_check_api_key', description: 'Check if Neon API key is configured and valid.', inputSchema: { type: 'object', properties: {} } },
+        { name: 'neon_check_api_key', description: 'Check if Neon API key is configured and valid.', inputSchema: { type: 'object' } },
 
         // QUERY TUNING (2 tools)
         { name: 'neon_prepare_query_tuning', description: 'Analyze and prepare query optimizations.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, databaseName: { type: 'string' }, sql: { type: 'string' }, roleName: { type: 'string' } }, required: ['projectId', 'databaseName', 'sql'] } },
@@ -1127,7 +1127,7 @@ class UnifiedToolkit {
         { name: 'neon_provision_neon_auth', description: 'Provision Neon Auth with Stack Auth integration.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, database: { type: 'string' } }, required: ['projectId'] } },
 
         // API KEY MANAGEMENT (3 tools)
-        { name: 'neon_list_api_keys', description: 'List all API keys for the account.', inputSchema: { type: 'object', properties: {} } },
+        { name: 'neon_list_api_keys', description: 'List all API keys for the account.', inputSchema: { type: 'object' } },
         { name: 'neon_create_api_key_for_project', description: 'Create project-specific API key.', inputSchema: { type: 'object', properties: { keyName: { type: 'string' }, projectId: { type: 'string' } }, required: ['keyName'] } },
         { name: 'neon_revoke_api_key', description: 'Revoke/delete API key.', inputSchema: { type: 'object', properties: { keyId: { type: 'string' } }, required: ['keyId'] } },
 
@@ -1177,7 +1177,7 @@ class UnifiedToolkit {
         // ============================================================
         // UPSTASH MANAGEMENT API - REDIS DATABASE MANAGEMENT (15 tools)
         // ============================================================
-        { name: 'upstash_list_redis_databases', description: 'List all Redis databases in your Upstash account', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_list_redis_databases', description: 'List all Redis databases in your Upstash account', inputSchema: { type: 'object' } },
         { name: 'upstash_get_redis_database', description: 'Get details of a specific Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
         { name: 'upstash_create_redis_database', description: 'Create a new Global Redis database (regional databases are deprecated)', inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'Database name' }, primary_region: { type: 'string', description: 'Primary region (e.g., us-east-1, eu-west-1, ap-southeast-1)' }, read_regions: { type: 'array', items: { type: 'string' }, description: 'Optional: Array of read replica regions for global distribution' }, tls: { type: 'boolean', description: 'Enable TLS (default: true)' }, eviction: { type: 'boolean', description: 'Enable eviction (default: false)' } }, required: ['name', 'primary_region'] } },
         { name: 'upstash_delete_redis_database', description: 'Delete a Redis database', inputSchema: { type: 'object', properties: { databaseId: { type: 'string', description: 'Database ID' } }, required: ['databaseId'] } },
@@ -1196,7 +1196,7 @@ class UnifiedToolkit {
         // ============================================================
         // UPSTASH MANAGEMENT API - TEAM MANAGEMENT (6 tools)
         // ============================================================
-        { name: 'upstash_list_teams', description: 'List all teams in your Upstash account', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_list_teams', description: 'List all teams in your Upstash account', inputSchema: { type: 'object' } },
         { name: 'upstash_get_team', description: 'Get details of a specific team', inputSchema: { type: 'object', properties: { teamId: { type: 'string', description: 'Team ID' } }, required: ['teamId'] } },
         { name: 'upstash_create_team', description: 'Create a new team', inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'Team name' } }, required: ['name'] } },
         { name: 'upstash_delete_team', description: 'Delete a team', inputSchema: { type: 'object', properties: { teamId: { type: 'string', description: 'Team ID' } }, required: ['teamId'] } },
@@ -1242,16 +1242,16 @@ class UnifiedToolkit {
         // ============================================================
         // UPSTASH REDIS REST API - SERVER OPERATIONS (10 tools)
         // ============================================================
-        { name: 'upstash_redis_ping', description: 'Ping the Redis server', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_redis_ping', description: 'Ping the Redis server', inputSchema: { type: 'object' } },
         { name: 'upstash_redis_echo', description: 'Echo a message', inputSchema: { type: 'object', properties: { message: { type: 'string', description: 'Message to echo' } }, required: ['message'] } },
-        { name: 'upstash_redis_dbsize', description: 'Get total number of keys in database', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_redis_dbsize', description: 'Get total number of keys in database', inputSchema: { type: 'object' } },
         { name: 'upstash_redis_flushdb', description: 'Clear all keys in current database (DANGEROUS)', inputSchema: { type: 'object', properties: { confirm: { type: 'boolean', description: 'Must be true to confirm' } }, required: ['confirm'] } },
         { name: 'upstash_redis_flushall', description: 'Clear all keys in all databases (DANGEROUS)', inputSchema: { type: 'object', properties: { confirm: { type: 'boolean', description: 'Must be true to confirm' } }, required: ['confirm'] } },
         { name: 'upstash_redis_info', description: 'Get Redis server information and statistics', inputSchema: { type: 'object', properties: { section: { type: 'string', description: 'Info section (server, memory, stats, etc.)' } } } },
-        { name: 'upstash_redis_time', description: 'Get current server time', inputSchema: { type: 'object', properties: {} } },
-        { name: 'upstash_redis_lastsave', description: 'Get Unix timestamp of last successful save', inputSchema: { type: 'object', properties: {} } },
-        { name: 'upstash_redis_save', description: 'Synchronously save dataset to disk', inputSchema: { type: 'object', properties: {} } },
-        { name: 'upstash_redis_bgsave', description: 'Asynchronously save dataset to disk', inputSchema: { type: 'object', properties: {} } },
+        { name: 'upstash_redis_time', description: 'Get current server time', inputSchema: { type: 'object' } },
+        { name: 'upstash_redis_lastsave', description: 'Get Unix timestamp of last successful save', inputSchema: { type: 'object' } },
+        { name: 'upstash_redis_save', description: 'Synchronously save dataset to disk', inputSchema: { type: 'object' } },
+        { name: 'upstash_redis_bgsave', description: 'Asynchronously save dataset to disk', inputSchema: { type: 'object' } },
 
         // ============================================================
         // UPSTASH REDIS REST API - PUB/SUB OPERATIONS (2 tools)
@@ -1397,12 +1397,12 @@ class UnifiedToolkit {
       { name: 'gmail_list_messages', description: 'List Gmail messages', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' }, query: { type: 'string' } } } },
       { name: 'gmail_get_message', description: 'Get a Gmail message', inputSchema: { type: 'object', properties: { messageId: { type: 'string' } }, required: ['messageId'] } },
       { name: 'gmail_delete_message', description: 'Delete a Gmail message', inputSchema: { type: 'object', properties: { messageId: { type: 'string' } }, required: ['messageId'] } },
-      { name: 'gmail_list_labels', description: 'List Gmail labels', inputSchema: { type: 'object', properties: {} } },
+      { name: 'gmail_list_labels', description: 'List Gmail labels', inputSchema: { type: 'object' } },
       { name: 'gmail_create_label', description: 'Create a Gmail label', inputSchema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } },
       { name: 'gmail_delete_label', description: 'Delete a Gmail label', inputSchema: { type: 'object', properties: { labelId: { type: 'string' } }, required: ['labelId'] } },
       { name: 'gmail_list_drafts', description: 'List Gmail drafts', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' } } } },
       { name: 'gmail_create_draft', description: 'Create a Gmail draft', inputSchema: { type: 'object', properties: { to: { type: 'string' }, subject: { type: 'string' }, body: { type: 'string' } }, required: ['to', 'subject', 'body'] } },
-      { name: 'gmail_get_profile', description: 'Get Gmail profile', inputSchema: { type: 'object', properties: {} } },
+      { name: 'gmail_get_profile', description: 'Get Gmail profile', inputSchema: { type: 'object' } },
       { name: 'drive_list_files', description: 'List files in Google Drive', inputSchema: { type: 'object', properties: { maxResults: { type: 'number' }, query: { type: 'string' } } } },
       { name: 'drive_get_file', description: 'Get file metadata', inputSchema: { type: 'object', properties: { fileId: { type: 'string' } }, required: ['fileId'] } },
       { name: 'drive_create_folder', description: 'Create a folder', inputSchema: { type: 'object', properties: { name: { type: 'string' }, parentId: { type: 'string' } }, required: ['name'] } },
@@ -1579,10 +1579,10 @@ class UnifiedToolkit {
       { name: 'gmail_stop_watch', description: 'Stop Gmail push notifications', inputSchema: { type: 'object', properties: { userId: { type: 'string' } }, required: ['userId'] } },
       { name: 'gmail_watch', description: 'Set up Gmail push notifications', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, labelIds: { type: 'array' }, topicName: { type: 'string' } }, required: ['userId', 'topicName'] } },
       // ADVANCED DRIVE (5 tools)
-      { name: 'drive_empty_trash', description: 'Empty Drive trash', inputSchema: { type: 'object', properties: {} } },
+      { name: 'drive_empty_trash', description: 'Empty Drive trash', inputSchema: { type: 'object' } },
       { name: 'drive_get_about', description: 'Get Drive storage info', inputSchema: { type: 'object', properties: { fields: { type: 'string' } } } },
       { name: 'drive_list_changes', description: 'List file changes', inputSchema: { type: 'object', properties: { pageToken: { type: 'string' }, includeRemoved: { type: 'boolean' } }, required: ['pageToken'] } },
-      { name: 'drive_get_start_page_token', description: 'Get start page token for changes', inputSchema: { type: 'object', properties: {} } },
+      { name: 'drive_get_start_page_token', description: 'Get start page token for changes', inputSchema: { type: 'object' } },
       { name: 'drive_watch_changes', description: 'Watch for file changes', inputSchema: { type: 'object', properties: { pageToken: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' } }, required: ['pageToken', 'address'] } },
       // ADVANCED CALENDAR (3 tools)
       { name: 'calendar_import_event', description: 'Import event to calendar', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, event: { type: 'object' } }, required: ['calendarId', 'event'] } },
@@ -1650,7 +1650,7 @@ class UnifiedToolkit {
       { name: 'drive_replies_update', description: 'Update comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, replyId: { type: 'string' }, content: { type: 'string' } }, required: ['fileId', 'commentId', 'replyId', 'content'] } },
       { name: 'drive_replies_delete', description: 'Delete comment reply', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, commentId: { type: 'string' }, replyId: { type: 'string' } }, required: ['fileId', 'commentId', 'replyId'] } },
       { name: 'drive_copy_file', description: 'Copy file', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, name: { type: 'string' } }, required: ['fileId'] } },
-      { name: 'drive_empty_trash', description: 'Empty trash', inputSchema: { type: 'object', properties: {} } },
+      { name: 'drive_empty_trash', description: 'Empty trash', inputSchema: { type: 'object' } },
       { name: 'drive_generate_ids', description: 'Generate file IDs', inputSchema: { type: 'object', properties: { count: { type: 'number' } } } },
       { name: 'drive_watch_file', description: 'Watch file for changes', inputSchema: { type: 'object', properties: { fileId: { type: 'string' }, address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['fileId', 'address', 'type', 'id'] } },
       { name: 'calendar_event_instances', description: 'Get recurring event instances', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, eventId: { type: 'string' } }, required: ['calendarId', 'eventId'] } },
@@ -1658,8 +1658,8 @@ class UnifiedToolkit {
       { name: 'calendar_event_patch', description: 'Patch event', inputSchema: { type: 'object', properties: { calendarId: { type: 'string' }, eventId: { type: 'string' }, updates: { type: 'object' } }, required: ['calendarId', 'eventId', 'updates'] } },
       { name: 'calendar_freebusy_query', description: 'Query free/busy information', inputSchema: { type: 'object', properties: { timeMin: { type: 'string' }, timeMax: { type: 'string' }, items: { type: 'array' } }, required: ['timeMin', 'timeMax', 'items'] } },
       // PHASE 4-6: LOW PRIORITY + DOCS + SLIDES (16 tools)
-      { name: 'calendar_colors_get', description: 'Get color definitions', inputSchema: { type: 'object', properties: {} } },
-      { name: 'calendar_settings_list', description: 'List calendar settings', inputSchema: { type: 'object', properties: {} } },
+      { name: 'calendar_colors_get', description: 'Get color definitions', inputSchema: { type: 'object' } },
+      { name: 'calendar_settings_list', description: 'List calendar settings', inputSchema: { type: 'object' } },
       { name: 'calendar_settings_get', description: 'Get calendar setting', inputSchema: { type: 'object', properties: { setting: { type: 'string' } }, required: ['setting'] } },
       { name: 'calendar_settings_watch', description: 'Watch calendar settings', inputSchema: { type: 'object', properties: { address: { type: 'string' }, type: { type: 'string' }, id: { type: 'string' } }, required: ['address', 'type', 'id'] } },
       { name: 'gmail_history_list', description: 'List mailbox history', inputSchema: { type: 'object', properties: { userId: { type: 'string' }, startHistoryId: { type: 'string' } }, required: ['startHistoryId'] } },
@@ -1702,7 +1702,7 @@ class UnifiedToolkit {
       { name: 'openai_moderate_content', description: 'Check if content violates OpenAI usage policies', inputSchema: { type: 'object', properties: { input: { type: 'string', description: 'Content to moderate' } }, required: ['input'] } },
 
       // MODELS (3 tools)
-      { name: 'openai_list_models', description: 'List all available OpenAI models', inputSchema: { type: 'object', properties: {} } },
+      { name: 'openai_list_models', description: 'List all available OpenAI models', inputSchema: { type: 'object' } },
       { name: 'openai_get_model', description: 'Get details about a specific model', inputSchema: { type: 'object', properties: { model: { type: 'string', description: 'Model ID' } }, required: ['model'] } },
       { name: 'openai_delete_model', description: 'Delete a fine-tuned model', inputSchema: { type: 'object', properties: { model: { type: 'string', description: 'Model ID to delete' } }, required: ['model'] } },
 
@@ -1774,7 +1774,7 @@ class UnifiedToolkit {
 
       // COST MANAGEMENT (8 tools)
       { name: 'openai_estimate_cost', description: 'Estimate cost of an operation before executing it', inputSchema: { type: 'object', properties: { operation: { type: 'string', enum: ['chat_completion', 'embedding', 'image_generation', 'tts', 'stt', 'fine_tuning'], description: 'Operation type' }, model: { type: 'string', description: 'Model to use' }, input_tokens: { type: 'number', description: 'Estimated input tokens' }, output_tokens: { type: 'number', description: 'Estimated output tokens' }, quantity: { type: 'number', description: 'Quantity (images, audio minutes, etc.)' } }, required: ['operation', 'model'] } },
-      { name: 'openai_get_budget_status', description: 'Get current budget usage and remaining balance', inputSchema: { type: 'object', properties: {} } },
+      { name: 'openai_get_budget_status', description: 'Get current budget usage and remaining balance', inputSchema: { type: 'object' } },
       { name: 'openai_get_cost_breakdown', description: 'Get detailed cost breakdown by model, operation, and time period', inputSchema: { type: 'object', properties: { start_date: { type: 'string', description: 'Start date (YYYY-MM-DD)' }, end_date: { type: 'string', description: 'End date (YYYY-MM-DD)' }, group_by: { type: 'string', enum: ['model', 'operation', 'day', 'hour'], description: 'Grouping method' } } } },
       { name: 'openai_compare_models', description: 'Compare cost and performance between different models for the same task', inputSchema: { type: 'object', properties: { models: { type: 'array', items: { type: 'string' }, description: 'Models to compare' }, task_type: { type: 'string', enum: ['chat', 'completion', 'embedding'], description: 'Task type' }, input_tokens: { type: 'number', description: 'Estimated input tokens' }, output_tokens: { type: 'number', description: 'Estimated output tokens' } }, required: ['models', 'task_type'] } },
       { name: 'openai_optimize_prompt', description: 'Analyze prompt and suggest optimizations to reduce token usage', inputSchema: { type: 'object', properties: { prompt: { type: 'string', description: 'Prompt to optimize' }, target_reduction: { type: 'number', description: 'Target token reduction percentage (0-50)', default: 20 } }, required: ['prompt'] } },
