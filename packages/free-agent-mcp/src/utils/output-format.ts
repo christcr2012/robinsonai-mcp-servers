@@ -8,7 +8,13 @@ export interface OutputFile {
 }
 
 /**
- * Format files as GMCode blocks for downstream agents.
+ * Strip markdown code fences from text.
+ * Handles nested fences, optional newlines, and inline fences.
+ *
+ * Examples:
+ * - "```ts\ncode\n```" → "code"
+ * - "```typescript code```" → "code"
+ * - "text ```js\ncode\n``` more" → "text code more"
  */
 export function stripCodeFences(text: string): string {
   if (!text) {
@@ -16,13 +22,18 @@ export function stripCodeFences(text: string): string {
   }
 
   let result = text.trim();
-  const fencePattern = /^```[\w+-]*\n([\s\S]*?)\n```$/;
 
-  while (fencePattern.test(result)) {
-    result = result.replace(fencePattern, '$1').trim();
+  // Strip outer fences first (most common case - handles optional newlines)
+  const outerFencePattern = /^```[\w+-]*\n?([\s\S]*?)\n?```$/;
+  while (outerFencePattern.test(result)) {
+    result = result.replace(outerFencePattern, '$1').trim();
   }
 
-  return result;
+  // Also strip any remaining inline or embedded fences
+  // This handles cases like "text ```js code``` more text"
+  result = result.replace(/```[\w+-]*\n?([\s\S]*?)\n?```/g, '$1');
+
+  return result.trim();
 }
 
 export function formatGMCode(files: OutputFile[]): string {

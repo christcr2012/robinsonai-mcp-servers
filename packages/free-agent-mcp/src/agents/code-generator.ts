@@ -508,35 +508,65 @@ Requirements:
     return { code: text.trim() };
   }
 
+  /**
+   * Extract file path from various formats in LLM output.
+   *
+   * Handles:
+   * - Inline comments: "// path/to/file.ts"
+   * - Prefixed paths: "path: src/file.ts" or "file: src/file.ts"
+   * - Quoted paths: "'src/my file.ts'" or "\"src/file.ts\""
+   * - Paths with trailing comments: "src/file.ts // comment"
+   *
+   * Rejects:
+   * - URLs: "https://example.com/file.ts"
+   * - Invalid Windows paths: "C:file.ts" (missing backslash)
+   * - Paths without separators: "filename" (no . or / or \)
+   */
   private extractPathCandidate(raw?: string): string | undefined {
     if (!raw) return undefined;
 
     let candidate = raw.trim();
     if (!candidate) return undefined;
 
+    // Strip leading comment markers
     if (candidate.startsWith('//')) {
       candidate = candidate.replace(/^\/\//, '').trim();
     }
 
+    // Extract from "path: ..." or "file: ..." prefixes
     const prefixed = candidate.match(/^(?:path|file|filepath|filename)\s*: ?(.+)$/i);
     if (prefixed) {
       candidate = prefixed[1].trim();
     }
 
-    candidate = candidate.replace(/^['"`]|['"`]$/g, '').trim();
+    // Strip quotes (handles paths with spaces inside quotes)
+    candidate = candidate.replace(/^['"`](.+?)['"`]$/, '$1').trim();
 
+    // Remove trailing comments
     const commentIndex = candidate.indexOf(' //');
     if (commentIndex !== -1) {
       candidate = candidate.slice(0, commentIndex).trim();
     }
 
+    // Normalize whitespace
     candidate = candidate.replace(/\s+/g, ' ').trim();
 
     if (!candidate) {
       return undefined;
     }
 
-    if (!/[./]/.test(candidate)) {
+    // Must contain path separators (., /, or \)
+    if (!/[./\\]/.test(candidate)) {
+      return undefined;
+    }
+
+    // Reject URLs
+    if (/^https?:\/\//i.test(candidate)) {
+      return undefined;
+    }
+
+    // Reject invalid Windows paths (e.g., "C:file.ts" without backslash)
+    if (/^[A-Z]:[^\\]/i.test(candidate)) {
       return undefined;
     }
 
