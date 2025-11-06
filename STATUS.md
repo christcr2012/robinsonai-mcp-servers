@@ -45,12 +45,15 @@
    - Script: `fix-gpt5-schemas-step3.mjs` (not created yet)
    - Will handle properties like `maxAttempts`, `acceptThreshold`, etc.
 
-**Current Status:** ⚠️ Scripts created, testing revealed issues
+**Current Status:** ✅ Steps 1 & 2 applied to free-agent-mcp, awaiting GPT-5 test
 
-**Testing Results:**
-- ✅ Step 1: Works perfectly (23 schemas, clean preview)
-- ⚠️ Step 2: Works but preview formatting unclear (21 nested objects)
-- ❌ Step 3: FLAWED - marks required properties as optional!
+**Application Results (free-agent-mcp):**
+- ✅ Step 1: Applied successfully (23 top-level schemas fixed)
+- ✅ Step 2: Applied successfully (1 nested object fixed - designCard)
+- ⏭️ Step 3: Skipped (testing if Steps 1 & 2 are sufficient)
+- ✅ TypeScript build: PASSED
+- ✅ Syntax validation: PASSED
+- ⏳ GPT-5 test: PENDING (user needs to test in Augment)
 
 **Problem with Step 3:**
 - Script processes properties BEFORE seeing the `required` array
