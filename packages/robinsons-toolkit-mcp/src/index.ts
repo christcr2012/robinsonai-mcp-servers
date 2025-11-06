@@ -2445,220 +2445,220 @@ class UnifiedToolkit {
           case "vercel_update_security_headers":
             return await this.updateSecurityHeaders(args);
 // PROJECT MANAGEMENT
-          case 'neon_list_projects': return await this.listProjects(args);
-          case 'neon_list_organizations': return await this.listOrganizations(args);
-          case 'neon_list_shared_projects': return await this.listSharedProjects(args);
-          case 'neon_create_project': return await this.createProject(args);
-          case 'neon_delete_project': return await this.deleteProject(args);
-          case 'neon_describe_project': return await this.describeProject(args);
-          case 'neon_update_project': return await this.updateProject(args);
-          case 'neon_get_project_operations': return await this.getProjectOperations(args);
-          case 'neon_get_project_consumption': return await this.getProjectConsumption(args);
-          case 'neon_set_project_settings': return await this.setProjectSettings(args);
-          case 'neon_get_project_quotas': return await this.getProjectQuotas(args);
-          case 'neon_clone_project': return await this.cloneProject(args);
-          case 'neon_get_project_permissions': return await this.getProjectPermissions(args);
+          case 'neon_list_projects': return await this.neonListProjects(args);
+          case 'neon_list_organizations': return await this.neonListOrganizations(args);
+          case 'neon_list_shared_projects': return await this.neonListSharedProjects(args);
+          case 'neon_create_project': return await this.neonCreateProject(args);
+          case 'neon_delete_project': return await this.neonDeleteProject(args);
+          case 'neon_describe_project': return await this.neonDescribeProject(args);
+          case 'neon_update_project': return await this.neonUpdateProject(args);
+          case 'neon_get_project_operations': return await this.neonGetProjectOperations(args);
+          case 'neon_get_project_consumption': return await this.neonGetProjectConsumption(args);
+          case 'neon_set_project_settings': return await this.neonSetProjectSettings(args);
+          case 'neon_get_project_quotas': return await this.neonGetProjectQuotas(args);
+          case 'neon_clone_project': return await this.neonCloneProject(args);
+          case 'neon_get_project_permissions': return await this.neonGetProjectPermissions(args);
 
           // BRANCH MANAGEMENT
-          case 'neon_create_branch': return await this.createBranch(args);
-          case 'neon_delete_branch': return await this.deleteBranch(args);
-          case 'neon_describe_branch': return await this.describeBranch(args);
-          case 'neon_reset_from_parent': return await this.resetFromParent(args);
-          case 'neon_update_branch': return await this.updateBranch(args);
-          case 'neon_list_branches': return await this.listBranches(args);
-          case 'neon_get_branch_details': return await this.getBranchDetails(args);
-          case 'neon_restore_branch': return await this.restoreBranch(args);
-          case 'neon_set_branch_protection': return await this.setBranchProtection(args);
-          case 'neon_get_branch_schema_diff': return await this.getBranchSchemaDiff(args);
-          case 'neon_get_branch_data_diff': return await this.getBranchDataDiff(args);
-          case 'neon_merge_branches': return await this.mergeBranches(args);
-          case 'neon_promote_branch': return await this.promoteBranch(args);
-          case 'neon_set_branch_retention': return await this.setBranchRetention(args);
-          case 'neon_get_branch_history': return await this.getBranchHistory(args);
-          case 'neon_restore_branch_to_timestamp': return await this.restoreBranchToTimestamp(args);
-          case 'neon_get_branch_size': return await this.getBranchSize(args);
-          case 'neon_set_branch_compute_settings': return await this.setBranchComputeSettings(args);
-          case 'neon_get_branch_connections': return await this.getBranchConnections(args);
-          case 'neon_list_branch_computes': return await this.listBranchComputes(args);
+          case 'neon_create_branch': return await this.neonCreateBranch(args);
+          case 'neon_delete_branch': return await this.neonDeleteBranch(args);
+          case 'neon_describe_branch': return await this.neonDescribeBranch(args);
+          case 'neon_reset_from_parent': return await this.neonResetFromParent(args);
+          case 'neon_update_branch': return await this.neonUpdateBranch(args);
+          case 'neon_list_branches': return await this.neonListBranches(args);
+          case 'neon_get_branch_details': return await this.neonGetBranchDetails(args);
+          case 'neon_restore_branch': return await this.neonRestoreBranch(args);
+          case 'neon_set_branch_protection': return await this.neonSetBranchProtection(args);
+          case 'neon_get_branch_schema_diff': return await this.neonGetBranchSchemaDiff(args);
+          case 'neon_get_branch_data_diff': return await this.neonGetBranchDataDiff(args);
+          case 'neon_merge_branches': return await this.neonMergeBranches(args);
+          case 'neon_promote_branch': return await this.neonPromoteBranch(args);
+          case 'neon_set_branch_retention': return await this.neonSetBranchRetention(args);
+          case 'neon_get_branch_history': return await this.neonGetBranchHistory(args);
+          case 'neon_restore_branch_to_timestamp': return await this.neonRestoreBranchToTimestamp(args);
+          case 'neon_get_branch_size': return await this.neonGetBranchSize(args);
+          case 'neon_set_branch_compute_settings': return await this.neonSetBranchComputeSettings(args);
+          case 'neon_get_branch_connections': return await this.neonGetBranchConnections(args);
+          case 'neon_list_branch_computes': return await this.neonListBranchComputes(args);
 
           // SQL EXECUTION
-          case 'neon_run_sql': return await this.runSql(args);
-          case 'neon_run_sql_transaction': return await this.runSqlTransaction(args);
-          case 'neon_get_connection_string': return await this.getConnectionString(args);
-          case 'neon_get_database_tables': return await this.getDatabaseTables(args);
-          case 'neon_describe_table_schema': return await this.describeTableSchema(args);
-          case 'neon_explain_sql_statement': return await this.explainSqlStatement(args);
-          case 'neon_list_slow_queries': return await this.listSlowQueries(args);
-          case 'neon_optimize_query': return await this.optimizeQuery(args);
-          case 'neon_suggest_indexes': return await this.suggestIndexes(args);
-          case 'neon_analyze_query_plan': return await this.analyzeQueryPlan(args);
+          case 'neon_run_sql': return await this.neonRunSql(args);
+          case 'neon_run_sql_transaction': return await this.neonRunSqlTransaction(args);
+          case 'neon_get_connection_string': return await this.neonGetConnectionString(args);
+          case 'neon_get_database_tables': return await this.neonGetDatabaseTables(args);
+          case 'neon_describe_table_schema': return await this.neonDescribeTableSchema(args);
+          case 'neon_explain_sql_statement': return await this.neonExplainSqlStatement(args);
+          case 'neon_list_slow_queries': return await this.neonListSlowQueries(args);
+          case 'neon_optimize_query': return await this.neonOptimizeQuery(args);
+          case 'neon_suggest_indexes': return await this.neonSuggestIndexes(args);
+          case 'neon_analyze_query_plan': return await this.neonAnalyzeQueryPlan(args);
 
           // DATABASE MANAGEMENT
-          case 'neon_create_database': return await this.createDatabase(args);
-          case 'neon_delete_database': return await this.deleteDatabase(args);
-          case 'neon_list_databases': return await this.listDatabases(args);
-          case 'neon_get_database_size': return await this.getDatabaseSize(args);
-          case 'neon_get_database_stats': return await this.getDatabaseStats(args);
-          case 'neon_vacuum_database': return await this.vacuumDatabase(args);
-          case 'neon_analyze_database': return await this.analyzeDatabase(args);
-          case 'neon_reindex_database': return await this.reindexDatabase(args);
-          case 'neon_get_database_locks': return await this.getDatabaseLocks(args);
-          case 'neon_kill_database_query': return await this.killDatabaseQuery(args);
-          case 'neon_get_database_activity': return await this.getDatabaseActivity(args);
-          case 'neon_backup_database': return await this.backupDatabase(args);
+          case 'neon_create_database': return await this.neonCreateDatabase(args);
+          case 'neon_delete_database': return await this.neonDeleteDatabase(args);
+          case 'neon_list_databases': return await this.neonListDatabases(args);
+          case 'neon_get_database_size': return await this.neonGetDatabaseSize(args);
+          case 'neon_get_database_stats': return await this.neonGetDatabaseStats(args);
+          case 'neon_vacuum_database': return await this.neonVacuumDatabase(args);
+          case 'neon_analyze_database': return await this.neonAnalyzeDatabase(args);
+          case 'neon_reindex_database': return await this.neonReindexDatabase(args);
+          case 'neon_get_database_locks': return await this.neonGetDatabaseLocks(args);
+          case 'neon_kill_database_query': return await this.neonKillDatabaseQuery(args);
+          case 'neon_get_database_activity': return await this.neonGetDatabaseActivity(args);
+          case 'neon_backup_database': return await this.neonBackupDatabase(args);
 
           // MIGRATIONS
-          case 'neon_prepare_database_migration': return await this.prepareDatabaseMigration(args);
-          case 'neon_complete_database_migration': return await this.completeDatabaseMigration(args);
+          case 'neon_prepare_database_migration': return await this.neonPrepareDatabaseMigration(args);
+          case 'neon_complete_database_migration': return await this.neonCompleteDatabaseMigration(args);
 
           // QUERY TUNING
-          case 'neon_prepare_query_tuning': return await this.prepareQueryTuning(args);
-          case 'neon_complete_query_tuning': return await this.completeQueryTuning(args);
+          case 'neon_prepare_query_tuning': return await this.neonPrepareQueryTuning(args);
+          case 'neon_complete_query_tuning': return await this.neonCompleteQueryTuning(args);
 
           // ROLE MANAGEMENT
-          case 'neon_create_role': return await this.createRole(args);
-          case 'neon_delete_role': return await this.deleteRole(args);
-          case 'neon_list_roles': return await this.listRoles(args);
-          case 'neon_update_role': return await this.updateRole(args);
-          case 'neon_grant_role_permissions': return await this.grantRolePermissions(args);
-          case 'neon_revoke_role_permissions': return await this.revokeRolePermissions(args);
-          case 'neon_get_role_permissions': return await this.getRolePermissions(args);
-          case 'neon_reset_role_password': return await this.resetRolePassword(args);
+          case 'neon_create_role': return await this.neonCreateRole(args);
+          case 'neon_delete_role': return await this.neonDeleteRole(args);
+          case 'neon_list_roles': return await this.neonListRoles(args);
+          case 'neon_update_role': return await this.neonUpdateRole(args);
+          case 'neon_grant_role_permissions': return await this.neonGrantRolePermissions(args);
+          case 'neon_revoke_role_permissions': return await this.neonRevokeRolePermissions(args);
+          case 'neon_get_role_permissions': return await this.neonGetRolePermissions(args);
+          case 'neon_reset_role_password': return await this.neonResetRolePassword(args);
 
           // COMPUTE/ENDPOINT MANAGEMENT
-          case 'neon_create_endpoint': return await this.createEndpoint(args);
-          case 'neon_delete_endpoint': return await this.deleteEndpoint(args);
-          case 'neon_update_endpoint': return await this.updateEndpoint(args);
-          case 'neon_start_endpoint': return await this.startEndpoint(args);
-          case 'neon_suspend_endpoint': return await this.suspendEndpoint(args);
-          case 'neon_restart_endpoint': return await this.restartEndpoint(args);
-          case 'neon_get_endpoint_metrics': return await this.getEndpointMetrics(args);
-          case 'neon_set_endpoint_autoscaling': return await this.setEndpointAutoscaling(args);
-          case 'neon_get_endpoint_logs': return await this.getEndpointLogs(args);
-          case 'neon_set_endpoint_pooling': return await this.setEndpointPooling(args);
+          case 'neon_create_endpoint': return await this.neonCreateEndpoint(args);
+          case 'neon_delete_endpoint': return await this.neonDeleteEndpoint(args);
+          case 'neon_update_endpoint': return await this.neonUpdateEndpoint(args);
+          case 'neon_start_endpoint': return await this.neonStartEndpoint(args);
+          case 'neon_suspend_endpoint': return await this.neonSuspendEndpoint(args);
+          case 'neon_restart_endpoint': return await this.neonRestartEndpoint(args);
+          case 'neon_get_endpoint_metrics': return await this.neonGetEndpointMetrics(args);
+          case 'neon_set_endpoint_autoscaling': return await this.neonSetEndpointAutoscaling(args);
+          case 'neon_get_endpoint_logs': return await this.neonGetEndpointLogs(args);
+          case 'neon_set_endpoint_pooling': return await this.neonSetEndpointPooling(args);
 
           // MONITORING & ANALYTICS
-          case 'neon_get_query_statistics': return await this.getQueryStatistics(args);
-          case 'neon_get_slow_query_log': return await this.getSlowQueryLog(args);
-          case 'neon_get_connection_stats': return await this.getConnectionStats(args);
-          case 'neon_get_storage_metrics': return await this.getStorageMetrics(args);
-          case 'neon_get_compute_metrics': return await this.getComputeMetrics(args);
-          case 'neon_get_io_metrics': return await this.getIoMetrics(args);
-          case 'neon_get_cache_hit_ratio': return await this.getCacheHitRatio(args);
-          case 'neon_get_index_usage': return await this.getIndexUsage(args);
-          case 'neon_get_table_bloat': return await this.getTableBloat(args);
-          case 'neon_get_replication_lag': return await this.getReplicationLag(args);
-          case 'neon_get_checkpoint_stats': return await this.getCheckpointStats(args);
-          case 'neon_get_wal_stats': return await this.getWalStats(args);
-          case 'neon_set_monitoring_alerts': return await this.setMonitoringAlerts(args);
-          case 'neon_get_alert_history': return await this.getAlertHistory(args);
-          case 'neon_get_performance_insights': return await this.getPerformanceInsights(args);
+          case 'neon_get_query_statistics': return await this.neonGetQueryStatistics(args);
+          case 'neon_get_slow_query_log': return await this.neonGetSlowQueryLog(args);
+          case 'neon_get_connection_stats': return await this.neonGetConnectionStats(args);
+          case 'neon_get_storage_metrics': return await this.neonGetStorageMetrics(args);
+          case 'neon_get_compute_metrics': return await this.neonGetComputeMetrics(args);
+          case 'neon_get_io_metrics': return await this.neonGetIoMetrics(args);
+          case 'neon_get_cache_hit_ratio': return await this.neonGetCacheHitRatio(args);
+          case 'neon_get_index_usage': return await this.neonGetIndexUsage(args);
+          case 'neon_get_table_bloat': return await this.neonGetTableBloat(args);
+          case 'neon_get_replication_lag': return await this.neonGetReplicationLag(args);
+          case 'neon_get_checkpoint_stats': return await this.neonGetCheckpointStats(args);
+          case 'neon_get_wal_stats': return await this.neonGetWalStats(args);
+          case 'neon_set_monitoring_alerts': return await this.neonSetMonitoringAlerts(args);
+          case 'neon_get_alert_history': return await this.neonGetAlertHistory(args);
+          case 'neon_get_performance_insights': return await this.neonGetPerformanceInsights(args);
 
           // BACKUP & RECOVERY
-          case 'neon_list_backups': return await this.listBackups(args);
-          case 'neon_create_backup': return await this.createBackup(args);
-          case 'neon_restore_backup': return await this.restoreBackup(args);
-          case 'neon_delete_backup': return await this.deleteBackup(args);
-          case 'neon_get_backup_status': return await this.getBackupStatus(args);
-          case 'neon_schedule_backup': return await this.scheduleBackup(args);
-          case 'neon_export_backup': return await this.exportBackup(args);
-          case 'neon_validate_backup': return await this.validateBackup(args);
+          case 'neon_list_backups': return await this.neonListBackups(args);
+          case 'neon_create_backup': return await this.neonCreateBackup(args);
+          case 'neon_restore_backup': return await this.neonRestoreBackup(args);
+          case 'neon_delete_backup': return await this.neonDeleteBackup(args);
+          case 'neon_get_backup_status': return await this.neonGetBackupStatus(args);
+          case 'neon_schedule_backup': return await this.neonScheduleBackup(args);
+          case 'neon_export_backup': return await this.neonExportBackup(args);
+          case 'neon_validate_backup': return await this.neonValidateBackup(args);
 
           // SECURITY & COMPLIANCE
-          case 'neon_enable_ip_allowlist': return await this.enableIpAllowlist(args);
-          case 'neon_get_ip_allowlist': return await this.getIpAllowlist(args);
-          case 'neon_enable_ssl_enforcement': return await this.enableSslEnforcement(args);
-          case 'neon_rotate_credentials': return await this.rotateCredentials(args);
-          case 'neon_get_audit_log': return await this.getAuditLog(args);
-          case 'neon_enable_encryption': return await this.enableEncryption(args);
-          case 'neon_get_security_scan': return await this.getSecurityScan(args);
-          case 'neon_set_password_policy': return await this.setPasswordPolicy(args);
+          case 'neon_enable_ip_allowlist': return await this.neonEnableIpAllowlist(args);
+          case 'neon_get_ip_allowlist': return await this.neonGetIpAllowlist(args);
+          case 'neon_enable_ssl_enforcement': return await this.neonEnableSslEnforcement(args);
+          case 'neon_rotate_credentials': return await this.neonRotateCredentials(args);
+          case 'neon_get_audit_log': return await this.neonGetAuditLog(args);
+          case 'neon_enable_encryption': return await this.neonEnableEncryption(args);
+          case 'neon_get_security_scan': return await this.neonGetSecurityScan(args);
+          case 'neon_set_password_policy': return await this.neonSetPasswordPolicy(args);
           case 'neon_enable_2fa': return await this.enable2fa(args);
-          case 'neon_get_compliance_report': return await this.getComplianceReport(args);
+          case 'neon_get_compliance_report': return await this.neonGetComplianceReport(args);
 
           // COST MANAGEMENT
-          case 'neon_get_cost_breakdown': return await this.getCostBreakdown(args);
-          case 'neon_get_cost_forecast': return await this.getCostForecast(args);
-          case 'neon_set_cost_alerts': return await this.setCostAlerts(args);
-          case 'neon_get_cost_optimization_tips': return await this.getCostOptimizationTips(args);
-          case 'neon_get_billing_history': return await this.getBillingHistory(args);
-          case 'neon_export_cost_report': return await this.exportCostReport(args);
-          case 'neon_set_budget_limits': return await this.setBudgetLimits(args);
-          case 'neon_get_resource_recommendations': return await this.getResourceRecommendations(args);
+          case 'neon_get_cost_breakdown': return await this.neonGetCostBreakdown(args);
+          case 'neon_get_cost_forecast': return await this.neonGetCostForecast(args);
+          case 'neon_set_cost_alerts': return await this.neonSetCostAlerts(args);
+          case 'neon_get_cost_optimization_tips': return await this.neonGetCostOptimizationTips(args);
+          case 'neon_get_billing_history': return await this.neonGetBillingHistory(args);
+          case 'neon_export_cost_report': return await this.neonExportCostReport(args);
+          case 'neon_set_budget_limits': return await this.neonSetBudgetLimits(args);
+          case 'neon_get_resource_recommendations': return await this.neonGetResourceRecommendations(args);
 
           // INTEGRATION & WEBHOOKS
-          case 'neon_create_webhook': return await this.createWebhook(args);
-          case 'neon_list_webhooks': return await this.listWebhooks(args);
-          case 'neon_delete_webhook': return await this.deleteWebhook(args);
-          case 'neon_test_webhook': return await this.testWebhook(args);
-          case 'neon_get_webhook_logs': return await this.getWebhookLogs(args);
-          case 'neon_create_api_key': return await this.createApiKey(args);
+          case 'neon_create_webhook': return await this.neonCreateWebhook(args);
+          case 'neon_list_webhooks': return await this.neonListWebhooks(args);
+          case 'neon_delete_webhook': return await this.neonDeleteWebhook(args);
+          case 'neon_test_webhook': return await this.neonTestWebhook(args);
+          case 'neon_get_webhook_logs': return await this.neonGetWebhookLogs(args);
+          case 'neon_create_api_key': return await this.neonCreateApiKey(args);
 
           // ADVANCED SQL TOOLS
-          case 'neon_detect_n_plus_one': return await this.detectNPlusOne(args);
-          case 'neon_suggest_partitioning': return await this.suggestPartitioning(args);
-          case 'neon_analyze_table_statistics': return await this.analyzeTableStatistics(args);
-          case 'neon_suggest_vacuum_strategy': return await this.suggestVacuumStrategy(args);
-          case 'neon_detect_missing_indexes': return await this.detectMissingIndexes(args);
-          case 'neon_analyze_join_performance': return await this.analyzeJoinPerformance(args);
-          case 'neon_suggest_materialized_views': return await this.suggestMaterializedViews(args);
-          case 'neon_get_table_dependencies': return await this.getTableDependencies(args);
-          case 'neon_suggest_query_rewrite': return await this.suggestQueryRewrite(args);
-          case 'neon_analyze_deadlocks': return await this.analyzeDeadlocks(args);
+          case 'neon_detect_n_plus_one': return await this.neonDetectNPlusOne(args);
+          case 'neon_suggest_partitioning': return await this.neonSuggestPartitioning(args);
+          case 'neon_analyze_table_statistics': return await this.neonAnalyzeTableStatistics(args);
+          case 'neon_suggest_vacuum_strategy': return await this.neonSuggestVacuumStrategy(args);
+          case 'neon_detect_missing_indexes': return await this.neonDetectMissingIndexes(args);
+          case 'neon_analyze_join_performance': return await this.neonAnalyzeJoinPerformance(args);
+          case 'neon_suggest_materialized_views': return await this.neonSuggestMaterializedViews(args);
+          case 'neon_get_table_dependencies': return await this.neonGetTableDependencies(args);
+          case 'neon_suggest_query_rewrite': return await this.neonSuggestQueryRewrite(args);
+          case 'neon_analyze_deadlocks': return await this.neonAnalyzeDeadlocks(args);
 
           // NEON AUTH
-          case 'neon_provision_neon_auth': return await this.provisionNeonAuth(args);
+          case 'neon_provision_neon_auth': return await this.neonProvisionNeonAuth(args);
 
           // API KEY MANAGEMENT
-          case 'neon_list_api_keys': return await this.listApiKeys(args);
-          case 'neon_create_api_key_for_project': return await this.createApiKeyForProject(args);
-          case 'neon_revoke_api_key': return await this.revokeApiKey(args);
+          case 'neon_list_api_keys': return await this.neonListApiKeys(args);
+          case 'neon_create_api_key_for_project': return await this.neonCreateApiKeyForProject(args);
+          case 'neon_revoke_api_key': return await this.neonRevokeApiKey(args);
 
           // CONNECTION POOLING
-          case 'neon_get_connection_pooler_config': return await this.getConnectionPoolerConfig(args);
-          case 'neon_update_connection_pooler_config': return await this.updateConnectionPoolerConfig(args);
+          case 'neon_get_connection_pooler_config': return await this.neonGetConnectionPoolerConfig(args);
+          case 'neon_update_connection_pooler_config': return await this.neonUpdateConnectionPoolerConfig(args);
 
           // READ REPLICAS
-          case 'neon_create_read_replica': return await this.createReadReplica(args);
-          case 'neon_list_read_replicas': return await this.listReadReplicas(args);
+          case 'neon_create_read_replica': return await this.neonCreateReadReplica(args);
+          case 'neon_list_read_replicas': return await this.neonListReadReplicas(args);
 
           // PROJECT SHARING & COLLABORATION
-          case 'neon_share_project': return await this.shareProject(args);
-          case 'neon_list_project_shares': return await this.listProjectShares(args);
-          case 'neon_revoke_project_share': return await this.revokeProjectShare(args);
+          case 'neon_share_project': return await this.neonShareProject(args);
+          case 'neon_list_project_shares': return await this.neonListProjectShares(args);
+          case 'neon_revoke_project_share': return await this.neonRevokeProjectShare(args);
 
           // EXTENSION MANAGEMENT
-          case 'neon_list_extensions': return await this.listExtensions(args);
-          case 'neon_enable_extension': return await this.enableExtension(args);
-          case 'neon_disable_extension': return await this.disableExtension(args);
-          case 'neon_get_extension_details': return await this.getExtensionDetails(args);
-          case 'neon_update_extension': return await this.updateExtension(args);
+          case 'neon_list_extensions': return await this.neonListExtensions(args);
+          case 'neon_enable_extension': return await this.neonEnableExtension(args);
+          case 'neon_disable_extension': return await this.neonDisableExtension(args);
+          case 'neon_get_extension_details': return await this.neonGetExtensionDetails(args);
+          case 'neon_update_extension': return await this.neonUpdateExtension(args);
 
           // SCHEMA MIGRATIONS
-          case 'neon_create_migration': return await this.createMigration(args);
-          case 'neon_list_migrations': return await this.listMigrations(args);
-          case 'neon_rollback_migration': return await this.rollbackMigration(args);
+          case 'neon_create_migration': return await this.neonCreateMigration(args);
+          case 'neon_list_migrations': return await this.neonListMigrations(args);
+          case 'neon_rollback_migration': return await this.neonRollbackMigration(args);
 
           // ADVANCED CONNECTION MANAGEMENT
-          case 'neon_get_connection_uri_formatted': return await this.getConnectionUri(args);
-          case 'neon_test_connection': return await this.testConnection(args);
-          case 'neon_get_connection_examples': return await this.getConnectionExamples(args);
+          case 'neon_get_connection_uri_formatted': return await this.neonGetConnectionUri(args);
+          case 'neon_test_connection': return await this.neonTestConnection(args);
+          case 'neon_get_connection_examples': return await this.neonGetConnectionExamples(args);
 
           // PROJECT TEMPLATES
-          case 'neon_create_from_template': return await this.createFromTemplate(args);
-          case 'neon_list_templates': return await this.listTemplates(args);
+          case 'neon_create_from_template': return await this.neonCreateFromTemplate(args);
+          case 'neon_list_templates': return await this.neonListTemplates(args);
 
           // ADVANCED MONITORING
-          case 'neon_get_real_time_metrics': return await this.getRealTimeMetrics(args);
-          case 'neon_export_metrics': return await this.exportMetrics(args);
+          case 'neon_get_real_time_metrics': return await this.neonGetRealTimeMetrics(args);
+          case 'neon_export_metrics': return await this.neonExportMetrics(args);
 
           // SETUP AUTOMATION (NEW!)
-          case 'neon_create_project_for_rad': return await this.createProjectForRAD(args);
-          case 'neon_deploy_schema': return await this.deploySchema(args);
-          case 'neon_verify_schema': return await this.verifySchema(args);
-          case 'neon_get_connection_uri': return await this.getConnectionUri(args);
-          case 'neon_setup_rad_database': return await this.setupRADDatabase(args);
-          case 'neon_check_api_key': return await this.checkApiKey(args);
+          case 'neon_create_project_for_rad': return await this.neonCreateProjectForRad(args);
+          case 'neon_deploy_schema': return await this.neonDeploySchema(args);
+          case 'neon_verify_schema': return await this.neonVerifySchema(args);
+          case 'neon_get_connection_uri': return await this.neonGetConnectionUri(args);
+          case 'neon_setup_rad_database': return await this.neonSetupRadDatabase(args);
+          case 'neon_check_api_key': return await this.neonCheckApiKey(args);
 
           // ============================================================
           // REDIS (80 tools)
