@@ -56,7 +56,10 @@ The framework will track your progress and maintain context.
 
 const framework = new RootCauseFramework();
 
-export const root_causeDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'root_cause'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const rootCauseDescriptor = {
   name: 'framework_root_cause',
   description: 'Use 5 Whys technique to find underlying causes. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -74,6 +77,6 @@ export const root_causeDescriptor = {
   }
 };
 
-export async function root_causeTool(args: any, ctx: ServerContext): Promise<any> {
+export async function rootCauseTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

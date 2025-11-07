@@ -56,7 +56,10 @@ The framework will track your progress and maintain context.
 
 const framework = new FirstPrinciplesFramework();
 
-export const first_principlesDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'first_principles'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const firstPrinciplesDescriptor = {
   name: 'framework_first_principles',
   description: 'Break down complex problems to fundamental truths. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -74,6 +77,6 @@ export const first_principlesDescriptor = {
   }
 };
 
-export async function first_principlesTool(args: any, ctx: ServerContext): Promise<any> {
+export async function firstPrinciplesTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

@@ -56,7 +56,10 @@ The framework will track your progress and maintain context.
 
 const framework = new LateralThinkingFramework();
 
-export const lateral_thinkingDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'lateral_thinking'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const lateralThinkingDescriptor = {
   name: 'framework_lateral_thinking',
   description: 'Generate creative, non-obvious solutions. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -74,6 +77,6 @@ export const lateral_thinkingDescriptor = {
   }
 };
 
-export async function lateral_thinkingTool(args: any, ctx: ServerContext): Promise<any> {
+export async function lateralThinkingTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

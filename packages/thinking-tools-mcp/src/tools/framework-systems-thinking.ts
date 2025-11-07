@@ -56,7 +56,10 @@ The framework will track your progress and maintain context.
 
 const framework = new SystemsThinkingFramework();
 
-export const systems_thinkingDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'systems_thinking'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const systemsThinkingDescriptor = {
   name: 'framework_systems_thinking',
   description: 'Understand interconnections and feedback loops. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -74,6 +77,6 @@ export const systems_thinkingDescriptor = {
   }
 };
 
-export async function systems_thinkingTool(args: any, ctx: ServerContext): Promise<any> {
+export async function systemsThinkingTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

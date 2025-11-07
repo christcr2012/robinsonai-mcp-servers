@@ -56,7 +56,10 @@ The framework will track your progress and maintain context.
 
 const framework = new RedTeamFramework();
 
-export const red_teamDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'red_team'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const redTeamDescriptor = {
   name: 'framework_red_team',
   description: 'Attack the plan/design to find vulnerabilities. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -74,6 +77,6 @@ export const red_teamDescriptor = {
   }
 };
 
-export async function red_teamTool(args: any, ctx: ServerContext): Promise<any> {
+export async function redTeamTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

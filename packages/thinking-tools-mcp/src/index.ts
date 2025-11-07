@@ -209,250 +209,74 @@ const registry: Record<string, Entry> = {
     handler: devilsAdvocateTool,
   },
   
-  framework_first_principles: {
-    description: 'Break down complex problems to fundamental truths. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        problem: { type: 'string', description: 'The problem to analyze' },
-        domain: { type: 'string', description: 'Problem domain' },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['problem'],
-    },
-    handler: async (args, ctx) => {
-      const { firstPrinciplesEnhanced } = await import('./tools/first-principles.js');
-      return firstPrinciplesEnhanced(args, ctx);
-    },
+  [firstPrinciplesDescriptor.name]: {
+    ...firstPrinciplesDescriptor,
+    handler: firstPrinciplesTool,
   },
   
-  framework_root_cause: {
-    description: 'Use 5 Whys technique to find underlying causes. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        problem: { type: 'string', description: 'The problem to analyze' },
-        context: { type: 'string', description: 'Additional context' },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['problem'],
-    },
-    handler: async (args, ctx) => {
-      const { rootCauseAnalysisEnhanced } = await import('./tools/root-cause.js');
-      return rootCauseAnalysisEnhanced(args, ctx);
-    },
+  [rootCauseDescriptor.name]: {
+    ...rootCauseDescriptor,
+    handler: rootCauseTool,
   },
   
-  framework_swot: {
-    description: 'Analyze Strengths, Weaknesses, Opportunities, Threats. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        subject: { type: 'string', description: 'What to analyze' },
-        context: { type: 'string', description: 'Additional context' },
-        perspective: { type: 'string', enum: ['technical', 'business', 'product', 'team'] },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['subject'],
-    },
-    handler: async (args, ctx) => {
-      const { swotAnalysisEnhanced } = await import('./tools/swot.js');
-      return swotAnalysisEnhanced(args, ctx);
-    },
+  [swotDescriptor.name]: {
+    ...swotDescriptor,
+    handler: swotTool,
   },
   
-  framework_premortem: {
-    description: 'Imagine project failure and work backward. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        project: { type: 'string', description: 'The project or initiative' },
-        context: { type: 'string', description: 'Additional context' },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['project'],
-    },
-    handler: async (args, ctx) => {
-      const { premortemAnalysisEnhanced } = await import('./tools/premortem.js');
-      return premortemAnalysisEnhanced(args, ctx);
-    },
+  [premortemDescriptor.name]: {
+    ...premortemDescriptor,
+    handler: premortemTool,
   },
   
-  framework_critical_thinking: {
-    description: 'Evaluate arguments, evidence, and logical reasoning. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        argument: { type: 'string', description: 'The argument to evaluate' },
-        context: { type: 'string', description: 'Additional context' },
-        depth: { type: 'string', enum: ['quick', 'deep'] },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['argument'],
-    },
-    handler: async (args, ctx) => {
-      const { criticalThinkingEnhanced } = await import('./tools/critical-thinking.js');
-      return criticalThinkingEnhanced(args, ctx);
-    },
+  [criticalThinkingDescriptor.name]: {
+    ...criticalThinkingDescriptor,
+    handler: criticalThinkingTool,
   },
 
-  framework_lateral_thinking: {
-    description: 'Generate creative, non-obvious solutions. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        problem: { type: 'string', description: 'The problem to solve creatively' },
-        context: { type: 'string', description: 'Additional context' },
-        constraints: { type: 'array', items: { type: 'string' } },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['problem'],
-    },
-    handler: async (args, ctx) => {
-      const { lateralThinkingEnhanced } = await import('./tools/lateral-thinking.js');
-      return lateralThinkingEnhanced(args, ctx);
-    },
+  [lateralThinkingDescriptor.name]: {
+    ...lateralThinkingDescriptor,
+    handler: lateralThinkingTool,
   },
   
-  framework_red_team: {
-    description: 'Attack the plan/design to find vulnerabilities. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        plan: { type: 'string', description: 'The plan or design to attack' },
-        context: { type: 'string', description: 'Additional context' },
-        focus: { type: 'string', enum: ['security', 'reliability', 'performance', 'all'] },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['plan'],
-    },
-    handler: async (args, ctx) => {
-      const { redTeamEnhanced } = await import('./tools/red-team.js');
-      return redTeamEnhanced(args, ctx);
-    },
+  [redTeamDescriptor.name]: {
+    ...redTeamDescriptor,
+    handler: redTeamTool,
   },
 
-  framework_blue_team: {
-    description: 'Defend against attacks and strengthen the plan. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        plan: { type: 'string', description: 'The plan or design to defend' },
-        threats: { type: 'array', items: { type: 'string' } },
-        context: { type: 'string', description: 'Additional context' },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['plan'],
-    },
-    handler: async (args, ctx) => {
-      const { blueTeamEnhanced } = await import('./tools/blue-team.js');
-      return blueTeamEnhanced(args, ctx);
-    },
+  [blueTeamDescriptor.name]: {
+    ...blueTeamDescriptor,
+    handler: blueTeamTool,
   },
   
-  framework_decision_matrix: {
-    description: 'Weighted decision-making for comparing options. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        options: { type: 'array', items: { type: 'string' } },
-        criteria: { type: 'array', items: { type: 'string' } },
-        weights: { type: 'array', items: { type: 'number' }, description: 'Optional weights aligned with the criteria order' },
-        optionDetails: {
-          type: 'object',
-          additionalProperties: false,
-          description: 'Additional context for each option (strings, arrays, or structured summaries)',
-          properties: {}
-        },
-        context: { type: 'string', description: 'Additional context' },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['options'],
-    },
-    handler: async (args, ctx) => {
-      const { decisionMatrixEnhanced } = await import('./tools/decision-matrix.js');
-      return decisionMatrixEnhanced(args, ctx);
-    },
+  [decisionMatrixDescriptor.name]: {
+    ...decisionMatrixDescriptor,
+    handler: decisionMatrixTool,
   },
 
-  framework_socratic: {
-    description: 'Deep inquiry through probing questions. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        topic: { type: 'string', description: 'The topic to explore' },
-        context: { type: 'string', description: 'Additional context' },
-        depth: { type: 'string', enum: ['quick', 'deep'] },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['topic'],
-    },
-    handler: async (args, ctx) => {
-      const { socraticQuestioningEnhanced } = await import('./tools/socratic.js');
-      return socraticQuestioningEnhanced(args, ctx);
-    },
+  [socraticDescriptor.name]: {
+    ...socraticDescriptor,
+    handler: socraticTool,
   },
   
-  framework_systems_thinking: {
-    description: 'Understand interconnections and feedback loops. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        system: { type: 'string', description: 'The system to analyze' },
-        context: { type: 'string', description: 'Additional context' },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['system'],
-    },
-    handler: async (args, ctx) => {
-      const { systemsThinkingEnhanced } = await import('./tools/systems-thinking.js');
-      return systemsThinkingEnhanced(args, ctx);
-    },
+  [systemsThinkingDescriptor.name]: {
+    ...systemsThinkingDescriptor,
+    handler: systemsThinkingTool,
   },
 
-  framework_scenario_planning: {
-    description: 'Explore multiple possible futures. Enhanced with optional context search.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        situation: { type: 'string', description: 'The current situation' },
-        timeframe: { type: 'string', description: 'Time horizon' },
-        context: { type: 'string', description: 'Additional context' },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['situation'],
-    },
-    handler: async (args, ctx) => {
-      const { scenarioPlanningEnhanced } = await import('./tools/scenario-planning.js');
-      return scenarioPlanningEnhanced(args, ctx);
-    },
+  [scenarioPlanningDescriptor.name]: {
+    ...scenarioPlanningDescriptor,
+    handler: scenarioPlanningTool,
   },
   
-  framework_brainstorming: {
-    description: 'Generate many ideas quickly without judgment',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        prompt: { type: 'string', description: 'What to brainstorm about' },
-        context: { type: 'string', description: 'Additional context' },
-        quantity: { type: 'number', description: 'Number of ideas' },
-      },
-      required: ['prompt'],
-    },
-    handler: async (args, ctx) => brainstorming(args),
+  [brainstormingDescriptor.name]: {
+    ...brainstormingDescriptor,
+    handler: brainstormingTool,
   },
-  
-  framework_mind_mapping: {
-    description: 'Visual organization of ideas and concepts',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        topic: { type: 'string', description: 'Central topic' },
-        context: { type: 'string', description: 'Additional context' },
-      },
-      required: ['topic'],
-    },
-    handler: async (args, ctx) => mindMapping(args),
+
+  [mindMappingDescriptor.name]: {
+    ...mindMappingDescriptor,
+    handler: mindMappingTool,
   },
 };
 

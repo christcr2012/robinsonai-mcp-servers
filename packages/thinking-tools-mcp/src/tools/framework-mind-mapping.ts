@@ -55,7 +55,10 @@ The framework will track your progress and maintain context.
 
 const framework = new MindMappingFramework();
 
-export const mind_mappingDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'mind_mapping'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const mindMappingDescriptor = {
   name: 'framework_mind_mapping',
   description: 'Visual organization of ideas and concepts. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -73,6 +76,6 @@ export const mind_mappingDescriptor = {
   }
 };
 
-export async function mind_mappingTool(args: any, ctx: ServerContext): Promise<any> {
+export async function mindMappingTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

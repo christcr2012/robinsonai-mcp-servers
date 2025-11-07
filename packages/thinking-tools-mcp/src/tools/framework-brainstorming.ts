@@ -54,6 +54,9 @@ The framework will track your progress and maintain context.
 
 const framework = new BrainstormingFramework();
 
+// Use camelCase for exports to match import convention
+const camelName = 'brainstorming'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
 export const brainstormingDescriptor = {
   name: 'framework_brainstorming',
   description: 'Generate many ideas quickly without judgment. Stateful framework that guides you through systematic analysis.',

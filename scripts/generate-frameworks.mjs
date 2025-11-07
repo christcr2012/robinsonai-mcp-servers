@@ -241,7 +241,10 @@ The framework will track your progress and maintain context.
 
 const framework = new ${framework.name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')}Framework();
 
-export const ${framework.name}Descriptor = {
+// Use camelCase for exports to match import convention
+const camelName = '${framework.name}'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const ${framework.name.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())}Descriptor = {
   name: 'framework_${framework.name}',
   description: '${framework.description}. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -259,7 +262,7 @@ export const ${framework.name}Descriptor = {
   }
 };
 
-export async function ${framework.name}Tool(args: any, ctx: ServerContext): Promise<any> {
+export async function ${framework.name.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())}Tool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }
 `;

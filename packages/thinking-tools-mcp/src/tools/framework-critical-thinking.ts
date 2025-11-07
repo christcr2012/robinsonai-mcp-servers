@@ -56,7 +56,10 @@ The framework will track your progress and maintain context.
 
 const framework = new CriticalThinkingFramework();
 
-export const critical_thinkingDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'critical_thinking'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const criticalThinkingDescriptor = {
   name: 'framework_critical_thinking',
   description: 'Evaluate arguments, evidence, and logical reasoning. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -74,6 +77,6 @@ export const critical_thinkingDescriptor = {
   }
 };
 
-export async function critical_thinkingTool(args: any, ctx: ServerContext): Promise<any> {
+export async function criticalThinkingTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

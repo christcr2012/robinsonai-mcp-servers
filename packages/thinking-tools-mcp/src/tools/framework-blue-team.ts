@@ -56,7 +56,10 @@ The framework will track your progress and maintain context.
 
 const framework = new BlueTeamFramework();
 
-export const blue_teamDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'blue_team'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const blueTeamDescriptor = {
   name: 'framework_blue_team',
   description: 'Defend against attacks and strengthen the plan. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -74,6 +77,6 @@ export const blue_teamDescriptor = {
   }
 };
 
-export async function blue_teamTool(args: any, ctx: ServerContext): Promise<any> {
+export async function blueTeamTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

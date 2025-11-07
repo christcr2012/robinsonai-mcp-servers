@@ -56,6 +56,9 @@ The framework will track your progress and maintain context.
 
 const framework = new PremortemFramework();
 
+// Use camelCase for exports to match import convention
+const camelName = 'premortem'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
 export const premortemDescriptor = {
   name: 'framework_premortem',
   description: 'Imagine project failure and work backward. Stateful framework that guides you through systematic analysis.',

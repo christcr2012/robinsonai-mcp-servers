@@ -55,7 +55,10 @@ The framework will track your progress and maintain context.
 
 const framework = new ScenarioPlanningFramework();
 
-export const scenario_planningDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'scenario_planning'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const scenarioPlanningDescriptor = {
   name: 'framework_scenario_planning',
   description: 'Explore multiple possible futures. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -73,6 +76,6 @@ export const scenario_planningDescriptor = {
   }
 };
 
-export async function scenario_planningTool(args: any, ctx: ServerContext): Promise<any> {
+export async function scenarioPlanningTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

@@ -56,7 +56,10 @@ The framework will track your progress and maintain context.
 
 const framework = new DecisionMatrixFramework();
 
-export const decision_matrixDescriptor = {
+// Use camelCase for exports to match import convention
+const camelName = 'decision_matrix'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+export const decisionMatrixDescriptor = {
   name: 'framework_decision_matrix',
   description: 'Weighted decision-making for comparing options. Stateful framework that guides you through systematic analysis.',
   inputSchema: {
@@ -74,6 +77,6 @@ export const decision_matrixDescriptor = {
   }
 };
 
-export async function decision_matrixTool(args: any, ctx: ServerContext): Promise<any> {
+export async function decisionMatrixTool(args: any, ctx: ServerContext): Promise<any> {
   return framework.handle(args, ctx);
 }

@@ -55,6 +55,9 @@ The framework will track your progress and maintain context.
 
 const framework = new SwotFramework();
 
+// Use camelCase for exports to match import convention
+const camelName = 'swot'.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
 export const swotDescriptor = {
   name: 'framework_swot',
   description: 'Analyze Strengths, Weaknesses, Opportunities, and Threats. Stateful framework that guides you through systematic analysis.',
