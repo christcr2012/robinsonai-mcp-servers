@@ -30,9 +30,7 @@ import { contextStatsTool, contextStatsDescriptor } from './tools/context_stats.
 import { ensureFreshIndexTool, ensureFreshIndexDescriptor } from './tools/ensure_fresh_index.js';
 import { contextIndexFullTool, contextIndexFullDescriptor } from './tools/context_index_full.js';
 
-// Import all other tool modules (keeping existing imports)
-import { devilsAdvocate } from './tools/devils-advocate.js';
-// NEW: Stateful framework implementations
+// Stateful framework implementations
 import { devilsAdvocateTool, devilsAdvocateDescriptor } from './tools/framework-devils-advocate.js';
 import { swotTool, swotDescriptor } from './tools/framework-swot.js';
 import { firstPrinciplesTool, firstPrinciplesDescriptor } from './tools/framework-first-principles.js';
@@ -55,20 +53,6 @@ import { cynefinFrameworkTool, cynefinFrameworkDescriptor } from './tools/framew
 import { designThinkingTool, designThinkingDescriptor } from './tools/framework-design-thinking.js';
 import { probabilisticThinkingTool, probabilisticThinkingDescriptor } from './tools/framework-probabilistic-thinking.js';
 import { bayesianUpdatingTool, bayesianUpdatingDescriptor } from './tools/framework-bayesian-updating.js';
-import { firstPrinciples } from './tools/first-principles.js';
-import { rootCauseAnalysis } from './tools/root-cause.js';
-import { swotAnalysis } from './tools/swot.js';
-import { premortemAnalysis } from './tools/premortem.js';
-import { criticalThinking } from './tools/critical-thinking.js';
-import { lateralThinking } from './tools/lateral-thinking.js';
-import { redTeam } from './tools/red-team.js';
-import { blueTeam } from './tools/blue-team.js';
-import { decisionMatrix } from './tools/decision-matrix.js';
-import { socratic } from './tools/socratic.js';
-import { systemsThinking } from './tools/systems-thinking.js';
-import { scenarioPlanning } from './tools/scenario-planning.js';
-import { brainstorming } from './tools/brainstorming.js';
-import { mindMapping } from './tools/mind-mapping.js';
 import {
   sequentialThinkingTool,
   parallelThinkingTool,

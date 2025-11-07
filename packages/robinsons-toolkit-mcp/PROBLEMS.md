@@ -294,76 +294,15 @@ All issues fixed, tested, and verified working in production.
 
 ---
 
-## � ISSUE 6: DUPLICATE FRAMEWORK TOOLS - OLD STATELESS VERSIONS NOT REMOVED
+## ✅ ISSUE 6: DUPLICATE FRAMEWORK TOOLS - RESOLVED
 
-**Severity:** HIGH
-**Discovered:** 2025-01-07
-**Status:** ⚠️ NEEDS IMMEDIATE FIX
-
-### Problem Description
-
-When we refactored the 17 cognitive frameworks from stateless keyword matchers to stateful interactive frameworks (Issue 3), we created NEW files with `framework-*` prefix but **DID NOT REMOVE** the old broken stateless versions.
-
-**Result:** We have DUPLICATE implementations for 15 frameworks:
-- ✅ NEW stateful versions: `framework-devils-advocate.ts`, `framework-swot.ts`, etc. (WORKING)
-- ❌ OLD stateless versions: `devils-advocate.ts`, `swot.ts`, etc. (BROKEN, still imported in index.ts)
-
-### Files That Need to Be Removed
-
-**15 old stateless framework files:**
-1. `packages/thinking-tools-mcp/src/tools/devils-advocate.ts` (imported line 34)
-2. `packages/thinking-tools-mcp/src/tools/first-principles.ts` (imported line 58)
-3. `packages/thinking-tools-mcp/src/tools/root-cause.ts` (imported line 59)
-4. `packages/thinking-tools-mcp/src/tools/swot.ts` (imported line 60)
-5. `packages/thinking-tools-mcp/src/tools/premortem.ts` (imported line 61)
-6. `packages/thinking-tools-mcp/src/tools/critical-thinking.ts` (imported line 62)
-7. `packages/thinking-tools-mcp/src/tools/lateral-thinking.ts` (imported line 63)
-8. `packages/thinking-tools-mcp/src/tools/red-team.ts` (imported line 64)
-9. `packages/thinking-tools-mcp/src/tools/blue-team.ts` (imported line 65)
-10. `packages/thinking-tools-mcp/src/tools/decision-matrix.ts` (imported line 66)
-11. `packages/thinking-tools-mcp/src/tools/socratic.ts` (imported line 67)
-12. `packages/thinking-tools-mcp/src/tools/systems-thinking.ts` (imported line 68)
-13. `packages/thinking-tools-mcp/src/tools/scenario-planning.ts`
-14. `packages/thinking-tools-mcp/src/tools/brainstorming.ts`
-15. `packages/thinking-tools-mcp/src/tools/mind-mapping.ts`
-
-### Impact
-
-**CRITICAL:**
-- Old stateless versions are still imported in `index.ts` (lines 34, 58-68)
-- These imports are NOT being used in the registry (we use the new framework-* versions)
-- BUT they're still in the codebase causing confusion
-- Risk of accidentally using the broken versions
-- Wasted disk space and build time
-
-### Solution Required
-
-1. **Remove old import statements** from `packages/thinking-tools-mcp/src/index.ts`:
-   - Line 34: `import { devilsAdvocate } from './tools/devils-advocate.js';`
-   - Lines 58-68: All old framework imports
-
-2. **Delete old stateless framework files:**
-   - All 15 files listed above
-
-3. **Verify new stateful versions are working:**
-   - Test all 24 framework tools
-   - Ensure they use Context Engine for evidence gathering
-   - Ensure they maintain state across calls
-   - Ensure they return structured Markdown reports
-
-4. **Update documentation:**
-   - Confirm CHANGELOG.md reflects the removal
-   - Update any references to old tool names
-
-### Priority
-
-**HIGH** - These broken files should have been removed during the refactoring. They're dead code that could cause confusion or bugs.
-
-### Estimated Effort
-
-**30 minutes** - Simple file deletion and import cleanup
+**Fixed:** 2025-01-07
+**Problem:** 15 old stateless framework files not removed after refactoring
+**Solution:** Removed all 15 old files and import statements
+**Result:** Clean codebase, build successful
 
 ---
+
 
 ## �📝 COMPREHENSIVE SYSTEM ANALYSIS (2025-01-07)
 
