@@ -2,7 +2,7 @@ import type { ServerContext } from '../lib/context.js';
 import { indexRepo } from '../context/indexer.js';
 
 export const ensureFreshIndexDescriptor = {
-  name: 'ensure_fresh_index',
+  name: 'context_ensure_fresh_index',
   description: 'Incrementally update the index (changed-only) respecting TTL and caps. Call this before any context/thinking tool to ensure fresh results.',
   inputSchema: {
     type: 'object' as const,

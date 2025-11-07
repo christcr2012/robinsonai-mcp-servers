@@ -187,7 +187,7 @@ const registry: Record<string, Entry> = {
   },
   
   // Cognitive framework tools (existing pattern)
-  devils_advocate: {
+  framework_devils_advocate: {
     description: 'Challenge assumptions and find flaws in plans. Enhanced with optional context search to find relevant code/docs.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -205,7 +205,7 @@ const registry: Record<string, Entry> = {
     },
   },
   
-  first_principles: {
+  framework_first_principles: {
     description: 'Break down complex problems to fundamental truths. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -222,7 +222,7 @@ const registry: Record<string, Entry> = {
     },
   },
   
-  root_cause: {
+  framework_root_cause: {
     description: 'Use 5 Whys technique to find underlying causes. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -239,7 +239,7 @@ const registry: Record<string, Entry> = {
     },
   },
   
-  swot_analysis: {
+  framework_swot: {
     description: 'Analyze Strengths, Weaknesses, Opportunities, Threats. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -257,7 +257,7 @@ const registry: Record<string, Entry> = {
     },
   },
   
-  premortem_analysis: {
+  framework_premortem: {
     description: 'Imagine project failure and work backward. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -274,7 +274,7 @@ const registry: Record<string, Entry> = {
     },
   },
   
-  critical_thinking: {
+  framework_critical_thinking: {
     description: 'Evaluate arguments, evidence, and logical reasoning. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -292,7 +292,7 @@ const registry: Record<string, Entry> = {
     },
   },
 
-  lateral_thinking: {
+  framework_lateral_thinking: {
     description: 'Generate creative, non-obvious solutions. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -310,7 +310,7 @@ const registry: Record<string, Entry> = {
     },
   },
   
-  red_team: {
+  framework_red_team: {
     description: 'Attack the plan/design to find vulnerabilities. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -328,7 +328,7 @@ const registry: Record<string, Entry> = {
     },
   },
 
-  blue_team: {
+  framework_blue_team: {
     description: 'Defend against attacks and strengthen the plan. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -346,7 +346,7 @@ const registry: Record<string, Entry> = {
     },
   },
   
-  decision_matrix: {
+  framework_decision_matrix: {
     description: 'Weighted decision-making for comparing options. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -371,7 +371,7 @@ const registry: Record<string, Entry> = {
     },
   },
 
-  socratic_questioning: {
+  framework_socratic: {
     description: 'Deep inquiry through probing questions. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -389,7 +389,7 @@ const registry: Record<string, Entry> = {
     },
   },
   
-  systems_thinking: {
+  framework_systems_thinking: {
     description: 'Understand interconnections and feedback loops. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -406,7 +406,7 @@ const registry: Record<string, Entry> = {
     },
   },
 
-  scenario_planning: {
+  framework_scenario_planning: {
     description: 'Explore multiple possible futures. Enhanced with optional context search.',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -424,7 +424,7 @@ const registry: Record<string, Entry> = {
     },
   },
   
-  brainstorming: {
+  framework_brainstorming: {
     description: 'Generate many ideas quickly without judgment',
     inputSchema: {
       type: 'object', additionalProperties: false,
@@ -438,7 +438,7 @@ const registry: Record<string, Entry> = {
     handler: async (args, ctx) => brainstorming(args),
   },
   
-  mind_mapping: {
+  framework_mind_mapping: {
     description: 'Visual organization of ideas and concepts',
     inputSchema: {
       type: 'object', additionalProperties: false,

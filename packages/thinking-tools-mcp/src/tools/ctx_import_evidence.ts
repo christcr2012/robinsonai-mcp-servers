@@ -102,7 +102,7 @@ export async function ctxImportEvidenceTool(
  * Tool descriptor for registration
  */
 export const ctxImportEvidenceDescriptor = {
-  name: 'ctx_import_evidence',
+  name: 'evidence_import',
   description:
     'Import external search/graph results (e.g., Context 7) into the unified evidence store for downstream thinking tools.',
   inputSchema: {

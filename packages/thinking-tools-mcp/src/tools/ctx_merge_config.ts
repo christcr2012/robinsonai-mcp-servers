@@ -33,7 +33,7 @@ export async function ctxMergeConfigTool(
  * Tool descriptor for registration
  */
 export const ctxMergeConfigDescriptor = {
-  name: 'ctx_merge_config',
+  name: 'evidence_merge_config',
   description:
     'Set ranking mode: local (only local context), imported (only external evidence), or blend (combine both). Controls how context is combined in thinking tools.',
   inputSchema: {

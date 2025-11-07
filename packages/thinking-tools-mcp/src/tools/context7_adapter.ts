@@ -8,7 +8,7 @@ const CACHE_DIR = ".context_cache";
 const CACHE_FILE = "context7.json";
 
 export const context7AdapterDescriptor = {
-  name: "context7_adapter",
+  name: "evidence_context7_adapter",
   description: "Pull results from Context7 (HTTP or file), cache locally, and import as evidence.",
   inputSchema: {
     type: "object",
