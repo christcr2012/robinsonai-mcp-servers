@@ -32,6 +32,8 @@ import { contextIndexFullTool, contextIndexFullDescriptor } from './tools/contex
 
 // Import all other tool modules (keeping existing imports)
 import { devilsAdvocate } from './tools/devils-advocate.js';
+// NEW: Stateful framework implementations
+import { devilsAdvocateTool, devilsAdvocateDescriptor } from './tools/framework-devils-advocate.js';
 import { firstPrinciples } from './tools/first-principles.js';
 import { rootCauseAnalysis } from './tools/root-cause.js';
 import { swotAnalysis } from './tools/swot.js';
@@ -187,22 +189,10 @@ const registry: Record<string, Entry> = {
   },
   
   // Cognitive framework tools (existing pattern)
-  framework_devils_advocate: {
-    description: 'Challenge assumptions and find flaws in plans. Enhanced with optional context search to find relevant code/docs.',
-    inputSchema: {
-      type: 'object', additionalProperties: false,
-      properties: {
-        context: { type: 'string', description: 'The plan or idea to challenge' },
-        goal: { type: 'string', description: 'What you\'re trying to achieve' },
-        depth: { type: 'string', enum: ['quick', 'deep'] },
-        useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
-      },
-      required: ['context'],
-    },
-    handler: async (args, ctx) => {
-      const { devilsAdvocateEnhanced } = await import('./tools/devils-advocate.js');
-      return devilsAdvocateEnhanced(args, ctx);
-    },
+  // NEW: Stateful framework implementation
+  [devilsAdvocateDescriptor.name]: {
+    ...devilsAdvocateDescriptor,
+    handler: devilsAdvocateTool,
   },
   
   framework_first_principles: {
