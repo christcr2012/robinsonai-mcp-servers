@@ -2,6 +2,32 @@
 
 All notable changes to the Robinson AI MCP Servers project will be documented in this file.
 
+## [2025-01-07] Thinking Tools MCP v1.22.0 - Complete Cognitive Frameworks Redesign
+
+### 🎉 MAJOR RELEASE
+
+**Thinking Tools MCP (@robinson_ai_systems/thinking-tools-mcp@1.22.0)**
+
+**Breaking Changes:**
+- All 22 cognitive framework tools completely redesigned from stateless keyword matchers to stateful interactive frameworks
+- Tool naming standardized: 19 tools renamed to follow `{category}_{action}` convention
+
+**Added:**
+- ✨ 7 new frameworks from CognitiveCompass MCP:
+  - Inversion, Second-Order Thinking, OODA Loop
+  - Cynefin Framework, Design Thinking
+  - Probabilistic Thinking, Bayesian Updating
+
+**Changed:**
+- ✅ All 15 existing cognitive frameworks redesigned as stateful implementations
+- Frameworks now maintain state, gather evidence, and guide thinking processes
+- Created `framework-base.ts` base class for all frameworks
+
+**Impact:**
+- 🚀 22 total cognitive frameworks (15 redesigned + 7 new)
+- 🎯 Evidence-based analysis using codebase context
+- ✅ All frameworks now provide real value instead of generic responses
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
