@@ -544,7 +544,19 @@ export async function indexRepo(
     let errors = 0;
     const docsBatch: StoredDoc[] = [];
 
-    // Process changed files only
+    // PHASE 1: Collect all chunks that need embedding (BATCHING FIX)
+    interface ChunkToEmbed {
+      fileIdx: number;
+      rel: string;
+      partIdx: number;
+      text: string;
+      contentSha: string;
+    }
+
+    const chunksToEmbed: ChunkToEmbed[] = [];
+    const fileChunks: Map<number, { rel: string; parts: any[]; stat: any; text: string; ext: string; normalizedExt: string; isCode: boolean }> = new Map();
+
+    console.log(`\n🔄 PHASE 1: Scanning ${changed.length} files for chunks...`);
     for (let fileIdx = 0; fileIdx < changed.length; fileIdx++) {
       try {
         const rel = changed[fileIdx];
@@ -575,40 +587,90 @@ export async function indexRepo(
 
         // Chunk the file
         const parts = chunkByHeuristics(rel, text);
-        const chunkIds: string[] = [];
 
-        console.log(`⚡ [${fileIdx + 1}/${changed.length}] Processing ${rel} (${parts.length} chunks)...`);
+        // Store file data for later
+        fileChunks.set(fileIdx, { rel, parts, stat, text, ext, normalizedExt, isCode });
 
-        for (const part of parts) {
+        // Collect chunks that need embedding
+        for (let partIdx = 0; partIdx < parts.length; partIdx++) {
+          const part = parts[partIdx];
           const contentSha = sha(part.text);
 
-          // Try to reuse cached embedding
-          let vec = getCachedVec(embedModel, contentSha);
-
-          if (!vec) {
+          // Check if we have cached embedding
+          const cachedVec = getCachedVec(embedModel, contentSha);
+          if (!cachedVec) {
             // Need to embed this chunk
-            try {
-              const embs = await embedBatch([part.text], {
-                filePath: rel,
-                inputType: 'document' // Indexing uses 'document' type
-              });
-              if (embs && embs.length > 0) {
-                vec = embs[0];
-                // Cache for future use
-                putCachedVec(embedModel, contentSha, vec);
-                e++;
-              }
-            } catch (embedError: any) {
-              console.error(`❌ Embedding failed for ${rel}:`, embedError.message);
-              errors++;
-            }
+            chunksToEmbed.push({ fileIdx, rel, partIdx, text: part.text, contentSha });
           } else {
-            // Reused cached embedding
+            e++; // Count cached embeddings
+          }
+        }
+
+        if ((fileIdx + 1) % 50 === 0 || fileIdx === changed.length - 1) {
+          console.log(`  📊 Scanned ${fileIdx + 1}/${changed.length} files, ${chunksToEmbed.length} chunks need embedding`);
+        }
+      } catch (fileError: any) {
+        console.error(`❌ Error scanning file ${changed[fileIdx]}:`, fileError.message);
+        errors++;
+        continue;
+      }
+    }
+
+    // PHASE 2: Batch embed all chunks (MASSIVE SPEEDUP)
+    console.log(`\n⚡ PHASE 2: Batch embedding ${chunksToEmbed.length} chunks...`);
+    const embeddings: Map<string, number[]> = new Map();
+
+    if (chunksToEmbed.length > 0) {
+      const BATCH_SIZE = 128; // Voyage AI max batch size
+      const batches = Math.ceil(chunksToEmbed.length / BATCH_SIZE);
+
+      for (let batchIdx = 0; batchIdx < batches; batchIdx++) {
+        const start = batchIdx * BATCH_SIZE;
+        const end = Math.min(start + BATCH_SIZE, chunksToEmbed.length);
+        const batchChunks = chunksToEmbed.slice(start, end);
+
+        try {
+          console.log(`  🔄 Batch ${batchIdx + 1}/${batches}: Embedding ${batchChunks.length} chunks...`);
+
+          const batchTexts = batchChunks.map(c => c.text);
+          const batchVecs = await embedBatch(batchTexts, {
+            filePath: batchChunks[0].rel, // Use first file for content type detection
+            inputType: 'document'
+          });
+
+          // Map embeddings back to chunks
+          for (let i = 0; i < batchChunks.length; i++) {
+            const chunk = batchChunks[i];
+            const vec = batchVecs[i];
+            embeddings.set(chunk.contentSha, vec);
+            putCachedVec(embedModel, chunk.contentSha, vec);
             e++;
           }
 
+          console.log(`  ✅ Batch ${batchIdx + 1}/${batches} complete (${batchChunks.length} embeddings)`);
+        } catch (embedError: any) {
+          console.error(`❌ Batch ${batchIdx + 1}/${batches} failed:`, embedError.message);
+          errors += batchChunks.length;
+        }
+      }
+    }
+
+    // PHASE 3: Save all chunks with embeddings
+    console.log(`\n💾 PHASE 3: Saving ${fileChunks.size} files with chunks...`);
+    for (const [fileIdx, fileData] of fileChunks.entries()) {
+      try {
+        const { rel, parts, stat, text, normalizedExt, isCode } = fileData;
+        const chunkIds: string[] = [];
+
+        for (let partIdx = 0; partIdx < parts.length; partIdx++) {
+          const part = parts[partIdx];
+          const contentSha = sha(part.text);
+
+          // Get embedding (either from batch or cache)
+          let vec = embeddings.get(contentSha) || getCachedVec(embedModel, contentSha);
+
           const chunk: Chunk = {
-            id: `${contentSha}:${parts.indexOf(part)}`,
+            id: `${contentSha}:${partIdx}`,
             source: 'repo' as const,
             path: rel,
             uri: rel,
@@ -628,7 +690,7 @@ export async function indexRepo(
           saveChunk(chunk, { compress: compressChunks });
           if (vec) {
             saveEmbedding({ id: chunk.id, vec });
-            }
+          }
           chunkIds.push(chunk.id);
           n++;
         }
@@ -641,8 +703,11 @@ export async function indexRepo(
           chunkIds
         };
 
+        if ((fileIdx + 1) % 50 === 0 || fileIdx === fileChunks.size - 1) {
+          console.log(`  💾 Saved ${fileIdx + 1}/${fileChunks.size} files`);
+        }
       } catch (fileError: any) {
-        console.error(`❌ Error processing file ${changed[fileIdx]}:`, fileError.message);
+        console.error(`❌ Error saving file ${fileData.rel}:`, fileError.message);
         errors++;
         continue;
       }

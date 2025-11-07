@@ -247,28 +247,57 @@ async function voyageEmbed(
 
   console.log(`[voyageEmbed] Model: ${model}, Input type: ${inputType}, Texts: ${texts.length}`);
 
-  const r = await request('https://api.voyageai.com/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'authorization': `Bearer ${key}`,
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify({
-      model,
-      input: texts,
-      input_type: inputType, // 'query' or 'document'
-      output_dimension: 1024, // Default for voyage-3 models
-      output_dtype: 'float' // Use float for best quality
-    })
-  });
+  // Retry logic with exponential backoff for rate limits
+  const MAX_RETRIES = 3;
+  const BASE_DELAY = 1000; // 1 second
 
-  const j: any = await r.body.json();
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const r = await request('https://api.voyageai.com/v1/embeddings', {
+        method: 'POST',
+        headers: {
+          'authorization': `Bearer ${key}`,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model,
+          input: texts,
+          input_type: inputType, // 'query' or 'document'
+          output_dimension: 1024, // Default for voyage-3 models
+          output_dtype: 'float' // Use float for best quality
+        })
+      });
 
-  if (!j?.data) {
-    throw new Error(`Voyage API error: ${JSON.stringify(j)}`);
+      const j: any = await r.body.json();
+
+      // Check for rate limit error
+      if (r.statusCode === 429 && attempt < MAX_RETRIES) {
+        const delay = BASE_DELAY * Math.pow(2, attempt);
+        console.warn(`⚠️  [voyageEmbed] Rate limit hit, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+
+      if (!j?.data) {
+        throw new Error(`Voyage API error: ${JSON.stringify(j)}`);
+      }
+
+      return j.data.map((d: any) => d.embedding);
+    } catch (error: any) {
+      // If it's a network error and we have retries left, retry
+      if (attempt < MAX_RETRIES && (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT')) {
+        const delay = BASE_DELAY * Math.pow(2, attempt);
+        console.warn(`⚠️  [voyageEmbed] Network error, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+
+      // Otherwise, throw the error
+      throw error;
+    }
   }
 
-  return j.data.map((d: any) => d.embedding);
+  throw new Error('Voyage API failed after max retries');
 }
 
 export function cosine(a: number[], b: number[]): number {

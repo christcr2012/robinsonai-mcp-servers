@@ -642,22 +642,29 @@ server.setRequestHandler(InitializeRequestSchema, async (request) => ({
           tool_count: 24,
           pattern: "STATEFUL - Initialize session, then record steps",
           tools: [
+            "framework_devils_advocate",
+            "framework_first_principles",
+            "framework_root_cause",
+            "framework_swot",
+            "framework_premortem",
+            "framework_critical_thinking",
+            "framework_lateral_thinking",
+            "framework_red_team",
+            "framework_blue_team",
+            "framework_decision_matrix",
+            "framework_socratic",
+            "framework_systems_thinking",
+            "framework_scenario_planning",
+            "framework_brainstorming",
+            "framework_mind_mapping",
+            "framework_inversion",
+            "framework_second_order_thinking",
+            "framework_ooda_loop",
+            "framework_cynefin_framework",
+            "framework_design_thinking",
+            "framework_probabilistic_thinking",
+            "framework_bayesian_updating",
             "sequential_thinking",
-            "devils_advocate",
-            "swot_analysis",
-            "first_principles",
-            "root_cause",
-            "critical_thinking",
-            "lateral_thinking",
-            "red_team",
-            "blue_team",
-            "decision_matrix",
-            "socratic_questioning",
-            "systems_thinking",
-            "scenario_planning",
-            "premortem_analysis",
-            "brainstorming",
-            "mind_mapping",
             "parallel_thinking",
             "reflective_thinking"
           ]
@@ -741,12 +748,12 @@ server.setRequestHandler(InitializeRequestSchema, async (request) => ({
         ],
         example: {
           step1: {
-            tool: "devils_advocate",
+            tool: "framework_devils_advocate",
             input: { problem: "Should we migrate to microservices?", totalSteps: 5 },
             output: "Session initialized with evidence from codebase"
           },
           step2: {
-            tool: "devils_advocate",
+            tool: "framework_devils_advocate",
             input: { stepNumber: 1, content: "Assumption: Microservices will improve scalability", nextStepNeeded: true },
             output: "Step 1 recorded, ready for step 2"
           }
@@ -771,7 +778,7 @@ server.setRequestHandler(InitializeRequestSchema, async (request) => ({
       quick_start: {
         description: "How to use Thinking Tools MCP effectively",
         steps: [
-          "1. Choose a cognitive framework (devils_advocate, swot_analysis, etc.)",
+          "1. Choose a cognitive framework (framework_devils_advocate, framework_swot, etc.)",
           "2. Initialize with your problem/question",
           "3. Framework gathers evidence from codebase using Context Engine",
           "4. Record your thinking step-by-step",

@@ -44,11 +44,34 @@ export function ensureDirs() {
 
 export function* readJSONL<T = any>(p: string): Generator<T> {
   if (!fs.existsSync(p)) return;
-  const content = fs.readFileSync(p, 'utf8');
-  const lines = content.split(/\r?\n/);
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    yield JSON.parse(line) as T;
+
+  // Stream-based reading to avoid loading entire file into memory
+  const fd = fs.openSync(p, 'r');
+  const bufferSize = 64 * 1024; // 64KB buffer
+  const buffer = Buffer.allocUnsafe(bufferSize);
+  let leftover = '';
+  let bytesRead = 0;
+
+  try {
+    while ((bytesRead = fs.readSync(fd, buffer, 0, bufferSize, null)) > 0) {
+      const chunk = leftover + buffer.toString('utf8', 0, bytesRead);
+      const lines = chunk.split(/\r?\n/);
+
+      // Keep last incomplete line for next iteration
+      leftover = lines.pop() || '';
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        yield JSON.parse(line) as T;
+      }
+    }
+
+    // Process final leftover line
+    if (leftover.trim()) {
+      yield JSON.parse(leftover) as T;
+    }
+  } finally {
+    fs.closeSync(fd);
   }
 }
 
