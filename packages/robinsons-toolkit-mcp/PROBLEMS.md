@@ -294,12 +294,14 @@ All issues fixed, tested, and verified working in production.
 
 ---
 
-## ✅ ISSUE 6: DUPLICATE FRAMEWORK TOOLS - RESOLVED
+## ✅ ISSUE 6: DUPLICATE FRAMEWORK TOOLS - RESOLVED & TESTED
 
 **Fixed:** 2025-01-07
 **Problem:** 15 old stateless framework files not removed after refactoring
 **Solution:** Removed all 15 old files and import statements
-**Result:** Clean codebase, build successful
+**Testing:** Real usage tests confirm new stateful versions work correctly (3/3 frameworks: Devil's Advocate, SWOT, First Principles)
+**Result:** Clean codebase, stateful frameworks working, old broken versions correctly removed
+**See:** FRAMEWORK_TEST_RESULTS.md
 
 ---
 
