@@ -6,7 +6,12 @@ import { ctxImportEvidenceTool } from "./ctx_import_evidence.js";
 export const webSearchDescriptor = {
   name: "context_web_search",
   description: "Search the web (free fallback) and return top results.",
-  inputSchema: { type: "object", properties: { query: { type: "string" }, k: { type: "number", default: 8 } }, required:["query"] }
+  inputSchema: {
+    type: "object",
+    additionalProperties: false,
+    properties: { query: { type: "string" }, k: { type: "number", default: 8 } },
+    required:["query"]
+  }
 };
 
 export async function webSearchTool(args:{query:string; k?:number}) {
@@ -17,7 +22,12 @@ export async function webSearchTool(args:{query:string; k?:number}) {
 export const webSearchAndImportDescriptor = {
   name: "context_web_search_and_import",
   description: "Search the web then import results into evidence for downstream tools.",
-  inputSchema: { type: "object", properties: { query: { type:"string" }, k: { type:"number", default: 8 }, group: { type:"string" } }, required:["query"] }
+  inputSchema: {
+    type: "object",
+    additionalProperties: false,
+    properties: { query: { type:"string" }, k: { type:"number", default: 8 }, group: { type:"string" } },
+    required:["query"]
+  }
 };
 
 export async function webSearchAndImportTool(args:{query:string; k?:number; group?:string}, ctx: ServerContext){

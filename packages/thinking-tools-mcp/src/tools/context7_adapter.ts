@@ -12,6 +12,7 @@ export const context7AdapterDescriptor = {
   description: "Pull results from Context7 (HTTP or file), cache locally, and import as evidence.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       from: { type: "string", enum: ["http","file"], default: "file" },
       url: { type: "string" },

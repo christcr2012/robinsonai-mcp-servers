@@ -6,6 +6,7 @@ export const contextIndexFullDescriptor = {
   description: 'Force a full rebuild of the index (ignores TTL and caps). Use after branch switch or when index seems stale.',
   inputSchema: {
     type: 'object' as const,
+    additionalProperties: false,
     properties: {}
   }
 };

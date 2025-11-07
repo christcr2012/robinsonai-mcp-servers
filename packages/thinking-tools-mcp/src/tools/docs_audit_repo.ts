@@ -7,6 +7,7 @@ export const docsAuditDescriptor = {
   description: "Cross-reference planning/completion docs against code; outputs done/missing/stale/conflicts.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       repoPath: { type: "string", description: "Root of repo; defaults to workspaceRoot" },
       planTypes: { type: "array", items: { type: "string" }, default: ["plan","design","rfc","decision","spec"] },

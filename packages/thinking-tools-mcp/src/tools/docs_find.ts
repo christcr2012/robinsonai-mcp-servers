@@ -6,6 +6,7 @@ export const docsFindDescriptor = {
   description: 'Find documentation by type/status (plan, design, decision, completion, etc.)',
   inputSchema: {
     type: 'object',
+    additionalProperties: false,
     properties: {
       type: { type:'string', description: 'Doc type: plan, design, rfc, decision, completion, postmortem, retro, changelog, spec, readme, status, other' },
       status: { type:'string', description: 'Status: draft, in-progress, approved, done, deprecated, unknown' },

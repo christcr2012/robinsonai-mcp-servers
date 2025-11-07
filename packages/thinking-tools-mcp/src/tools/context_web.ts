@@ -196,10 +196,16 @@ export function getWebContextTools(): Tool[] {
       description: "Search the web and write a results file under .robctx/web",
       inputSchema: {
         type: "object",
+        additionalProperties: false,
         properties: {
           query: { type: "string" },
           max_results: { type: "number", default: 8 },
-          provider: { type: "string", enum: ["tavily","bing","serpapi"], nullable: true }
+          provider: {
+            anyOf: [
+              { type: "string", enum: ["tavily","bing","serpapi"] },
+              { type: "null" }
+            ]
+          }
         },
         required: ["query"]
       },
@@ -216,6 +222,7 @@ export function getWebContextTools(): Tool[] {
       description: "Fetch and extract a single URL into .robctx/web as JSON + MD",
       inputSchema: {
         type: "object",
+        additionalProperties: false,
         properties: { url: { type: "string" } },
         required: ["url"]
       },
@@ -230,6 +237,7 @@ export function getWebContextTools(): Tool[] {
       description: "Crawl up to N pages from one or more seeds (same-domain optional), polite rate limits",
       inputSchema: {
         type: "object",
+        additionalProperties: false,
         properties: {
           seeds: { type: "array", items: { type: "string" } },
           max_pages: { type: "number", default: 20 },

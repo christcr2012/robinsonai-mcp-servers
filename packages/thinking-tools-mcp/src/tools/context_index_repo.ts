@@ -12,6 +12,7 @@ export const contextIndexRepoDescriptor = {
   description: 'Index repository for semantic search. Returns indexing statistics.',
   inputSchema: {
     type: 'object',
+    additionalProperties: false,
     properties: {
       force: { type: 'boolean', description: 'Force reindex even if already indexed' },
     },

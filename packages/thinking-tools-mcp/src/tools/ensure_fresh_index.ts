@@ -6,6 +6,7 @@ export const ensureFreshIndexDescriptor = {
   description: 'Incrementally update the index (changed-only) respecting TTL and caps. Call this before any context/thinking tool to ensure fresh results.',
   inputSchema: {
     type: 'object' as const,
+    additionalProperties: false,
     properties: {
       force: {
         type: 'boolean' as const,

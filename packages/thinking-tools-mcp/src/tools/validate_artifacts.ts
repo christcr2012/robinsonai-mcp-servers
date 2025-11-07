@@ -7,7 +7,7 @@ type Tool = { name:string; description:string; inputSchema:J; handler:(args:J)=>
 export const validate_artifacts: Tool = {
   name: "think_validate_artifacts",
   description: "Validate .robctx/thinking artifacts: no '(none yet)' lines, warn on TODO/PLACEHOLDER.",
-  inputSchema: { type: "object" },
+  inputSchema: { type: "object", additionalProperties: false },
   handler: async () => {
     const dir = ".robctx/thinking";
     let ok = true;

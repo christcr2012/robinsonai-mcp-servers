@@ -8,6 +8,7 @@ export const docsMarkDeprecatedDescriptor = {
   description: 'Mark documentation files as deprecated by adding/updating YAML front-matter',
   inputSchema: {
     type: 'object',
+    additionalProperties: false,
     properties: {
       files: { type: 'array', items: { type: 'string' }, description: 'File paths to mark as deprecated' },
       reason: { type: 'string', description: 'Deprecation reason (optional)' },

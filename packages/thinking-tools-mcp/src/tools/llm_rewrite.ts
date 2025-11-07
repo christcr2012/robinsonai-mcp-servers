@@ -57,6 +57,7 @@ export const think_llm_rewrite_prep: Tool = {
     "Build a structured prompt payload from artifacts + optional evidence. Saves JSON under .robctx/thinking/prompts and returns it.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       title: { type: "string", description: "Short task title (goes into prompt)" },
       artifact_md_paths: { type: "array", items: { type: "string" }, description: "Paths to .md artifacts to rewrite" },
@@ -131,6 +132,7 @@ export const think_llm_apply: Tool = {
     "Save model-rewritten Markdown next to original artifact. Creates *-llm.md and a small JSON note linking versions.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       original_md_path: { type: "string" },
       rewritten_md: { type: "string" }

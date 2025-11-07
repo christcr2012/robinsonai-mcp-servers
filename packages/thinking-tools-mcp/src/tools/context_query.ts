@@ -12,6 +12,7 @@ export const contextQueryDescriptor = {
   description: 'Query indexed code semantically. Returns ranked search results.',
   inputSchema: {
     type: 'object',
+    additionalProperties: false,
     properties: {
       query: { type: 'string', description: 'Search query' },
       top_k: { type: 'number', description: 'Number of results to return (default: 12, max: 50)' },

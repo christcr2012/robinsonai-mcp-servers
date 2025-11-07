@@ -107,12 +107,14 @@ export const ctxImportEvidenceDescriptor = {
     'Import external search/graph results (e.g., Context 7) into the unified evidence store for downstream thinking tools.',
   inputSchema: {
     type: 'object',
+    additionalProperties: false,
     properties: {
       items: {
         type: 'array',
         description: 'Array of evidence items to import',
         items: {
           type: 'object',
+          additionalProperties: false,
           properties: {
             source: {
               type: 'string',
@@ -128,7 +130,14 @@ export const ctxImportEvidenceDescriptor = {
               description: 'Tags for categorization',
             },
             raw: {
-              type: ['object', 'array', 'string', 'number', 'boolean', 'null'],
+              oneOf: [
+                { type: 'object' },
+                { type: 'array' },
+                { type: 'string' },
+                { type: 'number' },
+                { type: 'boolean' },
+                { type: 'null' }
+              ],
               description: 'Original object',
             },
           },
@@ -143,6 +152,6 @@ export const ctxImportEvidenceDescriptor = {
         description: 'Avoid duplicates by id-hash (default: true)',
       },
     },
-  },
+  }
 };
 

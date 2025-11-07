@@ -38,6 +38,7 @@ export const ctxMergeConfigDescriptor = {
     'Set ranking mode: local (only local context), imported (only external evidence), or blend (combine both). Controls how context is combined in thinking tools.',
   inputSchema: {
     type: 'object',
+    additionalProperties: false,
     properties: {
       mode: {
         type: 'string',
@@ -46,6 +47,6 @@ export const ctxMergeConfigDescriptor = {
           'Ranking mode: local (only local), imported (only external), blend (combine)',
       },
     },
-  },
+  }
 };
 

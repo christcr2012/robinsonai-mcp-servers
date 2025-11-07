@@ -17,6 +17,7 @@ export const collect_evidence_tool: Tool = {
   description: "Copy repo files into .robctx/evidence using include/exclude globs. Returns ok, root, scanned, copied, output_dir.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       include: { type: "array", items: { type: "string" }, description: "Globs relative to repo root (default: ['**/*'])" },
       exclude: { type: "array", items: { type: "string" }, description: "Globs to exclude (default: node_modules, .git, dist, etc.)" },
@@ -32,6 +33,7 @@ export const validate_tools_tool: Tool = {
   description: "Validate thinking tool names against Augment's regex. Returns ok, total, invalid.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {}
   },
   handler: async () => {

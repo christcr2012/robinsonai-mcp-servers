@@ -11,6 +11,7 @@ export const contextStatsDescriptor = {
   description: 'Get context engine statistics. Returns chunk count, embeddings, sources, and configuration.',
   inputSchema: {
     type: 'object',
+    additionalProperties: false,
     properties: {},
   },
 };

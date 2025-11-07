@@ -7,6 +7,7 @@ export const sequentialThinkingDescriptor = {
   description: "Structured multi-step analysis that blends repo + external context and emits a rich report.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       goal: { type:"string", description:"What to analyze or decide"},
       k: { type:"number", default: 8 },

@@ -6,6 +6,7 @@ export const docsGraphDescriptor = {
   description: 'Generate timeline graph of documentation (nodes=docs by date, edges=links). Returns Mermaid diagram.',
   inputSchema: {
     type: 'object',
+    additionalProperties: false,
     properties: {
       type: { type: 'string', description: 'Filter by doc type (optional)' },
       format: { type: 'string', enum: ['mermaid', 'json'], description: 'Output format (default: mermaid)' }

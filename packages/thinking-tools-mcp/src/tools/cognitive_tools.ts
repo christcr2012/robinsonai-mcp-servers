@@ -73,6 +73,7 @@ const think_swot: ToolDef = {
   description: "Auto-populated SWOT from evidence; writes MD+JSON",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       subject: { type: "string" },
       evidence_paths: { type: "array", items: { type: "string" } },
@@ -130,6 +131,7 @@ const think_devils_advocate: ToolDef = {
   description: "Extract counter-arguments + falsification tests from evidence.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       claim: { type: "string" },
       evidence_paths: { type: "array", items: { type: "string" } },
@@ -172,6 +174,7 @@ const think_premortem: ToolDef = {
   description: "Premortem from evidence (failure modes, mitigations skeleton).",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       project: { type: "string" },
       horizon_days: { type: "number", default: 30 },
@@ -210,6 +213,7 @@ const think_decision_matrix: ToolDef = {
   description: "Decision matrix skeleton (you can fill scores in CSV/JSON).",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       title: { type: "string" },
       options: { type: "array", items: { type: "string" } },
@@ -368,6 +372,7 @@ const think_critique_checklist: ToolDef = {
   description: "Checklist over a draft file; auto-add warnings if TODO/PLACEHOLDER appear.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       draft_path: { type: "string" },
       checklist: { type: "array", items: { type: "string" } }
@@ -399,6 +404,7 @@ const think_auto_packet: ToolDef = {
   description: "Create a populated review packet (SWOT + Premortem + Devil's + Checklist) from evidence.",
   inputSchema: {
     type: "object",
+    additionalProperties: false,
     properties: {
       title: { type: "string" },
       evidence_paths: { type: "array", items: { type: "string" } }
