@@ -34,6 +34,20 @@ import { contextIndexFullTool, contextIndexFullDescriptor } from './tools/contex
 import { devilsAdvocate } from './tools/devils-advocate.js';
 // NEW: Stateful framework implementations
 import { devilsAdvocateTool, devilsAdvocateDescriptor } from './tools/framework-devils-advocate.js';
+import { swotTool, swotDescriptor } from './tools/framework-swot.js';
+import { firstPrinciplesTool, firstPrinciplesDescriptor } from './tools/framework-first-principles.js';
+import { rootCauseTool, rootCauseDescriptor } from './tools/framework-root-cause.js';
+import { premortemTool, premortemDescriptor } from './tools/framework-premortem.js';
+import { criticalThinkingTool, criticalThinkingDescriptor } from './tools/framework-critical-thinking.js';
+import { lateralThinkingTool, lateralThinkingDescriptor } from './tools/framework-lateral-thinking.js';
+import { redTeamTool, redTeamDescriptor } from './tools/framework-red-team.js';
+import { blueTeamTool, blueTeamDescriptor } from './tools/framework-blue-team.js';
+import { decisionMatrixTool, decisionMatrixDescriptor } from './tools/framework-decision-matrix.js';
+import { socraticTool, socraticDescriptor } from './tools/framework-socratic.js';
+import { systemsThinkingTool, systemsThinkingDescriptor } from './tools/framework-systems-thinking.js';
+import { scenarioPlanningTool, scenarioPlanningDescriptor } from './tools/framework-scenario-planning.js';
+import { brainstormingTool, brainstormingDescriptor } from './tools/framework-brainstorming.js';
+import { mindMappingTool, mindMappingDescriptor } from './tools/framework-mind-mapping.js';
 import { firstPrinciples } from './tools/first-principles.js';
 import { rootCauseAnalysis } from './tools/root-cause.js';
 import { swotAnalysis } from './tools/swot.js';
