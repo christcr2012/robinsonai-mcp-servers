@@ -185,6 +185,96 @@ const FRAMEWORKS = [
       '4. **Connections** - How do ideas relate across branches?'
     ]
   },
+  // NEW: Missing frameworks from CognitiveCompass MCP
+  {
+    name: 'inversion',
+    displayName: 'Inversion',
+    description: 'Think backwards from failure to find solutions',
+    steps: 4,
+    stepGuide: [
+      '1. **Define Success** - What does success look like?',
+      '2. **Invert to Failure** - What would guarantee failure?',
+      '3. **Identify Anti-Patterns** - What behaviors/decisions lead to failure?',
+      '4. **Avoid Failure Modes** - How can you prevent each failure mode?'
+    ]
+  },
+  {
+    name: 'second_order_thinking',
+    displayName: 'Second-Order Thinking',
+    description: 'Consider consequences of consequences',
+    steps: 5,
+    stepGuide: [
+      '1. **First-Order Effect** - What is the immediate consequence?',
+      '2. **Second-Order Effect** - What happens as a result of that?',
+      '3. **Third-Order Effect** - What happens next?',
+      '4. **Long-Term Impact** - What are the ultimate consequences?',
+      '5. **Unintended Consequences** - What unexpected effects might occur?'
+    ]
+  },
+  {
+    name: 'ooda_loop',
+    displayName: 'OODA Loop',
+    description: 'Observe, Orient, Decide, Act decision cycle',
+    steps: 4,
+    stepGuide: [
+      '1. **Observe** - What is happening? Gather information.',
+      '2. **Orient** - What does it mean? Analyze and synthesize.',
+      '3. **Decide** - What should you do? Choose a course of action.',
+      '4. **Act** - Execute the decision and return to Observe.'
+    ]
+  },
+  {
+    name: 'cynefin_framework',
+    displayName: 'Cynefin Framework',
+    description: 'Categorize problems by complexity',
+    steps: 5,
+    stepGuide: [
+      '1. **Assess Domain** - Is this Clear, Complicated, Complex, Chaotic, or Confused?',
+      '2. **Clear Domain** - Best practices apply (sense-categorize-respond)',
+      '3. **Complicated Domain** - Expert analysis needed (sense-analyze-respond)',
+      '4. **Complex Domain** - Probe and adapt (probe-sense-respond)',
+      '5. **Chaotic Domain** - Act immediately (act-sense-respond)'
+    ]
+  },
+  {
+    name: 'design_thinking',
+    displayName: 'Design Thinking',
+    description: 'Human-centered problem solving',
+    steps: 5,
+    stepGuide: [
+      '1. **Empathize** - Understand the user and their needs',
+      '2. **Define** - Clearly articulate the problem',
+      '3. **Ideate** - Generate many possible solutions',
+      '4. **Prototype** - Build quick, cheap versions to test',
+      '5. **Test** - Get feedback and iterate'
+    ]
+  },
+  {
+    name: 'probabilistic_thinking',
+    displayName: 'Probabilistic Thinking',
+    description: 'Reason with uncertainty and probabilities',
+    steps: 5,
+    stepGuide: [
+      '1. **Identify Uncertainty** - What is uncertain?',
+      '2. **Estimate Probabilities** - What are the likelihoods?',
+      '3. **Consider Base Rates** - What does historical data say?',
+      '4. **Update Beliefs** - How does new evidence change probabilities?',
+      '5. **Make Decisions** - Choose based on expected value'
+    ]
+  },
+  {
+    name: 'bayesian_updating',
+    displayName: 'Bayesian Updating',
+    description: 'Update beliefs with new evidence',
+    steps: 5,
+    stepGuide: [
+      '1. **Prior Belief** - What did you believe before?',
+      '2. **New Evidence** - What new information do you have?',
+      '3. **Likelihood** - How likely is this evidence given your belief?',
+      '4. **Update** - Apply Bayes\' theorem to update your belief',
+      '5. **Posterior Belief** - What do you believe now?'
+    ]
+  },
 ];
 
 const template = (framework) => `/**

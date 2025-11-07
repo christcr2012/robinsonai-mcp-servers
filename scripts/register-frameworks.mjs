@@ -22,6 +22,14 @@ const FRAMEWORKS = [
   'scenario_planning',
   'brainstorming',
   'mind_mapping',
+  // NEW: Missing frameworks from CognitiveCompass
+  'inversion',
+  'second_order_thinking',
+  'ooda_loop',
+  'cynefin_framework',
+  'design_thinking',
+  'probabilistic_thinking',
+  'bayesian_updating',
 ];
 
 const indexPath = path.join(process.cwd(), 'packages/thinking-tools-mcp/src/index.ts');

@@ -48,6 +48,13 @@ import { systemsThinkingTool, systemsThinkingDescriptor } from './tools/framewor
 import { scenarioPlanningTool, scenarioPlanningDescriptor } from './tools/framework-scenario-planning.js';
 import { brainstormingTool, brainstormingDescriptor } from './tools/framework-brainstorming.js';
 import { mindMappingTool, mindMappingDescriptor } from './tools/framework-mind-mapping.js';
+import { inversionTool, inversionDescriptor } from './tools/framework-inversion.js';
+import { secondOrderThinkingTool, secondOrderThinkingDescriptor } from './tools/framework-second-order-thinking.js';
+import { oodaLoopTool, oodaLoopDescriptor } from './tools/framework-ooda-loop.js';
+import { cynefinFrameworkTool, cynefinFrameworkDescriptor } from './tools/framework-cynefin-framework.js';
+import { designThinkingTool, designThinkingDescriptor } from './tools/framework-design-thinking.js';
+import { probabilisticThinkingTool, probabilisticThinkingDescriptor } from './tools/framework-probabilistic-thinking.js';
+import { bayesianUpdatingTool, bayesianUpdatingDescriptor } from './tools/framework-bayesian-updating.js';
 import { firstPrinciples } from './tools/first-principles.js';
 import { rootCauseAnalysis } from './tools/root-cause.js';
 import { swotAnalysis } from './tools/swot.js';
@@ -277,6 +284,42 @@ const registry: Record<string, Entry> = {
   [mindMappingDescriptor.name]: {
     ...mindMappingDescriptor,
     handler: mindMappingTool,
+  },
+
+  // NEW: Missing frameworks from CognitiveCompass MCP
+  [inversionDescriptor.name]: {
+    ...inversionDescriptor,
+    handler: inversionTool,
+  },
+
+  [secondOrderThinkingDescriptor.name]: {
+    ...secondOrderThinkingDescriptor,
+    handler: secondOrderThinkingTool,
+  },
+
+  [oodaLoopDescriptor.name]: {
+    ...oodaLoopDescriptor,
+    handler: oodaLoopTool,
+  },
+
+  [cynefinFrameworkDescriptor.name]: {
+    ...cynefinFrameworkDescriptor,
+    handler: cynefinFrameworkTool,
+  },
+
+  [designThinkingDescriptor.name]: {
+    ...designThinkingDescriptor,
+    handler: designThinkingTool,
+  },
+
+  [probabilisticThinkingDescriptor.name]: {
+    ...probabilisticThinkingDescriptor,
+    handler: probabilisticThinkingTool,
+  },
+
+  [bayesianUpdatingDescriptor.name]: {
+    ...bayesianUpdatingDescriptor,
+    handler: bayesianUpdatingTool,
   },
 };
 
