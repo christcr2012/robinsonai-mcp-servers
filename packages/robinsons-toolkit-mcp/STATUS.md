@@ -831,3 +831,64 @@ Need to create proper integration tests that:
 **Potential Total:** 976 (active) + 610-617 (planned) = **1,586-1,593 tools**
 
 ---
+
+## 🧠 THINKING TOOLS MCP - ACTIVE WORK
+
+**Package:** `@robinson_ai_systems/thinking-tools-mcp`
+**Version:** 1.21.5
+**Status:** ⚠️ CRITICAL ISSUES FOUND - Redesign in progress
+
+### Current Status
+
+**Working:**
+- ✅ Sequential Thinking (stateful implementation)
+- ✅ Context7 Integration (6 tools)
+- ✅ GPT-5 JSON Schema compliance
+
+**Broken:**
+- ❌ 17 Cognitive Frameworks (hardcoded keyword matchers, not real analysis)
+- ⚠️ Context Engine (indexing broken - 0 chunks created)
+
+**Missing:**
+- ❌ 7 Frameworks from CognitiveCompass MCP
+
+### Work Plan
+
+**Phase 1: Fix Existing 17 Broken Frameworks**
+1. Study `sequential-thinking-impl.ts` as reference
+2. Create base framework class for stateful tools
+3. Redesign each tool to stateful pattern:
+   - Devils Advocate
+   - SWOT Analysis
+   - First Principles
+   - Root Cause
+   - Critical Thinking
+   - Lateral Thinking
+   - Red Team / Blue Team
+   - Decision Matrix
+   - Socratic Questioning
+   - Systems Thinking
+   - Scenario Planning
+   - Brainstorming
+   - Mind Mapping
+   - Premortem
+   - Parallel Thinking
+   - Reflective Thinking
+
+**Phase 2: Add 7 Missing Frameworks**
+1. Inversion
+2. Second-Order Thinking
+3. OODA Loop
+4. Cynefin Framework
+5. Design Thinking
+6. Probabilistic Thinking
+7. Bayesian Updating
+
+**Phase 3: Fix Context Engine**
+1. Build and test indexing fix
+2. Verify chunk creation works
+3. Test full indexing pipeline
+
+**Estimated Effort:** 3-5 days
+
+---

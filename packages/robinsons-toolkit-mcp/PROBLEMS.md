@@ -1,6 +1,6 @@
 # Robinson's Toolkit MCP - Problems Tracking
 
-**Last Updated:** 2025-01-06  
+**Last Updated:** 2025-01-06
 **Testing Status:** In Progress
 
 ---
@@ -235,6 +235,190 @@ Robinson's Toolkit has **7 integrations** with dependencies installed, environme
 - **Impact:** Neon tools executed GitHub API calls instead of Neon API calls
 - **Fix:** Added `neon` prefix to all handler calls
 - **Status:** ✅ Fixed in v1.5.2
+
+---
+
+## 🚨 ISSUE 3: THINKING TOOLS MCP - COGNITIVE FRAMEWORKS BROKEN
+
+**Severity:** CRITICAL
+**Discovered:** 2025-01-06
+**Status:** ⚠️ NEEDS COMPLETE REDESIGN
+
+### Problem Description
+
+All 24 cognitive framework tools in Thinking Tools MCP produce generic, useless output instead of deep, context-aware analysis.
+
+### Root Cause
+
+Tools are implemented as **hardcoded keyword matchers** instead of **interactive stateful frameworks** like Sequential Thinking.
+
+**Current Wrong Implementation:**
+```typescript
+// devils-advocate.ts (lines 42-188)
+if (lowerContext.includes('mcp')) {
+  challenges.push('MCP servers have complex dependency chains');
+}
+// Returns pre-written generic responses
+```
+
+**Correct Pattern (from Sequential Thinking):**
+- Tool is STATEFUL (maintains history across calls)
+- Tool guides primary agent through thinking process
+- Tool returns metadata (step number, total steps, next needed)
+- Tool logs formatted output to stderr
+- Primary agent provides actual analysis content
+
+### Affected Tools (24 total)
+
+**Currently Broken:**
+1. `devils_advocate` - Returns generic challenges
+2. `swot_analysis` - Returns template SWOT
+3. `first_principles` - Returns generic breakdown
+4. `root_cause` - Returns generic 5 Whys
+5. `critical_thinking` - Returns generic evaluation
+6. `lateral_thinking` - Returns generic ideas
+7. `red_team` - Returns generic attacks
+8. `blue_team` - Returns generic defenses
+9. `decision_matrix` - Returns generic comparison
+10. `socratic_questioning` - Returns generic questions
+11. `systems_thinking` - Returns generic interconnections
+12. `scenario_planning` - Returns generic scenarios
+13. `brainstorming` - Returns generic ideas
+14. `mind_mapping` - Returns generic map
+15. `premortem` - Returns generic failure scenarios
+16. `parallel_thinking` - Returns generic paths
+17. `reflective_thinking` - Returns generic reflection
+
+**Working Correctly:**
+1. `sequential_thinking` - ✅ Stateful implementation (sequential-thinking-impl.ts)
+
+**Missing from CognitiveCompass MCP (7 frameworks to add):**
+1. `inversion` - Think backwards from failure
+2. `second_order_thinking` - Consider consequences of consequences
+3. `ooda_loop` - Observe, Orient, Decide, Act cycle
+4. `cynefin_framework` - Complexity categorization
+5. `design_thinking` - Empathize, Define, Ideate, Prototype, Test
+6. `probabilistic_thinking` - Reason with uncertainty
+7. `bayesian_updating` - Update beliefs with new evidence
+
+### Impact
+
+- **User Experience:** Tools appear to work but provide no value
+- **Trust:** Users lose confidence in the entire Thinking Tools MCP
+- **Wasted Effort:** Context Engine integration is useless if tools don't analyze
+- **Missed Opportunity:** Could be powerful if implemented correctly
+
+### Solution Required
+
+**Phase 1: Fix Existing 17 Broken Tools**
+1. Study `sequential-thinking-impl.ts` as reference implementation
+2. Create base framework class/pattern for stateful tools
+3. Redesign each tool to follow stateful pattern:
+   - Initialize session with evidence gathering
+   - Track state across calls
+   - Guide agent through framework steps
+   - Return metadata, not analysis
+   - Log formatted output to stderr
+4. Integrate Context Engine for evidence gathering
+5. Add Context7 library export for completed sessions
+
+**Phase 2: Add 7 Missing Frameworks**
+1. Implement using correct stateful pattern from start
+2. Follow same base framework class
+3. Integrate Context Engine
+4. Add Context7 export
+
+### Files to Modify
+
+**Broken Tools (17 files):**
+- `src/tools/devils-advocate.ts`
+- `src/tools/swot.ts`
+- `src/tools/first-principles.ts`
+- `src/tools/root-cause.ts`
+- `src/tools/critical-thinking.ts`
+- `src/tools/lateral-thinking.ts`
+- `src/tools/red-team.ts`
+- `src/tools/blue-team.ts`
+- `src/tools/decision-matrix.ts`
+- `src/tools/socratic.ts`
+- `src/tools/systems-thinking.ts`
+- `src/tools/scenario-planning.ts`
+- `src/tools/brainstorming.ts`
+- `src/tools/mind-mapping.ts`
+- `src/tools/premortem.ts`
+- `src/tools/parallel-thinking.ts` (if different from sequential-thinking-impl.ts)
+- `src/tools/reflective-thinking.ts` (if different from sequential-thinking-impl.ts)
+
+**New Tools (7 files to create):**
+- `src/tools/inversion.ts`
+- `src/tools/second-order-thinking.ts`
+- `src/tools/ooda-loop.ts`
+- `src/tools/cynefin.ts`
+- `src/tools/design-thinking.ts`
+- `src/tools/probabilistic-thinking.ts`
+- `src/tools/bayesian-updating.ts`
+
+**Supporting Files:**
+- `src/lib/framework-base.ts` (new - base class for all frameworks)
+- `src/index.ts` (update registrations)
+
+### Priority
+
+**CRITICAL** - These tools are the core value proposition of Thinking Tools MCP. Without them working, the package is essentially broken.
+
+### Estimated Effort
+
+- **Phase 1 (Fix 17 tools):** 2-3 days
+- **Phase 2 (Add 7 tools):** 1-2 days
+- **Total:** 3-5 days
+
+---
+
+## 🚨 ISSUE 4: THINKING TOOLS MCP - CONTEXT ENGINE INDEXING BROKEN
+
+**Severity:** HIGH
+**Discovered:** 2025-01-06
+**Status:** ⚠️ PARTIALLY FIXED
+
+### Problem Description
+
+Context Engine reports "1115 sources indexed but 0 chunks created" - indexing is completely broken.
+
+### Root Cause
+
+The `deleteChunksForFile()` function in `src/context/store.ts` (line 169) creates a massive string by joining all chunks, causing "Cannot create a string longer than 0x1fffffe8 characters" errors.
+
+**Before (BROKEN - Line 169):**
+```typescript
+fs.writeFileSync(P.chunks, keep.map(c => JSON.stringify(c)).join('\n') + '\n', 'utf8');
+```
+
+**After (FIXED - Lines 164-199):**
+```typescript
+// Stream-based approach to avoid loading all chunks into memory
+const tempPath = P.chunks + '.tmp';
+const fd = fs.openSync(tempPath, 'w');
+for (const chunk of readJSONL<Chunk>(P.chunks)) {
+  if (chunk.path !== file && chunk.uri !== file) {
+    fs.writeSync(fd, JSON.stringify(chunk) + '\n');
+  }
+}
+fs.closeSync(fd);
+fs.renameSync(tempPath, P.chunks);
+```
+
+### Status
+
+- ✅ Fix applied to `deleteChunksForFile()`
+- ❌ Not yet built/tested
+- ❓ May be other indexing issues
+
+### Next Steps
+
+1. Build TypeScript: `cd packages/thinking-tools-mcp && npm run build`
+2. Test indexing: Call `context_index_repo` or `context_index_full`
+3. Verify chunks created: Call `context_stats` and check chunk count
+4. If still broken, investigate other parts of indexing pipeline
 
 ---
 
