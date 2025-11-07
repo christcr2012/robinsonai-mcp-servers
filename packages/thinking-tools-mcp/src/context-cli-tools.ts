@@ -43,6 +43,7 @@ export const contextCLITools = [
     description: 'Preview files that will be included in context audit. Shows total files found, files after filtering, and a sample of file paths. Use this before running a full audit to verify the scope.',
     inputSchema: {
       type: 'object' as const,
+      additionalProperties: false,
       properties: {},
       required: [],
     },
@@ -55,6 +56,7 @@ export const contextCLITools = [
     description: 'Run full context audit on the current repository. Scans all files (respecting .gitignore and .contextignore), detects TODOs, placeholders, not-implemented stubs, and extracts claims from documentation. Writes reports to ./reports/ directory.',
     inputSchema: {
       type: 'object' as const,
+      additionalProperties: false,
       properties: {},
       required: [],
     },

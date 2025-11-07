@@ -131,7 +131,7 @@ export const ctxImportEvidenceDescriptor = {
             },
             raw: {
               oneOf: [
-                { type: 'object' },
+                { type: 'object', additionalProperties: false },
                 { type: 'array' },
                 { type: 'string' },
                 { type: 'number' },

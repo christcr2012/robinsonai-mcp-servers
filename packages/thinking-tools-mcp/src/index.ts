@@ -359,14 +359,9 @@ const registry: Record<string, Entry> = {
         weights: { type: 'array', items: { type: 'number' }, description: 'Optional weights aligned with the criteria order' },
         optionDetails: {
           type: 'object',
+          additionalProperties: false,
           description: 'Additional context for each option (strings, arrays, or structured summaries)',
-          additionalProperties: {
-            anyOf: [
-              { type: 'string' },
-              { type: 'array', items: { type: 'string' } },
-              { type: 'object' }
-            ]
-          }
+          properties: {}
         },
         context: { type: 'string', description: 'Additional context' },
         useContext: { type: 'boolean', description: 'Search codebase for relevant evidence (default: false)' },
