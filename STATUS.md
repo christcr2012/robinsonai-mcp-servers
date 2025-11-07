@@ -183,6 +183,14 @@
 - ✅ 64 tools properly categorized across 8 categories
 - ✅ Auto-discovery support for AI agents
 
+### Task 3: Remove Duplicate Framework Tools 🚨 URGENT
+**Status:** ⚠️ NEEDS IMMEDIATE FIX
+- ⏳ Remove 15 old stateless framework files (devils-advocate.ts, swot.ts, etc.)
+- ⏳ Remove old import statements from index.ts (lines 34, 58-68)
+- ⏳ Verify new stateful framework-* versions are working
+- ⏳ Test all 24 framework tools with Context Engine integration
+- **See:** `packages/robinsons-toolkit-mcp/PROBLEMS.md` Issue 6
+
 ### Task 3: Robinson's Toolkit Auto-Discovery ⏳ PLANNED
 **Status:** After Task 2
 - ⏳ Add InitializeRequestSchema handler with metadata
