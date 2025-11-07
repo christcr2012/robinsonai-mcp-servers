@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "source": "context7",
+      "title": "Sample External Evidence",
+      "snippet": "This is imported via Context7 file adapter for testing.",
+      "uri": "file://local/evidence/1",
+      "score": 0.9,
+      "tags": [
+        "test",
+        "external"
+      ],
+      "raw": {
+        "id": "ext-1",
+        "kind": "note"
+      }
+    }
+  ],
+  "group": "e2e"
+}

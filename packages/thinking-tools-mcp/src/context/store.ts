@@ -163,10 +163,39 @@ export function saveFileMap(m: Record<string, any>) {
 
 // --- Delete all chunks for a file (used on modify/delete)
 export function deleteChunksForFile(file: string) {
-  const all = loadChunks({ decompress: false });
-  const keep = all.filter(c => c.path !== file && c.uri !== file);
-  // Rewrite chunks file
-  fs.writeFileSync(P.chunks, keep.map(c => JSON.stringify(c)).join('\n') + '\n', 'utf8');
+  // Stream-based approach to avoid loading all chunks into memory
+  const tempPath = P.chunks + '.tmp';
+
+  try {
+    // Open temp file for writing
+    const fd = fs.openSync(tempPath, 'w');
+
+    try {
+      // Read and filter chunks line by line
+      for (const chunk of readJSONL<Chunk>(P.chunks)) {
+        // Keep chunks that don't match the file
+        if (chunk.path !== file && chunk.uri !== file) {
+          fs.writeSync(fd, JSON.stringify(chunk) + '\n');
+        }
+      }
+
+      // Close file
+      fs.closeSync(fd);
+
+      // Replace original file
+      fs.renameSync(tempPath, P.chunks);
+    } catch (error) {
+      // Close file on error
+      try { fs.closeSync(fd); } catch {}
+      throw error;
+    }
+  } catch (error) {
+    // Clean up temp file on error
+    if (fs.existsSync(tempPath)) {
+      fs.unlinkSync(tempPath);
+    }
+    throw error;
+  }
 }
 
 // --- Embeddings cache: model|sha -> vector

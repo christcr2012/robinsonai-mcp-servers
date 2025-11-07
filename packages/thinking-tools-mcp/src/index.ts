@@ -8,7 +8,11 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import {
+  ListToolsRequestSchema,
+  CallToolRequestSchema,
+  InitializeRequestSchema
+} from '@modelcontextprotocol/sdk/types.js';
 
 import { buildServerContext } from './lib/context.js';
 
@@ -88,9 +92,8 @@ import { docsDupesTool, docsDupesDescriptor } from './tools/docs_duplicates.js';
 import { docsMarkDeprecatedTool, docsMarkDeprecatedDescriptor } from './tools/docs_mark_deprecated.js';
 import { docsGraphTool, docsGraphDescriptor } from './tools/docs_graph.js';
 
-// New web search and sequential thinking tools
+// New web search tools
 import { webSearchTool, webSearchDescriptor, webSearchAndImportTool, webSearchAndImportDescriptor } from './tools/context_web_search.js';
-import { sequentialThinkingTool as sequentialThinkingToolNew, sequentialThinkingDescriptor } from './tools/sequential-thinking.js';
 import { healthTool, healthDescriptor } from './tools/health_check.js';
 
 // Tool registry entry type
@@ -168,12 +171,6 @@ const registry: Record<string, Entry> = {
   [webSearchAndImportDescriptor.name]: {
     ...webSearchAndImportDescriptor,
     handler: webSearchAndImportTool,
-  },
-
-  // Sequential thinking (upgraded)
-  [sequentialThinkingDescriptor.name]: {
-    ...sequentialThinkingDescriptor,
-    handler: sequentialThinkingToolNew,
   },
 
   // Health check (comprehensive)
@@ -750,6 +747,187 @@ const server = new Server(
     }
   }
 );
+
+// Initialize handler - tells agents how this server works
+server.setRequestHandler(InitializeRequestSchema, async (request) => ({
+  protocolVersion: "2024-11-05",
+  capabilities: {
+    tools: {},
+  },
+  serverInfo: {
+    name: "thinking-tools-mcp",
+    version: "1.21.5",
+
+    // 🎯 Server Manifest - Explains how Thinking Tools MCP works
+    metadata: {
+      description: "Cognitive frameworks and context engine for deep thinking and analysis",
+
+      // Tool categories
+      categories: [
+        {
+          name: "cognitive_frameworks",
+          display_name: "Cognitive Frameworks",
+          description: "Stateful thinking frameworks that guide the primary agent through structured analysis",
+          tool_count: 24,
+          pattern: "STATEFUL - Initialize session, then record steps",
+          tools: [
+            "sequential_thinking",
+            "devils_advocate",
+            "swot_analysis",
+            "first_principles",
+            "root_cause",
+            "critical_thinking",
+            "lateral_thinking",
+            "red_team",
+            "blue_team",
+            "decision_matrix",
+            "socratic_questioning",
+            "systems_thinking",
+            "scenario_planning",
+            "premortem_analysis",
+            "brainstorming",
+            "mind_mapping",
+            "parallel_thinking",
+            "reflective_thinking"
+          ]
+        },
+        {
+          name: "context_engine",
+          display_name: "Context Engine",
+          description: "Semantic search and indexing for codebase context",
+          tool_count: 8,
+          tools: [
+            "context_index_repo",
+            "context_index_full",
+            "ensure_fresh_index",
+            "context_query",
+            "context_stats",
+            "context_retrieve_code",
+            "context_find_symbol",
+            "context_find_callers"
+          ]
+        },
+        {
+          name: "context7",
+          display_name: "Context7 Integration",
+          description: "Library documentation access and search",
+          tool_count: 6,
+          tools: [
+            "context7_resolve_library_id",
+            "context7_get_library_docs",
+            "context7_search_libraries",
+            "context7_compare_versions",
+            "context7_get_examples",
+            "context7_get_migration_guide"
+          ]
+        },
+        {
+          name: "documentation",
+          display_name: "Documentation Intelligence",
+          description: "Find, analyze, and manage documentation",
+          tool_count: 5,
+          tools: [
+            "docs_find",
+            "docs_audit_repo",
+            "docs_find_duplicates",
+            "docs_mark_deprecated",
+            "docs_graph"
+          ]
+        },
+        {
+          name: "web",
+          display_name: "Web Tools",
+          description: "Web search and content ingestion",
+          tool_count: 3,
+          tools: [
+            "context_web_search",
+            "context_web_search_and_import",
+            "context_ingest_urls"
+          ]
+        },
+        {
+          name: "evidence",
+          display_name: "Evidence Collection",
+          description: "Collect and import evidence for analysis",
+          tool_count: 3,
+          tools: [
+            "think_collect_evidence",
+            "ctx_import_evidence",
+            "ctx_merge_config"
+          ]
+        }
+      ],
+
+      // How cognitive frameworks work
+      framework_pattern: {
+        description: "All cognitive frameworks follow a stateful pattern based on Sequential Thinking",
+        workflow: [
+          "1. Initialize session with 'problem' parameter - gathers evidence and sets up state",
+          "2. Record steps with 'stepNumber' and 'content' - tracks your thinking process",
+          "3. Framework maintains history and provides structure",
+          "4. Framework returns metadata, NOT analysis (you provide the analysis)",
+          "5. Framework logs formatted output to stderr for visual feedback"
+        ],
+        example: {
+          step1: {
+            tool: "devils_advocate",
+            input: { problem: "Should we migrate to microservices?", totalSteps: 5 },
+            output: "Session initialized with evidence from codebase"
+          },
+          step2: {
+            tool: "devils_advocate",
+            input: { stepNumber: 1, content: "Assumption: Microservices will improve scalability", nextStepNeeded: true },
+            output: "Step 1 recorded, ready for step 2"
+          }
+        }
+      },
+
+      // Standard parameters
+      standard_parameters: {
+        initialization: {
+          problem: { type: "string", required: true, description: "The problem or question to analyze" },
+          context: { type: "string", required: false, description: "Additional context" },
+          totalSteps: { type: "number", required: false, default: 5, description: "Expected number of steps" }
+        },
+        step_recording: {
+          stepNumber: { type: "number", required: true, description: "Current step number" },
+          content: { type: "string", required: true, description: "Your analysis for this step" },
+          nextStepNeeded: { type: "boolean", required: true, description: "Whether another step is needed" }
+        }
+      },
+
+      // Quick start guide
+      quick_start: {
+        description: "How to use Thinking Tools MCP effectively",
+        steps: [
+          "1. Choose a cognitive framework (devils_advocate, swot_analysis, etc.)",
+          "2. Initialize with your problem/question",
+          "3. Framework gathers evidence from codebase using Context Engine",
+          "4. Record your thinking step-by-step",
+          "5. Framework tracks history and provides structure",
+          "6. Complete session when analysis is done"
+        ],
+        best_practices: [
+          "Use frameworks to structure YOUR thinking, not to generate analysis",
+          "Provide detailed content in each step",
+          "Review evidence gathered during initialization",
+          "Use multiple frameworks for complex problems (e.g., SWOT + Premortem)",
+          "Export completed sessions to Context7 for future reference"
+        ]
+      },
+
+      // Key differences from other MCP servers
+      unique_features: [
+        "STATEFUL frameworks - maintain session state across calls",
+        "Evidence gathering - automatically searches codebase for relevant context",
+        "Context Engine integration - semantic search and indexing",
+        "Context7 integration - access library documentation",
+        "Thinking artifacts - export sessions for reuse",
+        "Blended search - combines local context + imported evidence"
+      ]
+    }
+  }
+}));
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: Object.entries(registry).map(([name, meta]) => ({

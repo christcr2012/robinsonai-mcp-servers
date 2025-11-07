@@ -366,11 +366,34 @@ if (lowerContext.includes('mcp')) {
 
 **CRITICAL** - These tools are the core value proposition of Thinking Tools MCP. Without them working, the package is essentially broken.
 
+### Work Plan (REVISED - Standardization First!)
+
+**Phase 0: Standardization (MUST DO FIRST)**
+1. Standardize tool naming convention
+2. Standardize parameters across similar tools
+3. Standardize response format
+4. Add InitializeRequestSchema handler with metadata
+5. Document the standardization in server manifest
+
+**Phase 1: Fix Existing 17 Broken Frameworks**
+1. Study `sequential-thinking-impl.ts` as reference implementation
+2. Create base framework class/pattern for stateful tools
+3. Redesign each tool to follow stateful pattern
+4. Integrate Context Engine for evidence gathering
+5. Add Context7 library export for completed sessions
+
+**Phase 2: Add 7 Missing Frameworks**
+1. Implement using correct stateful pattern from start
+2. Follow same base framework class
+3. Integrate Context Engine
+4. Add Context7 export
+
 ### Estimated Effort
 
+- **Phase 0 (Standardization):** 1 day
 - **Phase 1 (Fix 17 tools):** 2-3 days
 - **Phase 2 (Add 7 tools):** 1-2 days
-- **Total:** 3-5 days
+- **Total:** 4-6 days
 
 ---
 

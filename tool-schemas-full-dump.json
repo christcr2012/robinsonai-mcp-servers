@@ -1,0 +1,1516 @@
+[
+  {
+    "name": "context_index_repo",
+    "description": "Index repository for semantic search. Returns indexing statistics.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "force": {
+          "type": "boolean",
+          "description": "Force reindex even if already indexed"
+        }
+      }
+    }
+  },
+  {
+    "name": "ensure_fresh_index",
+    "description": "Incrementally update the index (changed-only) respecting TTL and caps. Call this before any context/thinking tool to ensure fresh results.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "force": {
+          "type": "boolean",
+          "description": "Force update even if within TTL window"
+        }
+      }
+    }
+  },
+  {
+    "name": "context_index_full",
+    "description": "Force a full rebuild of the index (ignores TTL and caps). Use after branch switch or when index seems stale.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    }
+  },
+  {
+    "name": "context_query",
+    "description": "Query indexed code semantically. Returns ranked search results.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Search query"
+        },
+        "top_k": {
+          "type": "number",
+          "description": "Number of results to return (default: 12, max: 50)"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  {
+    "name": "context_stats",
+    "description": "Get context engine statistics. Returns chunk count, embeddings, sources, and configuration.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    }
+  },
+  {
+    "name": "ctx_import_evidence",
+    "description": "Import external search/graph results (e.g., Context 7) into the unified evidence store for downstream thinking tools.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "Array of evidence items to import",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "Source identifier (e.g., \"context7\")"
+              },
+              "title": {
+                "type": "string",
+                "description": "Item title"
+              },
+              "snippet": {
+                "type": "string",
+                "description": "Content snippet"
+              },
+              "uri": {
+                "type": "string",
+                "description": "URI or file path"
+              },
+              "score": {
+                "type": "number",
+                "description": "Relevance score"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Tags for categorization"
+              },
+              "raw": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "array",
+                    "items": {}
+                  },
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Original object"
+              }
+            }
+          }
+        },
+        "group": {
+          "type": "string",
+          "description": "Logical bucket name (default: \"external\")"
+        },
+        "upsert": {
+          "type": "boolean",
+          "description": "Avoid duplicates by id-hash (default: true)"
+        }
+      }
+    }
+  },
+  {
+    "name": "ctx_merge_config",
+    "description": "Set ranking mode: local (only local context), imported (only external evidence), or blend (combine both). Controls how context is combined in thinking tools.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "local",
+            "imported",
+            "blend"
+          ],
+          "description": "Ranking mode: local (only local), imported (only external), blend (combine)"
+        }
+      }
+    }
+  },
+  {
+    "name": "context7_adapter",
+    "description": "Pull results from Context7 (HTTP or file), cache locally, and import as evidence.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "enum": [
+            "http",
+            "file"
+          ],
+          "default": "file"
+        },
+        "url": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  {
+    "name": "docs_find",
+    "description": "Find documentation by type/status (plan, design, decision, completion, etc.)",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Doc type: plan, design, rfc, decision, completion, postmortem, retro, changelog, spec, readme, status, other"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status: draft, in-progress, approved, done, deprecated, unknown"
+        },
+        "text": {
+          "type": "string",
+          "description": "Search text in title/summary"
+        },
+        "k": {
+          "type": "number",
+          "description": "Max results (default: 25)"
+        }
+      }
+    }
+  },
+  {
+    "name": "docs_audit_repo",
+    "description": "Cross-reference planning/completion docs against code; outputs done/missing/stale/conflicts.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repoPath": {
+          "type": "string",
+          "description": "Root of repo; defaults to workspaceRoot"
+        },
+        "planTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "plan",
+            "design",
+            "rfc",
+            "decision",
+            "spec"
+          ]
+        },
+        "completionTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "completion",
+            "postmortem",
+            "status",
+            "changelog"
+          ]
+        },
+        "k": {
+          "type": "number",
+          "default": 4
+        }
+      }
+    }
+  },
+  {
+    "name": "docs_find_duplicates",
+    "description": "Find near-duplicate docs by normalized title and date; flag older as deprecated.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "docs_mark_deprecated",
+    "description": "Mark documentation files as deprecated by adding/updating YAML front-matter",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "File paths to mark as deprecated"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Deprecation reason (optional)"
+        },
+        "replacedBy": {
+          "type": "string",
+          "description": "Path to replacement doc (optional)"
+        }
+      },
+      "required": [
+        "files"
+      ]
+    }
+  },
+  {
+    "name": "docs_graph",
+    "description": "Generate timeline graph of documentation (nodes=docs by date, edges=links). Returns Mermaid diagram.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Filter by doc type (optional)"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "mermaid",
+            "json"
+          ],
+          "description": "Output format (default: mermaid)"
+        }
+      }
+    }
+  },
+  {
+    "name": "context_web_search",
+    "description": "Search the web with DuckDuckGo",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "q": {
+          "type": "string",
+          "description": "Search query"
+        },
+        "k": {
+          "type": "number",
+          "description": "Number of results"
+        }
+      },
+      "required": [
+        "q"
+      ]
+    }
+  },
+  {
+    "name": "context_web_search_and_import",
+    "description": "Search the web then import results into evidence for downstream tools.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "k": {
+          "type": "number",
+          "default": 8
+        },
+        "group": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  {
+    "name": "sequential_thinking",
+    "description": "Step-by-step reasoning with state tracking",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "problem": {
+          "type": "string",
+          "description": "Problem to solve"
+        },
+        "steps": {
+          "type": "number",
+          "description": "Number of steps"
+        }
+      },
+      "required": [
+        "problem"
+      ]
+    }
+  },
+  {
+    "name": "thinking_tools_health_check",
+    "description": "Report MCP server health and tool count.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "healthcheck",
+    "description": "Return ok + workspace root (server wiring test)",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "devils_advocate",
+    "description": "Challenge assumptions and find flaws in plans. Enhanced with optional context search to find relevant code/docs.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "string",
+          "description": "The plan or idea to challenge"
+        },
+        "goal": {
+          "type": "string",
+          "description": "What you're trying to achieve"
+        },
+        "depth": {
+          "type": "string",
+          "enum": [
+            "quick",
+            "deep"
+          ]
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "context"
+      ]
+    }
+  },
+  {
+    "name": "first_principles",
+    "description": "Break down complex problems to fundamental truths. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "problem": {
+          "type": "string",
+          "description": "The problem to analyze"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Problem domain"
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "problem"
+      ]
+    }
+  },
+  {
+    "name": "root_cause",
+    "description": "Use 5 Whys technique to find underlying causes. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "problem": {
+          "type": "string",
+          "description": "The problem to analyze"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "problem"
+      ]
+    }
+  },
+  {
+    "name": "swot_analysis",
+    "description": "Analyze Strengths, Weaknesses, Opportunities, Threats. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subject": {
+          "type": "string",
+          "description": "What to analyze"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "perspective": {
+          "type": "string",
+          "enum": [
+            "technical",
+            "business",
+            "product",
+            "team"
+          ]
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "subject"
+      ]
+    }
+  },
+  {
+    "name": "premortem_analysis",
+    "description": "Imagine project failure and work backward. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "The project or initiative"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "project"
+      ]
+    }
+  },
+  {
+    "name": "critical_thinking",
+    "description": "Evaluate arguments, evidence, and logical reasoning. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "argument": {
+          "type": "string",
+          "description": "The argument to evaluate"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "depth": {
+          "type": "string",
+          "enum": [
+            "quick",
+            "deep"
+          ]
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "argument"
+      ]
+    }
+  },
+  {
+    "name": "lateral_thinking",
+    "description": "Generate creative, non-obvious solutions. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "problem": {
+          "type": "string",
+          "description": "The problem to solve creatively"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "problem"
+      ]
+    }
+  },
+  {
+    "name": "red_team",
+    "description": "Attack the plan/design to find vulnerabilities. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "plan": {
+          "type": "string",
+          "description": "The plan or design to attack"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "focus": {
+          "type": "string",
+          "enum": [
+            "security",
+            "reliability",
+            "performance",
+            "all"
+          ]
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "plan"
+      ]
+    }
+  },
+  {
+    "name": "blue_team",
+    "description": "Defend against attacks and strengthen the plan. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "plan": {
+          "type": "string",
+          "description": "The plan or design to defend"
+        },
+        "threats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "plan"
+      ]
+    }
+  },
+  {
+    "name": "decision_matrix",
+    "description": "Weighted decision-making for comparing options. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "weights": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "Optional weights aligned with the criteria order"
+        },
+        "optionDetails": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Additional context for each option (strings, arrays, or structured summaries)",
+          "properties": {}
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "options"
+      ]
+    }
+  },
+  {
+    "name": "socratic_questioning",
+    "description": "Deep inquiry through probing questions. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "topic": {
+          "type": "string",
+          "description": "The topic to explore"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "depth": {
+          "type": "string",
+          "enum": [
+            "quick",
+            "deep"
+          ]
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "topic"
+      ]
+    }
+  },
+  {
+    "name": "systems_thinking",
+    "description": "Understand interconnections and feedback loops. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "system": {
+          "type": "string",
+          "description": "The system to analyze"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "system"
+      ]
+    }
+  },
+  {
+    "name": "scenario_planning",
+    "description": "Explore multiple possible futures. Enhanced with optional context search.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "situation": {
+          "type": "string",
+          "description": "The current situation"
+        },
+        "timeframe": {
+          "type": "string",
+          "description": "Time horizon"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "useContext": {
+          "type": "boolean",
+          "description": "Search codebase for relevant evidence (default: false)"
+        }
+      },
+      "required": [
+        "situation"
+      ]
+    }
+  },
+  {
+    "name": "brainstorming",
+    "description": "Generate many ideas quickly without judgment",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "description": "What to brainstorm about"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Number of ideas"
+        }
+      },
+      "required": [
+        "prompt"
+      ]
+    }
+  },
+  {
+    "name": "mind_mapping",
+    "description": "Visual organization of ideas and concepts",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "topic": {
+          "type": "string",
+          "description": "Central topic"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context"
+        }
+      },
+      "required": [
+        "topic"
+      ]
+    }
+  },
+  {
+    "name": "parallel_thinking",
+    "description": "Explore multiple solution paths simultaneously",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "problem": {
+          "type": "string",
+          "description": "Problem to solve"
+        },
+        "paths": {
+          "type": "number",
+          "description": "Number of parallel paths"
+        }
+      },
+      "required": [
+        "problem"
+      ]
+    }
+  },
+  {
+    "name": "reflective_thinking",
+    "description": "Review and critique previous reasoning",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reasoning": {
+          "type": "string",
+          "description": "Previous reasoning to reflect on"
+        }
+      },
+      "required": [
+        "reasoning"
+      ]
+    }
+  },
+  {
+    "name": "context7_resolve_library_id",
+    "description": "Resolve library name to Context7 ID",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "library": {
+          "type": "string",
+          "description": "Library name"
+        }
+      },
+      "required": [
+        "library"
+      ]
+    }
+  },
+  {
+    "name": "context7_get_library_docs",
+    "description": "Get documentation for a library",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "library": {
+          "type": "string",
+          "description": "Library name or ID"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version"
+        }
+      },
+      "required": [
+        "library"
+      ]
+    }
+  },
+  {
+    "name": "context7_search_libraries",
+    "description": "Search across library documentation",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Search query"
+        },
+        "libraries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  {
+    "name": "context7_compare_versions",
+    "description": "Compare library versions",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "library": {
+          "type": "string",
+          "description": "Library name"
+        },
+        "from": {
+          "type": "string",
+          "description": "From version"
+        },
+        "to": {
+          "type": "string",
+          "description": "To version"
+        }
+      },
+      "required": [
+        "library",
+        "from",
+        "to"
+      ]
+    }
+  },
+  {
+    "name": "context7_get_examples",
+    "description": "Get code examples for a library",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "library": {
+          "type": "string",
+          "description": "Library name"
+        },
+        "topic": {
+          "type": "string",
+          "description": "Topic or feature"
+        }
+      },
+      "required": [
+        "library"
+      ]
+    }
+  },
+  {
+    "name": "context7_get_migration_guide",
+    "description": "Get migration guide between versions",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "library": {
+          "type": "string",
+          "description": "Library name"
+        },
+        "from": {
+          "type": "string",
+          "description": "From version"
+        },
+        "to": {
+          "type": "string",
+          "description": "To version"
+        }
+      },
+      "required": [
+        "library",
+        "from",
+        "to"
+      ]
+    }
+  },
+  {
+    "name": "context_reset",
+    "description": "Reset context engine index",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "context_ingest_urls",
+    "description": "Ingest URLs into context",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "urls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "urls"
+      ]
+    }
+  },
+  {
+    "name": "context_summarize_diff",
+    "description": "Summarize git diff",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "range": {
+          "type": "string",
+          "description": "Git range (e.g., HEAD~1..HEAD)"
+        }
+      }
+    }
+  },
+  {
+    "name": "context_neighborhood",
+    "description": "Get code neighborhood for a file",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "File path"
+        }
+      },
+      "required": [
+        "file"
+      ]
+    }
+  },
+  {
+    "name": "context_retrieve_code",
+    "description": "Retrieve code by semantic query",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "What code to retrieve"
+        },
+        "top_k": {
+          "type": "number",
+          "description": "Number of results"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  {
+    "name": "context_find_symbol",
+    "description": "Find symbol definition",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "description": "Symbol name"
+        }
+      },
+      "required": [
+        "symbol"
+      ]
+    }
+  },
+  {
+    "name": "context_find_callers",
+    "description": "Find callers of a function",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "function": {
+          "type": "string",
+          "description": "Function name"
+        }
+      },
+      "required": [
+        "function"
+      ]
+    }
+  },
+  {
+    "name": "context_preview",
+    "description": "Preview files that will be included in context audit. Shows total files found, files after filtering, and a sample of file paths. Use this before running a full audit to verify the scope.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    }
+  },
+  {
+    "name": "context_audit",
+    "description": "Run full context audit on the current repository. Scans all files (respecting .gitignore and .contextignore), detects TODOs, placeholders, not-implemented stubs, and extracts claims from documentation. Writes reports to ./reports/ directory.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    }
+  },
+  {
+    "name": "ctx_web_search",
+    "description": "Search the web and write a results file under .robctx/web",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "max_results": {
+          "type": "number",
+          "default": 8
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "tavily",
+                "bing",
+                "serpapi"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  {
+    "name": "ctx_web_fetch",
+    "description": "Fetch and extract a single URL into .robctx/web as JSON + MD",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+  },
+  {
+    "name": "ctx_web_crawl_step",
+    "description": "Crawl up to N pages from one or more seeds (same-domain optional), polite rate limits",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "seeds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_pages": {
+          "type": "number",
+          "default": 20
+        },
+        "same_domain": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "seeds"
+      ]
+    }
+  },
+  {
+    "name": "think_swot",
+    "description": "Auto-populated SWOT from evidence; writes MD+JSON",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subject": {
+          "type": "string"
+        },
+        "evidence_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "autofill": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "subject"
+      ]
+    }
+  },
+  {
+    "name": "think_devils_advocate",
+    "description": "Extract counter-arguments + falsification tests from evidence.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "type": "string"
+        },
+        "evidence_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "autofill": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "claim"
+      ]
+    }
+  },
+  {
+    "name": "think_premortem",
+    "description": "Premortem from evidence (failure modes, mitigations skeleton).",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "project": {
+          "type": "string"
+        },
+        "horizon_days": {
+          "type": "number",
+          "default": 30
+        },
+        "evidence_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "autofill": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "project"
+      ]
+    }
+  },
+  {
+    "name": "think_decision_matrix",
+    "description": "Decision matrix skeleton (you can fill scores in CSV/JSON).",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "weights": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "title",
+        "options",
+        "criteria",
+        "weights"
+      ]
+    }
+  },
+  {
+    "name": "think_critique_checklist",
+    "description": "Checklist over a draft file; auto-add warnings if TODO/PLACEHOLDER appear.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "draft_path": {
+          "type": "string"
+        },
+        "checklist": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "draft_path"
+      ]
+    }
+  },
+  {
+    "name": "think_auto_packet",
+    "description": "Create a populated review packet (SWOT + Premortem + Devil's + Checklist) from evidence.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "evidence_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "title"
+      ]
+    }
+  },
+  {
+    "name": "think_collect_evidence",
+    "description": "Copy repo files into .robctx/evidence using include/exclude globs. Returns ok, root, scanned, copied, output_dir.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Globs relative to repo root (default: ['**/*'])"
+        },
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Globs to exclude (default: node_modules, .git, dist, etc.)"
+        },
+        "maxFiles": {
+          "type": "number",
+          "description": "Safety cap (default: 5000)"
+        }
+      }
+    }
+  },
+  {
+    "name": "thinking_tools_validate",
+    "description": "Validate thinking tool names against Augment's regex. Returns ok, total, invalid.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    }
+  },
+  {
+    "name": "think_validate_artifacts",
+    "description": "Validate .robctx/thinking artifacts: no '(none yet)' lines, warn on TODO/PLACEHOLDER.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "think_llm_rewrite_prep",
+    "description": "Build a structured prompt payload from artifacts + optional evidence. Saves JSON under .robctx/thinking/prompts and returns it.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Short task title (goes into prompt)"
+        },
+        "artifact_md_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Paths to .md artifacts to rewrite"
+        },
+        "evidence_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional extra repo files to include as context (excerpted)"
+        },
+        "output_style": {
+          "type": "string",
+          "default": "concise-professional"
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional explicit done-ness bullets"
+        },
+        "max_chunk": {
+          "type": "number",
+          "default": 8000
+        }
+      },
+      "required": [
+        "title",
+        "artifact_md_paths"
+      ]
+    }
+  },
+  {
+    "name": "think_llm_apply",
+    "description": "Save model-rewritten Markdown next to original artifact. Creates *-llm.md and a small JSON note linking versions.",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "original_md_path": {
+          "type": "string"
+        },
+        "rewritten_md": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "original_md_path",
+        "rewritten_md"
+      ]
+    }
+  }
+]

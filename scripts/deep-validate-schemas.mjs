@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Deep JSON Schema validator for GPT-5 strict mode
- * Recursively validates EVERY property in EVERY schema
+ * COMPREHENSIVE JSON Schema audit for GPT-5 strict mode
+ * Finds ALL issues in ALL schemas before publishing
  */
 
 import { spawn } from 'child_process';
