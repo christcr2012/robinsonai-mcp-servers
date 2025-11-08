@@ -51,6 +51,15 @@ import * as ResendHandlers1 from './resend-handlers.js';
 import * as ResendHandlers2 from './resend-handlers-2.js';
 import { CONTEXT7_TOOLS } from './context7-tools.js';
 import * as Context7Handlers from './context7-handlers.js';
+import { CLOUDFLARE_TOOLS } from './cloudflare-tools.js';
+import { CLOUDFLARE_TOOLS_2 } from './cloudflare-tools-2.js';
+import { CLOUDFLARE_TOOLS_3 } from './cloudflare-tools-3.js';
+import { CLOUDFLARE_TOOLS_4 } from './cloudflare-tools-4.js';
+import { CLOUDFLARE_TOOLS_5 } from './cloudflare-tools-5.js';
+import * as CloudflareHandlers1 from './cloudflare-handlers.js';
+import * as CloudflareHandlers2 from './cloudflare-handlers-2.js';
+import * as CloudflareHandlers3 from './cloudflare-handlers-3.js';
+import * as CloudflareHandlers4 from './cloudflare-handlers-4.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -2048,9 +2057,18 @@ const result = await toolkit_call({
       ...RESEND_TOOLS,
 
       // ============================================================
-      // CONTEXT7 (12 tools) - NEWLY INTEGRATED
+      // CONTEXT7 (12 tools) - INTEGRATED v1.12.0
       // ============================================================
-      ...CONTEXT7_TOOLS
+      ...CONTEXT7_TOOLS,
+
+      // ============================================================
+      // CLOUDFLARE (160 tools) - NEWLY INTEGRATED
+      // ============================================================
+      ...CLOUDFLARE_TOOLS,
+      ...CLOUDFLARE_TOOLS_2,
+      ...CLOUDFLARE_TOOLS_3,
+      ...CLOUDFLARE_TOOLS_4,
+      ...CLOUDFLARE_TOOLS_5
     ];
     return tools;
   }
@@ -4282,6 +4300,188 @@ const result = await toolkit_call({
           // Examples (2 tools)
           case 'context7_get_examples': return await Context7Handlers.context7GetExamples.call(this, args);
           case 'context7_search_examples': return await Context7Handlers.context7SearchExamples.call(this, args);
+
+          // ============================================================
+          // CLOUDFLARE (160 tools) - All case statements
+          // ============================================================
+
+          // ZONES (22 tools)
+          case 'cloudflare_list_zones': return await CloudflareHandlers1.cloudflareListZones.call(this, args);
+          case 'cloudflare_get_zone': return await CloudflareHandlers1.cloudflareGetZone.call(this, args);
+          case 'cloudflare_create_zone': return await CloudflareHandlers1.cloudflareCreateZone.call(this, args);
+          case 'cloudflare_delete_zone': return await CloudflareHandlers1.cloudflareDeleteZone.call(this, args);
+          case 'cloudflare_purge_cache': return await CloudflareHandlers1.cloudflarePurgeCache.call(this, args);
+          case 'cloudflare_list_dns_records': return await CloudflareHandlers1.cloudflareListDnsRecords.call(this, args);
+          case 'cloudflare_get_dns_record': return await CloudflareHandlers1.cloudflareGetDnsRecord.call(this, args);
+          case 'cloudflare_create_dns_record': return await CloudflareHandlers1.cloudflareCreateDnsRecord.call(this, args);
+          case 'cloudflare_update_dns_record': return await CloudflareHandlers1.cloudflareUpdateDnsRecord.call(this, args);
+          case 'cloudflare_delete_dns_record': return await CloudflareHandlers1.cloudflareDeleteDnsRecord.call(this, args);
+          case 'cloudflare_get_zone_settings': return await CloudflareHandlers1.cloudflareGetZoneSettings.call(this, args);
+          case 'cloudflare_update_zone_setting': return await CloudflareHandlers1.cloudflareUpdateZoneSetting.call(this, args);
+          case 'cloudflare_get_ssl_setting': return await CloudflareHandlers1.cloudflareGetSslSetting.call(this, args);
+          case 'cloudflare_update_ssl_setting': return await CloudflareHandlers1.cloudflareUpdateSslSetting.call(this, args);
+          case 'cloudflare_list_firewall_rules': return await CloudflareHandlers1.cloudflareListFirewallRules.call(this, args);
+          case 'cloudflare_create_firewall_rule': return await CloudflareHandlers1.cloudflareCreateFirewallRule.call(this, args);
+          case 'cloudflare_update_firewall_rule': return await CloudflareHandlers1.cloudflareUpdateFirewallRule.call(this, args);
+          case 'cloudflare_delete_firewall_rule': return await CloudflareHandlers1.cloudflareDeleteFirewallRule.call(this, args);
+          case 'cloudflare_list_page_rules': return await CloudflareHandlers1.cloudflareListPageRules.call(this, args);
+          case 'cloudflare_create_page_rule': return await CloudflareHandlers1.cloudflareCreatePageRule.call(this, args);
+          case 'cloudflare_update_page_rule': return await CloudflareHandlers1.cloudflareUpdatePageRule.call(this, args);
+          case 'cloudflare_delete_page_rule': return await CloudflareHandlers1.cloudflareDeletePageRule.call(this, args);
+          case 'cloudflare_get_analytics': return await CloudflareHandlers2.cloudflareGetAnalytics.call(this, args);
+          case 'cloudflare_get_zone_plan': return await CloudflareHandlers2.cloudflareGetZonePlan.call(this, args);
+          case 'cloudflare_list_rate_limits': return await CloudflareHandlers2.cloudflareListRateLimits.call(this, args);
+          case 'cloudflare_create_rate_limit': return await CloudflareHandlers2.cloudflareCreateRateLimit.call(this, args);
+          case 'cloudflare_delete_rate_limit': return await CloudflareHandlers2.cloudflareDeleteRateLimit.call(this, args);
+          case 'cloudflare_list_load_balancers': return await CloudflareHandlers2.cloudflareListLoadBalancers.call(this, args);
+          case 'cloudflare_create_load_balancer': return await CloudflareHandlers2.cloudflareCreateLoadBalancer.call(this, args);
+          case 'cloudflare_delete_load_balancer': return await CloudflareHandlers2.cloudflareDeleteLoadBalancer.call(this, args);
+
+          // WORKERS (25 tools)
+          case 'cloudflare_list_workers': return await CloudflareHandlers2.cloudflareListWorkers.call(this, args);
+          case 'cloudflare_get_worker': return await CloudflareHandlers2.cloudflareGetWorker.call(this, args);
+          case 'cloudflare_upload_worker': return await CloudflareHandlers2.cloudflareUploadWorker.call(this, args);
+          case 'cloudflare_delete_worker': return await CloudflareHandlers2.cloudflareDeleteWorker.call(this, args);
+          case 'cloudflare_list_worker_routes': return await CloudflareHandlers2.cloudflareListWorkerRoutes.call(this, args);
+          case 'cloudflare_create_worker_route': return await CloudflareHandlers2.cloudflareCreateWorkerRoute.call(this, args);
+          case 'cloudflare_update_worker_route': return await CloudflareHandlers2.cloudflareUpdateWorkerRoute.call(this, args);
+          case 'cloudflare_delete_worker_route': return await CloudflareHandlers2.cloudflareDeleteWorkerRoute.call(this, args);
+          case 'cloudflare_list_worker_cron_triggers': return await CloudflareHandlers2.cloudflareListWorkerCronTriggers.call(this, args);
+          case 'cloudflare_create_worker_cron_trigger': return await CloudflareHandlers2.cloudflareCreateWorkerCronTrigger.call(this, args);
+          case 'cloudflare_delete_worker_cron_trigger': return await CloudflareHandlers2.cloudflareDeleteWorkerCronTrigger.call(this, args);
+          case 'cloudflare_get_worker_settings': return await CloudflareHandlers2.cloudflareGetWorkerSettings.call(this, args);
+          case 'cloudflare_update_worker_settings': return await CloudflareHandlers2.cloudflareUpdateWorkerSettings.call(this, args);
+          case 'cloudflare_list_worker_subdomain': return await CloudflareHandlers2.cloudflareListWorkerSubdomain.call(this, args);
+          case 'cloudflare_create_worker_subdomain': return await CloudflareHandlers2.cloudflareCreateWorkerSubdomain.call(this, args);
+          case 'cloudflare_get_worker_tail': return await CloudflareHandlers2.cloudflareGetWorkerTail.call(this, args);
+          case 'cloudflare_list_worker_secrets': return await CloudflareHandlers2.cloudflareListWorkerSecrets.call(this, args);
+          case 'cloudflare_create_worker_secret': return await CloudflareHandlers2.cloudflareCreateWorkerSecret.call(this, args);
+          case 'cloudflare_delete_worker_secret': return await CloudflareHandlers2.cloudflareDeleteWorkerSecret.call(this, args);
+          case 'cloudflare_list_worker_bindings': return await CloudflareHandlers2.cloudflareListWorkerSecrets.call(this, args);
+          case 'cloudflare_create_worker_binding': return await CloudflareHandlers2.cloudflareCreateWorkerSecret.call(this, args);
+          case 'cloudflare_delete_worker_binding': return await CloudflareHandlers2.cloudflareDeleteWorkerSecret.call(this, args);
+          case 'cloudflare_get_worker_usage': return await CloudflareHandlers2.cloudflareGetWorkerSettings.call(this, args);
+          case 'cloudflare_get_worker_logs': return await CloudflareHandlers2.cloudflareGetWorkerTail.call(this, args);
+          case 'cloudflare_get_worker_analytics': return await CloudflareHandlers2.cloudflareGetWorkerSettings.call(this, args);
+
+          // KV (20 tools)
+          case 'cloudflare_list_kv_namespaces': return await CloudflareHandlers3.cloudflareListKVNamespaces.call(this, args);
+          case 'cloudflare_create_kv_namespace': return await CloudflareHandlers3.cloudflareCreateKVNamespace.call(this, args);
+          case 'cloudflare_get_kv_namespace': return await CloudflareHandlers3.cloudflareGetKVNamespace.call(this, args);
+          case 'cloudflare_rename_kv_namespace': return await CloudflareHandlers3.cloudflareRenameKVNamespace.call(this, args);
+          case 'cloudflare_delete_kv_namespace': return await CloudflareHandlers3.cloudflareDeleteKVNamespace.call(this, args);
+          case 'cloudflare_list_kv_keys': return await CloudflareHandlers3.cloudflareListKVKeys.call(this, args);
+          case 'cloudflare_read_kv_value': return await CloudflareHandlers3.cloudflareReadKVValue.call(this, args);
+          case 'cloudflare_write_kv_value': return await CloudflareHandlers3.cloudflareWriteKVValue.call(this, args);
+          case 'cloudflare_delete_kv_value': return await CloudflareHandlers3.cloudflareDeleteKVValue.call(this, args);
+          case 'cloudflare_write_kv_bulk': return await CloudflareHandlers3.cloudflareWriteKVBulk.call(this, args);
+          case 'cloudflare_delete_kv_bulk': return await CloudflareHandlers3.cloudflareDeleteKVBulk.call(this, args);
+          case 'cloudflare_get_kv_metadata': return await CloudflareHandlers3.cloudflareGetKVMetadata.call(this, args);
+          case 'cloudflare_list_kv_by_prefix': return await CloudflareHandlers3.cloudflareListKVByPrefix.call(this, args);
+          case 'cloudflare_get_kv_with_metadata': return await CloudflareHandlers3.cloudflareGetKVWithMetadata.call(this, args);
+          case 'cloudflare_set_kv_expiration': return await CloudflareHandlers3.cloudflareSetKVExpiration.call(this, args);
+          case 'cloudflare_get_kv_usage': return await CloudflareHandlers3.cloudflareGetKVUsage.call(this, args);
+          case 'cloudflare_export_kv_namespace': return await CloudflareHandlers3.cloudflareExportKVNamespace.call(this, args);
+          case 'cloudflare_import_kv_namespace': return await CloudflareHandlers3.cloudflareImportKVNamespace.call(this, args);
+          case 'cloudflare_search_kv_keys': return await CloudflareHandlers3.cloudflareSearchKVKeys.call(this, args);
+          case 'cloudflare_get_kv_stats': return await CloudflareHandlers3.cloudflareGetKVStats.call(this, args);
+
+          // R2 (20 tools)
+          case 'cloudflare_list_r2_buckets': return await CloudflareHandlers3.cloudflareListR2Buckets.call(this, args);
+          case 'cloudflare_create_r2_bucket': return await CloudflareHandlers3.cloudflareCreateR2Bucket.call(this, args);
+          case 'cloudflare_get_r2_bucket': return await CloudflareHandlers3.cloudflareGetR2Bucket.call(this, args);
+          case 'cloudflare_delete_r2_bucket': return await CloudflareHandlers3.cloudflareDeleteR2Bucket.call(this, args);
+          case 'cloudflare_list_r2_objects': return await CloudflareHandlers3.cloudflareListR2Objects.call(this, args);
+          case 'cloudflare_upload_r2_object': return await CloudflareHandlers3.cloudflareUploadR2Object.call(this, args);
+          case 'cloudflare_download_r2_object': return await CloudflareHandlers3.cloudflareDownloadR2Object.call(this, args);
+          case 'cloudflare_delete_r2_object': return await CloudflareHandlers3.cloudflareDeleteR2Object.call(this, args);
+          case 'cloudflare_get_r2_object_metadata': return await CloudflareHandlers3.cloudflareGetR2ObjectMetadata.call(this, args);
+          case 'cloudflare_copy_r2_object': return await CloudflareHandlers3.cloudflareCopyR2Object.call(this, args);
+          case 'cloudflare_move_r2_object': return await CloudflareHandlers3.cloudflareMoveR2Object.call(this, args);
+          case 'cloudflare_list_r2_multipart_uploads': return await CloudflareHandlers3.cloudflareListR2MultipartUploads.call(this, args);
+          case 'cloudflare_create_r2_multipart_upload': return await CloudflareHandlers3.cloudflareCreateR2MultipartUpload.call(this, args);
+          case 'cloudflare_upload_r2_part': return await CloudflareHandlers3.cloudflareUploadR2Part.call(this, args);
+          case 'cloudflare_complete_r2_multipart_upload': return await CloudflareHandlers3.cloudflareCompleteR2MultipartUpload.call(this, args);
+          case 'cloudflare_abort_r2_multipart_upload': return await CloudflareHandlers3.cloudflareAbortR2MultipartUpload.call(this, args);
+          case 'cloudflare_get_r2_bucket_cors': return await CloudflareHandlers3.cloudflareGetR2BucketCors.call(this, args);
+          case 'cloudflare_set_r2_bucket_cors': return await CloudflareHandlers3.cloudflareSetR2BucketCors.call(this, args);
+          case 'cloudflare_get_r2_bucket_lifecycle': return await CloudflareHandlers3.cloudflareGetR2BucketLifecycle.call(this, args);
+          case 'cloudflare_set_r2_bucket_lifecycle': return await CloudflareHandlers3.cloudflareSetR2BucketLifecycle.call(this, args);
+
+          // PAGES (15 tools)
+          case 'cloudflare_list_pages_projects': return await CloudflareHandlers4.cloudflareListPagesProjects.call(this, args);
+          case 'cloudflare_get_pages_project': return await CloudflareHandlers4.cloudflareGetPagesProject.call(this, args);
+          case 'cloudflare_create_pages_project': return await CloudflareHandlers4.cloudflareCreatePagesProject.call(this, args);
+          case 'cloudflare_delete_pages_project': return await CloudflareHandlers4.cloudflareDeletePagesProject.call(this, args);
+          case 'cloudflare_list_pages_deployments': return await CloudflareHandlers4.cloudflareListPagesDeployments.call(this, args);
+          case 'cloudflare_get_pages_deployment': return await CloudflareHandlers4.cloudflareGetPagesDeployment.call(this, args);
+          case 'cloudflare_create_pages_deployment': return await CloudflareHandlers4.cloudflareCreatePagesDeployment.call(this, args);
+          case 'cloudflare_delete_pages_deployment': return await CloudflareHandlers4.cloudflareDeletePagesDeployment.call(this, args);
+          case 'cloudflare_retry_pages_deployment': return await CloudflareHandlers4.cloudflareRetryPagesDeployment.call(this, args);
+          case 'cloudflare_rollback_pages_deployment': return await CloudflareHandlers4.cloudflareRollbackPagesDeployment.call(this, args);
+          case 'cloudflare_get_pages_deployment_logs': return await CloudflareHandlers4.cloudflareGetPagesDeploymentLogs.call(this, args);
+          case 'cloudflare_list_pages_domains': return await CloudflareHandlers4.cloudflareListPagesDomains.call(this, args);
+          case 'cloudflare_create_pages_domain': return await CloudflareHandlers4.cloudflareCreatePagesDomain.call(this, args);
+          case 'cloudflare_delete_pages_domain': return await CloudflareHandlers4.cloudflareDeletePagesDomain.call(this, args);
+          case 'cloudflare_verify_pages_domain': return await CloudflareHandlers4.cloudflareVerifyPagesDomain.call(this, args);
+
+          // D1 (15 tools)
+          case 'cloudflare_list_d1_databases': return await CloudflareHandlers4.cloudflareListD1Databases.call(this, args);
+          case 'cloudflare_create_d1_database': return await CloudflareHandlers4.cloudflareCreateD1Database.call(this, args);
+          case 'cloudflare_get_d1_database': return await CloudflareHandlers4.cloudflareGetD1Database.call(this, args);
+          case 'cloudflare_delete_d1_database': return await CloudflareHandlers4.cloudflareDeleteD1Database.call(this, args);
+          case 'cloudflare_query_d1_database': return await CloudflareHandlers4.cloudflareQueryD1Database.call(this, args);
+          case 'cloudflare_execute_d1_statement': return await CloudflareHandlers4.cloudflareExecuteD1Statement.call(this, args);
+          case 'cloudflare_list_d1_tables': return await CloudflareHandlers4.cloudflareListD1Tables.call(this, args);
+          case 'cloudflare_create_d1_table': return await CloudflareHandlers4.cloudflareCreateD1Table.call(this, args);
+          case 'cloudflare_drop_d1_table': return await CloudflareHandlers4.cloudflareDropD1Table.call(this, args);
+          case 'cloudflare_insert_d1_row': return await CloudflareHandlers4.cloudflareInsertD1Row.call(this, args);
+          case 'cloudflare_update_d1_row': return await CloudflareHandlers4.cloudflareUpdateD1Row.call(this, args);
+          case 'cloudflare_delete_d1_row': return await CloudflareHandlers4.cloudflareDeleteD1Row.call(this, args);
+          case 'cloudflare_get_d1_database_size': return await CloudflareHandlers4.cloudflareGetD1DatabaseSize.call(this, args);
+          case 'cloudflare_export_d1_database': return await CloudflareHandlers4.cloudflareExportD1Database.call(this, args);
+          case 'cloudflare_import_d1_database': return await CloudflareHandlers4.cloudflareImportD1Database.call(this, args);
+
+          // QUEUES (10 tools)
+          case 'cloudflare_list_queues': return await CloudflareHandlers4.cloudflareListQueues.call(this, args);
+          case 'cloudflare_create_queue': return await CloudflareHandlers4.cloudflareCreateQueue.call(this, args);
+          case 'cloudflare_get_queue': return await CloudflareHandlers4.cloudflareGetQueue.call(this, args);
+          case 'cloudflare_delete_queue': return await CloudflareHandlers4.cloudflareDeleteQueue.call(this, args);
+          case 'cloudflare_send_queue_message': return await CloudflareHandlers4.cloudflareSendQueueMessage.call(this, args);
+          case 'cloudflare_get_queue_consumers': return await CloudflareHandlers4.cloudflareGetQueueConsumers.call(this, args);
+          case 'cloudflare_create_queue_consumer': return await CloudflareHandlers4.cloudflareCreateQueueConsumer.call(this, args);
+          case 'cloudflare_delete_queue_consumer': return await CloudflareHandlers4.cloudflareDeleteQueueConsumer.call(this, args);
+          case 'cloudflare_get_queue_settings': return await CloudflareHandlers4.cloudflareGetQueueSettings.call(this, args);
+          case 'cloudflare_update_queue_settings': return await CloudflareHandlers4.cloudflareUpdateQueueSettings.call(this, args);
+
+          // DURABLE OBJECTS (10 tools)
+          case 'cloudflare_list_durable_objects': return await CloudflareHandlers4.cloudflareListDurableObjects.call(this, args);
+          case 'cloudflare_get_durable_object': return await CloudflareHandlers4.cloudflareGetDurableObject.call(this, args);
+          case 'cloudflare_list_durable_object_instances': return await CloudflareHandlers4.cloudflareListDurableObjectInstances.call(this, args);
+          case 'cloudflare_get_durable_object_instance': return await CloudflareHandlers4.cloudflareGetDurableObjectInstance.call(this, args);
+          case 'cloudflare_create_durable_object_instance': return await CloudflareHandlers4.cloudflareCreateDurableObjectInstance.call(this, args);
+          case 'cloudflare_delete_durable_object_instance': return await CloudflareHandlers4.cloudflareDeleteDurableObjectInstance.call(this, args);
+          case 'cloudflare_get_durable_object_alarms': return await CloudflareHandlers4.cloudflareGetDurableObjectAlarms.call(this, args);
+          case 'cloudflare_set_durable_object_alarm': return await CloudflareHandlers4.cloudflareSetDurableObjectAlarm.call(this, args);
+          case 'cloudflare_get_durable_object_storage': return await CloudflareHandlers4.cloudflareGetDurableObjectStorage.call(this, args);
+          case 'cloudflare_get_durable_object_metrics': return await CloudflareHandlers4.cloudflareGetDurableObjectMetrics.call(this, args);
+
+          // STREAM (15 tools)
+          case 'cloudflare_list_stream_videos': return await CloudflareHandlers4.cloudflareListStreamVideos.call(this, args);
+          case 'cloudflare_get_stream_video': return await CloudflareHandlers4.cloudflareGetStreamVideo.call(this, args);
+          case 'cloudflare_upload_stream_video': return await CloudflareHandlers4.cloudflareUploadStreamVideo.call(this, args);
+          case 'cloudflare_delete_stream_video': return await CloudflareHandlers4.cloudflareDeleteStreamVideo.call(this, args);
+          case 'cloudflare_get_stream_video_embed_code': return await CloudflareHandlers4.cloudflareGetStreamVideoEmbedCode.call(this, args);
+          case 'cloudflare_get_stream_video_playback_url': return await CloudflareHandlers4.cloudflareGetStreamVideoPlaybackUrl.call(this, args);
+          case 'cloudflare_get_stream_video_thumbnail': return await CloudflareHandlers4.cloudflareGetStreamVideoThumbnail.call(this, args);
+          case 'cloudflare_update_stream_video_metadata': return await CloudflareHandlers4.cloudflareUpdateStreamVideoMetadata.call(this, args);
+          case 'cloudflare_get_stream_video_analytics': return await CloudflareHandlers4.cloudflareGetStreamVideoAnalytics.call(this, args);
+          case 'cloudflare_list_stream_live_inputs': return await CloudflareHandlers4.cloudflareListStreamLiveInputs.call(this, args);
+          case 'cloudflare_create_stream_live_input': return await CloudflareHandlers4.cloudflareCreateStreamLiveInput.call(this, args);
+          case 'cloudflare_delete_stream_live_input': return await CloudflareHandlers4.cloudflareDeleteStreamLiveInput.call(this, args);
+          case 'cloudflare_get_stream_webhooks': return await CloudflareHandlers4.cloudflareGetStreamWebhooks.call(this, args);
+          case 'cloudflare_create_stream_webhook': return await CloudflareHandlers4.cloudflareCreateStreamWebhook.call(this, args);
+          case 'cloudflare_delete_stream_webhook': return await CloudflareHandlers4.cloudflareDeleteStreamWebhook.call(this, args);
 
           default:
             return {
