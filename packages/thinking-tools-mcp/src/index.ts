@@ -66,6 +66,14 @@ import {
   context7GetExamples,
   context7GetMigrationGuide,
 } from './tools/context7.js';
+import {
+  bridgedContext7ResolveLibraryId,
+  bridgedContext7GetLibraryDocs,
+  bridgedContext7SearchLibraries,
+  bridgedContext7CompareVersions,
+  bridgedContext7GetExamples,
+  bridgedContext7GetMigrationGuide,
+} from './tools/context7_bridge.js';
 import { contextCLITools } from './context-cli-tools.js';
 import { getWebContextTools } from './tools/context_web.js';
 import { getCognitiveTools } from './tools/cognitive_tools.js';
@@ -346,9 +354,12 @@ registry.reflective_thinking = {
   handler: async (args, ctx) => reflectiveThinkingTool(args, ctx),
 };
 
-// Context7 tools
+// Context7 tools (enhanced with caching + evidence import)
+// Works in concert with Robinson's Toolkit MCP:
+// - Robinson's Toolkit = Raw API access
+// - Thinking Tools = API access + shared caching + auto-import to evidence
 registry.context7_resolve_library_id = {
-  description: 'Resolve library name to Context7 ID',
+  description: 'Resolve library name to Context7 ID (with shared caching + auto-import to evidence store)',
   inputSchema: {
     type: 'object', additionalProperties: false,
     properties: {
@@ -356,11 +367,11 @@ registry.context7_resolve_library_id = {
     },
     required: ['library'],
   },
-  handler: async (args, ctx) => context7ResolveLibraryId(args),
+  handler: async (args, ctx) => bridgedContext7ResolveLibraryId(args, ctx),
 };
 
 registry.context7_get_library_docs = {
-  description: 'Get documentation for a library',
+  description: 'Get documentation for a library (with shared caching + auto-import to evidence store)',
   inputSchema: {
     type: 'object', additionalProperties: false,
     properties: {
@@ -369,11 +380,11 @@ registry.context7_get_library_docs = {
     },
     required: ['library'],
   },
-  handler: async (args, ctx) => context7GetLibraryDocs(args),
+  handler: async (args, ctx) => bridgedContext7GetLibraryDocs(args, ctx),
 };
 
 registry.context7_search_libraries = {
-  description: 'Search across library documentation',
+  description: 'Search across library documentation (with shared caching + auto-import to evidence store)',
   inputSchema: {
     type: 'object', additionalProperties: false,
     properties: {
@@ -382,11 +393,11 @@ registry.context7_search_libraries = {
     },
     required: ['query'],
   },
-  handler: async (args, ctx) => context7SearchLibraries(args),
+  handler: async (args, ctx) => bridgedContext7SearchLibraries(args, ctx),
 };
 
 registry.context7_compare_versions = {
-  description: 'Compare library versions',
+  description: 'Compare library versions (with shared caching + auto-import to evidence store)',
   inputSchema: {
     type: 'object', additionalProperties: false,
     properties: {
@@ -396,11 +407,11 @@ registry.context7_compare_versions = {
     },
     required: ['library', 'from', 'to'],
   },
-  handler: async (args, ctx) => context7CompareVersions(args),
+  handler: async (args, ctx) => bridgedContext7CompareVersions(args, ctx),
 };
 
 registry.context7_get_examples = {
-  description: 'Get code examples for a library',
+  description: 'Get code examples for a library (with shared caching + auto-import to evidence store)',
   inputSchema: {
     type: 'object', additionalProperties: false,
     properties: {
@@ -409,11 +420,11 @@ registry.context7_get_examples = {
     },
     required: ['library'],
   },
-  handler: async (args, ctx) => context7GetExamples(args),
+  handler: async (args, ctx) => bridgedContext7GetExamples(args, ctx),
 };
 
 registry.context7_get_migration_guide = {
-  description: 'Get migration guide between versions',
+  description: 'Get migration guide between versions (with shared caching + auto-import to evidence store)',
   inputSchema: {
     type: 'object', additionalProperties: false,
     properties: {
@@ -423,7 +434,7 @@ registry.context7_get_migration_guide = {
     },
     required: ['library', 'from', 'to'],
   },
-  handler: async (args, ctx) => context7GetMigrationGuide(args),
+  handler: async (args, ctx) => bridgedContext7GetMigrationGuide(args, ctx),
 };
 
 // Additional context tools
