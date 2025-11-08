@@ -49,6 +49,8 @@ import * as TwilioHandlers3 from './twilio-handlers-3.js';
 import { RESEND_TOOLS } from './resend-tools.js';
 import * as ResendHandlers1 from './resend-handlers.js';
 import * as ResendHandlers2 from './resend-handlers-2.js';
+import { CONTEXT7_TOOLS } from './context7-tools.js';
+import * as Context7Handlers from './context7-handlers.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -2041,9 +2043,14 @@ const result = await toolkit_call({
       ...TWILIO_TOOLS,
 
       // ============================================================
-      // RESEND (40 tools) - NEWLY INTEGRATED
+      // RESEND (40 tools) - INTEGRATED v1.11.0
       // ============================================================
-      ...RESEND_TOOLS
+      ...RESEND_TOOLS,
+
+      // ============================================================
+      // CONTEXT7 (12 tools) - NEWLY INTEGRATED
+      // ============================================================
+      ...CONTEXT7_TOOLS
     ];
     return tools;
   }
@@ -4251,6 +4258,30 @@ const result = await toolkit_call({
           case 'resend_create_audience': return await ResendHandlers2.resendCreateAudience.call(this, args);
           case 'resend_delete_audience': return await ResendHandlers2.resendDeleteAudience.call(this, args);
           case 'resend_get_audience_stats': return await ResendHandlers2.resendGetAudienceStats.call(this, args);
+
+          // ============================================================
+          // CONTEXT7 (12 tools) - Documentation Search API
+          // ============================================================
+
+          // Library Search (3 tools)
+          case 'context7_resolve_library_id': return await Context7Handlers.context7ResolveLibraryId.call(this, args);
+          case 'context7_search_libraries': return await Context7Handlers.context7SearchLibraries.call(this, args);
+          case 'context7_list_libraries': return await Context7Handlers.context7ListLibraries.call(this, args);
+
+          // Documentation (4 tools)
+          case 'context7_get_library_docs': return await Context7Handlers.context7GetLibraryDocs.call(this, args);
+          case 'context7_search_docs': return await Context7Handlers.context7SearchDocs.call(this, args);
+          case 'context7_get_api_reference': return await Context7Handlers.context7GetApiReference.call(this, args);
+          case 'context7_get_guides': return await Context7Handlers.context7GetGuides.call(this, args);
+
+          // Version Management (3 tools)
+          case 'context7_compare_versions': return await Context7Handlers.context7CompareVersions.call(this, args);
+          case 'context7_get_migration_guide': return await Context7Handlers.context7GetMigrationGuide.call(this, args);
+          case 'context7_list_versions': return await Context7Handlers.context7ListVersions.call(this, args);
+
+          // Examples (2 tools)
+          case 'context7_get_examples': return await Context7Handlers.context7GetExamples.call(this, args);
+          case 'context7_search_examples': return await Context7Handlers.context7SearchExamples.call(this, args);
 
           default:
             return {
