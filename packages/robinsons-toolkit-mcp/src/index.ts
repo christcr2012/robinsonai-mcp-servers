@@ -36,6 +36,8 @@ import * as StripeHandlers3 from './stripe-handlers-3.js';
 import { SUPABASE_TOOLS } from './supabase-tools.js';
 import * as SupabaseHandlers1 from './supabase-handlers.js';
 import * as SupabaseHandlers2 from './supabase-handlers-2.js';
+import { PLAYWRIGHT_TOOLS } from './playwright-tools.js';
+import * as PlaywrightHandlers from './playwright-handlers.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -1971,9 +1973,14 @@ const result = await toolkit_call({
       ...STRIPE_TOOLS,
 
       // ============================================================
-      // SUPABASE (120 tools) - NEWLY INTEGRATED
+      // SUPABASE (120 tools) - INTEGRATED v1.8.0
       // ============================================================
-      ...SUPABASE_TOOLS
+      ...SUPABASE_TOOLS,
+
+      // ============================================================
+      // PLAYWRIGHT (50 tools) - NEWLY INTEGRATED
+      // ============================================================
+      ...PLAYWRIGHT_TOOLS
     ];
     return tools;
   }
@@ -3965,6 +3972,69 @@ const result = await toolkit_call({
           case 'supabase_management_get_organization': return await SupabaseHandlers2.supabaseManagementGetOrganization.call(this, args);
           case 'supabase_management_update_organization': return await SupabaseHandlers2.supabaseManagementUpdateOrganization.call(this, args);
           case 'supabase_management_delete_organization': return await SupabaseHandlers2.supabaseManagementDeleteOrganization.call(this, args);
+
+          // ============================================================
+          // PLAYWRIGHT (50 tools)
+          // ============================================================
+
+          // BROWSER MANAGEMENT (10 tools)
+          case 'playwright_launch_browser': return await PlaywrightHandlers.playwrightLaunchBrowser.call(this, args);
+          case 'playwright_close_browser': return await PlaywrightHandlers.playwrightCloseBrowser.call(this, args);
+          case 'playwright_new_context': return await PlaywrightHandlers.playwrightNewContext.call(this, args);
+          case 'playwright_close_context': return await PlaywrightHandlers.playwrightCloseContext.call(this, args);
+          case 'playwright_new_page': return await PlaywrightHandlers.playwrightNewPage.call(this, args);
+          case 'playwright_close_page': return await PlaywrightHandlers.playwrightClosePage.call(this, args);
+          case 'playwright_get_pages': return await PlaywrightHandlers.playwrightGetPages.call(this, args);
+          case 'playwright_set_viewport': return await PlaywrightHandlers.playwrightSetViewport.call(this, args);
+          case 'playwright_set_user_agent': return await PlaywrightHandlers.playwrightSetUserAgent.call(this, args);
+          case 'playwright_set_extra_http_headers': return await PlaywrightHandlers.playwrightSetExtraHttpHeaders.call(this, args);
+
+          // PAGE NAVIGATION (10 tools)
+          case 'playwright_goto': return await PlaywrightHandlers.playwrightGoto.call(this, args);
+          case 'playwright_go_back': return await PlaywrightHandlers.playwrightGoBack.call(this, args);
+          case 'playwright_go_forward': return await PlaywrightHandlers.playwrightGoForward.call(this, args);
+          case 'playwright_reload': return await PlaywrightHandlers.playwrightReload.call(this, args);
+          case 'playwright_get_url': return await PlaywrightHandlers.playwrightGetUrl.call(this, args);
+          case 'playwright_get_title': return await PlaywrightHandlers.playwrightGetTitle.call(this, args);
+          case 'playwright_get_content': return await PlaywrightHandlers.playwrightGetContent.call(this, args);
+          case 'playwright_set_content': return await PlaywrightHandlers.playwrightSetContent.call(this, args);
+          case 'playwright_wait_for_load_state': return await PlaywrightHandlers.playwrightWaitForLoadState.call(this, args);
+          case 'playwright_wait_for_url': return await PlaywrightHandlers.playwrightWaitForUrl.call(this, args);
+
+          // ELEMENT INTERACTION (15 tools)
+          case 'playwright_click': return await PlaywrightHandlers.playwrightClick.call(this, args);
+          case 'playwright_dblclick': return await PlaywrightHandlers.playwrightDblclick.call(this, args);
+          case 'playwright_fill': return await PlaywrightHandlers.playwrightFill.call(this, args);
+          case 'playwright_type': return await PlaywrightHandlers.playwrightType.call(this, args);
+          case 'playwright_press': return await PlaywrightHandlers.playwrightPress.call(this, args);
+          case 'playwright_select_option': return await PlaywrightHandlers.playwrightSelectOption.call(this, args);
+          case 'playwright_check': return await PlaywrightHandlers.playwrightCheck.call(this, args);
+          case 'playwright_uncheck': return await PlaywrightHandlers.playwrightUncheck.call(this, args);
+          case 'playwright_hover': return await PlaywrightHandlers.playwrightHover.call(this, args);
+          case 'playwright_focus': return await PlaywrightHandlers.playwrightFocus.call(this, args);
+          case 'playwright_get_attribute': return await PlaywrightHandlers.playwrightGetAttribute.call(this, args);
+          case 'playwright_get_text_content': return await PlaywrightHandlers.playwrightGetTextContent.call(this, args);
+          case 'playwright_get_inner_text': return await PlaywrightHandlers.playwrightGetInnerText.call(this, args);
+          case 'playwright_get_inner_html': return await PlaywrightHandlers.playwrightGetInnerHtml.call(this, args);
+
+          // ASSERTIONS & WAITS (10 tools)
+          case 'playwright_wait_for_selector': return await PlaywrightHandlers.playwrightWaitForSelector.call(this, args);
+          case 'playwright_wait_for_timeout': return await PlaywrightHandlers.playwrightWaitForTimeout.call(this, args);
+          case 'playwright_is_visible': return await PlaywrightHandlers.playwrightIsVisible.call(this, args);
+          case 'playwright_is_hidden': return await PlaywrightHandlers.playwrightIsHidden.call(this, args);
+          case 'playwright_is_enabled': return await PlaywrightHandlers.playwrightIsEnabled.call(this, args);
+          case 'playwright_is_disabled': return await PlaywrightHandlers.playwrightIsDisabled.call(this, args);
+          case 'playwright_is_checked': return await PlaywrightHandlers.playwrightIsChecked.call(this, args);
+          case 'playwright_is_editable': return await PlaywrightHandlers.playwrightIsEditable.call(this, args);
+          case 'playwright_count_elements': return await PlaywrightHandlers.playwrightCountElements.call(this, args);
+          case 'playwright_evaluate': return await PlaywrightHandlers.playwrightEvaluate.call(this, args);
+
+          // SCREENSHOTS & VIDEOS (5 tools)
+          case 'playwright_screenshot': return await PlaywrightHandlers.playwrightScreenshot.call(this, args);
+          case 'playwright_screenshot_element': return await PlaywrightHandlers.playwrightScreenshotElement.call(this, args);
+          case 'playwright_pdf': return await PlaywrightHandlers.playwrightPdf.call(this, args);
+          case 'playwright_start_video': return await PlaywrightHandlers.playwrightStartVideo.call(this, args);
+          case 'playwright_stop_video': return await PlaywrightHandlers.playwrightStopVideo.call(this, args);
 
           default:
             return {
