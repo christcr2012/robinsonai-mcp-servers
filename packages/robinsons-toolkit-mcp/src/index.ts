@@ -26,6 +26,10 @@ import OpenAI from 'openai';
 import { google } from 'googleapis';
 import { chromium, Browser, Page, BrowserContext } from 'playwright';
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
+import twilio from 'twilio';
+import Cloudflare from 'cloudflare';
 import { BROKER_TOOLS } from './broker-tools.js';
 import { ToolRegistry } from './tool-registry.js';
 import { validateTools } from './util/sanitizeTool.js';
@@ -42,6 +46,9 @@ import { TWILIO_TOOLS } from './twilio-tools.js';
 import * as TwilioHandlers1 from './twilio-handlers.js';
 import * as TwilioHandlers2 from './twilio-handlers-2.js';
 import * as TwilioHandlers3 from './twilio-handlers-3.js';
+import { RESEND_TOOLS } from './resend-tools.js';
+import * as ResendHandlers1 from './resend-handlers.js';
+import * as ResendHandlers2 from './resend-handlers-2.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -116,6 +123,10 @@ class UnifiedToolkit {
   private playwrightContext: BrowserContext | null = null;
   private playwrightPage: Page | null = null;
   private stripeClient: Stripe | null = null;
+  private supabaseClient: any = null;
+  private resendClient: any = null;
+  private twilioClient: any = null;
+  private cloudflareClient: any = null;
   private context7Client: AxiosInstance | null = null;
 
   constructor() {
@@ -234,6 +245,44 @@ class UnifiedToolkit {
         });
       } catch (error) {
         console.error('[Robinson Toolkit] Failed to initialize Stripe client:', error);
+      }
+    }
+
+    // Initialize Supabase client
+    if (this.supabaseUrl && this.supabaseKey) {
+      try {
+        this.supabaseClient = createClient(this.supabaseUrl, this.supabaseKey);
+      } catch (error) {
+        console.error('[Robinson Toolkit] Failed to initialize Supabase client:', error);
+      }
+    }
+
+    // Initialize Resend client
+    if (this.resendApiKey) {
+      try {
+        this.resendClient = new Resend(this.resendApiKey);
+      } catch (error) {
+        console.error('[Robinson Toolkit] Failed to initialize Resend client:', error);
+      }
+    }
+
+    // Initialize Twilio client
+    if (this.twilioAccountSid && this.twilioAuthToken) {
+      try {
+        this.twilioClient = twilio(this.twilioAccountSid, this.twilioAuthToken);
+      } catch (error) {
+        console.error('[Robinson Toolkit] Failed to initialize Twilio client:', error);
+      }
+    }
+
+    // Initialize Cloudflare client
+    if (this.cloudflareApiToken && this.cloudflareAccountId) {
+      try {
+        this.cloudflareClient = new Cloudflare({
+          apiToken: this.cloudflareApiToken,
+        });
+      } catch (error) {
+        console.error('[Robinson Toolkit] Failed to initialize Cloudflare client:', error);
       }
     }
 
@@ -1987,9 +2036,14 @@ const result = await toolkit_call({
       ...PLAYWRIGHT_TOOLS,
 
       // ============================================================
-      // TWILIO (85 tools) - NEWLY INTEGRATED
+      // TWILIO (85 tools) - INTEGRATED v1.10.0
       // ============================================================
-      ...TWILIO_TOOLS
+      ...TWILIO_TOOLS,
+
+      // ============================================================
+      // RESEND (40 tools) - NEWLY INTEGRATED
+      // ============================================================
+      ...RESEND_TOOLS
     ];
     return tools;
   }
@@ -4143,6 +4197,60 @@ const result = await toolkit_call({
           case 'twilio_remove_conversation_participant': return await TwilioHandlers3.twilioRemoveConversationParticipant.call(this, args);
           case 'twilio_send_conversation_message': return await TwilioHandlers3.twilioSendConversationMessage.call(this, args);
           case 'twilio_list_conversation_messages': return await TwilioHandlers3.twilioListConversationMessages.call(this, args);
+
+          // ============================================================
+          // RESEND (40 tools) - Email API
+          // ============================================================
+
+          // Emails (10 tools)
+          case 'resend_send_email': return await ResendHandlers1.resendSendEmail.call(this, args);
+          case 'resend_get_email': return await ResendHandlers1.resendGetEmail.call(this, args);
+          case 'resend_list_emails': return await ResendHandlers1.resendListEmails.call(this, args);
+          case 'resend_cancel_email': return await ResendHandlers1.resendCancelEmail.call(this, args);
+          case 'resend_send_batch_emails': return await ResendHandlers1.resendSendBatchEmails.call(this, args);
+          case 'resend_schedule_email': return await ResendHandlers1.resendScheduleEmail.call(this, args);
+          case 'resend_get_email_events': return await ResendHandlers1.resendGetEmailEvents.call(this, args);
+          case 'resend_resend_email': return await ResendHandlers1.resendResendEmail.call(this, args);
+          case 'resend_get_email_stats': return await ResendHandlers1.resendGetEmailStats.call(this, args);
+          case 'resend_validate_email': return await ResendHandlers1.resendValidateEmail.call(this, args);
+
+          // Domains (10 tools)
+          case 'resend_list_domains': return await ResendHandlers1.resendListDomains.call(this, args);
+          case 'resend_get_domain': return await ResendHandlers1.resendGetDomain.call(this, args);
+          case 'resend_create_domain': return await ResendHandlers1.resendCreateDomain.call(this, args);
+          case 'resend_delete_domain': return await ResendHandlers1.resendDeleteDomain.call(this, args);
+          case 'resend_verify_domain': return await ResendHandlers1.resendVerifyDomain.call(this, args);
+          case 'resend_update_domain': return await ResendHandlers1.resendUpdateDomain.call(this, args);
+          case 'resend_get_domain_dns': return await ResendHandlers1.resendGetDomainDns.call(this, args);
+          case 'resend_get_domain_stats': return await ResendHandlers1.resendGetDomainStats.call(this, args);
+          case 'resend_test_domain': return await ResendHandlers1.resendTestDomain.call(this, args);
+          case 'resend_get_domain_reputation': return await ResendHandlers1.resendGetDomainReputation.call(this, args);
+
+          // API Keys (5 tools)
+          case 'resend_list_api_keys': return await ResendHandlers1.resendListApiKeys.call(this, args);
+          case 'resend_create_api_key': return await ResendHandlers1.resendCreateApiKey.call(this, args);
+          case 'resend_delete_api_key': return await ResendHandlers1.resendDeleteApiKey.call(this, args);
+          case 'resend_get_api_key': return await ResendHandlers1.resendGetApiKey.call(this, args);
+          case 'resend_update_api_key': return await ResendHandlers1.resendUpdateApiKey.call(this, args);
+
+          // Contacts (10 tools)
+          case 'resend_list_contacts': return await ResendHandlers2.resendListContacts.call(this, args);
+          case 'resend_get_contact': return await ResendHandlers2.resendGetContact.call(this, args);
+          case 'resend_create_contact': return await ResendHandlers2.resendCreateContact.call(this, args);
+          case 'resend_update_contact': return await ResendHandlers2.resendUpdateContact.call(this, args);
+          case 'resend_delete_contact': return await ResendHandlers2.resendDeleteContact.call(this, args);
+          case 'resend_import_contacts': return await ResendHandlers2.resendImportContacts.call(this, args);
+          case 'resend_export_contacts': return await ResendHandlers2.resendExportContacts.call(this, args);
+          case 'resend_unsubscribe_contact': return await ResendHandlers2.resendUnsubscribeContact.call(this, args);
+          case 'resend_resubscribe_contact': return await ResendHandlers2.resendResubscribeContact.call(this, args);
+          case 'resend_search_contacts': return await ResendHandlers2.resendSearchContacts.call(this, args);
+
+          // Audiences (5 tools)
+          case 'resend_list_audiences': return await ResendHandlers2.resendListAudiences.call(this, args);
+          case 'resend_get_audience': return await ResendHandlers2.resendGetAudience.call(this, args);
+          case 'resend_create_audience': return await ResendHandlers2.resendCreateAudience.call(this, args);
+          case 'resend_delete_audience': return await ResendHandlers2.resendDeleteAudience.call(this, args);
+          case 'resend_get_audience_stats': return await ResendHandlers2.resendGetAudienceStats.call(this, args);
 
           default:
             return {
