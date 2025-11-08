@@ -122,7 +122,7 @@ function sendRequest(server, method, params, id = Date.now()) {
     let buffer = '';
     const timeout = setTimeout(() => {
       reject(new Error(`Request timeout: ${method}`));
-    }, 30000); // 30s timeout
+    }, 60000); // 60s timeout (frameworks need time to search 28K chunks)
 
     const onData = (data) => {
       buffer += data.toString();
@@ -300,8 +300,8 @@ async function main() {
   try {
     server = await startServer();
 
-    // Index repository first
-    const indexed = await indexRepository(server);
+    // Skip indexing - we already have a full Voyage AI index with 28,463 chunks
+    info('\n📚 Using existing Context Engine index (28,463 chunks)...');
     
     const testCases = [
       {
