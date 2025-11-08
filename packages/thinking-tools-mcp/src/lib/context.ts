@@ -90,8 +90,9 @@ export function buildServerContext(args: any): ServerContext {
 
   const blendedSearch = async (q: string, k = 12) => {
     try {
-      // Add timeout protection to prevent hangs (FIX: 6+ minute hang issue)
-      const SEARCH_TIMEOUT = 8000; // 8 seconds
+      // Add timeout protection to prevent hangs
+      // Increased from 8s to 30s to allow for symbol index building on first search
+      const SEARCH_TIMEOUT = 30000; // 30 seconds
 
       const searchWithTimeout = async <T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> => {
         const timeout = new Promise<T>((resolve) =>
