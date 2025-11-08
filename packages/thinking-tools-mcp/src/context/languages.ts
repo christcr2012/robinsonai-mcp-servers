@@ -58,7 +58,7 @@ let ParserCtor: { new (): TreeSitterParser } | null = null;
 async function getParserCtor(): Promise<{ new (): TreeSitterParser }> {
   if (!ParserCtor) {
     const mod = await import('tree-sitter');
-    ParserCtor = (mod.default ?? mod) as { new (): TreeSitterParser };
+    ParserCtor = (mod.default ?? mod) as unknown as { new (): TreeSitterParser };
   }
   return ParserCtor!;
 }

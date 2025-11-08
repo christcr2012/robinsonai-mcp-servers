@@ -2178,12 +2178,13 @@ async function handleExecuteWithQualityGates(args: any) {
     // ✅ FIXED: Import from shared libraries instead of FREE agent
     const { iterateTask } = await import('@robinson_ai_systems/shared-pipeline');
     let makeProjectBrief: ((repoPath: string) => Promise<any>) | null = null;
-    try {
-      // @ts-ignore - optional dependency may be missing at runtime
-      ({ makeProjectBrief } = await import('@robinson_ai_systems/shared-utils'));
-    } catch (error) {
-      console.warn('[PAID-AGENT] Optional shared-utils module not available. Project brief generation disabled.');
-    }
+    // NOTE: shared-utils not published yet, disabled for now
+    // try {
+    //   // @ts-ignore - optional dependency may be missing at runtime
+    //   ({ makeProjectBrief } = await import('@robinson_ai_systems/shared-utils'));
+    // } catch (error) {
+    //   console.warn('[PAID-AGENT] Optional shared-utils module not available. Project brief generation disabled.');
+    // }
 
     // TODO: Move designCardToTaskSpec to shared-utils
     // For now, we'll inline a simple implementation
@@ -2204,13 +2205,9 @@ async function handleExecuteWithQualityGates(args: any) {
     }
 
     // Generate Project Brief if requested
-    let brief = null;
-    if (args.useProjectBrief !== false && makeProjectBrief) {
-      const repoPath = getWorkspaceRoot();
-      brief = await makeProjectBrief(repoPath);
-      spec += `\n\nProject Brief:\n${JSON.stringify(brief, null, 2)}`;
-    } else if (args.useProjectBrief !== false && !makeProjectBrief) {
-      spec += '\n\nProject Brief: (skipped - shared-utils not installed)';
+    // NOTE: Disabled until shared-utils is published
+    if (args.useProjectBrief !== false) {
+      spec += '\n\nProject Brief: (skipped - shared-utils not published yet)';
     }
 
     // Determine provider and model
@@ -2421,28 +2418,8 @@ async function handleRefineCode(args: any) {
  */
 async function handleGenerateProjectBrief(args: any) {
   try {
-    // @ts-ignore - optional dependency may be missing at runtime
-    const { makeProjectBrief } = await import('@robinson_ai_systems/shared-utils');
-
-    const repoPath = args.repoPath || getWorkspaceRoot();
-    const brief = await makeProjectBrief(repoPath);
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: true,
-            brief,
-            cost: {
-              total: 0,
-              currency: 'USD',
-              note: 'FREE - Static analysis',
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    // NOTE: shared-utils not published yet, disabled for now
+    throw new Error('shared-utils not available');
   } catch (error: any) {
     console.error('[handleGenerateProjectBrief] Error:', error);
     return {
