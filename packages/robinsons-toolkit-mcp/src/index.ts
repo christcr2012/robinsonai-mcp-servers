@@ -33,6 +33,9 @@ import { STRIPE_TOOLS } from './stripe-tools.js';
 import * as StripeHandlers1 from './stripe-handlers.js';
 import * as StripeHandlers2 from './stripe-handlers-2.js';
 import * as StripeHandlers3 from './stripe-handlers-3.js';
+import { SUPABASE_TOOLS } from './supabase-tools.js';
+import * as SupabaseHandlers1 from './supabase-handlers.js';
+import * as SupabaseHandlers2 from './supabase-handlers-2.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -1963,9 +1966,14 @@ const result = await toolkit_call({
       { name: 'openai_suggest_cheaper_alternative', description: 'Suggest cheaper model alternatives for a given task', inputSchema: { type: 'object', additionalProperties: false, properties: { current_model: { type: 'string', description: 'Current model being used' }, task_description: { type: 'string', description: 'Description of the task' }, quality_threshold: { type: 'string', enum: ['high', 'medium', 'low'], description: 'Minimum quality threshold', default: 'medium' }, max_cost_reduction: { type: 'number', description: 'Maximum acceptable cost reduction percentage', default: 50 } }, required: ['current_model', 'task_description'] } },
 
       // ============================================================
-      // STRIPE (150 tools) - NEWLY INTEGRATED
+      // STRIPE (150 tools) - INTEGRATED v1.7.0
       // ============================================================
-      ...STRIPE_TOOLS
+      ...STRIPE_TOOLS,
+
+      // ============================================================
+      // SUPABASE (120 tools) - NEWLY INTEGRATED
+      // ============================================================
+      ...SUPABASE_TOOLS
     ];
     return tools;
   }
@@ -3844,6 +3852,119 @@ const result = await toolkit_call({
           case 'stripe_checkout_session_retrieve': return await StripeHandlers3.stripeCheckoutSessionRetrieve.call(this, args);
           case 'stripe_checkout_session_expire': return await StripeHandlers3.stripeCheckoutSessionExpire.call(this, args);
           case 'stripe_checkout_session_list': return await StripeHandlers3.stripeCheckoutSessionList.call(this, args);
+
+          // ============================================================
+          // SUPABASE (120 tools)
+          // ============================================================
+
+          // DATABASE/POSTGREST (30 tools)
+          case 'supabase_db_select': return await SupabaseHandlers1.supabaseDbSelect.call(this, args);
+          case 'supabase_db_select_eq': return await SupabaseHandlers1.supabaseDbSelectEq.call(this, args);
+          case 'supabase_db_select_neq': return await SupabaseHandlers1.supabaseDbSelectNeq.call(this, args);
+          case 'supabase_db_select_gt': return await SupabaseHandlers1.supabaseDbSelectGt.call(this, args);
+          case 'supabase_db_select_gte': return await SupabaseHandlers1.supabaseDbSelectGte.call(this, args);
+          case 'supabase_db_select_lt': return await SupabaseHandlers1.supabaseDbSelectLt.call(this, args);
+          case 'supabase_db_select_lte': return await SupabaseHandlers1.supabaseDbSelectLte.call(this, args);
+          case 'supabase_db_select_like': return await SupabaseHandlers1.supabaseDbSelectLike.call(this, args);
+          case 'supabase_db_select_ilike': return await SupabaseHandlers1.supabaseDbSelectIlike.call(this, args);
+          case 'supabase_db_select_in': return await SupabaseHandlers1.supabaseDbSelectIn.call(this, args);
+          case 'supabase_db_order': return await SupabaseHandlers1.supabaseDbOrder.call(this, args);
+          case 'supabase_db_limit': return await SupabaseHandlers1.supabaseDbLimit.call(this, args);
+          case 'supabase_db_range': return await SupabaseHandlers1.supabaseDbRange.call(this, args);
+          case 'supabase_db_single': return await SupabaseHandlers1.supabaseDbSingle.call(this, args);
+          case 'supabase_db_maybe_single': return await SupabaseHandlers1.supabaseDbMaybeSingle.call(this, args);
+          case 'supabase_db_insert': return await SupabaseHandlers1.supabaseDbInsert.call(this, args);
+          case 'supabase_db_insert_many': return await SupabaseHandlers1.supabaseDbInsertMany.call(this, args);
+          case 'supabase_db_upsert': return await SupabaseHandlers1.supabaseDbUpsert.call(this, args);
+          case 'supabase_db_update': return await SupabaseHandlers1.supabaseDbUpdate.call(this, args);
+          case 'supabase_db_delete': return await SupabaseHandlers1.supabaseDbDelete.call(this, args);
+          case 'supabase_db_rpc': return await SupabaseHandlers1.supabaseDbRpc.call(this, args);
+
+          // AUTH (25 tools)
+          case 'supabase_auth_sign_up': return await SupabaseHandlers1.supabaseAuthSignUp.call(this, args);
+          case 'supabase_auth_sign_up_phone': return await SupabaseHandlers1.supabaseAuthSignUpPhone.call(this, args);
+          case 'supabase_auth_sign_up_oauth': return await SupabaseHandlers1.supabaseAuthSignUpOauth.call(this, args);
+          case 'supabase_auth_sign_in_password': return await SupabaseHandlers1.supabaseAuthSignInPassword.call(this, args);
+          case 'supabase_auth_sign_in_phone': return await SupabaseHandlers1.supabaseAuthSignInPhone.call(this, args);
+          case 'supabase_auth_sign_in_oauth': return await SupabaseHandlers1.supabaseAuthSignInOauth.call(this, args);
+          case 'supabase_auth_sign_in_otp': return await SupabaseHandlers1.supabaseAuthSignInOtp.call(this, args);
+          case 'supabase_auth_verify_otp': return await SupabaseHandlers1.supabaseAuthVerifyOtp.call(this, args);
+          case 'supabase_auth_sign_out': return await SupabaseHandlers1.supabaseAuthSignOut.call(this, args);
+          case 'supabase_auth_get_session': return await SupabaseHandlers1.supabaseAuthGetSession.call(this, args);
+          case 'supabase_auth_refresh_session': return await SupabaseHandlers1.supabaseAuthRefreshSession.call(this, args);
+          case 'supabase_auth_set_session': return await SupabaseHandlers1.supabaseAuthSetSession.call(this, args);
+          case 'supabase_auth_get_user': return await SupabaseHandlers1.supabaseAuthGetUser.call(this, args);
+          case 'supabase_auth_update_user': return await SupabaseHandlers1.supabaseAuthUpdateUser.call(this, args);
+          case 'supabase_auth_delete_user': return await SupabaseHandlers1.supabaseAuthDeleteUser.call(this, args);
+          case 'supabase_auth_reset_password': return await SupabaseHandlers1.supabaseAuthResetPassword.call(this, args);
+          case 'supabase_auth_admin_list_users': return await SupabaseHandlers1.supabaseAuthAdminListUsers.call(this, args);
+          case 'supabase_auth_admin_get_user': return await SupabaseHandlers1.supabaseAuthAdminGetUser.call(this, args);
+          case 'supabase_auth_admin_create_user': return await SupabaseHandlers1.supabaseAuthAdminCreateUser.call(this, args);
+          case 'supabase_auth_admin_update_user': return await SupabaseHandlers1.supabaseAuthAdminUpdateUser.call(this, args);
+          case 'supabase_auth_admin_delete_user': return await SupabaseHandlers1.supabaseAuthAdminDeleteUser.call(this, args);
+          case 'supabase_auth_admin_invite_user': return await SupabaseHandlers1.supabaseAuthAdminInviteUser.call(this, args);
+          case 'supabase_auth_admin_generate_link': return await SupabaseHandlers1.supabaseAuthAdminGenerateLink.call(this, args);
+          case 'supabase_auth_admin_update_user_metadata': return await SupabaseHandlers1.supabaseAuthAdminUpdateUserMetadata.call(this, args);
+          case 'supabase_auth_admin_list_factors': return await SupabaseHandlers1.supabaseAuthAdminListFactors.call(this, args);
+
+          // STORAGE (25 tools)
+          case 'supabase_storage_create_bucket': return await SupabaseHandlers2.supabaseStorageCreateBucket.call(this, args);
+          case 'supabase_storage_get_bucket': return await SupabaseHandlers2.supabaseStorageGetBucket.call(this, args);
+          case 'supabase_storage_list_buckets': return await SupabaseHandlers2.supabaseStorageListBuckets.call(this, args);
+          case 'supabase_storage_empty_bucket': return await SupabaseHandlers2.supabaseStorageEmptyBucket.call(this, args);
+          case 'supabase_storage_delete_bucket': return await SupabaseHandlers2.supabaseStorageDeleteBucket.call(this, args);
+          case 'supabase_storage_update_bucket': return await SupabaseHandlers2.supabaseStorageUpdateBucket.call(this, args);
+          case 'supabase_storage_upload': return await SupabaseHandlers2.supabaseStorageUpload.call(this, args);
+          case 'supabase_storage_download': return await SupabaseHandlers2.supabaseStorageDownload.call(this, args);
+          case 'supabase_storage_list': return await SupabaseHandlers2.supabaseStorageList.call(this, args);
+          case 'supabase_storage_move': return await SupabaseHandlers2.supabaseStorageMove.call(this, args);
+          case 'supabase_storage_copy': return await SupabaseHandlers2.supabaseStorageCopy.call(this, args);
+          case 'supabase_storage_remove': return await SupabaseHandlers2.supabaseStorageRemove.call(this, args);
+          case 'supabase_storage_create_signed_url': return await SupabaseHandlers2.supabaseStorageCreateSignedUrl.call(this, args);
+          case 'supabase_storage_create_signed_urls': return await SupabaseHandlers2.supabaseStorageCreateSignedUrls.call(this, args);
+          case 'supabase_storage_get_public_url': return await SupabaseHandlers2.supabaseStorageGetPublicUrl.call(this, args);
+          case 'supabase_storage_update': return await SupabaseHandlers2.supabaseStorageUpdate.call(this, args);
+          case 'supabase_storage_create_policy': return await SupabaseHandlers2.supabaseStorageCreatePolicy.call(this, args);
+          case 'supabase_storage_get_policy': return await SupabaseHandlers2.supabaseStorageGetPolicy.call(this, args);
+          case 'supabase_storage_list_policies': return await SupabaseHandlers2.supabaseStorageListPolicies.call(this, args);
+          case 'supabase_storage_update_policy': return await SupabaseHandlers2.supabaseStorageUpdatePolicy.call(this, args);
+          case 'supabase_storage_delete_policy': return await SupabaseHandlers2.supabaseStorageDeletePolicy.call(this, args);
+
+          // REALTIME (15 tools)
+          case 'supabase_realtime_channel': return await SupabaseHandlers2.supabaseRealtimeChannel.call(this, args);
+          case 'supabase_realtime_subscribe': return await SupabaseHandlers2.supabaseRealtimeSubscribe.call(this, args);
+          case 'supabase_realtime_unsubscribe': return await SupabaseHandlers2.supabaseRealtimeUnsubscribe.call(this, args);
+          case 'supabase_realtime_remove_channel': return await SupabaseHandlers2.supabaseRealtimeRemoveChannel.call(this, args);
+          case 'supabase_realtime_track_presence': return await SupabaseHandlers2.supabaseRealtimeTrackPresence.call(this, args);
+          case 'supabase_realtime_untrack_presence': return await SupabaseHandlers2.supabaseRealtimeUntrackPresence.call(this, args);
+          case 'supabase_realtime_get_presence': return await SupabaseHandlers2.supabaseRealtimeGetPresence.call(this, args);
+          case 'supabase_realtime_on_presence': return await SupabaseHandlers2.supabaseRealtimeOnPresence.call(this, args);
+          case 'supabase_realtime_broadcast': return await SupabaseHandlers2.supabaseRealtimeBroadcast.call(this, args);
+          case 'supabase_realtime_on_broadcast': return await SupabaseHandlers2.supabaseRealtimeOnBroadcast.call(this, args);
+          case 'supabase_realtime_on_postgres_changes': return await SupabaseHandlers2.supabaseRealtimeOnPostgresChanges.call(this, args);
+          case 'supabase_realtime_remove_all_channels': return await SupabaseHandlers2.supabaseRealtimeRemoveAllChannels.call(this, args);
+          case 'supabase_realtime_get_channels': return await SupabaseHandlers2.supabaseRealtimeGetChannels.call(this, args);
+
+          // EDGE FUNCTIONS (15 tools)
+          case 'supabase_functions_invoke': return await SupabaseHandlers2.supabaseFunctionsInvoke.call(this, args);
+          case 'supabase_functions_list': return await SupabaseHandlers2.supabaseFunctionsList.call(this, args);
+          case 'supabase_functions_get': return await SupabaseHandlers2.supabaseFunctionsGet.call(this, args);
+          case 'supabase_functions_create': return await SupabaseHandlers2.supabaseFunctionsCreate.call(this, args);
+          case 'supabase_functions_update': return await SupabaseHandlers2.supabaseFunctionsUpdate.call(this, args);
+          case 'supabase_functions_delete': return await SupabaseHandlers2.supabaseFunctionsDelete.call(this, args);
+          case 'supabase_functions_get_logs': return await SupabaseHandlers2.supabaseFunctionsGetLogs.call(this, args);
+
+          // MANAGEMENT API (10 tools)
+          case 'supabase_management_create_project': return await SupabaseHandlers2.supabaseManagementCreateProject.call(this, args);
+          case 'supabase_management_list_projects': return await SupabaseHandlers2.supabaseManagementListProjects.call(this, args);
+          case 'supabase_management_get_project': return await SupabaseHandlers2.supabaseManagementGetProject.call(this, args);
+          case 'supabase_management_update_project': return await SupabaseHandlers2.supabaseManagementUpdateProject.call(this, args);
+          case 'supabase_management_delete_project': return await SupabaseHandlers2.supabaseManagementDeleteProject.call(this, args);
+          case 'supabase_management_create_organization': return await SupabaseHandlers2.supabaseManagementCreateOrganization.call(this, args);
+          case 'supabase_management_list_organizations': return await SupabaseHandlers2.supabaseManagementListOrganizations.call(this, args);
+          case 'supabase_management_get_organization': return await SupabaseHandlers2.supabaseManagementGetOrganization.call(this, args);
+          case 'supabase_management_update_organization': return await SupabaseHandlers2.supabaseManagementUpdateOrganization.call(this, args);
+          case 'supabase_management_delete_organization': return await SupabaseHandlers2.supabaseManagementDeleteOrganization.call(this, args);
 
           default:
             return {
