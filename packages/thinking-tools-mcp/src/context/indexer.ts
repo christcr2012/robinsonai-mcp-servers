@@ -723,6 +723,11 @@ export async function indexRepo(
     saveFileMap(filesMap);
 
     // Update stats
+    // For full reindex (force=true or no previous index), update indexedAt
+    // For incremental updates, preserve indexedAt but update updatedAt
+    const isFullReindex = opts.force || !meta?.indexedAt;
+    const now = new Date().toISOString();
+
     const stats: IndexStats = {
       chunks: n,
       embeddings: e,
@@ -732,8 +737,8 @@ export async function indexRepo(
       model: embedModel,
       dimensions: 768,
       totalCost: 0,
-      indexedAt: meta?.indexedAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      indexedAt: isFullReindex ? now : meta.indexedAt,
+      updatedAt: now
     };
 
     // Add git head to stats

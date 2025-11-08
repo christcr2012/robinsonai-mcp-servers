@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { embedBatch } from './embedding.js';
-import { saveChunk, saveEmbedding, saveStats } from './store.js';
+import { saveChunk, saveEmbedding, saveStats, getStats } from './store.js';
 
 const root = process.env.CTX_ROOT || '.robinson/context';
 
@@ -97,14 +97,14 @@ export async function ingestUrls(urls: string[], tags: string[] = []): Promise<{
     }
   }
 
-  // stats refresh cheap; indexer will overwrite
-  saveStats({
-    chunks: 0,
-    embeddings: 0,
-    vectors: 0,  // Add vectors field
-    sources: {},
-    updatedAt: new Date().toISOString()
-  });
+  // Update stats to reflect web ingestion (preserve existing stats, only update timestamp)
+  const existingStats = getStats();
+  if (existingStats) {
+    saveStats({
+      ...existingStats,
+      updatedAt: new Date().toISOString()
+    });
+  }
   
   return { ingested: n };
 }
