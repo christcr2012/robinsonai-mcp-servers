@@ -5,8 +5,8 @@
  * Boosts results that match symbol names, types, and function signatures.
  */
 
-import { buildSymbolIndex, type SymbolIndex, type Symbol } from '@robinson_ai_systems/free-agent-mcp/dist/utils/symbol-indexer';
-import { retrieveCodeContext, type RetrievalResult } from '@robinson_ai_systems/free-agent-mcp/dist/utils/code-retrieval';
+import { buildSymbolIndex, type SymbolIndex, type Symbol } from '@robinson_ai_systems/shared-utils';
+import { retrieveCodeContext, type RetrievalResult } from '@robinson_ai_systems/shared-utils';
 import type { StoredChunk } from './store.js';
 
 export interface SymbolAwareSearchOptions {

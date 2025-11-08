@@ -30,8 +30,8 @@ import { selectModelForTask, detectTaskType, estimateComplexity, type TaskContex
 import { buildSymbolIndexForRepo, applySymbolBoosting, retrieveCodeContextForQuery, getFileNeighborhood, findSymbolDefinition, findCallers, type SymbolAwareSearchOptions } from './symbol-aware.js';
 import { buildImportGraph, getImporters, getImports, getDependencyChain, getDependents, type ImportGraph } from './import-graph.js';
 import { incrementalIndex, needsReindexing, type IncrementalIndexResult } from './incremental.js';
-import type { SymbolIndex } from '@robinson_ai_systems/free-agent-mcp/dist/utils/symbol-indexer';
-import type { RetrievalResult } from '@robinson_ai_systems/free-agent-mcp/dist/utils/code-retrieval';
+import type { SymbolIndex } from '@robinson_ai_systems/shared-utils';
+import type { RetrievalResult } from '@robinson_ai_systems/shared-utils';
 
 export type RCEStats = {
   sources: number;

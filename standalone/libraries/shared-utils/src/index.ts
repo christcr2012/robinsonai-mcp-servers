@@ -10,8 +10,8 @@ export { makeProjectBrief, formatBriefForPrompt, type ProjectBrief } from './pro
 export { buildPortableBrief } from './portable-brief-builder.js';
 
 // Code analysis and retrieval
-export { buildSymbolIndex } from './symbol-indexer.js';
-export { retrieveCodeContext } from './code-retrieval.js';
+export { buildSymbolIndex, type SymbolIndex, type Symbol } from './symbol-indexer.js';
+export { retrieveCodeContext, type RetrievalResult } from './code-retrieval.js';
 
 // Code generation utilities
 export { generateMultiFileDiff, formatDiffsForPrompt } from './diff-generator.js';

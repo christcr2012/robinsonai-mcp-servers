@@ -35,7 +35,9 @@
   ],
   "author": "Robinson AI Systems",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "@robinson_ai_systems/shared-utils": "workspace:*"
+  },
   "devDependencies": {
     "rimraf": "^6.0.0",
     "typescript": "^5.6.3"

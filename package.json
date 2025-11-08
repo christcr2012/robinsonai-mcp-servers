@@ -4,7 +4,8 @@
   "description": "Comprehensive MCP servers for Vercel, Neon, Redis, GitHub, and more - by Robinson AI Systems",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "standalone/libraries/*"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",

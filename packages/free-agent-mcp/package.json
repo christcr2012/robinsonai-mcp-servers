@@ -123,7 +123,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "@robinson_ai_systems/shared-llm": "^0.1.7",
+    "@robinson_ai_systems/shared-llm": "workspace:*",
     "@types/better-sqlite3": "^7.6.13",
     "@types/diff": "^7.0.2",
     "@types/jsdom": "^27.0.0",
