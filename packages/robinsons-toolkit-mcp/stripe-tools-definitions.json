@@ -1,0 +1,352 @@
+[
+  {
+    "name": "stripe_customer_create",
+    "description": "Create a new customer",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "object" },
+        "metadata": { "type": "object" }
+      }
+    }
+  },
+  {
+    "name": "stripe_customer_retrieve",
+    "description": "Retrieve a customer",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customer_id": { "type": "string" }
+      },
+      "required": ["customer_id"]
+    }
+  },
+  {
+    "name": "stripe_customer_update",
+    "description": "Update a customer",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customer_id": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "object" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["customer_id"]
+    }
+  },
+  {
+    "name": "stripe_customer_delete",
+    "description": "Delete a customer",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customer_id": { "type": "string" }
+      },
+      "required": ["customer_id"]
+    }
+  },
+  {
+    "name": "stripe_customer_list",
+    "description": "List all customers",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "limit": { "type": "number" },
+        "starting_after": { "type": "string" },
+        "ending_before": { "type": "string" },
+        "email": { "type": "string" }
+      }
+    }
+  },
+  {
+    "name": "stripe_customer_search",
+    "description": "Search customers",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "query": { "type": "string" },
+        "limit": { "type": "number" }
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "stripe_subscription_create",
+    "description": "Create a subscription",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customer": { "type": "string" },
+        "items": { "type": "array", "items": { "type": "object" } },
+        "trial_period_days": { "type": "number" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["customer", "items"]
+    }
+  },
+  {
+    "name": "stripe_subscription_retrieve",
+    "description": "Retrieve a subscription",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subscription_id": { "type": "string" }
+      },
+      "required": ["subscription_id"]
+    }
+  },
+  {
+    "name": "stripe_subscription_update",
+    "description": "Update a subscription",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subscription_id": { "type": "string" },
+        "items": { "type": "array", "items": { "type": "object" } },
+        "metadata": { "type": "object" }
+      },
+      "required": ["subscription_id"]
+    }
+  },
+  {
+    "name": "stripe_subscription_cancel",
+    "description": "Cancel a subscription",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subscription_id": { "type": "string" },
+        "at_period_end": { "type": "boolean" }
+      },
+      "required": ["subscription_id"]
+    }
+  },
+  {
+    "name": "stripe_subscription_list",
+    "description": "List all subscriptions",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customer": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "past_due", "unpaid", "canceled", "incomplete", "incomplete_expired", "trialing", "all"] },
+        "limit": { "type": "number" }
+      }
+    }
+  },
+  {
+    "name": "stripe_invoice_create",
+    "description": "Create an invoice",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customer": { "type": "string" },
+        "auto_advance": { "type": "boolean" },
+        "collection_method": { "type": "string", "enum": ["charge_automatically", "send_invoice"] },
+        "description": { "type": "string" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["customer"]
+    }
+  },
+  {
+    "name": "stripe_invoice_retrieve",
+    "description": "Retrieve an invoice",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "invoice_id": { "type": "string" }
+      },
+      "required": ["invoice_id"]
+    }
+  },
+  {
+    "name": "stripe_invoice_update",
+    "description": "Update an invoice",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "invoice_id": { "type": "string" },
+        "description": { "type": "string" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["invoice_id"]
+    }
+  },
+  {
+    "name": "stripe_invoice_delete",
+    "description": "Delete a draft invoice",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "invoice_id": { "type": "string" }
+      },
+      "required": ["invoice_id"]
+    }
+  },
+  {
+    "name": "stripe_invoice_finalize",
+    "description": "Finalize an invoice",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "invoice_id": { "type": "string" },
+        "auto_advance": { "type": "boolean" }
+      },
+      "required": ["invoice_id"]
+    }
+  },
+  {
+    "name": "stripe_invoice_pay",
+    "description": "Pay an invoice",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "invoice_id": { "type": "string" },
+        "paid_out_of_band": { "type": "boolean" }
+      },
+      "required": ["invoice_id"]
+    }
+  },
+  {
+    "name": "stripe_invoice_send",
+    "description": "Send an invoice",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "invoice_id": { "type": "string" }
+      },
+      "required": ["invoice_id"]
+    }
+  },
+  {
+    "name": "stripe_invoice_void",
+    "description": "Void an invoice",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "invoice_id": { "type": "string" }
+      },
+      "required": ["invoice_id"]
+    }
+  },
+  {
+    "name": "stripe_invoice_list",
+    "description": "List all invoices",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customer": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "open", "paid", "uncollectible", "void"] },
+        "limit": { "type": "number" }
+      }
+    }
+  },
+  {
+    "name": "stripe_payment_method_create",
+    "description": "Create a payment method",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "enum": ["card", "us_bank_account", "sepa_debit"] },
+        "card": { "type": "object" },
+        "billing_details": { "type": "object" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["type"]
+    }
+  },
+  {
+    "name": "stripe_payment_method_retrieve",
+    "description": "Retrieve a payment method",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "payment_method_id": { "type": "string" }
+      },
+      "required": ["payment_method_id"]
+    }
+  },
+  {
+    "name": "stripe_payment_method_update",
+    "description": "Update a payment method",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "payment_method_id": { "type": "string" },
+        "billing_details": { "type": "object" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["payment_method_id"]
+    }
+  },
+  {
+    "name": "stripe_payment_method_attach",
+    "description": "Attach a payment method to a customer",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "payment_method_id": { "type": "string" },
+        "customer": { "type": "string" }
+      },
+      "required": ["payment_method_id", "customer"]
+    }
+  },
+  {
+    "name": "stripe_payment_method_detach",
+    "description": "Detach a payment method from a customer",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "payment_method_id": { "type": "string" }
+      },
+      "required": ["payment_method_id"]
+    }
+  },
+  {
+    "name": "stripe_payment_method_list",
+    "description": "List payment methods",
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customer": { "type": "string" },
+        "type": { "type": "string" },
+        "limit": { "type": "number" }
+      },
+      "required": ["customer"]
+    }
+  }
+]
+

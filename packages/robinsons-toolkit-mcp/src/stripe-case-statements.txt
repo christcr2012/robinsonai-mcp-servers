@@ -1,0 +1,220 @@
+          // ============================================================
+          // STRIPE TOOLS (150 tools) - NEWLY INTEGRATED
+          // ============================================================
+
+          // CORE RESOURCES - CUSTOMERS (6 tools)
+          case 'stripe_customer_create': return await this.stripeCustomerCreate(args);
+          case 'stripe_customer_retrieve': return await this.stripeCustomerRetrieve(args);
+          case 'stripe_customer_update': return await this.stripeCustomerUpdate(args);
+          case 'stripe_customer_delete': return await this.stripeCustomerDelete(args);
+          case 'stripe_customer_list': return await this.stripeCustomerList(args);
+          case 'stripe_customer_search': return await this.stripeCustomerSearch(args);
+
+          // CORE RESOURCES - PAYMENT INTENTS (6 tools)
+          case 'stripe_payment_intent_create': return await this.stripePaymentIntentCreate(args);
+          case 'stripe_payment_intent_retrieve': return await this.stripePaymentIntentRetrieve(args);
+          case 'stripe_payment_intent_update': return await this.stripePaymentIntentUpdate(args);
+          case 'stripe_payment_intent_confirm': return await this.stripePaymentIntentConfirm(args);
+          case 'stripe_payment_intent_cancel': return await this.stripePaymentIntentCancel(args);
+          case 'stripe_payment_intent_list': return await this.stripePaymentIntentList(args);
+
+          // CORE RESOURCES - CHARGES (5 tools)
+          case 'stripe_charge_create': return await this.stripeChargeCreate(args);
+          case 'stripe_charge_retrieve': return await this.stripeChargeRetrieve(args);
+          case 'stripe_charge_update': return await this.stripeChargeUpdate(args);
+          case 'stripe_charge_capture': return await this.stripeChargeCapture(args);
+          case 'stripe_charge_list': return await this.stripeChargeList(args);
+
+          // CORE RESOURCES - REFUNDS (5 tools)
+          case 'stripe_refund_create': return await this.stripeRefundCreate(args);
+          case 'stripe_refund_retrieve': return await this.stripeRefundRetrieve(args);
+          case 'stripe_refund_update': return await this.stripeRefundUpdate(args);
+          case 'stripe_refund_cancel': return await this.stripeRefundCancel(args);
+          case 'stripe_refund_list': return await this.stripeRefundList(args);
+
+          // CORE RESOURCES - PAYOUTS (5 tools)
+          case 'stripe_payout_create': return await this.stripePayoutCreate(args);
+          case 'stripe_payout_retrieve': return await this.stripePayoutRetrieve(args);
+          case 'stripe_payout_update': return await this.stripePayoutUpdate(args);
+          case 'stripe_payout_cancel': return await this.stripePayoutCancel(args);
+          case 'stripe_payout_list': return await this.stripePayoutList(args);
+
+          // CORE RESOURCES - BALANCE TRANSACTIONS (3 tools)
+          case 'stripe_balance_transaction_retrieve': return await this.stripeBalanceTransactionRetrieve(args);
+          case 'stripe_balance_transaction_list': return await this.stripeBalanceTransactionList(args);
+          case 'stripe_balance_retrieve': return await this.stripeBalanceRetrieve(args);
+
+          // BILLING - SUBSCRIPTIONS (7 tools)
+          case 'stripe_subscription_create': return await this.stripeSubscriptionCreate(args);
+          case 'stripe_subscription_retrieve': return await this.stripeSubscriptionRetrieve(args);
+          case 'stripe_subscription_update': return await this.stripeSubscriptionUpdate(args);
+          case 'stripe_subscription_cancel': return await this.stripeSubscriptionCancel(args);
+          case 'stripe_subscription_resume': return await this.stripeSubscriptionResume(args);
+          case 'stripe_subscription_list': return await this.stripeSubscriptionList(args);
+          case 'stripe_subscription_search': return await this.stripeSubscriptionSearch(args);
+
+          // BILLING - SUBSCRIPTION ITEMS (5 tools)
+          case 'stripe_subscription_item_create': return await this.stripeSubscriptionItemCreate(args);
+          case 'stripe_subscription_item_retrieve': return await this.stripeSubscriptionItemRetrieve(args);
+          case 'stripe_subscription_item_update': return await this.stripeSubscriptionItemUpdate(args);
+          case 'stripe_subscription_item_delete': return await this.stripeSubscriptionItemDelete(args);
+          case 'stripe_subscription_item_list': return await this.stripeSubscriptionItemList(args);
+
+          // BILLING - INVOICES (9 tools)
+          case 'stripe_invoice_create': return await this.stripeInvoiceCreate(args);
+          case 'stripe_invoice_retrieve': return await this.stripeInvoiceRetrieve(args);
+          case 'stripe_invoice_update': return await this.stripeInvoiceUpdate(args);
+          case 'stripe_invoice_delete': return await this.stripeInvoiceDelete(args);
+          case 'stripe_invoice_finalize': return await this.stripeInvoiceFinalize(args);
+          case 'stripe_invoice_pay': return await this.stripeInvoicePay(args);
+          case 'stripe_invoice_send': return await this.stripeInvoiceSend(args);
+          case 'stripe_invoice_void': return await this.stripeInvoiceVoid(args);
+          case 'stripe_invoice_list': return await this.stripeInvoiceList(args);
+
+          // BILLING - INVOICE ITEMS (5 tools)
+          case 'stripe_invoice_item_create': return await this.stripeInvoiceItemCreate(args);
+          case 'stripe_invoice_item_retrieve': return await this.stripeInvoiceItemRetrieve(args);
+          case 'stripe_invoice_item_update': return await this.stripeInvoiceItemUpdate(args);
+          case 'stripe_invoice_item_delete': return await this.stripeInvoiceItemDelete(args);
+          case 'stripe_invoice_item_list': return await this.stripeInvoiceItemList(args);
+
+          // BILLING - PLANS (5 tools)
+          case 'stripe_plan_create': return await this.stripePlanCreate(args);
+          case 'stripe_plan_retrieve': return await this.stripePlanRetrieve(args);
+          case 'stripe_plan_update': return await this.stripePlanUpdate(args);
+          case 'stripe_plan_delete': return await this.stripePlanDelete(args);
+          case 'stripe_plan_list': return await this.stripePlanList(args);
+
+          // BILLING - PRICES (5 tools)
+          case 'stripe_price_create': return await this.stripePriceCreate(args);
+          case 'stripe_price_retrieve': return await this.stripePriceRetrieve(args);
+          case 'stripe_price_update': return await this.stripePriceUpdate(args);
+          case 'stripe_price_search': return await this.stripePriceSearch(args);
+          case 'stripe_price_list': return await this.stripePriceList(args);
+
+          // BILLING - CREDIT NOTES (4 tools)
+          case 'stripe_credit_note_create': return await this.stripeCreditNoteCreate(args);
+          case 'stripe_credit_note_retrieve': return await this.stripeCreditNoteRetrieve(args);
+          case 'stripe_credit_note_void': return await this.stripeCreditNoteVoid(args);
+          case 'stripe_credit_note_list': return await this.stripeCreditNoteList(args);
+
+          // PRODUCTS - PRODUCTS (6 tools)
+          case 'stripe_product_create': return await this.stripeProductCreate(args);
+          case 'stripe_product_retrieve': return await this.stripeProductRetrieve(args);
+          case 'stripe_product_update': return await this.stripeProductUpdate(args);
+          case 'stripe_product_delete': return await this.stripeProductDelete(args);
+          case 'stripe_product_list': return await this.stripeProductList(args);
+          case 'stripe_product_search': return await this.stripeProductSearch(args);
+
+          // PRODUCTS - COUPONS (5 tools)
+          case 'stripe_coupon_create': return await this.stripeCouponCreate(args);
+          case 'stripe_coupon_retrieve': return await this.stripeCouponRetrieve(args);
+          case 'stripe_coupon_update': return await this.stripeCouponUpdate(args);
+          case 'stripe_coupon_delete': return await this.stripeCouponDelete(args);
+          case 'stripe_coupon_list': return await this.stripeCouponList(args);
+
+          // PRODUCTS - PROMOTION CODES (4 tools)
+          case 'stripe_promotion_code_create': return await this.stripePromotionCodeCreate(args);
+          case 'stripe_promotion_code_retrieve': return await this.stripePromotionCodeRetrieve(args);
+          case 'stripe_promotion_code_update': return await this.stripePromotionCodeUpdate(args);
+          case 'stripe_promotion_code_list': return await this.stripePromotionCodeList(args);
+
+          // PRODUCTS - TAX RATES (5 tools)
+          case 'stripe_tax_rate_create': return await this.stripeTaxRateCreate(args);
+          case 'stripe_tax_rate_retrieve': return await this.stripeTaxRateRetrieve(args);
+          case 'stripe_tax_rate_update': return await this.stripeTaxRateUpdate(args);
+          case 'stripe_tax_rate_list': return await this.stripeTaxRateList(args);
+          case 'stripe_tax_rate_delete': return await this.stripeTaxRateDelete(args);
+
+          // PAYMENT METHODS - PAYMENT METHODS (6 tools)
+          case 'stripe_payment_method_create': return await this.stripePaymentMethodCreate(args);
+          case 'stripe_payment_method_retrieve': return await this.stripePaymentMethodRetrieve(args);
+          case 'stripe_payment_method_update': return await this.stripePaymentMethodUpdate(args);
+          case 'stripe_payment_method_attach': return await this.stripePaymentMethodAttach(args);
+          case 'stripe_payment_method_detach': return await this.stripePaymentMethodDetach(args);
+          case 'stripe_payment_method_list': return await this.stripePaymentMethodList(args);
+
+          // PAYMENT METHODS - CARDS (5 tools)
+          case 'stripe_card_create': return await this.stripeCardCreate(args);
+          case 'stripe_card_retrieve': return await this.stripeCardRetrieve(args);
+          case 'stripe_card_update': return await this.stripeCardUpdate(args);
+          case 'stripe_card_delete': return await this.stripeCardDelete(args);
+          case 'stripe_card_list': return await this.stripeCardList(args);
+
+          // PAYMENT METHODS - BANK ACCOUNTS (5 tools)
+          case 'stripe_bank_account_create': return await this.stripeBankAccountCreate(args);
+          case 'stripe_bank_account_retrieve': return await this.stripeBankAccountRetrieve(args);
+          case 'stripe_bank_account_update': return await this.stripeBankAccountUpdate(args);
+          case 'stripe_bank_account_verify': return await this.stripeBankAccountVerify(args);
+          case 'stripe_bank_account_delete': return await this.stripeBankAccountDelete(args);
+
+          // PAYMENT METHODS - SOURCES (4 tools)
+          case 'stripe_source_create': return await this.stripeSourceCreate(args);
+          case 'stripe_source_retrieve': return await this.stripeSourceRetrieve(args);
+          case 'stripe_source_update': return await this.stripeSourceUpdate(args);
+          case 'stripe_source_detach': return await this.stripeSourceDetach(args);
+
+          // CONNECT - ACCOUNTS (5 tools)
+          case 'stripe_account_create': return await this.stripeAccountCreate(args);
+          case 'stripe_account_retrieve': return await this.stripeAccountRetrieve(args);
+          case 'stripe_account_update': return await this.stripeAccountUpdate(args);
+          case 'stripe_account_delete': return await this.stripeAccountDelete(args);
+          case 'stripe_account_list': return await this.stripeAccountList(args);
+
+          // CONNECT - TRANSFERS (5 tools)
+          case 'stripe_transfer_create': return await this.stripeTransferCreate(args);
+          case 'stripe_transfer_retrieve': return await this.stripeTransferRetrieve(args);
+          case 'stripe_transfer_update': return await this.stripeTransferUpdate(args);
+          case 'stripe_transfer_reverse': return await this.stripeTransferReverse(args);
+          case 'stripe_transfer_list': return await this.stripeTransferList(args);
+
+          // CONNECT - APPLICATION FEES (3 tools)
+          case 'stripe_application_fee_retrieve': return await this.stripeApplicationFeeRetrieve(args);
+          case 'stripe_application_fee_refund': return await this.stripeApplicationFeeRefund(args);
+          case 'stripe_application_fee_list': return await this.stripeApplicationFeeList(args);
+
+          // CONNECT - CAPABILITIES (3 tools)
+          case 'stripe_capability_retrieve': return await this.stripeCapabilityRetrieve(args);
+          case 'stripe_capability_update': return await this.stripeCapabilityUpdate(args);
+          case 'stripe_capability_list': return await this.stripeCapabilityList(args);
+
+          // CONNECT - ACCOUNT LINKS (2 tools)
+          case 'stripe_account_link_create': return await this.stripeAccountLinkCreate(args);
+          case 'stripe_account_session_create': return await this.stripeAccountSessionCreate(args);
+
+          // CONNECT - EXTERNAL ACCOUNTS (2 tools)
+          case 'stripe_external_account_create': return await this.stripeExternalAccountCreate(args);
+          case 'stripe_external_account_delete': return await this.stripeExternalAccountDelete(args);
+
+          // OTHER - EVENTS (2 tools)
+          case 'stripe_event_retrieve': return await this.stripeEventRetrieve(args);
+          case 'stripe_event_list': return await this.stripeEventList(args);
+
+          // OTHER - FILES (3 tools)
+          case 'stripe_file_create': return await this.stripeFileCreate(args);
+          case 'stripe_file_retrieve': return await this.stripeFileRetrieve(args);
+          case 'stripe_file_list': return await this.stripeFileList(args);
+
+          // OTHER - DISPUTES (4 tools)
+          case 'stripe_dispute_retrieve': return await this.stripeDisputeRetrieve(args);
+          case 'stripe_dispute_update': return await this.stripeDisputeUpdate(args);
+          case 'stripe_dispute_close': return await this.stripeDisputeClose(args);
+          case 'stripe_dispute_list': return await this.stripeDisputeList(args);
+
+          // OTHER - WEBHOOKS (2 tools)
+          case 'stripe_webhook_construct_event': return await this.stripeWebhookConstructEvent(args);
+          case 'stripe_webhook_verify_signature': return await this.stripeWebhookVerifySignature(args);
+
+          // OTHER - SETUP INTENTS (5 tools)
+          case 'stripe_setup_intent_create': return await this.stripeSetupIntentCreate(args);
+          case 'stripe_setup_intent_retrieve': return await this.stripeSetupIntentRetrieve(args);
+          case 'stripe_setup_intent_update': return await this.stripeSetupIntentUpdate(args);
+          case 'stripe_setup_intent_confirm': return await this.stripeSetupIntentConfirm(args);
+          case 'stripe_setup_intent_cancel': return await this.stripeSetupIntentCancel(args);
+
+          // OTHER - CHECKOUT SESSIONS (4 tools)
+          case 'stripe_checkout_session_create': return await this.stripeCheckoutSessionCreate(args);
+          case 'stripe_checkout_session_retrieve': return await this.stripeCheckoutSessionRetrieve(args);
+          case 'stripe_checkout_session_expire': return await this.stripeCheckoutSessionExpire(args);
+          case 'stripe_checkout_session_list': return await this.stripeCheckoutSessionList(args);
+

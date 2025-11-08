@@ -29,6 +29,10 @@ import Stripe from 'stripe';
 import { BROKER_TOOLS } from './broker-tools.js';
 import { ToolRegistry } from './tool-registry.js';
 import { validateTools } from './util/sanitizeTool.js';
+import { STRIPE_TOOLS } from './stripe-tools.js';
+import * as StripeHandlers1 from './stripe-handlers.js';
+import * as StripeHandlers2 from './stripe-handlers-2.js';
+import * as StripeHandlers3 from './stripe-handlers-3.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -234,6 +238,8 @@ class UnifiedToolkit {
         },
       });
     }
+
+
 
     console.error("[Robinson Toolkit] Creating MCP server...");
     this.server = new Server(
@@ -1954,7 +1960,12 @@ const result = await toolkit_call({
       { name: 'openai_optimize_prompt', description: 'Analyze prompt and suggest optimizations to reduce token usage', inputSchema: { type: 'object', additionalProperties: false, properties: { prompt: { type: 'string', description: 'Prompt to optimize' }, target_reduction: { type: 'number', description: 'Target token reduction percentage (0-50)', default: 20 } }, required: ['prompt'] } },
       { name: 'openai_export_cost_report', description: 'Export cost report in CSV or JSON format', inputSchema: { type: 'object', additionalProperties: false, properties: { format: { type: 'string', enum: ['csv', 'json'], default: 'json' }, start_date: { type: 'string', description: 'Start date (YYYY-MM-DD)' }, end_date: { type: 'string', description: 'End date (YYYY-MM-DD)' }, include_details: { type: 'boolean', description: 'Include detailed breakdown', default: true } } } },
       { name: 'openai_get_token_analytics', description: 'Get detailed token usage analytics and patterns', inputSchema: { type: 'object', additionalProperties: false, properties: { time_period: { type: 'string', enum: ['1d', '7d', '30d', '90d'], default: '7d' }, group_by: { type: 'string', enum: ['model', 'operation', 'day'], default: 'day' } } } },
-      { name: 'openai_suggest_cheaper_alternative', description: 'Suggest cheaper model alternatives for a given task', inputSchema: { type: 'object', additionalProperties: false, properties: { current_model: { type: 'string', description: 'Current model being used' }, task_description: { type: 'string', description: 'Description of the task' }, quality_threshold: { type: 'string', enum: ['high', 'medium', 'low'], description: 'Minimum quality threshold', default: 'medium' }, max_cost_reduction: { type: 'number', description: 'Maximum acceptable cost reduction percentage', default: 50 } }, required: ['current_model', 'task_description'] } }
+      { name: 'openai_suggest_cheaper_alternative', description: 'Suggest cheaper model alternatives for a given task', inputSchema: { type: 'object', additionalProperties: false, properties: { current_model: { type: 'string', description: 'Current model being used' }, task_description: { type: 'string', description: 'Description of the task' }, quality_threshold: { type: 'string', enum: ['high', 'medium', 'low'], description: 'Minimum quality threshold', default: 'medium' }, max_cost_reduction: { type: 'number', description: 'Maximum acceptable cost reduction percentage', default: 50 } }, required: ['current_model', 'task_description'] } },
+
+      // ============================================================
+      // STRIPE (150 tools) - NEWLY INTEGRATED
+      // ============================================================
+      ...STRIPE_TOOLS
     ];
     return tools;
   }
@@ -3613,6 +3624,226 @@ const result = await toolkit_call({
           case 'vercel_update_spending_limits': return await this.vercelUpdateSpendingLimits(args);
           case 'vercel_update_team_member_role': return await this.vercelUpdateTeamMemberRole(args);
           case 'vercel_verify_domain': return await this.vercelVerifyDomain(args);
+
+          // ============================================================
+          // STRIPE TOOLS (150 tools) - NEWLY INTEGRATED
+          // ============================================================
+
+          // CORE RESOURCES - CUSTOMERS (6 tools)
+          case 'stripe_customer_create': return await StripeHandlers1.stripeCustomerCreate.call(this, args);
+          case 'stripe_customer_retrieve': return await StripeHandlers1.stripeCustomerRetrieve.call(this, args);
+          case 'stripe_customer_update': return await StripeHandlers1.stripeCustomerUpdate.call(this, args);
+          case 'stripe_customer_delete': return await StripeHandlers1.stripeCustomerDelete.call(this, args);
+          case 'stripe_customer_list': return await StripeHandlers1.stripeCustomerList.call(this, args);
+          case 'stripe_customer_search': return await StripeHandlers1.stripeCustomerSearch.call(this, args);
+
+          // CORE RESOURCES - PAYMENT INTENTS (6 tools)
+          case 'stripe_payment_intent_create': return await StripeHandlers1.stripePaymentIntentCreate.call(this, args);
+          case 'stripe_payment_intent_retrieve': return await StripeHandlers1.stripePaymentIntentRetrieve.call(this, args);
+          case 'stripe_payment_intent_update': return await StripeHandlers1.stripePaymentIntentUpdate.call(this, args);
+          case 'stripe_payment_intent_confirm': return await StripeHandlers1.stripePaymentIntentConfirm.call(this, args);
+          case 'stripe_payment_intent_cancel': return await StripeHandlers1.stripePaymentIntentCancel.call(this, args);
+          case 'stripe_payment_intent_list': return await StripeHandlers1.stripePaymentIntentList.call(this, args);
+
+          // CORE RESOURCES - CHARGES (5 tools)
+          case 'stripe_charge_create': return await StripeHandlers1.stripeChargeCreate.call(this, args);
+          case 'stripe_charge_retrieve': return await StripeHandlers1.stripeChargeRetrieve.call(this, args);
+          case 'stripe_charge_update': return await StripeHandlers1.stripeChargeUpdate.call(this, args);
+          case 'stripe_charge_capture': return await StripeHandlers1.stripeChargeCapture.call(this, args);
+          case 'stripe_charge_list': return await StripeHandlers1.stripeChargeList.call(this, args);
+
+          // CORE RESOURCES - REFUNDS (5 tools)
+          case 'stripe_refund_create': return await StripeHandlers1.stripeRefundCreate.call(this, args);
+          case 'stripe_refund_retrieve': return await StripeHandlers1.stripeRefundRetrieve.call(this, args);
+          case 'stripe_refund_update': return await StripeHandlers1.stripeRefundUpdate.call(this, args);
+          case 'stripe_refund_cancel': return await StripeHandlers1.stripeRefundCancel.call(this, args);
+          case 'stripe_refund_list': return await StripeHandlers1.stripeRefundList.call(this, args);
+
+          // CORE RESOURCES - PAYOUTS (5 tools)
+          case 'stripe_payout_create': return await StripeHandlers1.stripePayoutCreate.call(this, args);
+          case 'stripe_payout_retrieve': return await StripeHandlers1.stripePayoutRetrieve.call(this, args);
+          case 'stripe_payout_update': return await StripeHandlers1.stripePayoutUpdate.call(this, args);
+          case 'stripe_payout_cancel': return await StripeHandlers1.stripePayoutCancel.call(this, args);
+          case 'stripe_payout_list': return await StripeHandlers1.stripePayoutList.call(this, args);
+
+          // CORE RESOURCES - BALANCE TRANSACTIONS (3 tools)
+          case 'stripe_balance_transaction_retrieve': return await StripeHandlers1.stripeBalanceTransactionRetrieve.call(this, args);
+          case 'stripe_balance_transaction_list': return await StripeHandlers1.stripeBalanceTransactionList.call(this, args);
+          case 'stripe_balance_retrieve': return await StripeHandlers1.stripeBalanceRetrieve.call(this, args);
+
+          // BILLING - SUBSCRIPTIONS (7 tools)
+          case 'stripe_subscription_create': return await StripeHandlers1.stripeSubscriptionCreate.call(this, args);
+          case 'stripe_subscription_retrieve': return await StripeHandlers1.stripeSubscriptionRetrieve.call(this, args);
+          case 'stripe_subscription_update': return await StripeHandlers1.stripeSubscriptionUpdate.call(this, args);
+          case 'stripe_subscription_cancel': return await StripeHandlers1.stripeSubscriptionCancel.call(this, args);
+          case 'stripe_subscription_resume': return await StripeHandlers1.stripeSubscriptionResume.call(this, args);
+          case 'stripe_subscription_list': return await StripeHandlers1.stripeSubscriptionList.call(this, args);
+          case 'stripe_subscription_search': return await StripeHandlers1.stripeSubscriptionSearch.call(this, args);
+
+          // BILLING - SUBSCRIPTION ITEMS (5 tools)
+          case 'stripe_subscription_item_create': return await StripeHandlers1.stripeSubscriptionItemCreate.call(this, args);
+          case 'stripe_subscription_item_retrieve': return await StripeHandlers1.stripeSubscriptionItemRetrieve.call(this, args);
+          case 'stripe_subscription_item_update': return await StripeHandlers1.stripeSubscriptionItemUpdate.call(this, args);
+          case 'stripe_subscription_item_delete': return await StripeHandlers1.stripeSubscriptionItemDelete.call(this, args);
+          case 'stripe_subscription_item_list': return await StripeHandlers1.stripeSubscriptionItemList.call(this, args);
+
+          // BILLING - INVOICES (9 tools)
+          case 'stripe_invoice_create': return await StripeHandlers1.stripeInvoiceCreate.call(this, args);
+          case 'stripe_invoice_retrieve': return await StripeHandlers1.stripeInvoiceRetrieve.call(this, args);
+          case 'stripe_invoice_update': return await StripeHandlers1.stripeInvoiceUpdate.call(this, args);
+          case 'stripe_invoice_delete': return await StripeHandlers1.stripeInvoiceDelete.call(this, args);
+          case 'stripe_invoice_finalize': return await StripeHandlers1.stripeInvoiceFinalize.call(this, args);
+          case 'stripe_invoice_pay': return await StripeHandlers1.stripeInvoicePay.call(this, args);
+          case 'stripe_invoice_send': return await StripeHandlers1.stripeInvoiceSend.call(this, args);
+          case 'stripe_invoice_void': return await StripeHandlers1.stripeInvoiceVoid.call(this, args);
+          case 'stripe_invoice_list': return await StripeHandlers1.stripeInvoiceList.call(this, args);
+
+          // BILLING - INVOICE ITEMS (5 tools)
+          case 'stripe_invoice_item_create': return await StripeHandlers1.stripeInvoiceItemCreate.call(this, args);
+          case 'stripe_invoice_item_retrieve': return await StripeHandlers1.stripeInvoiceItemRetrieve.call(this, args);
+          case 'stripe_invoice_item_update': return await StripeHandlers1.stripeInvoiceItemUpdate.call(this, args);
+          case 'stripe_invoice_item_delete': return await StripeHandlers1.stripeInvoiceItemDelete.call(this, args);
+          case 'stripe_invoice_item_list': return await StripeHandlers1.stripeInvoiceItemList.call(this, args);
+
+          // BILLING - PLANS (5 tools)
+          case 'stripe_plan_create': return await StripeHandlers1.stripePlanCreate.call(this, args);
+          case 'stripe_plan_retrieve': return await StripeHandlers1.stripePlanRetrieve.call(this, args);
+          case 'stripe_plan_update': return await StripeHandlers1.stripePlanUpdate.call(this, args);
+          case 'stripe_plan_delete': return await StripeHandlers1.stripePlanDelete.call(this, args);
+          case 'stripe_plan_list': return await StripeHandlers1.stripePlanList.call(this, args);
+
+          // BILLING - PRICES (5 tools)
+          case 'stripe_price_create': return await StripeHandlers1.stripePriceCreate.call(this, args);
+          case 'stripe_price_retrieve': return await StripeHandlers1.stripePriceRetrieve.call(this, args);
+          case 'stripe_price_update': return await StripeHandlers1.stripePriceUpdate.call(this, args);
+          case 'stripe_price_search': return await StripeHandlers1.stripePriceSearch.call(this, args);
+          case 'stripe_price_list': return await StripeHandlers1.stripePriceList.call(this, args);
+
+          // BILLING - CREDIT NOTES (4 tools)
+          case 'stripe_credit_note_create': return await StripeHandlers1.stripeCreditNoteCreate.call(this, args);
+          case 'stripe_credit_note_retrieve': return await StripeHandlers1.stripeCreditNoteRetrieve.call(this, args);
+          case 'stripe_credit_note_void': return await StripeHandlers1.stripeCreditNoteVoid.call(this, args);
+          case 'stripe_credit_note_list': return await StripeHandlers1.stripeCreditNoteList.call(this, args);
+
+          // PRODUCTS - PRODUCTS (6 tools)
+          case 'stripe_product_create': return await StripeHandlers2.stripeProductCreate.call(this, args);
+          case 'stripe_product_retrieve': return await StripeHandlers2.stripeProductRetrieve.call(this, args);
+          case 'stripe_product_update': return await StripeHandlers2.stripeProductUpdate.call(this, args);
+          case 'stripe_product_delete': return await StripeHandlers2.stripeProductDelete.call(this, args);
+          case 'stripe_product_list': return await StripeHandlers2.stripeProductList.call(this, args);
+          case 'stripe_product_search': return await StripeHandlers2.stripeProductSearch.call(this, args);
+
+          // PRODUCTS - COUPONS (5 tools)
+          case 'stripe_coupon_create': return await StripeHandlers2.stripeCouponCreate.call(this, args);
+          case 'stripe_coupon_retrieve': return await StripeHandlers2.stripeCouponRetrieve.call(this, args);
+          case 'stripe_coupon_update': return await StripeHandlers2.stripeCouponUpdate.call(this, args);
+          case 'stripe_coupon_delete': return await StripeHandlers2.stripeCouponDelete.call(this, args);
+          case 'stripe_coupon_list': return await StripeHandlers2.stripeCouponList.call(this, args);
+
+          // PRODUCTS - PROMOTION CODES (4 tools)
+          case 'stripe_promotion_code_create': return await StripeHandlers2.stripePromotionCodeCreate.call(this, args);
+          case 'stripe_promotion_code_retrieve': return await StripeHandlers2.stripePromotionCodeRetrieve.call(this, args);
+          case 'stripe_promotion_code_update': return await StripeHandlers2.stripePromotionCodeUpdate.call(this, args);
+          case 'stripe_promotion_code_list': return await StripeHandlers2.stripePromotionCodeList.call(this, args);
+
+          // PRODUCTS - TAX RATES (5 tools)
+          case 'stripe_tax_rate_create': return await StripeHandlers2.stripeTaxRateCreate.call(this, args);
+          case 'stripe_tax_rate_retrieve': return await StripeHandlers2.stripeTaxRateRetrieve.call(this, args);
+          case 'stripe_tax_rate_update': return await StripeHandlers2.stripeTaxRateUpdate.call(this, args);
+          case 'stripe_tax_rate_list': return await StripeHandlers2.stripeTaxRateList.call(this, args);
+          case 'stripe_tax_rate_delete': return await StripeHandlers2.stripeTaxRateDelete.call(this, args);
+
+          // PAYMENT METHODS - PAYMENT METHODS (6 tools)
+          case 'stripe_payment_method_create': return await StripeHandlers2.stripePaymentMethodCreate.call(this, args);
+          case 'stripe_payment_method_retrieve': return await StripeHandlers2.stripePaymentMethodRetrieve.call(this, args);
+          case 'stripe_payment_method_update': return await StripeHandlers2.stripePaymentMethodUpdate.call(this, args);
+          case 'stripe_payment_method_attach': return await StripeHandlers2.stripePaymentMethodAttach.call(this, args);
+          case 'stripe_payment_method_detach': return await StripeHandlers2.stripePaymentMethodDetach.call(this, args);
+          case 'stripe_payment_method_list': return await StripeHandlers2.stripePaymentMethodList.call(this, args);
+
+          // PAYMENT METHODS - CARDS (5 tools)
+          case 'stripe_card_create': return await StripeHandlers2.stripeCardCreate.call(this, args);
+          case 'stripe_card_retrieve': return await StripeHandlers2.stripeCardRetrieve.call(this, args);
+          case 'stripe_card_update': return await StripeHandlers2.stripeCardUpdate.call(this, args);
+          case 'stripe_card_delete': return await StripeHandlers2.stripeCardDelete.call(this, args);
+          case 'stripe_card_list': return await StripeHandlers2.stripeCardList.call(this, args);
+
+          // PAYMENT METHODS - BANK ACCOUNTS (5 tools)
+          case 'stripe_bank_account_create': return await StripeHandlers2.stripeBankAccountCreate.call(this, args);
+          case 'stripe_bank_account_retrieve': return await StripeHandlers2.stripeBankAccountRetrieve.call(this, args);
+          case 'stripe_bank_account_update': return await StripeHandlers2.stripeBankAccountUpdate.call(this, args);
+          case 'stripe_bank_account_verify': return await StripeHandlers2.stripeBankAccountVerify.call(this, args);
+          case 'stripe_bank_account_delete': return await StripeHandlers2.stripeBankAccountDelete.call(this, args);
+
+          // PAYMENT METHODS - SOURCES (4 tools)
+          case 'stripe_source_create': return await StripeHandlers2.stripeSourceCreate.call(this, args);
+          case 'stripe_source_retrieve': return await StripeHandlers2.stripeSourceRetrieve.call(this, args);
+          case 'stripe_source_update': return await StripeHandlers2.stripeSourceUpdate.call(this, args);
+          case 'stripe_source_detach': return await StripeHandlers2.stripeSourceDetach.call(this, args);
+
+          // CONNECT - ACCOUNTS (5 tools)
+          case 'stripe_account_create': return await StripeHandlers3.stripeAccountCreate.call(this, args);
+          case 'stripe_account_retrieve': return await StripeHandlers3.stripeAccountRetrieve.call(this, args);
+          case 'stripe_account_update': return await StripeHandlers3.stripeAccountUpdate.call(this, args);
+          case 'stripe_account_delete': return await StripeHandlers3.stripeAccountDelete.call(this, args);
+          case 'stripe_account_list': return await StripeHandlers3.stripeAccountList.call(this, args);
+
+          // CONNECT - TRANSFERS (5 tools)
+          case 'stripe_transfer_create': return await StripeHandlers3.stripeTransferCreate.call(this, args);
+          case 'stripe_transfer_retrieve': return await StripeHandlers3.stripeTransferRetrieve.call(this, args);
+          case 'stripe_transfer_update': return await StripeHandlers3.stripeTransferUpdate.call(this, args);
+          case 'stripe_transfer_reverse': return await StripeHandlers3.stripeTransferReverse.call(this, args);
+          case 'stripe_transfer_list': return await StripeHandlers3.stripeTransferList.call(this, args);
+
+          // CONNECT - APPLICATION FEES (3 tools)
+          case 'stripe_application_fee_retrieve': return await StripeHandlers3.stripeApplicationFeeRetrieve.call(this, args);
+          case 'stripe_application_fee_refund': return await StripeHandlers3.stripeApplicationFeeRefund.call(this, args);
+          case 'stripe_application_fee_list': return await StripeHandlers3.stripeApplicationFeeList.call(this, args);
+
+          // CONNECT - CAPABILITIES (3 tools)
+          case 'stripe_capability_retrieve': return await StripeHandlers3.stripeCapabilityRetrieve.call(this, args);
+          case 'stripe_capability_update': return await StripeHandlers3.stripeCapabilityUpdate.call(this, args);
+          case 'stripe_capability_list': return await StripeHandlers3.stripeCapabilityList.call(this, args);
+
+          // CONNECT - ACCOUNT LINKS (2 tools)
+          case 'stripe_account_link_create': return await StripeHandlers3.stripeAccountLinkCreate.call(this, args);
+          case 'stripe_account_session_create': return await StripeHandlers3.stripeAccountSessionCreate.call(this, args);
+
+          // CONNECT - EXTERNAL ACCOUNTS (2 tools)
+          case 'stripe_external_account_create': return await StripeHandlers3.stripeExternalAccountCreate.call(this, args);
+          case 'stripe_external_account_delete': return await StripeHandlers3.stripeExternalAccountDelete.call(this, args);
+
+          // OTHER - EVENTS (2 tools)
+          case 'stripe_event_retrieve': return await StripeHandlers3.stripeEventRetrieve.call(this, args);
+          case 'stripe_event_list': return await StripeHandlers3.stripeEventList.call(this, args);
+
+          // OTHER - FILES (3 tools)
+          case 'stripe_file_create': return await StripeHandlers3.stripeFileCreate.call(this, args);
+          case 'stripe_file_retrieve': return await StripeHandlers3.stripeFileRetrieve.call(this, args);
+          case 'stripe_file_list': return await StripeHandlers3.stripeFileList.call(this, args);
+
+          // OTHER - DISPUTES (4 tools)
+          case 'stripe_dispute_retrieve': return await StripeHandlers3.stripeDisputeRetrieve.call(this, args);
+          case 'stripe_dispute_update': return await StripeHandlers3.stripeDisputeUpdate.call(this, args);
+          case 'stripe_dispute_close': return await StripeHandlers3.stripeDisputeClose.call(this, args);
+          case 'stripe_dispute_list': return await StripeHandlers3.stripeDisputeList.call(this, args);
+
+          // OTHER - WEBHOOKS (2 tools)
+          case 'stripe_webhook_construct_event': return await StripeHandlers3.stripeWebhookConstructEvent.call(this, args);
+          case 'stripe_webhook_verify_signature': return await StripeHandlers3.stripeWebhookVerifySignature.call(this, args);
+
+          // OTHER - SETUP INTENTS (5 tools)
+          case 'stripe_setup_intent_create': return await StripeHandlers3.stripeSetupIntentCreate.call(this, args);
+          case 'stripe_setup_intent_retrieve': return await StripeHandlers3.stripeSetupIntentRetrieve.call(this, args);
+          case 'stripe_setup_intent_update': return await StripeHandlers3.stripeSetupIntentUpdate.call(this, args);
+          case 'stripe_setup_intent_confirm': return await StripeHandlers3.stripeSetupIntentConfirm.call(this, args);
+          case 'stripe_setup_intent_cancel': return await StripeHandlers3.stripeSetupIntentCancel.call(this, args);
+
+          // OTHER - CHECKOUT SESSIONS (4 tools)
+          case 'stripe_checkout_session_create': return await StripeHandlers3.stripeCheckoutSessionCreate.call(this, args);
+          case 'stripe_checkout_session_retrieve': return await StripeHandlers3.stripeCheckoutSessionRetrieve.call(this, args);
+          case 'stripe_checkout_session_expire': return await StripeHandlers3.stripeCheckoutSessionExpire.call(this, args);
+          case 'stripe_checkout_session_list': return await StripeHandlers3.stripeCheckoutSessionList.call(this, args);
 
           default:
             return {

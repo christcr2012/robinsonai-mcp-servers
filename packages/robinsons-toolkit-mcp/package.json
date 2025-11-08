@@ -1,7 +1,7 @@
 {
   "name": "@robinson_ai_systems/robinsons-toolkit-mcp",
-  "version": "1.6.0",
-  "description": "Unified MCP server with 1165+ tools across GitHub, Vercel, Neon, Upstash Redis, Google Workspace, and OpenAI. More integrations coming soon!",
+  "version": "1.7.0",
+  "description": "Unified MCP server with 1315+ tools across GitHub, Vercel, Neon, Upstash Redis, Google Workspace, OpenAI, and Stripe. More integrations coming soon!",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
