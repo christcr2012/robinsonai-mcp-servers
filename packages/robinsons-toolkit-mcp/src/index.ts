@@ -38,6 +38,10 @@ import * as SupabaseHandlers1 from './supabase-handlers.js';
 import * as SupabaseHandlers2 from './supabase-handlers-2.js';
 import { PLAYWRIGHT_TOOLS } from './playwright-tools.js';
 import * as PlaywrightHandlers from './playwright-handlers.js';
+import { TWILIO_TOOLS } from './twilio-tools.js';
+import * as TwilioHandlers1 from './twilio-handlers.js';
+import * as TwilioHandlers2 from './twilio-handlers-2.js';
+import * as TwilioHandlers3 from './twilio-handlers-3.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -1978,9 +1982,14 @@ const result = await toolkit_call({
       ...SUPABASE_TOOLS,
 
       // ============================================================
-      // PLAYWRIGHT (50 tools) - NEWLY INTEGRATED
+      // PLAYWRIGHT (50 tools) - INTEGRATED v1.9.0
       // ============================================================
-      ...PLAYWRIGHT_TOOLS
+      ...PLAYWRIGHT_TOOLS,
+
+      // ============================================================
+      // TWILIO (85 tools) - NEWLY INTEGRATED
+      // ============================================================
+      ...TWILIO_TOOLS
     ];
     return tools;
   }
@@ -4035,6 +4044,105 @@ const result = await toolkit_call({
           case 'playwright_pdf': return await PlaywrightHandlers.playwrightPdf.call(this, args);
           case 'playwright_start_video': return await PlaywrightHandlers.playwrightStartVideo.call(this, args);
           case 'playwright_stop_video': return await PlaywrightHandlers.playwrightStopVideo.call(this, args);
+
+          // ============================================================
+          // TWILIO (85 tools)
+          // ============================================================
+
+          // MESSAGING (20 tools)
+          case 'twilio_send_sms': return await TwilioHandlers1.twilioSendSms.call(this, args);
+          case 'twilio_send_mms': return await TwilioHandlers1.twilioSendMms.call(this, args);
+          case 'twilio_send_whatsapp': return await TwilioHandlers1.twilioSendWhatsapp.call(this, args);
+          case 'twilio_get_message': return await TwilioHandlers1.twilioGetMessage.call(this, args);
+          case 'twilio_list_messages': return await TwilioHandlers1.twilioListMessages.call(this, args);
+          case 'twilio_delete_message': return await TwilioHandlers1.twilioDeleteMessage.call(this, args);
+          case 'twilio_update_message': return await TwilioHandlers1.twilioUpdateMessage.call(this, args);
+          case 'twilio_create_messaging_service': return await TwilioHandlers1.twilioCreateMessagingService.call(this, args);
+          case 'twilio_get_messaging_service': return await TwilioHandlers1.twilioGetMessagingService.call(this, args);
+          case 'twilio_list_messaging_services': return await TwilioHandlers1.twilioListMessagingServices.call(this, args);
+          case 'twilio_update_messaging_service': return await TwilioHandlers1.twilioUpdateMessagingService.call(this, args);
+          case 'twilio_delete_messaging_service': return await TwilioHandlers1.twilioDeleteMessagingService.call(this, args);
+          case 'twilio_add_phone_to_service': return await TwilioHandlers1.twilioAddPhoneToService.call(this, args);
+          case 'twilio_remove_phone_from_service': return await TwilioHandlers1.twilioRemovePhoneFromService.call(this, args);
+          case 'twilio_list_service_phone_numbers': return await TwilioHandlers1.twilioListServicePhoneNumbers.call(this, args);
+          case 'twilio_schedule_message': return await TwilioHandlers1.twilioScheduleMessage.call(this, args);
+          case 'twilio_cancel_scheduled_message': return await TwilioHandlers1.twilioCancelScheduledMessage.call(this, args);
+          case 'twilio_get_message_media': return await TwilioHandlers1.twilioGetMessageMedia.call(this, args);
+          case 'twilio_list_message_media': return await TwilioHandlers1.twilioListMessageMedia.call(this, args);
+          case 'twilio_delete_message_media': return await TwilioHandlers1.twilioDeleteMessageMedia.call(this, args);
+
+          // VOICE & CALLS (20 tools)
+          case 'twilio_make_call': return await TwilioHandlers2.twilioMakeCall.call(this, args);
+          case 'twilio_get_call': return await TwilioHandlers2.twilioGetCall.call(this, args);
+          case 'twilio_list_calls': return await TwilioHandlers2.twilioListCalls.call(this, args);
+          case 'twilio_update_call': return await TwilioHandlers2.twilioUpdateCall.call(this, args);
+          case 'twilio_delete_call': return await TwilioHandlers2.twilioDeleteCall.call(this, args);
+          case 'twilio_create_conference': return await TwilioHandlers2.twilioCreateConference.call(this, args);
+          case 'twilio_get_conference': return await TwilioHandlers2.twilioGetConference.call(this, args);
+          case 'twilio_list_conferences': return await TwilioHandlers2.twilioListConferences.call(this, args);
+          case 'twilio_update_conference': return await TwilioHandlers2.twilioUpdateConference.call(this, args);
+          case 'twilio_list_conference_participants': return await TwilioHandlers2.twilioListConferenceParticipants.call(this, args);
+          case 'twilio_get_conference_participant': return await TwilioHandlers2.twilioGetConferenceParticipant.call(this, args);
+          case 'twilio_update_conference_participant': return await TwilioHandlers2.twilioUpdateConferenceParticipant.call(this, args);
+          case 'twilio_remove_conference_participant': return await TwilioHandlers2.twilioRemoveConferenceParticipant.call(this, args);
+          case 'twilio_get_recording': return await TwilioHandlers2.twilioGetRecording.call(this, args);
+          case 'twilio_list_recordings': return await TwilioHandlers2.twilioListRecordings.call(this, args);
+          case 'twilio_delete_recording': return await TwilioHandlers2.twilioDeleteRecording.call(this, args);
+          case 'twilio_get_transcription': return await TwilioHandlers2.twilioGetTranscription.call(this, args);
+          case 'twilio_list_transcriptions': return await TwilioHandlers2.twilioListTranscriptions.call(this, args);
+          case 'twilio_delete_transcription': return await TwilioHandlers2.twilioDeleteTranscription.call(this, args);
+
+          // PHONE NUMBERS (15 tools)
+          case 'twilio_search_available_numbers': return await TwilioHandlers2.twilioSearchAvailableNumbers.call(this, args);
+          case 'twilio_buy_phone_number': return await TwilioHandlers2.twilioBuyPhoneNumber.call(this, args);
+          case 'twilio_get_phone_number': return await TwilioHandlers2.twilioGetPhoneNumber.call(this, args);
+          case 'twilio_list_phone_numbers': return await TwilioHandlers2.twilioListPhoneNumbers.call(this, args);
+          case 'twilio_update_phone_number': return await TwilioHandlers2.twilioUpdatePhoneNumber.call(this, args);
+          case 'twilio_delete_phone_number': return await TwilioHandlers2.twilioDeletePhoneNumber.call(this, args);
+          case 'twilio_list_toll_free_numbers': return await TwilioHandlers3.twilioListTollFreeNumbers.call(this, args);
+          case 'twilio_list_local_numbers': return await TwilioHandlers3.twilioListLocalNumbers.call(this, args);
+          case 'twilio_list_mobile_numbers': return await TwilioHandlers3.twilioListMobileNumbers.call(this, args);
+          case 'twilio_lookup_phone_number': return await TwilioHandlers3.twilioLookupPhoneNumber.call(this, args);
+          case 'twilio_port_phone_number': return await TwilioHandlers3.twilioPortPhoneNumber.call(this, args);
+          case 'twilio_get_port_request': return await TwilioHandlers3.twilioGetPortRequest.call(this, args);
+          case 'twilio_list_port_requests': return await TwilioHandlers3.twilioListPortRequests.call(this, args);
+          case 'twilio_cancel_port_request': return await TwilioHandlers3.twilioCancelPortRequest.call(this, args);
+
+          // VERIFY (10 tools)
+          case 'twilio_create_verification': return await TwilioHandlers3.twilioCreateVerification.call(this, args);
+          case 'twilio_check_verification': return await TwilioHandlers3.twilioCheckVerification.call(this, args);
+          case 'twilio_create_verify_service': return await TwilioHandlers3.twilioCreateVerifyService.call(this, args);
+          case 'twilio_get_verify_service': return await TwilioHandlers3.twilioGetVerifyService.call(this, args);
+          case 'twilio_list_verify_services': return await TwilioHandlers3.twilioListVerifyServices.call(this, args);
+          case 'twilio_update_verify_service': return await TwilioHandlers3.twilioUpdateVerifyService.call(this, args);
+          case 'twilio_delete_verify_service': return await TwilioHandlers3.twilioDeleteVerifyService.call(this, args);
+          case 'twilio_create_rate_limit': return await TwilioHandlers3.twilioCreateRateLimit.call(this, args);
+          case 'twilio_list_rate_limits': return await TwilioHandlers3.twilioListRateLimits.call(this, args);
+          case 'twilio_delete_rate_limit': return await TwilioHandlers3.twilioDeleteRateLimit.call(this, args);
+
+          // PROGRAMMABLE VIDEO (10 tools)
+          case 'twilio_create_video_room': return await TwilioHandlers3.twilioCreateVideoRoom.call(this, args);
+          case 'twilio_get_video_room': return await TwilioHandlers3.twilioGetVideoRoom.call(this, args);
+          case 'twilio_list_video_rooms': return await TwilioHandlers3.twilioListVideoRooms.call(this, args);
+          case 'twilio_complete_video_room': return await TwilioHandlers3.twilioCompleteVideoRoom.call(this, args);
+          case 'twilio_list_video_participants': return await TwilioHandlers3.twilioListVideoParticipants.call(this, args);
+          case 'twilio_get_video_participant': return await TwilioHandlers3.twilioGetVideoParticipant.call(this, args);
+          case 'twilio_update_video_participant': return await TwilioHandlers3.twilioUpdateVideoParticipant.call(this, args);
+          case 'twilio_list_video_recordings': return await TwilioHandlers3.twilioListVideoRecordings.call(this, args);
+          case 'twilio_get_video_recording': return await TwilioHandlers3.twilioGetVideoRecording.call(this, args);
+          case 'twilio_delete_video_recording': return await TwilioHandlers3.twilioDeleteVideoRecording.call(this, args);
+
+          // CONVERSATIONS (10 tools)
+          case 'twilio_create_conversation': return await TwilioHandlers3.twilioCreateConversation.call(this, args);
+          case 'twilio_get_conversation': return await TwilioHandlers3.twilioGetConversation.call(this, args);
+          case 'twilio_list_conversations': return await TwilioHandlers3.twilioListConversations.call(this, args);
+          case 'twilio_update_conversation': return await TwilioHandlers3.twilioUpdateConversation.call(this, args);
+          case 'twilio_delete_conversation': return await TwilioHandlers3.twilioDeleteConversation.call(this, args);
+          case 'twilio_add_conversation_participant': return await TwilioHandlers3.twilioAddConversationParticipant.call(this, args);
+          case 'twilio_list_conversation_participants': return await TwilioHandlers3.twilioListConversationParticipants.call(this, args);
+          case 'twilio_remove_conversation_participant': return await TwilioHandlers3.twilioRemoveConversationParticipant.call(this, args);
+          case 'twilio_send_conversation_message': return await TwilioHandlers3.twilioSendConversationMessage.call(this, args);
+          case 'twilio_list_conversation_messages': return await TwilioHandlers3.twilioListConversationMessages.call(this, args);
 
           default:
             return {
