@@ -1,5 +1,6 @@
 import fg from 'fast-glob';
 import fs from 'fs';
+import fsPromises from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 import { execSync } from 'child_process';
@@ -406,10 +407,10 @@ export async function indexRepo(
     console.log(`[indexRepo] Starting ${targets ? 'targeted' : quickMode ? 'incremental' : 'full'} indexing for: ${repoRoot}`);
     ensureDirs();
 
-    // DEBUG: Write workspace root to file for inspection
+    // DEBUG: Write workspace root to file for inspection (async to avoid blocking)
     const debugDir = path.join(repoRoot, '.robinson', 'context');
-    fs.mkdirSync(debugDir, { recursive: true });
-    fs.writeFileSync(path.join(debugDir, 'debug-workspace-root.txt'),
+    await fsPromises.mkdir(debugDir, { recursive: true });
+    await fsPromises.writeFile(path.join(debugDir, 'debug-workspace-root.txt'),
       `repoRoot: ${repoRoot}\nprocess.cwd(): ${process.cwd()}\nWORKSPACE_ROOT: ${process.env.WORKSPACE_ROOT}\nAUGMENT_WORKSPACE_ROOT: ${process.env.AUGMENT_WORKSPACE_ROOT}\n`);
 
     const meta = getStats();
@@ -444,8 +445,8 @@ export async function indexRepo(
 
       console.log(`📁 Found ${allFiles.length} total files`);
 
-      // DEBUG: Write glob results to file
-      fs.writeFileSync(path.join(repoRoot, '.robinson', 'context', 'debug-glob.txt'),
+      // DEBUG: Write glob results to file (async to avoid blocking)
+      await fsPromises.writeFile(path.join(repoRoot, '.robinson', 'context', 'debug-glob.txt'),
         `Found ${allFiles.length} files\nINCLUDE: ${JSON.stringify(INCLUDE)}\nEXCLUDE: ${JSON.stringify(EXCLUDE)}\ncwd: ${repoRoot}\nFirst 10 files:\n${allFiles.slice(0, 10).join('\n')}\n`);
     } else {
       console.log(`🎯 Targeted reindex for ${targets.length} files`);
@@ -562,13 +563,16 @@ export async function indexRepo(
         const rel = changed[fileIdx];
         const p = path.join(repoRoot, rel);
 
-        if (!fs.existsSync(p)) {
+        // Use async file operations to avoid blocking event loop
+        try {
+          await fsPromises.access(p);
+        } catch {
           console.warn(`⚠️ File not found: ${p}`);
           continue;
         }
 
-        const text = fs.readFileSync(p, 'utf8');
-        const stat = fs.statSync(p);
+        const text = await fsPromises.readFile(p, 'utf8');
+        const stat = await fsPromises.stat(p);
         const ext = path.extname(rel).toLowerCase();
         const normalizedExt = normalizeExt(ext);
         const isDoc = DOC_EXTENSIONS.has(ext);
