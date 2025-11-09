@@ -39,6 +39,10 @@ secrets*
 *.p12
 *.jks
 
+# Credentials files (API keys, passwords, connection strings)
+chris-credentials.md
+*-credentials.md
+
 # Editor settings
 .vscode/
 
