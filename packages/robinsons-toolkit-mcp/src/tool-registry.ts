@@ -35,7 +35,7 @@ export class ToolRegistry {
 
   /**
    * Initialize category metadata
-   * ACTUAL COUNTS: GitHub 241, Vercel 150, Neon 166, Upstash 157, Google 192 = 906 total tools
+   * ACTUAL COUNTS: GitHub 241, Vercel 150, Neon 167, Upstash 157, Google 262, OpenAI 73, Stripe 150, Supabase 120, Playwright 50, Twilio 100, Resend 50, Cloudflare 262 = 1,782 total tools
    */
   private initializeCategories(): void {
     this.categories.set('github', {
@@ -82,6 +82,54 @@ export class ToolRegistry {
       name: 'openai',
       displayName: 'OpenAI',
       description: 'OpenAI API tools for chat, embeddings, images, audio, assistants, fine-tuning, and more',
+      toolCount: 0, // Will be updated after registration
+      enabled: true,
+    });
+
+    this.categories.set('stripe', {
+      name: 'stripe',
+      displayName: 'Stripe',
+      description: 'Stripe payment processing, subscriptions, invoices, and billing tools',
+      toolCount: 0, // Will be updated after registration
+      enabled: true,
+    });
+
+    this.categories.set('supabase', {
+      name: 'supabase',
+      displayName: 'Supabase',
+      description: 'Supabase database, authentication, storage, and edge functions tools',
+      toolCount: 0, // Will be updated after registration
+      enabled: true,
+    });
+
+    this.categories.set('playwright', {
+      name: 'playwright',
+      displayName: 'Playwright',
+      description: 'Playwright browser automation and web scraping tools',
+      toolCount: 0, // Will be updated after registration
+      enabled: true,
+    });
+
+    this.categories.set('twilio', {
+      name: 'twilio',
+      displayName: 'Twilio',
+      description: 'Twilio SMS, voice, video, and messaging tools',
+      toolCount: 0, // Will be updated after registration
+      enabled: true,
+    });
+
+    this.categories.set('resend', {
+      name: 'resend',
+      displayName: 'Resend',
+      description: 'Resend email delivery and management tools',
+      toolCount: 0, // Will be updated after registration
+      enabled: true,
+    });
+
+    this.categories.set('cloudflare', {
+      name: 'cloudflare',
+      displayName: 'Cloudflare',
+      description: 'Cloudflare DNS, CDN, Workers, and security tools',
       toolCount: 0, // Will be updated after registration
       enabled: true,
     });
@@ -289,7 +337,7 @@ export class ToolRegistry {
 
   /**
    * Extract category from tool name
-   * Handles: github_, vercel_, neon_, upstash_redis_, upstash_, gmail_, drive_, calendar_, etc.
+   * Handles: github_, vercel_, neon_, upstash_, openai_, stripe_, supabase_, playwright_, twilio_, resend_, cloudflare_, gmail_, drive_, calendar_, etc.
    */
   private extractCategory(toolName: string): string | null {
     // Check prefixes in order (longest first to avoid false matches)
@@ -298,6 +346,12 @@ export class ToolRegistry {
     if (toolName.startsWith('neon_')) return 'neon';
     if (toolName.startsWith('upstash_')) return 'upstash'; // Handles both upstash_redis_ and upstash_
     if (toolName.startsWith('openai_')) return 'openai';
+    if (toolName.startsWith('stripe_')) return 'stripe';
+    if (toolName.startsWith('supabase_')) return 'supabase';
+    if (toolName.startsWith('playwright_')) return 'playwright';
+    if (toolName.startsWith('twilio_')) return 'twilio';
+    if (toolName.startsWith('resend_')) return 'resend';
+    if (toolName.startsWith('cloudflare_')) return 'cloudflare';
 
     // Google Workspace tools use various prefixes (gmail_, drive_, calendar_, sheets_, docs_, etc.)
     if (toolName.startsWith('gmail_') ||

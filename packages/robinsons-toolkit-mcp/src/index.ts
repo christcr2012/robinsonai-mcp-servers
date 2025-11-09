@@ -379,15 +379,21 @@ class UnifiedToolkit {
       instructions: `# Robinson's Toolkit MCP - Integration Broker
 
 ## 🎯 Purpose
-Unified access to 1165+ integration tools across 6 categories through a broker pattern.
+Unified access to 1,782+ integration tools across 12 categories through a broker pattern.
 
 ## 📦 Available Categories
 - **GitHub** (241 tools) - Repos, issues, PRs, workflows, releases, secrets
 - **Vercel** (150 tools) - Projects, deployments, domains, env vars, logs
-- **Neon** (166 tools) - Serverless Postgres databases, branches, endpoints
+- **Neon** (167 tools) - Serverless Postgres databases, branches, endpoints
 - **Upstash** (157 tools) - Redis operations, database management
-- **Google** (192 tools) - Gmail, Drive, Calendar, Sheets, Docs, Admin
-- **OpenAI** (259 tools) - Chat, embeddings, images, audio, assistants
+- **Google** (262 tools) - Gmail, Drive, Calendar, Sheets, Docs, Admin
+- **OpenAI** (73 tools) - Chat, embeddings, images, audio, assistants
+- **Stripe** (150 tools) - Payments, subscriptions, invoices, billing
+- **Supabase** (120 tools) - Database, auth, storage, edge functions
+- **Playwright** (50 tools) - Browser automation, web scraping
+- **Twilio** (100 tools) - SMS, voice, video, messaging
+- **Resend** (50 tools) - Email delivery and management
+- **Cloudflare** (262 tools) - DNS, CDN, Workers, security
 
 ## 🔧 How to Use
 
@@ -663,8 +669,13 @@ const result = await toolkit_call({
         vercel: !!this.vercelToken,
         neon: !!this.neonApiKey,
         upstash: !!this.upstashApiKey,
-        openai: !!this.openaiClient,
-        google: !!this.googleAuth
+        openai: !!this.openaiApiKey,
+        google: !!this.googleServiceAccountKey,
+        stripe: !!this.stripeSecretKey,
+        supabase: !!this.supabaseUrl && !!this.supabaseKey,
+        twilio: !!this.twilioAccountSid && !!this.twilioAuthToken,
+        resend: !!this.resendApiKey,
+        cloudflare: !!this.cloudflareApiToken
       },
       registry: {
         totalTools: this.registry.getTotalToolCount(),
@@ -10606,7 +10617,12 @@ const result = await toolkit_call({
       await this.server.connect(transport);
       console.error("[Robinson Toolkit] Server connected");
       console.error("Robinson's Toolkit MCP server running on stdio");
-      console.error("Total tools: 703 (GitHub: 240, Vercel: 150, Neon: 173, Upstash: 140)");
+
+      // Report actual tool counts from registry
+      const categories = this.registry.getCategories();
+      const totalTools = this.registry.getTotalToolCount();
+      const categoryCounts = categories.map(c => `${c.displayName}: ${c.toolCount}`).join(', ');
+      console.error(`Total tools: ${totalTools} (${categoryCounts})`);
     } catch (error) {
       console.error("[Robinson Toolkit] FATAL ERROR during startup:", error);
       throw error;

@@ -13,7 +13,7 @@ import { Tool } from '@modelcontextprotocol/sdk/types.js';
 export const BROKER_TOOLS: Tool[] = [
   {
     name: 'toolkit_list_categories',
-    description: 'List all available integration categories (GitHub, Vercel, Neon, Upstash, Google, OpenAI). Returns category names, descriptions, and tool counts.',
+    description: 'List all available integration categories (GitHub, Vercel, Neon, Upstash, Google, OpenAI, Stripe, Supabase, Playwright, Twilio, Resend, Cloudflare). Returns category names, descriptions, and tool counts.',
     inputSchema: {
       type: 'object',
     },
@@ -26,8 +26,8 @@ export const BROKER_TOOLS: Tool[] = [
       properties: {
         category: {
           type: 'string',
-          description: 'Category name (github, vercel, neon, upstash, google, openai)',
-          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai'],
+          description: 'Category name (github, vercel, neon, upstash, google, openai, stripe, supabase, playwright, twilio, resend, cloudflare)',
+          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai', 'stripe', 'supabase', 'playwright', 'twilio', 'resend', 'cloudflare'],
         },
         subcategory: {
           type: 'string',
@@ -53,8 +53,8 @@ export const BROKER_TOOLS: Tool[] = [
       properties: {
         category: {
           type: 'string',
-          description: 'Category name (github, vercel, neon, upstash, google, openai)',
-          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai'],
+          description: 'Category name (github, vercel, neon, upstash, google, openai, stripe, supabase, playwright, twilio, resend, cloudflare)',
+          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai', 'stripe', 'supabase', 'playwright', 'twilio', 'resend', 'cloudflare'],
         },
       },
       required: ['category'],
@@ -68,12 +68,12 @@ export const BROKER_TOOLS: Tool[] = [
       properties: {
         category: {
           type: 'string',
-          description: 'Category name (github, vercel, neon, upstash, google, openai)',
-          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai'],
+          description: 'Category name (github, vercel, neon, upstash, google, openai, stripe, supabase, playwright, twilio, resend, cloudflare)',
+          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai', 'stripe', 'supabase', 'playwright', 'twilio', 'resend', 'cloudflare'],
         },
         tool_name: {
           type: 'string',
-          description: 'Full tool name (e.g., "github_create_repo", "vercel_list_projects", "gmail_send_message")',
+          description: 'Full tool name (e.g., "github_create_repo", "vercel_list_projects", "gmail_send_message", "stripe_customer_create")',
         },
       },
       required: ['category', 'tool_name'],
@@ -105,12 +105,12 @@ export const BROKER_TOOLS: Tool[] = [
       properties: {
         category: {
           type: 'string',
-          description: 'Category name (github, vercel, neon, upstash, google, openai)',
-          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai'],
+          description: 'Category name (github, vercel, neon, upstash, google, openai, stripe, supabase, playwright, twilio, resend, cloudflare)',
+          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai', 'stripe', 'supabase', 'playwright', 'twilio', 'resend', 'cloudflare'],
         },
         tool_name: {
           type: 'string',
-          description: 'Full tool name (e.g., "github_create_repo", "vercel_list_projects", "gmail_send_message")',
+          description: 'Full tool name (e.g., "github_create_repo", "vercel_list_projects", "gmail_send_message", "stripe_customer_create")',
         },
         arguments: {
           type: 'object',
