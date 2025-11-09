@@ -115,10 +115,10 @@
 
 ---
 
-## 🚨 ACTIVE ISSUE: GOOGLE WORKSPACE SUBCATEGORIES
+## ✅ RESOLVED: GOOGLE WORKSPACE SUBCATEGORIES (v1.13.1)
 
 ### Problem Description
-Robinson's Toolkit has **14 Google Workspace services** implemented as tools under the "google" umbrella category. These should potentially be exposed as **subcategories** for better organization and discoverability.
+Robinson's Toolkit had **14 Google Workspace services** (262 tools) implemented under the "google" umbrella category without subcategory organization, making discovery difficult.
 
 ### Google Workspace Services (262 tools total)
 
@@ -192,18 +192,40 @@ Robinson's Toolkit has **14 Google Workspace services** implemented as tools und
     - Activity, usage analytics
     - Should be exposed as separate category
 
-### Impact
-- **Organization:** All 262 Google tools are mixed together
-- **Discoverability:** Could be improved with subcategories
-- **Note:** These should stay under `google` umbrella but potentially organized as subcategories
+### Solution Implemented (v1.13.1)
 
-### Solution Options
-1. **Option A:** Keep as-is (all under `google` category)
-2. **Option B:** Implement subcategory system in broker pattern
-3. **Option C:** Add filtering/grouping in `toolkit_list_tools` response
+**Implemented Option B: Subcategory System in Broker Pattern**
 
-### Priority
-**MEDIUM** - Organizational improvement, not critical functionality issue
+1. **Tool Registry Enhancements**
+   - ✅ Added `subcategory` field to `ToolSchema` interface
+   - ✅ Added `subcategories` array to `CategoryInfo` interface
+   - ✅ Implemented `extractSubcategory()` method to auto-detect subcategory from tool name
+   - ✅ Auto-set subcategory during tool registration for all Google tools
+
+2. **Broker Pattern Enhancements**
+   - ✅ Added `toolkit_list_subcategories` broker tool (8 broker tools total now)
+   - ✅ Enhanced `toolkit_list_tools` to support optional `subcategory` parameter
+   - ✅ Updated broker handlers to support subcategory filtering
+
+### Usage Examples
+
+```javascript
+// List all subcategories in Google Workspace
+toolkit_list_subcategories({ category: 'google' })
+// Returns: ["admin", "calendar", "chat", "classroom", "docs", "drive", "forms", "gmail", "licensing", "people", "reports", "sheets", "slides", "tasks"]
+
+// List all Gmail tools
+toolkit_list_tools({ category: 'google', subcategory: 'gmail' })
+// Returns: 28 Gmail-specific tools
+
+// List all Google tools (no subcategory filter)
+toolkit_list_tools({ category: 'google' })
+// Returns: All 262 Google Workspace tools
+```
+
+### Status
+
+**✅ RESOLVED** - Published in v1.13.1 (2025-01-09)
 
 
 
