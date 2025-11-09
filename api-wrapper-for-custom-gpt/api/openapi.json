@@ -1,0 +1,78 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Robinson's Toolkit API",
+    "description": "Access to Robinson's Toolkit MCP with 1237+ tools across 16+ categories including GitHub, Vercel, PostgreSQL, Neo4j, Qdrant, N8N, and more.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://robinsons-toolkit-api.vercel.app/api",
+      "description": "Production API"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "API health status"
+          }
+        }
+      }
+    },
+    "/execute": {
+      "post": {
+        "summary": "Execute a tool from Robinson's Toolkit",
+        "operationId": "executeTool",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["category", "tool_name"],
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": ["github", "vercel", "neon", "upstash", "google", "openai", "stripe", "supabase", "playwright", "twilio", "resend", "context7", "cloudflare", "postgres", "neo4j", "qdrant", "n8n"],
+                    "description": "Tool category"
+                  },
+                  "tool_name": {
+                    "type": "string",
+                    "description": "Tool name (e.g., github_create_repo, vercel_list_projects, postgres_query_execute)"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "description": "Tool-specific arguments"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "category": {"type": "string"},
+                    "tool_name": {"type": "string"},
+                    "result": {"type": "object"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
