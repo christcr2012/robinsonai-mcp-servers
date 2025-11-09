@@ -29,110 +29,110 @@ export class ToolRegistry {
   private toolsByCategory: Map<string, Map<string, ToolSchema>> = new Map();
   private categories: Map<string, CategoryInfo> = new Map();
 
+  // Category metadata configuration - add new categories here
+  private static readonly CATEGORY_METADATA: Record<string, Omit<CategoryInfo, 'name' | 'toolCount'>> = {
+    github: {
+      displayName: 'GitHub',
+      description: 'GitHub repository, issue, PR, workflow, and collaboration tools',
+      enabled: true,
+    },
+    vercel: {
+      displayName: 'Vercel',
+      description: 'Vercel deployment, project, domain, and serverless platform tools',
+      enabled: true,
+    },
+    neon: {
+      displayName: 'Neon',
+      description: 'Neon serverless Postgres database management tools',
+      enabled: true,
+    },
+    upstash: {
+      displayName: 'Upstash Redis',
+      description: 'Upstash Redis database operations and management tools',
+      enabled: true,
+    },
+    google: {
+      displayName: 'Google Workspace',
+      description: 'Gmail, Drive, Calendar, Sheets, Docs, and other Google Workspace tools',
+      enabled: true,
+    },
+    openai: {
+      displayName: 'OpenAI',
+      description: 'OpenAI API tools for chat, embeddings, images, audio, assistants, fine-tuning, and more',
+      enabled: true,
+    },
+    stripe: {
+      displayName: 'Stripe',
+      description: 'Stripe payment processing, subscriptions, invoices, and billing tools',
+      enabled: true,
+    },
+    supabase: {
+      displayName: 'Supabase',
+      description: 'Supabase database, authentication, storage, and edge functions tools',
+      enabled: true,
+    },
+    playwright: {
+      displayName: 'Playwright',
+      description: 'Playwright browser automation and web scraping tools',
+      enabled: true,
+    },
+    twilio: {
+      displayName: 'Twilio',
+      description: 'Twilio SMS, voice, video, and messaging tools',
+      enabled: true,
+    },
+    resend: {
+      displayName: 'Resend',
+      description: 'Resend email delivery and management tools',
+      enabled: true,
+    },
+    cloudflare: {
+      displayName: 'Cloudflare',
+      description: 'Cloudflare DNS, CDN, Workers, and security tools',
+      enabled: true,
+    },
+  };
+
+  // Google Workspace subcategory prefixes
+  private static readonly GOOGLE_WORKSPACE_PREFIXES = [
+    'gmail_', 'drive_', 'calendar_', 'sheets_', 'docs_', 'slides_',
+    'tasks_', 'people_', 'forms_', 'classroom_', 'chat_', 'admin_',
+    'reports_', 'licensing_'
+  ];
+
   constructor() {
-    this.initializeCategories();
+    // Categories are now auto-created when tools are registered
   }
 
   /**
-   * Initialize category metadata
-   * ACTUAL COUNTS: GitHub 241, Vercel 150, Neon 167, Upstash 157, Google 262, OpenAI 73, Stripe 150, Supabase 120, Playwright 50, Twilio 100, Resend 50, Cloudflare 262 = 1,782 total tools
+   * Auto-create category if it doesn't exist
+   * Uses metadata from CATEGORY_METADATA if available, otherwise generates default metadata
    */
-  private initializeCategories(): void {
-    this.categories.set('github', {
-      name: 'github',
-      displayName: 'GitHub',
-      description: 'GitHub repository, issue, PR, workflow, and collaboration tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
+  private ensureCategory(categoryName: string): void {
+    if (this.categories.has(categoryName)) return;
 
-    this.categories.set('vercel', {
-      name: 'vercel',
-      displayName: 'Vercel',
-      description: 'Vercel deployment, project, domain, and serverless platform tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('neon', {
-      name: 'neon',
-      displayName: 'Neon',
-      description: 'Neon serverless Postgres database management tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('upstash', {
-      name: 'upstash',
-      displayName: 'Upstash Redis',
-      description: 'Upstash Redis database operations and management tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('google', {
-      name: 'google',
-      displayName: 'Google Workspace',
-      description: 'Gmail, Drive, Calendar, Sheets, Docs, and other Google Workspace tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('openai', {
-      name: 'openai',
-      displayName: 'OpenAI',
-      description: 'OpenAI API tools for chat, embeddings, images, audio, assistants, fine-tuning, and more',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('stripe', {
-      name: 'stripe',
-      displayName: 'Stripe',
-      description: 'Stripe payment processing, subscriptions, invoices, and billing tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('supabase', {
-      name: 'supabase',
-      displayName: 'Supabase',
-      description: 'Supabase database, authentication, storage, and edge functions tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('playwright', {
-      name: 'playwright',
-      displayName: 'Playwright',
-      description: 'Playwright browser automation and web scraping tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('twilio', {
-      name: 'twilio',
-      displayName: 'Twilio',
-      description: 'Twilio SMS, voice, video, and messaging tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('resend', {
-      name: 'resend',
-      displayName: 'Resend',
-      description: 'Resend email delivery and management tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
-
-    this.categories.set('cloudflare', {
-      name: 'cloudflare',
-      displayName: 'Cloudflare',
-      description: 'Cloudflare DNS, CDN, Workers, and security tools',
-      toolCount: 0, // Will be updated after registration
-      enabled: true,
-    });
+    const metadata = ToolRegistry.CATEGORY_METADATA[categoryName];
+    if (metadata) {
+      // Use predefined metadata
+      this.categories.set(categoryName, {
+        name: categoryName,
+        displayName: metadata.displayName,
+        description: metadata.description,
+        toolCount: 0,
+        enabled: metadata.enabled,
+      });
+    } else {
+      // Generate default metadata for unknown categories
+      const displayName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
+      this.categories.set(categoryName, {
+        name: categoryName,
+        displayName,
+        description: `${displayName} integration tools`,
+        toolCount: 0,
+        enabled: true,
+      });
+      console.warn(`[ToolRegistry] Auto-created category '${categoryName}' with default metadata. Consider adding to CATEGORY_METADATA.`);
+    }
   }
 
   /**
@@ -308,12 +308,16 @@ export class ToolRegistry {
 
   /**
    * Bulk register tools from an array
+   * DYNAMIC: Automatically creates categories as needed
    */
   bulkRegisterTools(tools: ToolSchema[]): void {
     for (const tool of tools) {
       // Extract category from tool name (e.g., "github_create_repo" -> "github")
       const category = this.extractCategory(tool.name);
       if (category) {
+        // Ensure category exists (auto-create if needed)
+        this.ensureCategory(category);
+
         // Auto-detect subcategory for Google Workspace tools
         if (category === 'google' && !tool.subcategory) {
           const subcategory = this.extractSubcategory(tool.name);
@@ -322,6 +326,8 @@ export class ToolRegistry {
           }
         }
         this.registerTool(category, tool);
+      } else {
+        console.warn(`[ToolRegistry] Skipping tool '${tool.name}' - could not extract category`);
       }
     }
 
@@ -337,41 +343,32 @@ export class ToolRegistry {
 
   /**
    * Extract category from tool name
-   * Handles: github_, vercel_, neon_, upstash_, openai_, stripe_, supabase_, playwright_, twilio_, resend_, cloudflare_, gmail_, drive_, calendar_, etc.
+   * DYNAMIC: Automatically detects category from tool name prefix (e.g., "github_create_repo" -> "github")
+   * Special handling for Google Workspace tools which use multiple prefixes (gmail_, drive_, etc.)
    */
   private extractCategory(toolName: string): string | null {
-    // Check prefixes in order (longest first to avoid false matches)
-    if (toolName.startsWith('github_')) return 'github';
-    if (toolName.startsWith('vercel_')) return 'vercel';
-    if (toolName.startsWith('neon_')) return 'neon';
-    if (toolName.startsWith('upstash_')) return 'upstash'; // Handles both upstash_redis_ and upstash_
-    if (toolName.startsWith('openai_')) return 'openai';
-    if (toolName.startsWith('stripe_')) return 'stripe';
-    if (toolName.startsWith('supabase_')) return 'supabase';
-    if (toolName.startsWith('playwright_')) return 'playwright';
-    if (toolName.startsWith('twilio_')) return 'twilio';
-    if (toolName.startsWith('resend_')) return 'resend';
-    if (toolName.startsWith('cloudflare_')) return 'cloudflare';
-
-    // Google Workspace tools use various prefixes (gmail_, drive_, calendar_, sheets_, docs_, etc.)
-    if (toolName.startsWith('gmail_') ||
-        toolName.startsWith('drive_') ||
-        toolName.startsWith('calendar_') ||
-        toolName.startsWith('sheets_') ||
-        toolName.startsWith('docs_') ||
-        toolName.startsWith('slides_') ||
-        toolName.startsWith('tasks_') ||
-        toolName.startsWith('people_') ||
-        toolName.startsWith('forms_') ||
-        toolName.startsWith('classroom_') ||
-        toolName.startsWith('chat_') ||
-        toolName.startsWith('admin_') ||
-        toolName.startsWith('reports_') ||
-        toolName.startsWith('licensing_')) {
-      return 'google';
+    if (!toolName || !toolName.includes('_')) {
+      return null; // Invalid tool name format
     }
 
-    return null;
+    // Check if it's a Google Workspace tool (special case with multiple prefixes)
+    for (const prefix of ToolRegistry.GOOGLE_WORKSPACE_PREFIXES) {
+      if (toolName.startsWith(prefix)) {
+        return 'google';
+      }
+    }
+
+    // Extract category from prefix (everything before first underscore)
+    const firstUnderscore = toolName.indexOf('_');
+    const category = toolName.substring(0, firstUnderscore);
+
+    // Validate category name (alphanumeric only)
+    if (!/^[a-z0-9]+$/.test(category)) {
+      console.warn(`[ToolRegistry] Invalid category name extracted from tool '${toolName}': '${category}'`);
+      return null;
+    }
+
+    return category;
   }
 
   /**

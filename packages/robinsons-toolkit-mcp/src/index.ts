@@ -30,7 +30,7 @@ import type { Browser, Page, BrowserContext } from 'playwright';
 
 // Lazy-loaded imports (only loaded when needed)
 // Runtime imports happen in lazy-loading helper methods
-import { BROKER_TOOLS } from './broker-tools.js';
+import { generateBrokerTools } from './broker-tools.js';
 import { ToolRegistry } from './tool-registry.js';
 import { validateTools } from './util/sanitizeTool.js';
 import { STRIPE_TOOLS } from './stripe-tools.js';
@@ -359,11 +359,15 @@ class UnifiedToolkit {
     console.error("[Robinson Toolkit] Populating tool registry...");
     const allTools = this.getOriginalToolDefinitions();
     this.registry.bulkRegisterTools(allTools);
-    console.error(`[Robinson Toolkit] Registered ${allTools.length} tools across 5 categories`);
+    console.error(`[Robinson Toolkit] Registered ${allTools.length} tools across ${this.registry.getCategories().length} categories`);
 
-    // BROKER PATTERN: Expose only 5 meta-tools to client
+    // BROKER PATTERN: Generate dynamic broker tools with current category list
+    const categoryNames = this.registry.getCategories().map(c => c.name);
+    const brokerTools = generateBrokerTools(categoryNames);
+
+    // Expose only broker meta-tools to client
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: BROKER_TOOLS
+      tools: brokerTools
     }));
 
     // Handle initialization request with auto-discovery documentation
