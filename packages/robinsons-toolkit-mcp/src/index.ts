@@ -22,14 +22,14 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema, InitializeRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import axios, { AxiosInstance } from 'axios';
-import OpenAI from 'openai';
-import { google } from 'googleapis';
-import { chromium, Browser, Page, BrowserContext } from 'playwright';
-import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
-import twilio from 'twilio';
-import Cloudflare from 'cloudflare';
+
+// Type-only imports (for TypeScript, no runtime cost)
+import type OpenAI from 'openai';
+import type Stripe from 'stripe';
+import type { Browser, Page, BrowserContext } from 'playwright';
+
+// Lazy-loaded imports (only loaded when needed)
+// Runtime imports happen in lazy-loading helper methods
 import { BROKER_TOOLS } from './broker-tools.js';
 import { ToolRegistry } from './tool-registry.js';
 import { validateTools } from './util/sanitizeTool.js';
@@ -184,118 +184,10 @@ class UnifiedToolkit {
         this.githubFetch(path, { method: 'DELETE' }),
     };
 
-    // Initialize OpenAI client
-    if (this.openaiApiKey) {
-      try {
-        this.openaiClient = new OpenAI({ apiKey: this.openaiApiKey });
-      } catch (error) {
-        console.error('[Robinson Toolkit] Failed to initialize OpenAI client:', error);
-      }
-    }
+    // OpenAI client will be lazy-loaded when first needed
 
-    // Initialize Google Workspace clients
-    if (this.googleServiceAccountKey) {
-      try {
-        this.googleAuth = new google.auth.GoogleAuth({
-          keyFile: this.googleServiceAccountKey,
-          scopes: [
-            'https://www.googleapis.com/auth/gmail.modify',
-            'https://www.googleapis.com/auth/drive',
-            'https://www.googleapis.com/auth/calendar',
-            'https://www.googleapis.com/auth/spreadsheets',
-            'https://www.googleapis.com/auth/documents',
-            'https://www.googleapis.com/auth/presentations',
-            'https://www.googleapis.com/auth/admin.directory.user',
-            'https://www.googleapis.com/auth/admin.directory.group',
-            'https://www.googleapis.com/auth/admin.directory.orgunit',
-            'https://www.googleapis.com/auth/admin.directory.domain',
-            'https://www.googleapis.com/auth/admin.directory.rolemanagement',
-            'https://www.googleapis.com/auth/admin.directory.device.mobile',
-            'https://www.googleapis.com/auth/admin.directory.device.chromeos',
-            'https://www.googleapis.com/auth/admin.directory.resource.calendar',
-            'https://www.googleapis.com/auth/tasks',
-            'https://www.googleapis.com/auth/contacts',
-            'https://www.googleapis.com/auth/forms.body',
-            'https://www.googleapis.com/auth/forms.responses.readonly',
-            'https://www.googleapis.com/auth/classroom.courses',
-            'https://www.googleapis.com/auth/classroom.rosters',
-            'https://www.googleapis.com/auth/classroom.coursework.students',
-            'https://www.googleapis.com/auth/chat.spaces',
-            'https://www.googleapis.com/auth/chat.messages',
-            'https://www.googleapis.com/auth/admin.reports.usage.readonly',
-            'https://www.googleapis.com/auth/admin.reports.audit.readonly',
-            'https://www.googleapis.com/auth/apps.licensing'
-          ],
-          clientOptions: { subject: this.googleUserEmail !== 'me' ? this.googleUserEmail : undefined }
-        });
-        this.gmail = google.gmail({ version: 'v1', auth: this.googleAuth });
-        this.drive = google.drive({ version: 'v3', auth: this.googleAuth });
-        this.calendar = google.calendar({ version: 'v3', auth: this.googleAuth });
-        this.sheets = google.sheets({ version: 'v4', auth: this.googleAuth });
-        this.docs = google.docs({ version: 'v1', auth: this.googleAuth });
-        this.admin = google.admin({ version: 'directory_v1', auth: this.googleAuth });
-        this.slides = google.slides({ version: 'v1', auth: this.googleAuth });
-        this.tasks = google.tasks({ version: 'v1', auth: this.googleAuth });
-        this.people = google.people({ version: 'v1', auth: this.googleAuth });
-        this.forms = google.forms({ version: 'v1', auth: this.googleAuth });
-        this.classroom = google.classroom({ version: 'v1', auth: this.googleAuth });
-        this.chat = google.chat({ version: 'v1', auth: this.googleAuth });
-        this.reports = google.admin({ version: 'reports_v1', auth: this.googleAuth });
-        this.licensing = google.licensing({ version: 'v1', auth: this.googleAuth });
-      } catch (error) {
-        console.error('[Robinson Toolkit] Failed to initialize Google Workspace clients:', error);
-      }
-    }
-
-    // Initialize Stripe client
-    if (this.stripeSecretKey) {
-      try {
-        this.stripeClient = new Stripe(this.stripeSecretKey, {
-          apiVersion: '2025-02-24.acacia',
-          typescript: true,
-        });
-      } catch (error) {
-        console.error('[Robinson Toolkit] Failed to initialize Stripe client:', error);
-      }
-    }
-
-    // Initialize Supabase client
-    if (this.supabaseUrl && this.supabaseKey) {
-      try {
-        this.supabaseClient = createClient(this.supabaseUrl, this.supabaseKey);
-      } catch (error) {
-        console.error('[Robinson Toolkit] Failed to initialize Supabase client:', error);
-      }
-    }
-
-    // Initialize Resend client
-    if (this.resendApiKey) {
-      try {
-        this.resendClient = new Resend(this.resendApiKey);
-      } catch (error) {
-        console.error('[Robinson Toolkit] Failed to initialize Resend client:', error);
-      }
-    }
-
-    // Initialize Twilio client
-    if (this.twilioAccountSid && this.twilioAuthToken) {
-      try {
-        this.twilioClient = twilio(this.twilioAccountSid, this.twilioAuthToken);
-      } catch (error) {
-        console.error('[Robinson Toolkit] Failed to initialize Twilio client:', error);
-      }
-    }
-
-    // Initialize Cloudflare client
-    if (this.cloudflareApiToken && this.cloudflareAccountId) {
-      try {
-        this.cloudflareClient = new Cloudflare({
-          apiToken: this.cloudflareApiToken,
-        });
-      } catch (error) {
-        console.error('[Robinson Toolkit] Failed to initialize Cloudflare client:', error);
-      }
-    }
+    // All clients will be lazy-loaded when first needed
+    // Google Workspace, Stripe, Supabase, Resend, Twilio, Cloudflare
 
     // Initialize Context7 client
     if (this.context7ApiKey) {
@@ -331,6 +223,124 @@ class UnifiedToolkit {
     console.error("[Robinson Toolkit] Setting up error handling...");
     this.setupErrorHandling();
     console.error("[Robinson Toolkit] Constructor complete");
+  }
+
+  // ============================================================
+  // LAZY-LOADING HELPERS
+  // ============================================================
+
+  private async getOpenAIClient() {
+    if (!this.openaiClient && this.openaiApiKey) {
+      const { default: OpenAI } = await import('openai');
+      this.openaiClient = new OpenAI({ apiKey: this.openaiApiKey });
+    }
+    return this.openaiClient;
+  }
+
+  private async getGoogleClients() {
+    if (!this.googleAuth && this.googleServiceAccountKey) {
+      const { google } = await import('googleapis');
+      this.googleAuth = new google.auth.GoogleAuth({
+        keyFile: this.googleServiceAccountKey,
+        scopes: [
+          'https://www.googleapis.com/auth/gmail.modify',
+          'https://www.googleapis.com/auth/drive',
+          'https://www.googleapis.com/auth/calendar',
+          'https://www.googleapis.com/auth/spreadsheets',
+          'https://www.googleapis.com/auth/documents',
+          'https://www.googleapis.com/auth/presentations',
+          'https://www.googleapis.com/auth/admin.directory.user',
+          'https://www.googleapis.com/auth/admin.directory.group',
+          'https://www.googleapis.com/auth/admin.directory.orgunit',
+          'https://www.googleapis.com/auth/admin.directory.domain',
+          'https://www.googleapis.com/auth/admin.directory.rolemanagement',
+          'https://www.googleapis.com/auth/admin.directory.device.mobile',
+          'https://www.googleapis.com/auth/admin.directory.device.chromeos',
+          'https://www.googleapis.com/auth/admin.directory.resource.calendar',
+          'https://www.googleapis.com/auth/tasks',
+          'https://www.googleapis.com/auth/contacts',
+          'https://www.googleapis.com/auth/forms.body',
+          'https://www.googleapis.com/auth/forms.responses.readonly',
+          'https://www.googleapis.com/auth/classroom.courses',
+          'https://www.googleapis.com/auth/classroom.rosters',
+          'https://www.googleapis.com/auth/classroom.coursework.students',
+          'https://www.googleapis.com/auth/chat.spaces',
+          'https://www.googleapis.com/auth/chat.messages',
+          'https://www.googleapis.com/auth/admin.reports.usage.readonly',
+          'https://www.googleapis.com/auth/admin.reports.audit.readonly',
+          'https://www.googleapis.com/auth/apps.licensing'
+        ],
+        clientOptions: { subject: this.googleUserEmail !== 'me' ? this.googleUserEmail : undefined }
+      });
+      this.gmail = google.gmail({ version: 'v1', auth: this.googleAuth });
+      this.drive = google.drive({ version: 'v3', auth: this.googleAuth });
+      this.calendar = google.calendar({ version: 'v3', auth: this.googleAuth });
+      this.sheets = google.sheets({ version: 'v4', auth: this.googleAuth });
+      this.docs = google.docs({ version: 'v1', auth: this.googleAuth });
+      this.admin = google.admin({ version: 'directory_v1', auth: this.googleAuth });
+      this.slides = google.slides({ version: 'v1', auth: this.googleAuth });
+      this.tasks = google.tasks({ version: 'v1', auth: this.googleAuth });
+      this.people = google.people({ version: 'v1', auth: this.googleAuth });
+      this.forms = google.forms({ version: 'v1', auth: this.googleAuth });
+      this.classroom = google.classroom({ version: 'v1', auth: this.googleAuth });
+      this.chat = google.chat({ version: 'v1', auth: this.googleAuth });
+      this.reports = google.admin({ version: 'reports_v1', auth: this.googleAuth });
+      this.licensing = google.licensing({ version: 'v1', auth: this.googleAuth });
+    }
+    return { gmail: this.gmail, drive: this.drive, calendar: this.calendar, sheets: this.sheets, docs: this.docs, admin: this.admin, slides: this.slides, tasks: this.tasks, people: this.people, forms: this.forms, classroom: this.classroom, chat: this.chat, reports: this.reports, licensing: this.licensing };
+  }
+
+  private async getStripeClient() {
+    if (!this.stripeClient && this.stripeSecretKey) {
+      const { default: Stripe } = await import('stripe');
+      this.stripeClient = new Stripe(this.stripeSecretKey, {
+        apiVersion: '2025-02-24.acacia',
+        typescript: true,
+      });
+    }
+    return this.stripeClient;
+  }
+
+  private async getSupabaseClient() {
+    if (!this.supabaseClient && this.supabaseUrl && this.supabaseKey) {
+      const { createClient } = await import('@supabase/supabase-js');
+      this.supabaseClient = createClient(this.supabaseUrl, this.supabaseKey);
+    }
+    return this.supabaseClient;
+  }
+
+  private async getResendClient() {
+    if (!this.resendClient && this.resendApiKey) {
+      const { Resend } = await import('resend');
+      this.resendClient = new Resend(this.resendApiKey);
+    }
+    return this.resendClient;
+  }
+
+  private async getTwilioClient() {
+    if (!this.twilioClient && this.twilioAccountSid && this.twilioAuthToken) {
+      const { default: twilio } = await import('twilio');
+      this.twilioClient = twilio(this.twilioAccountSid, this.twilioAuthToken);
+    }
+    return this.twilioClient;
+  }
+
+  private async getCloudflareClient() {
+    if (!this.cloudflareClient && this.cloudflareApiToken && this.cloudflareAccountId) {
+      const { default: Cloudflare } = await import('cloudflare');
+      this.cloudflareClient = new Cloudflare({
+        apiToken: this.cloudflareApiToken,
+      });
+    }
+    return this.cloudflareClient;
+  }
+
+  private async getPlaywrightBrowser() {
+    if (!this.playwrightBrowser) {
+      const { chromium } = await import('playwright');
+      this.playwrightBrowser = await chromium.launch();
+    }
+    return this.playwrightBrowser;
   }
 
   private setupErrorHandling() {
@@ -6643,6 +6653,7 @@ const result = await toolkit_call({
   // Playwright helper methods
   private async ensurePlaywrightBrowser(): Promise<void> {
     if (!this.playwrightBrowser) {
+      const { chromium } = await import('playwright');
       this.playwrightBrowser = await chromium.launch({ headless: true });
       this.playwrightContext = await this.playwrightBrowser.newContext();
       this.playwrightPage = await this.playwrightContext.newPage();
