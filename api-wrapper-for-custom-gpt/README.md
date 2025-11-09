@@ -2,6 +2,8 @@
 
 REST API wrapper that exposes Robinson's Toolkit MCP (1237+ tools) as HTTP endpoints for Custom GPT integration.
 
+**Status:** Deployed on Vercel ✅
+
 ## Features
 
 - ✅ Exposes all 1237+ Robinson's Toolkit tools via REST API
