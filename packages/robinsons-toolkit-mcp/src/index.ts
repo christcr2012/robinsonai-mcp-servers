@@ -546,12 +546,33 @@ const result = await toolkit_call({
             };
 
           case 'toolkit_list_tools':
-            const tools = this.registry.listToolsInCategory(args.category);
+            // Support subcategory filtering
+            const tools = args.subcategory
+              ? this.registry.listToolsInSubcategory(args.category, args.subcategory)
+              : this.registry.listToolsInCategory(args.category);
             const tools_validated = validateTools(tools);
             return {
               content: [{
                 type: 'text',
-                text: JSON.stringify(tools_validated, null, 2)
+                text: JSON.stringify({
+                  category: args.category,
+                  subcategory: args.subcategory || null,
+                  tools: tools_validated,
+                  total: tools_validated.length
+                }, null, 2)
+              }]
+            };
+
+          case 'toolkit_list_subcategories':
+            const subcategories = this.registry.getSubcategories(args.category);
+            return {
+              content: [{
+                type: 'text',
+                text: JSON.stringify({
+                  category: args.category,
+                  subcategories,
+                  total: subcategories.length
+                }, null, 2)
               }]
             };
 

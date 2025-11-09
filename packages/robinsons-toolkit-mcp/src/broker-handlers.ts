@@ -37,16 +37,21 @@ export class BrokerHandlers {
   /**
    * toolkit_list_tools
    * List all tools in a specific category (without full schemas)
+   * Optionally filter by subcategory
    */
-  async listTools(args: { category: string; limit?: number; offset?: number }): Promise<any> {
-    const { category, limit = 50, offset = 0 } = args;
+  async listTools(args: { category: string; subcategory?: string; limit?: number; offset?: number }): Promise<any> {
+    const { category, subcategory, limit = 50, offset = 0 } = args;
 
     // Validate category
     if (!this.registry.hasCategory(category)) {
-      throw new Error(`Unknown category: ${category}. Available categories: github, vercel, neon, upstash, google`);
+      throw new Error(`Unknown category: ${category}. Available categories: github, vercel, neon, upstash, google, openai`);
     }
 
-    const allTools = this.registry.listToolsInCategory(category);
+    // Get tools (filtered by subcategory if provided)
+    const allTools = subcategory
+      ? this.registry.listToolsInSubcategory(category, subcategory)
+      : this.registry.listToolsInCategory(category);
+
     const paginatedTools = allTools.slice(offset, offset + limit);
 
     return {
@@ -54,11 +59,38 @@ export class BrokerHandlers {
         type: 'text',
         text: JSON.stringify({
           category,
+          subcategory: subcategory || null,
           tools: paginatedTools,
           total: allTools.length,
           limit,
           offset,
           hasMore: offset + limit < allTools.length,
+        }, null, 2),
+      }],
+    };
+  }
+
+  /**
+   * toolkit_list_subcategories
+   * List all subcategories within a category
+   */
+  async listSubcategories(args: { category: string }): Promise<any> {
+    const { category } = args;
+
+    // Validate category
+    if (!this.registry.hasCategory(category)) {
+      throw new Error(`Unknown category: ${category}. Available categories: github, vercel, neon, upstash, google, openai`);
+    }
+
+    const subcategories = this.registry.getSubcategories(category);
+
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          category,
+          subcategories,
+          total: subcategories.length,
         }, null, 2),
       }],
     };

@@ -13,6 +13,7 @@ export interface ToolSchema {
     properties?: Record<string, any>;
     required?: string[];
   };
+  subcategory?: string; // Optional subcategory for organization (e.g., "gmail", "drive" for Google)
 }
 
 export interface CategoryInfo {
@@ -21,6 +22,7 @@ export interface CategoryInfo {
   description: string;
   toolCount: number;
   enabled: boolean;
+  subcategories?: string[]; // List of subcategories within this category
 }
 
 export class ToolRegistry {
@@ -264,15 +266,25 @@ export class ToolRegistry {
       // Extract category from tool name (e.g., "github_create_repo" -> "github")
       const category = this.extractCategory(tool.name);
       if (category) {
+        // Auto-detect subcategory for Google Workspace tools
+        if (category === 'google' && !tool.subcategory) {
+          const subcategory = this.extractSubcategory(tool.name);
+          if (subcategory) {
+            tool.subcategory = subcategory;
+          }
+        }
         this.registerTool(category, tool);
       }
     }
 
-    // Update category tool counts after registration
+    // Update category tool counts and subcategories after registration
     for (const [categoryName, categoryInfo] of this.categories.entries()) {
       const tools = this.toolsByCategory.get(categoryName);
       categoryInfo.toolCount = tools ? tools.size : 0;
     }
+
+    // Update subcategory metadata
+    this.updateCategorySubcategories();
   }
 
   /**
@@ -306,6 +318,70 @@ export class ToolRegistry {
     }
 
     return null;
+  }
+
+  /**
+   * Extract subcategory from tool name (for Google Workspace tools)
+   * Examples: gmail_send_message -> "gmail", drive_create_file -> "drive"
+   */
+  extractSubcategory(toolName: string): string | null {
+    const googlePrefixes = [
+      'gmail_', 'drive_', 'calendar_', 'sheets_', 'docs_', 'slides_',
+      'tasks_', 'people_', 'forms_', 'classroom_', 'chat_', 'admin_',
+      'reports_', 'licensing_'
+    ];
+
+    for (const prefix of googlePrefixes) {
+      if (toolName.startsWith(prefix)) {
+        return prefix.slice(0, -1); // Remove trailing underscore
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Get all subcategories for a category
+   */
+  getSubcategories(category: string): string[] {
+    const tools = this.toolsByCategory.get(category);
+    if (!tools) return [];
+
+    const subcategories = new Set<string>();
+    for (const tool of tools.values()) {
+      if (tool.subcategory) {
+        subcategories.add(tool.subcategory);
+      }
+    }
+
+    return Array.from(subcategories).sort();
+  }
+
+  /**
+   * List tools in a category filtered by subcategory
+   */
+  listToolsInSubcategory(category: string, subcategory: string): Array<{ name: string; description: string }> {
+    const tools = this.toolsByCategory.get(category);
+    if (!tools) return [];
+
+    return Array.from(tools.values())
+      .filter(tool => tool.subcategory === subcategory)
+      .map(tool => ({
+        name: tool.name,
+        description: tool.description,
+      }));
+  }
+
+  /**
+   * Update category metadata with subcategories
+   */
+  updateCategorySubcategories(): void {
+    for (const [categoryName, categoryInfo] of this.categories.entries()) {
+      const subcategories = this.getSubcategories(categoryName);
+      if (subcategories.length > 0) {
+        categoryInfo.subcategories = subcategories;
+      }
+    }
   }
 }
 

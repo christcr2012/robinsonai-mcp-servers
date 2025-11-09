@@ -1,14 +1,14 @@
 /**
  * Broker Tool Definitions
- * 
- * The 5 meta-tools that provide access to all 714 integration tools
+ *
+ * The 8 meta-tools that provide access to all 1,782 integration tools
  * without loading them into Augment's context window.
  */
 
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
 /**
- * The 5 broker meta-tools
+ * The 8 broker meta-tools
  */
 export const BROKER_TOOLS: Tool[] = [
   {
@@ -20,7 +20,7 @@ export const BROKER_TOOLS: Tool[] = [
   },
   {
     name: 'toolkit_list_tools',
-    description: 'List all tools in a specific category without loading their full schemas. Returns tool names and descriptions only.',
+    description: 'List all tools in a specific category without loading their full schemas. Returns tool names and descriptions only. Optionally filter by subcategory (e.g., "gmail", "drive" for Google Workspace).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -29,6 +29,10 @@ export const BROKER_TOOLS: Tool[] = [
           description: 'Category name (github, vercel, neon, upstash, google, openai)',
           enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai'],
         },
+        subcategory: {
+          type: 'string',
+          description: 'Optional subcategory filter (e.g., "gmail", "drive", "calendar" for Google Workspace)',
+        },
         limit: {
           type: 'number',
           description: 'Maximum number of tools to return (default: 50)',
@@ -36,6 +40,21 @@ export const BROKER_TOOLS: Tool[] = [
         offset: {
           type: 'number',
           description: 'Offset for pagination (default: 0)',
+        },
+      },
+      required: ['category'],
+    },
+  },
+  {
+    name: 'toolkit_list_subcategories',
+    description: 'List all subcategories within a category. Useful for discovering organizational structure within large categories like Google Workspace.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        category: {
+          type: 'string',
+          description: 'Category name (github, vercel, neon, upstash, google, openai)',
+          enum: ['github', 'vercel', 'neon', 'upstash', 'google', 'openai'],
         },
       },
       required: ['category'],
