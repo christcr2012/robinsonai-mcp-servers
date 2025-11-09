@@ -17510,10 +17510,16 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
 }
 
-console.error("[Robinson Toolkit] Initializing...");
-const toolkit = new UnifiedToolkit();
-console.error("[Robinson Toolkit] Instance created, starting run()...");
-toolkit.run().catch((error) => {
-  console.error("[Robinson Toolkit] FATAL ERROR in run():", error);
-  process.exit(1);
-});
+// Export the class for programmatic use (e.g., REST API wrappers)
+export { UnifiedToolkit };
+
+// Only run as MCP server if this is the main module
+if (import.meta.url === `file://${process.argv[1]}`) {
+  console.error("[Robinson Toolkit] Initializing...");
+  const toolkit = new UnifiedToolkit();
+  console.error("[Robinson Toolkit] Instance created, starting run()...");
+  toolkit.run().catch((error) => {
+    console.error("[Robinson Toolkit] FATAL ERROR in run():", error);
+    process.exit(1);
+  });
+}
