@@ -1223,8 +1223,9 @@ const result = await toolkit_call({
         { name: 'vercel_scan_deployment_security', description: 'Run security scan on deployment', inputSchema: { type: 'object', additionalProperties: false, properties: {'deploymentId':{'type':'string'}}, required: ["deploymentId"] } },
         { name: 'vercel_get_security_headers', description: 'Get security headers configuration', inputSchema: { type: 'object', additionalProperties: false, properties: {'projectId':{'type':'string'}}, required: ["projectId"] } },
         { name: 'vercel_update_security_headers', description: 'Update security headers', inputSchema: { type: 'object', additionalProperties: false, properties: {'projectId':{'type':'string'},'headers':{'type':'object'}}, required: ["projectId", "headers"] } },
-// PROJECT MANAGEMENT (13 tools)
-        { name: 'neon_list_projects', description: 'Lists the first 10 Neon projects. Increase limit or use search to filter.', inputSchema: { type: 'object', additionalProperties: false, properties: { limit: { type: 'number' }, search: { type: 'string' }, cursor: { type: 'string' }, org_id: { type: 'string' } } } },
+// PROJECT MANAGEMENT (14 tools - added neon_get_current_user)
+        { name: 'neon_get_current_user', description: 'Get current user information including email, name, and organizations.', inputSchema: { type: 'object', additionalProperties: false, properties: {} } },
+        { name: 'neon_list_projects', description: 'Lists the first 10 Neon projects. Increase limit or use search to filter. If org_id is not provided, uses current user\'s default organization.', inputSchema: { type: 'object', additionalProperties: false, properties: { limit: { type: 'number' }, search: { type: 'string' }, cursor: { type: 'string' }, org_id: { type: 'string' } } } },
         { name: 'neon_list_organizations', description: 'Lists all organizations the user has access to.', inputSchema: { type: 'object', additionalProperties: false, properties: { search: { type: 'string' } } } },
         { name: 'neon_list_shared_projects', description: 'Lists projects shared with the current user.', inputSchema: { type: 'object', additionalProperties: false, properties: { limit: { type: 'number' }, search: { type: 'string' }, cursor: { type: 'string' } } } },
         { name: 'neon_create_project', description: 'Create a new Neon project.', inputSchema: { type: 'object', additionalProperties: false, properties: { name: { type: 'string' }, org_id: { type: 'string' }, region_id: { type: 'string' }, pg_version: { type: 'number' } } } },
@@ -2392,18 +2393,7 @@ const result = await toolkit_call({
           case 'github_update_code_scanning_alert': return await this.updateCodeScanningAlert(args);
           case 'github_list_secret_scanning_alerts': return await this.listSecretScanningAlerts(args);
           case 'github_update_secret_scanning_alert': return await this.updateSecretScanningAlert(args);
-// Projects
-          case "vercel_list_projects":
-            return await this.listProjects(args);
-          case "vercel_get_project":
-            return await this.getProject(args);
-          case "vercel_create_project":
-            return await this.createProject(args);
-          case "vercel_update_project":
-            return await this.updateProject(args);
-          case "vercel_delete_project":
-            return await this.deleteProject(args);
-
+// Vercel tools are handled later in the switch statement (line ~3700)
           // Deployments
           case "vercel_list_deployments":
             return await this.listDeployments(args);
@@ -2754,6 +2744,7 @@ const result = await toolkit_call({
           case "vercel_update_security_headers":
             return await this.updateSecurityHeaders(args);
 // PROJECT MANAGEMENT
+          case 'neon_get_current_user': return await this.neonGetCurrentUser(args);
           case 'neon_list_projects': return await this.neonListProjects(args);
           case 'neon_list_organizations': return await this.neonListOrganizations(args);
           case 'neon_list_shared_projects': return await this.neonListSharedProjects(args);
@@ -14899,7 +14890,10 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async vercelListProjects(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      const result = await this.vercelFetch(`/v9/projects`);
+      const params = new URLSearchParams();
+      if (args.teamId) params.append('teamId', args.teamId);
+      const endpoint = params.toString() ? `/v9/projects?${params}` : `/v9/projects`;
+      const result = await this.vercelFetch(endpoint);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to list projects: ${error.message}`);
@@ -15711,14 +15705,33 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
   // NEON HANDLERS (166 total)
   // ============================================================================
 
-  // PROJECT MANAGEMENT (13 handlers)
+  // PROJECT MANAGEMENT (14 handlers - added neonGetCurrentUser)
+  private async neonGetCurrentUser(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
+    try {
+      const result = await this.neonFetch(`/users/me`);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    } catch (error: any) {
+      throw new Error(`Failed to get current user: ${error.message}`);
+    }
+  }
+
   private async neonListProjects(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
       const params = new URLSearchParams();
       if (args.limit) params.append('limit', String(args.limit));
       if (args.search) params.append('search', args.search);
       if (args.cursor) params.append('cursor', args.cursor);
-      if (args.org_id) params.append('org_id', args.org_id);
+
+      // If org_id not provided, get current user's default org
+      if (!args.org_id) {
+        const userResult = await this.neonFetch(`/users/me`);
+        if (userResult.organizations && userResult.organizations.length > 0) {
+          params.append('org_id', userResult.organizations[0].id);
+        }
+      } else {
+        params.append('org_id', args.org_id);
+      }
+
       const result = await this.neonFetch(`/projects?${params.toString()}`);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     } catch (error: any) {
@@ -15728,10 +15741,20 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
   private async neonListOrganizations(args: any): Promise<{ content: Array<{ type: string; text: string }> }> {
     try {
-      const params = new URLSearchParams();
-      if (args.search) params.append('search', args.search);
-      const result = await this.neonFetch(`/organizations?${params.toString()}`);
-      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+      // Neon API: organizations are returned as part of /users/me endpoint
+      const result = await this.neonFetch(`/users/me`);
+      let orgs = result.organizations || [];
+
+      // Apply search filter if provided
+      if (args.search) {
+        const searchLower = args.search.toLowerCase();
+        orgs = orgs.filter((org: any) =>
+          org.name?.toLowerCase().includes(searchLower) ||
+          org.id?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      return { content: [{ type: 'text', text: JSON.stringify({ organizations: orgs }, null, 2) }] };
     } catch (error: any) {
       throw new Error(`Failed to list organizations: ${error.message}`);
     }
