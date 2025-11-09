@@ -1,7 +1,7 @@
 {
   "name": "robinsons-toolkit-api-wrapper",
   "version": "1.0.0",
-  "description": "REST API wrapper for Robinson's Toolkit MCP - enables Custom GPT integration with 1237+ tools",
+  "description": "REST API wrapper for Robinson's Toolkit - enables Custom GPT integration with 1237+ tools across 16+ categories",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
