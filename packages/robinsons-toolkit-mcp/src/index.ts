@@ -2,13 +2,18 @@
 /**
  * Robinson's Toolkit - Unified MCP Server
  *
- * ACTIVE INTEGRATIONS (1165+ tools):
+ * ACTIVE INTEGRATIONS (1237+ tools):
  * - GitHub: 241 tools
  * - Vercel: 150 tools
  * - Neon: 166 tools
  * - Upstash Redis: 157 tools
  * - Google Workspace: 192 tools
- * - OpenAI: 259 tools ← NEWLY INTEGRATED
+ * - OpenAI: 259 tools
+ * - Chris's Infrastructure: 72 tools ← NEWLY INTEGRATED
+ *   - PostgreSQL with pgvector: 25 tools
+ *   - Neo4j Knowledge Graph: 20 tools
+ *   - Qdrant Vector Search: 15 tools
+ *   - N8N Workflow Automation: 12 tools
  *
  * PLANNED INTEGRATIONS (not yet active):
  * - Playwright (33) + Context7 (8) + Stripe (105) + Supabase (80)
@@ -60,6 +65,14 @@ import * as CloudflareHandlers1 from './cloudflare-handlers.js';
 import * as CloudflareHandlers2 from './cloudflare-handlers-2.js';
 import * as CloudflareHandlers3 from './cloudflare-handlers-3.js';
 import * as CloudflareHandlers4 from './cloudflare-handlers-4.js';
+import { postgresTools } from './chris-infrastructure/postgres-tools.js';
+import * as PostgresHandlers from './chris-infrastructure/postgres-handlers.js';
+import { neo4jTools } from './chris-infrastructure/neo4j-tools.js';
+import * as Neo4jHandlers from './chris-infrastructure/neo4j-handlers.js';
+import { qdrantTools } from './chris-infrastructure/qdrant-tools.js';
+import * as QdrantHandlers from './chris-infrastructure/qdrant-handlers.js';
+import { n8nTools } from './chris-infrastructure/n8n-tools.js';
+import * as N8nHandlers from './chris-infrastructure/n8n-handlers.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -2115,7 +2128,19 @@ const result = await toolkit_call({
       ...CLOUDFLARE_TOOLS_2,
       ...CLOUDFLARE_TOOLS_3,
       ...CLOUDFLARE_TOOLS_4,
-      ...CLOUDFLARE_TOOLS_5
+      ...CLOUDFLARE_TOOLS_5,
+
+      // ============================================================
+      // CHRIS'S INFRASTRUCTURE (72 tools) - INTEGRATED v1.15.0
+      // ============================================================
+      // PostgreSQL with pgvector (25 tools)
+      ...postgresTools,
+      // Neo4j Knowledge Graph (20 tools)
+      ...neo4jTools,
+      // Qdrant Vector Search (15 tools)
+      ...qdrantTools,
+      // N8N Workflow Automation (12 tools)
+      ...n8nTools
     ];
     return tools;
   }
@@ -4519,6 +4544,94 @@ const result = await toolkit_call({
           case 'cloudflare_get_stream_webhooks': return await CloudflareHandlers4.cloudflareGetStreamWebhooks.call(this, args);
           case 'cloudflare_create_stream_webhook': return await CloudflareHandlers4.cloudflareCreateStreamWebhook.call(this, args);
           case 'cloudflare_delete_stream_webhook': return await CloudflareHandlers4.cloudflareDeleteStreamWebhook.call(this, args);
+
+          // ============================================================
+          // CHRIS'S INFRASTRUCTURE - PostgreSQL (25 tools)
+          // ============================================================
+          case 'postgres_query_execute': return await PostgresHandlers.handlePostgresQueryExecute(args);
+          case 'postgres_vector_search': return await PostgresHandlers.handlePostgresVectorSearch(args);
+          case 'postgres_chat_history_store': return await PostgresHandlers.handlePostgresChatHistoryStore(args);
+          case 'postgres_chat_history_retrieve': return await PostgresHandlers.handlePostgresChatHistoryRetrieve(args);
+          case 'postgres_chat_history_search': return await PostgresHandlers.handlePostgresChatHistorySearch(args);
+          case 'postgres_embeddings_store': return await PostgresHandlers.handlePostgresEmbeddingsStore(args);
+          case 'postgres_embeddings_search': return await PostgresHandlers.handlePostgresEmbeddingsSearch(args);
+          case 'postgres_table_create': return await PostgresHandlers.handlePostgresTableCreate(args);
+          case 'postgres_table_list': return await PostgresHandlers.handlePostgresTableList(args);
+          case 'postgres_table_describe': return await PostgresHandlers.handlePostgresTableDescribe(args);
+          case 'postgres_table_drop': return await PostgresHandlers.handlePostgresTableDrop(args);
+          case 'postgres_index_create': return await PostgresHandlers.handlePostgresIndexCreate(args);
+          case 'postgres_index_list': return await PostgresHandlers.handlePostgresIndexList(args);
+          case 'postgres_index_drop': return await PostgresHandlers.handlePostgresIndexDrop(args);
+          case 'postgres_transaction_begin': return await PostgresHandlers.handlePostgresTransactionBegin(args);
+          case 'postgres_transaction_commit': return await PostgresHandlers.handlePostgresTransactionCommit(args);
+          case 'postgres_transaction_rollback': return await PostgresHandlers.handlePostgresTransactionRollback(args);
+          case 'postgres_backup_create': return await PostgresHandlers.handlePostgresBackupCreate(args);
+          case 'postgres_backup_restore': return await PostgresHandlers.handlePostgresBackupRestore(args);
+          case 'postgres_stats_get': return await PostgresHandlers.handlePostgresStatsGet(args);
+          case 'postgres_connection_test': return await PostgresHandlers.handlePostgresConnectionTest(args);
+          case 'postgres_schema_create': return await PostgresHandlers.handlePostgresSchemaCreate(args);
+          case 'postgres_schema_list': return await PostgresHandlers.handlePostgresSchemaList(args);
+          case 'postgres_user_create': return await PostgresHandlers.handlePostgresUserCreate(args);
+          case 'postgres_user_list': return await PostgresHandlers.handlePostgresUserList(args);
+
+          // ============================================================
+          // CHRIS'S INFRASTRUCTURE - Neo4j (20 tools)
+          // ============================================================
+          case 'neo4j_query_execute': return await Neo4jHandlers.handleNeo4jQueryExecute(args);
+          case 'neo4j_knowledge_graph_create_node': return await Neo4jHandlers.handleNeo4jKnowledgeGraphCreateNode(args);
+          case 'neo4j_knowledge_graph_create_relationship': return await Neo4jHandlers.handleNeo4jKnowledgeGraphCreateRelationship(args);
+          case 'neo4j_knowledge_graph_query': return await Neo4jHandlers.handleNeo4jKnowledgeGraphQuery(args);
+          case 'neo4j_node_create': return await Neo4jHandlers.handleNeo4jNodeCreate(args);
+          case 'neo4j_node_get': return await Neo4jHandlers.handleNeo4jNodeGet(args);
+          case 'neo4j_node_update': return await Neo4jHandlers.handleNeo4jNodeUpdate(args);
+          case 'neo4j_node_delete': return await Neo4jHandlers.handleNeo4jNodeDelete(args);
+          case 'neo4j_node_search': return await Neo4jHandlers.handleNeo4jNodeSearch(args);
+          case 'neo4j_relationship_create': return await Neo4jHandlers.handleNeo4jRelationshipCreate(args);
+          case 'neo4j_relationship_get': return await Neo4jHandlers.handleNeo4jRelationshipGet(args);
+          case 'neo4j_relationship_delete': return await Neo4jHandlers.handleNeo4jRelationshipDelete(args);
+          case 'neo4j_relationship_search': return await Neo4jHandlers.handleNeo4jRelationshipSearch(args);
+          case 'neo4j_pattern_match': return await Neo4jHandlers.handleNeo4jPatternMatch(args);
+          case 'neo4j_path_find': return await Neo4jHandlers.handleNeo4jPathFind(args);
+          case 'neo4j_schema_get': return await Neo4jHandlers.handleNeo4jSchemaGet(args);
+          case 'neo4j_stats_get': return await Neo4jHandlers.handleNeo4jStatsGet(args);
+          case 'neo4j_connection_test': return await Neo4jHandlers.handleNeo4jConnectionTest(args);
+          case 'neo4j_database_list': return await Neo4jHandlers.handleNeo4jDatabaseList(args);
+          case 'neo4j_constraint_create': return await Neo4jHandlers.handleNeo4jConstraintCreate(args);
+
+          // ============================================================
+          // CHRIS'S INFRASTRUCTURE - Qdrant (15 tools)
+          // ============================================================
+          case 'qdrant_collection_create': return await QdrantHandlers.handleQdrantCollectionCreate(args);
+          case 'qdrant_collection_list': return await QdrantHandlers.handleQdrantCollectionList(args);
+          case 'qdrant_collection_get': return await QdrantHandlers.handleQdrantCollectionGet(args);
+          case 'qdrant_collection_delete': return await QdrantHandlers.handleQdrantCollectionDelete(args);
+          case 'qdrant_collection_update': return await QdrantHandlers.handleQdrantCollectionUpdate(args);
+          case 'qdrant_search_semantic': return await QdrantHandlers.handleQdrantSearchSemantic(args);
+          case 'qdrant_search_batch': return await QdrantHandlers.handleQdrantSearchBatch(args);
+          case 'qdrant_point_upsert': return await QdrantHandlers.handleQdrantPointUpsert(args);
+          case 'qdrant_point_get': return await QdrantHandlers.handleQdrantPointGet(args);
+          case 'qdrant_point_delete': return await QdrantHandlers.handleQdrantPointDelete(args);
+          case 'qdrant_point_search': return await QdrantHandlers.handleQdrantPointSearch(args);
+          case 'qdrant_points_batch_upsert': return await QdrantHandlers.handleQdrantPointsBatchUpsert(args);
+          case 'qdrant_snapshot_create': return await QdrantHandlers.handleQdrantSnapshotCreate(args);
+          case 'qdrant_snapshot_list': return await QdrantHandlers.handleQdrantSnapshotList(args);
+          case 'qdrant_connection_test': return await QdrantHandlers.handleQdrantConnectionTest(args);
+
+          // ============================================================
+          // CHRIS'S INFRASTRUCTURE - N8N (12 tools)
+          // ============================================================
+          case 'n8n_workflow_trigger': return await N8nHandlers.handleN8nWorkflowTrigger(args);
+          case 'n8n_workflow_list': return await N8nHandlers.handleN8nWorkflowList(args);
+          case 'n8n_workflow_get': return await N8nHandlers.handleN8nWorkflowGet(args);
+          case 'n8n_workflow_create': return await N8nHandlers.handleN8nWorkflowCreate(args);
+          case 'n8n_workflow_update': return await N8nHandlers.handleN8nWorkflowUpdate(args);
+          case 'n8n_workflow_delete': return await N8nHandlers.handleN8nWorkflowDelete(args);
+          case 'n8n_execution_get_status': return await N8nHandlers.handleN8nExecutionGetStatus(args);
+          case 'n8n_execution_list': return await N8nHandlers.handleN8nExecutionList(args);
+          case 'n8n_execution_delete': return await N8nHandlers.handleN8nExecutionDelete(args);
+          case 'n8n_credential_list': return await N8nHandlers.handleN8nCredentialList(args);
+          case 'n8n_credential_create': return await N8nHandlers.handleN8nCredentialCreate(args);
+          case 'n8n_connection_test': return await N8nHandlers.handleN8nConnectionTest(args);
 
           default:
             return {

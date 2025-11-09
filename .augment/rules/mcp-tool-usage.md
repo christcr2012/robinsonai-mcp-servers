@@ -1,3 +1,8 @@
+---
+type: "manual"
+description: "Example description"
+---
+
 # MCP Tool Usage Rules for Augment Agent
 
 ## 🎯 CORE PRINCIPLE: DELEGATE FIRST, CHOOSE WISELY

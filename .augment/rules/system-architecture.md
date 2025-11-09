@@ -1,3 +1,8 @@
+---
+type: "manual"
+description: "Example description"
+---
+
 # Robinson AI MCP Servers - System Architecture
 
 ## 🏗️ Architecture Overview

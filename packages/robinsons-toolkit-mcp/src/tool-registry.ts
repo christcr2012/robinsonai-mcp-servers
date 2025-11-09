@@ -91,6 +91,26 @@ export class ToolRegistry {
       description: 'Cloudflare DNS, CDN, Workers, and security tools',
       enabled: true,
     },
+    postgres: {
+      displayName: 'PostgreSQL',
+      description: 'PostgreSQL database with pgvector for semantic search and embeddings (Chris\'s Infrastructure)',
+      enabled: true,
+    },
+    neo4j: {
+      displayName: 'Neo4j',
+      description: 'Neo4j graph database for knowledge graphs and relationship mapping (Chris\'s Infrastructure)',
+      enabled: true,
+    },
+    qdrant: {
+      displayName: 'Qdrant',
+      description: 'Qdrant vector search engine for semantic similarity and embeddings (Chris\'s Infrastructure)',
+      enabled: true,
+    },
+    n8n: {
+      displayName: 'N8N',
+      description: 'N8N workflow automation and integration platform (Chris\'s Infrastructure)',
+      enabled: true,
+    },
   };
 
   // Google Workspace subcategory prefixes
