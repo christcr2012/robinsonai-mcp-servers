@@ -2,19 +2,48 @@
 
 ## Current Status
 
-✅ **API is working** - Direct curl tests confirm `github_list_repos` works perfectly  
-❌ **Custom GPT still failing** - Getting "Error talking to connector"  
-🔍 **Root cause**: Custom GPT hasn't reimported the updated OpenAPI schema yet
+✅ **FIXED!** - API now supports both nested and flat argument formats
+✅ **Tested and working** - `github_list_repos` returns repositories successfully
+🎯 **Root cause was**: Custom GPT sends `{ tool, args: {...} }` but API expected `{ tool, param1, param2 }`
+🔧 **Solution**: Updated `/api/execute` to handle both formats automatically
 
 ---
 
-## The Problem
+## What Was Fixed
 
-Your Custom GPT is still using the **OLD cached OpenAPI schema** with hardcoded endpoints that have wrong tool names. Even though we fixed the schema on the server, Custom GPT won't see the changes until you reimport.
+### Problem
+Custom GPT was sending requests in this format:
+```json
+{
+  "tool": "github_list_repos",
+  "args": {
+    "owner": "christcr2012"
+  }
+}
+```
+
+But the API was only accepting flat format:
+```json
+{
+  "tool": "github_list_repos",
+  "owner": "christcr2012"
+}
+```
+
+This caused `UnrecognizedKwargsError: args` errors.
+
+### Solution
+Updated `/api/execute` endpoint to automatically detect and handle **both formats**:
+- ✅ Nested: `{ tool, args: {...} }` (Custom GPT format)
+- ✅ Flat: `{ tool, param1, param2 }` (Direct format)
+
+**Deployed**: Commit `21ee1b0` - Live on Vercel now!
 
 ---
 
-## Solution: Reimport OpenAPI Schema
+## Your Custom GPT Should Work Now
+
+The API is fixed and deployed. Your Custom GPT should work immediately without any changes needed on your end!
 
 ### Step 1: Go to Custom GPT Settings
 
