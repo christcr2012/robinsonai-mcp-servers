@@ -29,10 +29,11 @@ export function makeSystem(
 
   // Combine guardrails: defaults + house rules + extra
   const houseRules = makeHouseRules(brief);
+  const houseRulesArray = typeof houseRules === 'string' ? [houseRules] : houseRules;
   const constraints = [
     ...DEFAULT_GUARDS,
     ...(cfg.extraGuards ?? []),
-    houseRules
+    ...houseRulesArray
   ];
 
   // Build and return system prompt
