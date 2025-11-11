@@ -223,6 +223,7 @@ DO NOT repeat the same mistakes. Use REAL APIs only.
  */
 export * from './types.js';
 export * from './sandbox.js';
+export * from './execute.js';
 export * from './judge.js';
 export * from './synthesize.js';
 export * from './refine.js';

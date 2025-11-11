@@ -1,0 +1,27 @@
+{
+  "name": "free-agent-gates",
+  "version": "1.0.0",
+  "priority": "high",
+  "budget_credits": 800,
+  "steps": [
+    {
+      "id": "add_gate_pipeline",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": [
+        "packages/free-agent-mcp/src/pipeline/execute.ts",
+        "packages/free-agent-mcp/src/pipeline/judge.ts",
+        "packages/free-agent-mcp/src/pipeline/refine.ts"
+      ],
+      "instructions": "Create/extend the three files using the code below."
+    },
+    {
+      "id": "build",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": ["pnpm -w -C packages/free-agent-mcp build || npm --workspaces -w run build"]
+    }
+  ]
+}
+

@@ -1,6 +1,6 @@
 /**
  * Refine (Fixer) stage
- * 
+ *
  * Applies minimal fixes based on judge's fix plan
  * Uses separate model call for fixing (not combined with critique)
  */
@@ -9,6 +9,7 @@ import type { JudgeVerdict, GenResult, ExecReport, PipelineConfig } from './type
 import { ollamaGenerate, llmGenerate } from '@robinson_ai_systems/shared-llm';
 import { generateMultiFileDiff, formatDiffsForPrompt } from '../utils/diff-generator.js';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
+import { formatDiagnosticsForPrompt, extractCriticalErrors } from './execute.js';
 
 /**
  * Apply fix plan from judge
@@ -269,3 +270,99 @@ function extractExports(content: string): string[] {
   return exports;
 }
 
+/**
+ * Refine code based on gate diagnostics (for quality gates loop)
+ *
+ * Generates fixes for type errors, test failures, and linting issues
+ */
+export async function refineWithGates(params: {
+  task: string;
+  currentFiles: GenResult['files'];
+  gateReport: ExecReport;
+  config?: PipelineConfig;
+}): Promise<GenResult> {
+  const { task, currentFiles, gateReport, config = DEFAULT_PIPELINE_CONFIG } = params;
+
+  // Extract critical errors
+  const errors = extractCriticalErrors(gateReport);
+  const diagnostics = formatDiagnosticsForPrompt(gateReport);
+
+  // Build refinement prompt
+  const prompt = buildGateRefinementPrompt({
+    task,
+    currentFiles,
+    errors,
+    diagnostics
+  });
+
+  // Determine provider and model
+  const provider = config.provider || 'ollama';
+  const model = config.model || (provider === 'ollama' ? 'qwen2.5-coder:7b' : provider === 'openai' ? 'gpt-4o' : 'claude-3-5-sonnet-20241022');
+
+  console.log(`[Refine-Gates] Using ${provider}/${model}`);
+
+  try {
+    const llmResult = await llmGenerate({
+      provider,
+      model,
+      prompt,
+      format: 'json',
+      timeoutMs: provider === 'ollama' ? 120000 : 60000,
+    });
+
+    const result = parseFixerResponse(llmResult.text);
+    result.cost = llmResult.cost || 0;
+    console.log(`[Refine-Gates] Success! Cost: $${llmResult.cost?.toFixed(4) || '0.0000'}`);
+    return result;
+  } catch (error) {
+    console.error(`[Refine-Gates] ${provider}/${model} failed:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Build refinement prompt for gate-based fixes
+ */
+function buildGateRefinementPrompt(params: {
+  task: string;
+  currentFiles: GenResult['files'];
+  errors: string[];
+  diagnostics: string;
+}): string {
+  const filesList = params.currentFiles
+    .map(f => `${f.path}:\n${f.content.slice(0, 500)}...`)
+    .join('\n\n');
+
+  return `You are a code fixer. Fix the code to pass quality gates.
+
+TASK:
+${params.task}
+
+CURRENT CODE (first 500 chars of each file):
+${filesList}
+
+CRITICAL ERRORS TO FIX:
+${params.errors.join('\n')}
+
+DETAILED DIAGNOSTICS:
+${params.diagnostics}
+
+INSTRUCTIONS:
+1. Fix type errors first (highest priority)
+2. Fix test failures second
+3. Fix security violations third
+4. Fix linting errors last
+
+Return ONLY valid JSON:
+{
+  "files": [
+    {"path": "src/example.ts", "content": "...full corrected content..."}
+  ],
+  "tests": [
+    {"path": "src/__tests__/example.test.ts", "content": "...full corrected test content..."}
+  ],
+  "notes": "brief explanation of fixes applied"
+}
+
+Make MINIMAL changes. Only fix what's broken. Keep the rest unchanged.`;
+}

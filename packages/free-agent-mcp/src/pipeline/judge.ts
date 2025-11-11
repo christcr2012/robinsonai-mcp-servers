@@ -10,6 +10,7 @@ import { ollamaGenerate, llmGenerate } from '@robinson_ai_systems/shared-llm';
 import { calculateConventionScore } from '../utils/convention-score.js';
 import { makeProjectBrief } from '../utils/project-brief.js';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
+import { formatDiagnosticsForPrompt, extractCriticalErrors } from './execute.js';
 
 /**
  * Judge the generated code with structured verdict
@@ -345,7 +346,63 @@ export async function qagValidate(code: string, spec: string): Promise<{
   
   const score = (yesCount / questions.length) * 100;
   const valid = score >= 80;
-  
+
   return { valid, score, details: results };
+}
+
+/**
+ * Judge code quality using gate results (for quality gates loop)
+ *
+ * Simpler than full judgeCode - focuses on gate pass/fail and diagnostics
+ */
+export async function judgeWithGates(params: {
+  task: string;
+  gateReport: ExecReport;
+  config?: PipelineConfig;
+}): Promise<{ accept: boolean; score: number; notes: string }> {
+  const { task, gateReport, config = DEFAULT_PIPELINE_CONFIG } = params;
+
+  // Quick scoring based on gate results
+  let score = 100;
+  const issues: string[] = [];
+
+  // Type errors are critical (50% weight)
+  if (gateReport.typeErrors.length > 0) {
+    score -= 50;
+    issues.push(`${gateReport.typeErrors.length} type errors`);
+  }
+
+  // Test failures are critical (30% weight)
+  if (gateReport.test.failed > 0) {
+    score -= 30;
+    issues.push(`${gateReport.test.failed} test failures`);
+  }
+
+  // Security violations are critical (20% weight)
+  if (gateReport.security.violations.length > 0) {
+    score -= 20;
+    issues.push(`${gateReport.security.violations.length} security violations`);
+  }
+
+  // Linting errors reduce score but not critical
+  if (gateReport.lintErrors.length > 0) {
+    score = Math.max(0, score - Math.min(10, gateReport.lintErrors.length));
+    issues.push(`${gateReport.lintErrors.length} linting errors`);
+  }
+
+  // Ensure score is in valid range
+  score = Math.max(0, Math.min(100, score));
+
+  // Accept if score >= 90 and no critical errors
+  const accept = score >= 90 &&
+    gateReport.typeErrors.length === 0 &&
+    gateReport.test.failed === 0 &&
+    gateReport.security.violations.length === 0;
+
+  const notes = issues.length > 0
+    ? `Issues: ${issues.join('; ')}`
+    : 'All gates passed';
+
+  return { accept, score, notes };
 }
 
