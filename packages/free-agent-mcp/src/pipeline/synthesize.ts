@@ -6,6 +6,7 @@
  * - Tests generated FIRST (or in parallel)
  * - Must use real, documented APIs only
  * - No placeholders, TODOs, or stubs
+ * - Supports multi-file output for coordinated features
  */
 
 import type { GenResult, PipelineConfig, JudgeVerdict } from './types.js';
@@ -15,6 +16,7 @@ import { makeProjectBrief, formatBriefForPrompt, type ProjectBrief } from '../ut
 import { retrieveCodeContext } from '../utils/code-retrieval.js';
 import { getRepoBrief, buildGlossaryFromBrief, retrieveNearbyFiles } from './context.js';
 import { buildPromptWithContext, makeHouseRules } from './prompt.js';
+import { normalizeOutput, validateOutput } from '../schema/output.js';
 
 // Cache project brief (regenerate every 5 minutes)
 let cachedBrief: { brief: ProjectBrief; timestamp: number } | null = null;

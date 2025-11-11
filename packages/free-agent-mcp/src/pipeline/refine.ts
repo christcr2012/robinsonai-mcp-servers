@@ -3,6 +3,7 @@
  *
  * Applies minimal fixes based on judge's fix plan
  * Uses separate model call for fixing (not combined with critique)
+ * Supports multi-file refinement for coordinated features
  */
 
 import type { JudgeVerdict, GenResult, ExecReport, PipelineConfig } from './types.js';
@@ -10,6 +11,7 @@ import { ollamaGenerate, llmGenerate } from '@robinson_ai_systems/shared-llm';
 import { generateMultiFileDiff, formatDiffsForPrompt } from '../utils/diff-generator.js';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
 import { formatDiagnosticsForPrompt, extractCriticalErrors } from './execute.js';
+import { normalizeOutput, validateOutput, countOutputFiles } from '../schema/output.js';
 
 /**
  * Apply fix plan from judge
@@ -365,4 +367,49 @@ Return ONLY valid JSON:
 }
 
 Make MINIMAL changes. Only fix what's broken. Keep the rest unchanged.`;
+}
+
+/**
+ * Validate and normalize multi-file output from refiner
+ */
+export function validateAndNormalizeRefineOutput(output: any): GenResult {
+  // Validate output format
+  const validation = validateOutput(output);
+  if (!validation.valid) {
+    console.warn('[Refine] Output validation warnings:', validation.errors);
+  }
+
+  // Normalize to standard format
+  const normalized = normalizeOutput(output);
+
+  // Convert to GenResult
+  return {
+    files: normalized.files,
+    tests: normalized.tests,
+    notes: normalized.notes
+  };
+}
+
+/**
+ * Get summary of multi-file refinement
+ */
+export function getRefineOutputSummary(result: GenResult): string {
+  const counts = countOutputFiles({
+    files: result.files,
+    tests: result.tests,
+    notes: result.notes
+  });
+
+  const lines = [
+    `[Refine] Output Summary:`,
+    `  Files: ${counts.files}`,
+    `  Tests: ${counts.tests}`,
+    `  Total: ${counts.total}`
+  ];
+
+  if (result.notes) {
+    lines.push(`  Notes: ${result.notes}`);
+  }
+
+  return lines.join('\n');
 }

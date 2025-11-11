@@ -228,3 +228,8 @@ export * from './judge.js';
 export * from './synthesize.js';
 export * from './refine.js';
 
+/**
+ * Export schema components
+ */
+export * from '../schema/output.js';
+

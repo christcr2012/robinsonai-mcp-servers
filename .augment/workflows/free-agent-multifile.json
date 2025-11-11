@@ -1,0 +1,39 @@
+{
+  "name": "free-agent-multifile",
+  "version": "1.0.0",
+  "priority": "medium",
+  "budget_credits": 250,
+  "steps": [
+    {
+      "id": "add_multifile_schema",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": ["packages/free-agent-mcp/src/schema/output.ts"],
+      "instructions": "Add support for returning { files: [{ path, content }] } while preserving single-file mode. Support coordinated multi-file features (UI + API + tests) in one generation."
+    },
+    {
+      "id": "update_synthesize",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": ["packages/free-agent-mcp/src/pipeline/synthesize.ts"],
+      "instructions": "Update synthesize to use new multi-file schema. Ensure generated code can return multiple coordinated files."
+    },
+    {
+      "id": "update_refine",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": ["packages/free-agent-mcp/src/pipeline/refine.ts"],
+      "instructions": "Update refine to handle multi-file output. Ensure refinement works across all files in coordinated features."
+    },
+    {
+      "id": "build",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": ["cd packages/free-agent-mcp && pnpm build"]
+    }
+  ]
+}
+
