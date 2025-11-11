@@ -181,11 +181,11 @@ let globalOrchestrator: ModelOrchestrator | null = null;
 
 /**
  * Get or create global orchestrator
+ * FIXED: Always create a new instance to avoid stale config from previous tasks
  */
 export function getGlobalOrchestrator(config?: Partial<OrchestrationConfig>): ModelOrchestrator {
-  if (!globalOrchestrator) {
-    globalOrchestrator = new ModelOrchestrator(config);
-  }
+  // Always create a new instance to avoid config/state pollution between tasks
+  globalOrchestrator = new ModelOrchestrator(config);
   return globalOrchestrator;
 }
 
