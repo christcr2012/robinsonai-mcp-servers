@@ -1,14 +1,14 @@
 /**
  * Unified LLM Client
- * 
- * Supports Ollama (FREE), OpenAI (PAID), and Claude (PAID)
+ *
+ * Supports Ollama (FREE), OpenAI (PAID), Claude (PAID), Kimi (PAID - CHEAPEST!), and Voyage (PAID)
  * Provides consistent interface across all providers
  */
 
 import { ollamaGenerate } from './ollama-client.js';
 
 export interface LLMGenerateOptions {
-  provider: 'ollama' | 'openai' | 'claude' | 'voyage';
+  provider: 'ollama' | 'openai' | 'claude' | 'kimi' | 'voyage';
   model: string;
   prompt: string;
   format?: 'json' | 'text';
@@ -175,6 +175,57 @@ export async function llmGenerate(options: LLMGenerateOptions): Promise<LLMGener
       text,
       model,
       provider: 'voyage',
+      tokensInput,
+      tokensOutput,
+      tokensTotal,
+      cost,
+    };
+  }
+
+  if (provider === 'kimi') {
+    // Use Kimi/Moonshot (PAID - CHEAPEST!)
+    const apiKey = process.env.KIMI_API_KEY;
+    if (!apiKey) {
+      throw new Error('Kimi API key missing. Set KIMI_API_KEY environment variable.');
+    }
+
+    const baseUrl = (process.env.KIMI_BASE_URL || 'https://api.moonshot.cn/v1').replace(/\/$/, '');
+    const response = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: temperature ?? 0.2,
+        max_tokens: maxTokens ?? 4096,
+        response_format: format === 'json' ? { type: 'json_object' } : undefined,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`Kimi request failed: HTTP ${response.status} ${errorText}`);
+    }
+
+    const data: any = await response.json();
+    const text = data.choices?.[0]?.message?.content ?? '';
+    const usage = data.usage ?? {};
+    const tokensInput = usage.prompt_tokens ?? 0;
+    const tokensOutput = usage.completion_tokens ?? 0;
+    const tokensTotal = usage.total_tokens ?? tokensInput + tokensOutput;
+
+    // Kimi pricing: $0.20 input / $2.00 output per 1M tokens
+    const costPerInputToken = 0.0000002;   // $0.20 per 1M tokens
+    const costPerOutputToken = 0.000002;   // $2.00 per 1M tokens
+    const cost = tokensInput * costPerInputToken + tokensOutput * costPerOutputToken;
+
+    return {
+      text,
+      model,
+      provider: 'kimi',
       tokensInput,
       tokensOutput,
       tokensTotal,

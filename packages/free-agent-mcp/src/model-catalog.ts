@@ -16,7 +16,7 @@
  */
 
 export interface ModelConfig {
-  provider: 'ollama' | 'openai' | 'claude';
+  provider: 'ollama' | 'openai' | 'claude' | 'kimi' | 'voyage';
   model: string;
   baseURL?: string;
   costPerInputToken: number;
@@ -96,9 +96,35 @@ export const MODEL_CATALOG: Record<string, ModelConfig> = {
   },
   
   // ========================================
+  // PAID KIMI/MOONSHOT MODELS (CHEAPEST!)
+  // ========================================
+
+  'kimi/moonshot-v1-8k': {
+    provider: 'kimi',
+    model: 'moonshot-v1-8k',
+    costPerInputToken: 0.0000002,   // $0.20 per 1M tokens
+    costPerOutputToken: 0.000002,   // $2.00 per 1M tokens
+    quality: 'standard',
+    maxTokens: 8192,
+    contextWindow: 8192,
+    description: 'Kimi 8K - Cheapest paid option, great for code generation',
+  },
+
+  'kimi/moonshot-v1-32k': {
+    provider: 'kimi',
+    model: 'moonshot-v1-32k',
+    costPerInputToken: 0.0000002,   // $0.20 per 1M tokens (same as 8k)
+    costPerOutputToken: 0.000002,   // $2.00 per 1M tokens (same as 8k)
+    quality: 'premium',
+    maxTokens: 32768,
+    contextWindow: 32768,
+    description: 'Kimi 32K - Cheapest paid option with longer context',
+  },
+
+  // ========================================
   // PAID OPENAI MODELS
   // ========================================
-  
+
   'openai/gpt-4o-mini': {
     provider: 'openai',
     model: 'gpt-4o-mini',
@@ -294,7 +320,7 @@ export function selectBestModel(params: {
   maxCost?: number;
   taskComplexity?: 'simple' | 'medium' | 'complex' | 'expert';
   preferFree?: boolean;
-  preferredProvider?: 'ollama' | 'openai' | 'claude' | 'any';
+  preferredProvider?: 'ollama' | 'openai' | 'claude' | 'kimi' | 'voyage' | 'any';
 }): string {
   const {
     minQuality = 'standard',
@@ -329,6 +355,10 @@ export function selectBestModel(params: {
     console.error('[ModelCatalog] preferredProvider=openai → Using PAID OpenAI');
     return selectOpenAIModel(taskComplexity, maxCost);
   }
+  if (preferredProvider === 'kimi') {
+    console.error('[ModelCatalog] preferredProvider=kimi → Using PAID Kimi');
+    return selectKimiModel(taskComplexity, maxCost);
+  }
 
   // Otherwise, select best PAID model based on budget and complexity
   console.error(`[ModelCatalog] Selecting PAID model: complexity=${taskComplexity}, maxCost=$${maxCost}`);
@@ -352,7 +382,9 @@ function selectFreeModel(minQuality: 'basic' | 'standard' | 'premium' | 'best'):
 }
 
 /**
- * Select best PAID model (OpenAI or Claude)
+ * Select best PAID model (Kimi, OpenAI, or Claude)
+ *
+ * STRATEGY: Prefer Kimi for cheap tasks (best bang for buck!)
  */
 function selectPaidModel(
   taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
@@ -375,14 +407,21 @@ function selectPaidModel(
     return 'openai/gpt-4o';  // Good for complex tasks
   }
 
-  // For medium tasks, use balanced models
+  // For medium tasks, prefer Kimi (cheapest!) or OpenAI
   if (taskComplexity === 'medium' && maxCost >= 0.5) {
-    return 'openai/gpt-4o-mini';  // Affordable and capable
+    // Kimi is MUCH cheaper - use it if available
+    if (process.env.KIMI_API_KEY) {
+      return 'kimi/moonshot-v1-32k';  // Cheapest with longer context
+    }
+    return 'openai/gpt-4o-mini';  // Fallback to OpenAI
   }
 
-  // For simple tasks, use cheapest paid model
-  if (maxCost >= 0.25) {
-    return 'claude/claude-3-haiku-20240307';  // Cheapest paid option
+  // For simple tasks, use CHEAPEST paid model (Kimi!)
+  if (maxCost >= 0.01) {  // Kimi is SO cheap, even $0.01 budget works
+    if (process.env.KIMI_API_KEY) {
+      return 'kimi/moonshot-v1-8k';  // Cheapest option
+    }
+    return 'claude/claude-3-haiku-20240307';  // Fallback to Claude Haiku
   }
 
   // If budget too low for paid, fallback to FREE
@@ -422,6 +461,25 @@ function selectOpenAIModel(
     return 'openai/gpt-4o';  // High intelligence
   }
   return 'openai/gpt-4o-mini';  // Affordable and capable
+}
+
+/**
+ * Select best Kimi model
+ *
+ * Kimi is EXTREMELY cheap ($0.20/$2.00 per 1M tokens)
+ * Best bang for buck for code generation and analysis
+ */
+function selectKimiModel(
+  taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
+  maxCost: number
+): string {
+  // For any task, prefer 32K context (same price as 8K)
+  if (maxCost >= 0.01) {
+    return 'kimi/moonshot-v1-32k';  // 32K context, same price as 8K
+  }
+
+  // Fallback to 8K if budget is extremely tight
+  return 'kimi/moonshot-v1-8k';
 }
 
 /**
