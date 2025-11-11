@@ -1,0 +1,120 @@
+{
+  "name": "free-agent-orchestration",
+  "version": "1.0.0",
+  "priority": "high",
+  "budget_credits": 600,
+  "status": "COMPLETE",
+  "steps": [
+    {
+      "id": "add_orchestrator",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": [
+        "packages/free-agent-mcp/src/orchestrator/router.ts",
+        "packages/free-agent-mcp/src/orchestrator/queues.ts",
+        "packages/free-agent-mcp/src/orchestrator/agents.ts",
+        "packages/free-agent-mcp/src/orchestrator/index.ts"
+      ],
+      "instructions": "Create the four orchestrator files with routing, queuing, agent registry, and two default agents.",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "build",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": [
+        "pnpm -w -C packages/free-agent-mcp build"
+      ],
+      "status": "COMPLETE"
+    }
+  ],
+  "results": {
+    "filesCreated": [
+      "packages/free-agent-mcp/src/orchestrator/queues.ts",
+      "packages/free-agent-mcp/src/orchestrator/agents.ts",
+      "packages/free-agent-mcp/src/orchestrator/router.ts",
+      "packages/free-agent-mcp/src/orchestrator/index.ts"
+    ],
+    "filesModified": [
+      "packages/free-agent-mcp/src/pipeline/index.ts"
+    ],
+    "buildStatus": "SUCCESS",
+    "buildSize": "354.84 KB",
+    "commit": "5440402"
+  },
+  "components": {
+    "queues": {
+      "description": "Lightweight in-process job queue with priority support",
+      "functions": [
+        "enqueue(type, payload, priority)",
+        "dequeue()",
+        "drain(handler)",
+        "drainWithConcurrency(handler, concurrency)",
+        "getQueueStats()",
+        "batchEnqueue(jobs)"
+      ]
+    },
+    "agents": {
+      "description": "Agent registry and communication system",
+      "functions": [
+        "registerAgent(name, fn, metadata)",
+        "callAgent(name, input)",
+        "hasAgent(name)",
+        "findAgentsByCapability(capability)",
+        "handoff(fromAgent, toAgent, input)",
+        "callAgentWithTimeout(name, input, timeoutMs)",
+        "callAgentWithRetry(name, input, maxRetries, delayMs)"
+      ]
+    },
+    "router": {
+      "description": "Task routing by kind to appropriate agents",
+      "taskKinds": [
+        "feature",
+        "bugfix",
+        "refactor",
+        "research",
+        "analysis",
+        "optimization"
+      ],
+      "functions": [
+        "route(task)",
+        "handle(job)",
+        "getRoutingStrategy(kind)",
+        "validateTask(task)",
+        "routeMultiple(tasks)"
+      ]
+    },
+    "orchestrator": {
+      "description": "High-level orchestration with two default agents",
+      "agents": [
+        {
+          "name": "researcher",
+          "capabilities": [
+            "research",
+            "documentation-search",
+            "analysis"
+          ],
+          "description": "Researches topics and gathers information"
+        },
+        {
+          "name": "builder",
+          "capabilities": [
+            "code-generation",
+            "testing",
+            "quality-gates",
+            "refactoring"
+          ],
+          "description": "Builds features, fixes bugs, and refactors code"
+        }
+      ],
+      "functions": [
+        "initializeOrchestrator()",
+        "submit(task)",
+        "submitMultiple(tasks)",
+        "getOrchestratorStatus()"
+      ]
+    }
+  }
+}
+
