@@ -1,12 +1,15 @@
 {
   "name": "@robinson_ai_systems/paid-agent-mcp",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Paid Agent MCP - Execute tasks using PAID models (OpenAI, Claude, etc.)",
   "type": "module",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "bin": {
     "paid-agent-mcp": "./bin/paid-agent-mcp.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist/",
@@ -47,7 +50,10 @@
     "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",

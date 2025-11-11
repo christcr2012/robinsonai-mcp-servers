@@ -1,23 +1,9 @@
 #!/usr/bin/env node
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import path from 'node:path';
 
-/**
- * Wrapper script for PAID Agent MCP
- * Handles workspace root detection from command-line arguments
- */
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const entry = pathToFileURL(path.join(__dirname, '..', 'dist', 'index.js')).href;
 
-// Parse command-line arguments for --workspace-root
-const args = process.argv.slice(2);
-const workspaceRootIndex = args.indexOf('--workspace-root');
-
-if (workspaceRootIndex !== -1 && args[workspaceRootIndex + 1]) {
-  // Set WORKSPACE_ROOT environment variable from command-line argument
-  process.env.WORKSPACE_ROOT = args[workspaceRootIndex + 1];
-  console.error(`[Wrapper] Set WORKSPACE_ROOT from CLI: ${process.env.WORKSPACE_ROOT}`);
-}
-
-// Import and run the actual server
-import('../dist/index.js').catch((error) => {
-  console.error('Failed to start PAID Agent MCP:', error);
-  process.exit(1);
-});
+await import(entry);
 
