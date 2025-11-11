@@ -99,7 +99,7 @@
     "bin/"
   ],
   "scripts": {
-    "prebuild": "tsx scripts/gen-tools.ts && tsx scripts/check-spec-coverage.ts",
+    "prebuild": "tsx scripts/gen-tools.ts && tsx scripts/check-spec-coverage.ts && tsx scripts/check-policy.ts",
     "build": "npm run prebuild && tsup",
     "clean": "rm -rf dist",
     "build:sandbox": "docker build -t free-agent-sandbox:latest .docker",
@@ -142,6 +142,9 @@
     "@robinson_ai_systems/shared-utils": "^0.1.1",
     "@types/node": "^22.10.2",
     "tsx": "^4.20.6",
+    "typescript": "^5.7.2"
+  },
+  "optionalDependencies": {
     "typescript": "^5.7.2"
   },
   "engines": {

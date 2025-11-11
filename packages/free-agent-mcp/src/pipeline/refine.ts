@@ -12,6 +12,7 @@ import { generateMultiFileDiff, formatDiffsForPrompt } from '../utils/diff-gener
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
 import { formatDiagnosticsForPrompt, extractCriticalErrors } from './execute.js';
 import { normalizeOutput, validateOutput, countOutputFiles } from '../schema/output.js';
+import { validatePatchUnifiedDiff } from '../policy/patchGuard.js';
 
 /**
  * Apply fix plan from judge
@@ -159,22 +160,34 @@ function parseFixerResponse(response: string): GenResult {
   try {
     // Try to extract JSON from response
     let jsonStr = response.trim();
-    
+
     // Remove markdown code blocks if present
     if (jsonStr.startsWith('```')) {
       jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '');
     }
-    
+
     const parsed = JSON.parse(jsonStr);
-    
+
     // Validate structure
     if (!parsed.files || !Array.isArray(parsed.files)) {
       throw new Error('Invalid response: missing or invalid "files" array');
     }
-    
+
     // Tests are optional in fix response
     const tests = parsed.tests && Array.isArray(parsed.tests) ? parsed.tests : [];
-    
+
+    // Validate patches against policy gates
+    for (const file of parsed.files) {
+      if (file.content) {
+        try {
+          validatePatchUnifiedDiff(file.content);
+        } catch (policyError) {
+          console.error(`[Refine] Policy violation in ${file.path}:`, policyError);
+          throw policyError;
+        }
+      }
+    }
+
     return {
       files: parsed.files,
       tests,
