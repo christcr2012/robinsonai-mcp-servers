@@ -18,7 +18,7 @@ import * as path from 'path';
 import * as os from 'os';
 import type { ExecReport, PipelineConfig, GenResult } from './types.js';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
-import { makeProjectBrief, installAndCacheDependencies, hasCachedDependencies } from '../shared-utils/index.js';
+import { makeProjectBrief, installAndCacheDependencies, hasCachedDependencies } from '@robinson_ai_systems/shared-utils';
 
 // TODO: Move these utilities to shared-utils in future
 // For now, we'll provide stub implementations

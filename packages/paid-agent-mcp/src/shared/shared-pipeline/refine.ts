@@ -6,8 +6,8 @@
  */
 
 import type { JudgeVerdict, GenResult, ExecReport, PipelineConfig } from './types.js';
-import { ollamaGenerate, llmGenerate } from '../shared-llm/index.js';
-import { generateMultiFileDiff, formatDiffsForPrompt } from '../shared-utils/index.js';
+import { ollamaGenerate, llmGenerate } from '@robinson_ai_systems/shared-llm';
+import { generateMultiFileDiff, formatDiffsForPrompt } from '@robinson_ai_systems/shared-utils';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
 
 /**

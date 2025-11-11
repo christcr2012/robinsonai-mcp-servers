@@ -13,7 +13,7 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b ../../tsconfig.json --force",
     "clean": "rm -rf dist",
     "prepack": "npm run clean && npm run build"
   },

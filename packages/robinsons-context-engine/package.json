@@ -14,7 +14,7 @@
   "files": ["dist"],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "tsc -b",
+    "build": "tsc -b ../../tsconfig.json --force",
     "prepack": "npm run clean && npm run build"
   },
   "engines": {

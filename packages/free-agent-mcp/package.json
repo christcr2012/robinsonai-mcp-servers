@@ -99,7 +99,7 @@
     "bin/"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b ../../tsconfig.json --force",
     "clean": "rm -rf dist",
     "build:sandbox": "docker build -t free-agent-sandbox:latest .docker",
     "dev": "tsc --watch",

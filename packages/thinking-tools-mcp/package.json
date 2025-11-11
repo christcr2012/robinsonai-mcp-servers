@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "tsc -b",
+    "build": "tsc -b ../../tsconfig.json --force",
     "pretest": "npm run build",
     "test": "node test/run-tests.mjs",
     "prepack": "npm run clean && npm run build",
