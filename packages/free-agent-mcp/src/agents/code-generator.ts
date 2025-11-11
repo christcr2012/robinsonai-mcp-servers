@@ -270,7 +270,8 @@ Requirements:
       provider: 'ollama',
       model,
       prompt,
-      format: 'json',
+      // NO format: 'json' - prompt already asks for markdown code blocks
+      // Using format:'json' creates conflict where model tries to wrap markdown in JSON
       timeoutMs: 300000, // 5 min for Ollama (cold start)
     });
     console.error(`[CodeGenerator] Generation completed in ${Date.now() - startTime}ms`);

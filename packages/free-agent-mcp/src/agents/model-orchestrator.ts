@@ -33,6 +33,7 @@ export class ModelOrchestrator {
   private taskContext: TaskContext | null = null;
   private switchEvents: SwitchEvent[] = [];
   private currentModel: string;
+  private originalTask: string = ''; // Store original task for detection
 
   constructor(config: Partial<OrchestrationConfig> = {}) {
     this.config = {
@@ -50,6 +51,7 @@ export class ModelOrchestrator {
    * Initialize orchestration for a task
    */
   initializeTask(taskDescription: string): void {
+    this.originalTask = taskDescription; // Store for detection
     this.taskContext = createTaskContext(taskDescription);
     this.switchEvents = [];
     this.currentModel = this.config.initialModel;
@@ -73,8 +75,14 @@ export class ModelOrchestrator {
       return llmGenerate(options);
     }
 
-    // Detect subtask type from the prompt
-    const detection = detectSubtaskType(options.prompt);
+    // Detect subtask type from the ORIGINAL TASK, not the full prompt
+    // The full prompt has too much noise and dilutes the signal
+    const detection = detectSubtaskType(this.originalTask);
+
+    if (this.config.logSwitches && detection) {
+      console.error(`[ModelOrchestrator] Detection: ${detection.type} (confidence: ${(detection.confidence * 100).toFixed(0)}%)`);
+      console.error(`[ModelOrchestrator] Keywords matched: ${detection.keywords.join(', ')}`);
+    }
 
     if (detection && this.switchEvents.length < this.config.maxSwitches) {
       const switchDecision = suggestModelSwitch(this.currentModel, detection);

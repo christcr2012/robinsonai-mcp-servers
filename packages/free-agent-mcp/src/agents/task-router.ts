@@ -47,13 +47,18 @@ export function detectSubtaskType(text: string): SubtaskDetection | null {
   const apiMatches = apiKeywords.filter(kw => lowerText.includes(kw)).length;
 
   // API Integration detection - require MULTIPLE strong signals
-  if (apiMatches >= 2 ||
-      lowerText.includes('set up') && (lowerText.includes('api') || lowerText.includes('oauth')) ||
-      lowerText.includes('configure') && (lowerText.includes('api') || lowerText.includes('authentication'))) {
+  const hasSetupApi = lowerText.includes('set up') && (lowerText.includes('api') || lowerText.includes('oauth'));
+  const hasConfigureAuth = lowerText.includes('configure') && (lowerText.includes('api') || lowerText.includes('authentication'));
+
+  if (apiMatches >= 2 || hasSetupApi || hasConfigureAuth) {
+    const matchedKeywords = apiKeywords.filter(kw => lowerText.includes(kw));
+    console.error(`[TaskRouter] API Integration detected: ${apiMatches} keyword matches, setup=${hasSetupApi}, configure=${hasConfigureAuth}`);
+    console.error(`[TaskRouter] Matched keywords: ${matchedKeywords.join(', ')}`);
+
     return {
       type: 'api_integration',
       confidence: Math.min(0.85, 0.5 + (apiMatches * 0.15)),
-      keywords: apiKeywords.filter(kw => lowerText.includes(kw)),
+      keywords: matchedKeywords,
       suggestedModel: 'mistral:7b',
       reason: 'Mistral excels at API integration and configuration',
     };
