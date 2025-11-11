@@ -238,3 +238,8 @@ export * from '../schema/output.js';
  */
 export * from '../prompt/index.js';
 
+/**
+ * Export memory components
+ */
+export * from '../memory/index.js';
+
