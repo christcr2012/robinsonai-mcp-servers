@@ -42,7 +42,7 @@ export async function applyFixPlan(
       timeoutMs: provider === 'ollama' ? 120000 : 60000, // 2 min for Ollama, 1 min for PAID
     });
 
-    const result = parseFixerResponse(llmResult.text);
+    const result = await parseFixerResponse(llmResult.text);
     result.cost = llmResult.cost || 0;
     console.log(`[Refine] Success! Cost: $${llmResult.cost?.toFixed(4) || '0.0000'}`);
     return result;
@@ -60,7 +60,7 @@ export async function applyFixPlan(
           timeoutMs: 30000,
         });
 
-        const result = parseFixerResponse(llmResult.text);
+        const result = await parseFixerResponse(llmResult.text);
         return result;
       } catch (fallbackError) {
         console.error('Both Ollama models failed to apply fixes:', fallbackError);
@@ -156,7 +156,7 @@ Make sure:
 /**
  * Parse the fixer's JSON response
  */
-function parseFixerResponse(response: string): GenResult {
+async function parseFixerResponse(response: string): Promise<GenResult> {
   try {
     // Try to extract JSON from response
     let jsonStr = response.trim();
@@ -180,7 +180,7 @@ function parseFixerResponse(response: string): GenResult {
     for (const file of parsed.files) {
       if (file.content) {
         try {
-          validatePatchUnifiedDiff(file.content);
+          await validatePatchUnifiedDiff(file.content);
         } catch (policyError) {
           console.error(`[Refine] Policy violation in ${file.path}:`, policyError);
           throw policyError;

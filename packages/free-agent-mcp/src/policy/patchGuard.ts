@@ -15,7 +15,7 @@ const FORBIDDEN_REGEX = [
  * - Hardcoded collections
  * - 'any' types in added lines
  */
-export function validatePatchUnifiedDiff(diff: string): void {
+export async function validatePatchUnifiedDiff(diff: string): Promise<void> {
   // 1) Basic textual checks for forbidden patterns
   for (const re of FORBIDDEN_REGEX) {
     if (re.test(diff)) {
@@ -36,7 +36,7 @@ export function validatePatchUnifiedDiff(diff: string): void {
     if (!addedLines.trim()) continue;
 
     // Count 'any' types in added code
-    const anyCount = countAnyTypes(addedLines);
+    const anyCount = await countAnyTypes(addedLines);
     if (anyCount > 0) {
       throw new Error(
         `[patch-guard] Patch rejected: added TypeScript 'any' (${anyCount} occurrences).`
