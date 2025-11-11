@@ -114,3 +114,4 @@ test-openai-integration.mjs
 
 # Robinson runtime directories
 .robinson/
+chris-credentials*.md

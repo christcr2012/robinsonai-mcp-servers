@@ -136,7 +136,7 @@
   },
   "devDependencies": {
     "@robinson_ai_systems/shared-llm": "^0.1.12",
-    "@robinson_ai_systems/shared-pipeline": "^0.1.2",
+    "@robinson_ai_systems/shared-pipeline": "^0.1.1",
     "@robinson_ai_systems/shared-utils": "^0.1.1",
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2"

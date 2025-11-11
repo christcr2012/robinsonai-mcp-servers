@@ -1,11 +1,11 @@
 {
-  "name": "@robinson_ai_systems/paid-agent-mcp",
-  "version": "0.6.1",
-  "description": "Paid Agent MCP - Execute tasks using PAID models (OpenAI, Claude, etc.)",
+  "name": "@robinson_ai_systems/custom-api-mcp",
+  "version": "0.1.0",
+  "description": "Custom API MCP - Connect to Chris's FastAPI server (PostgreSQL, Neo4j, Qdrant, N8N)",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "paid-agent-mcp": "./bin/paid-agent-mcp.js"
+    "custom-api-mcp": "./bin/custom-api-mcp.js"
   },
   "exports": {
     ".": "./dist/index.js",
@@ -26,26 +26,22 @@
   "keywords": [
     "mcp",
     "model-context-protocol",
-    "openai",
-    "claude",
-    "anthropic",
-    "paid-models",
-    "cost-control",
-    "multi-provider"
+    "fastapi",
+    "postgresql",
+    "neo4j",
+    "qdrant",
+    "n8n"
   ],
   "author": "Robinson AI Systems",
   "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.32.1",
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "better-sqlite3": "^11.10.0",
-    "openai": "^4.77.3"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@robinson_ai_systems/shared-llm": "^0.1.12",
     "@robinson_ai_systems/shared-pipeline": "^0.1.1",
     "@robinson_ai_systems/shared-utils": "^0.1.1",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2"
   },
@@ -58,6 +54,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/robinsonai/robinsonai-mcp-servers.git",
-    "directory": "packages/paid-agent-mcp"
+    "directory": "packages/custom-api-mcp"
   }
 }
+

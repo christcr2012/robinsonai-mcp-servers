@@ -87,6 +87,31 @@ importers:
         specifier: ^4.7.8
         version: 4.7.8
 
+  packages/custom-api-mcp:
+    dependencies:
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.0.4
+        version: 1.21.1
+      node-fetch:
+        specifier: ^3.3.2
+        version: 3.3.2
+    devDependencies:
+      '@robinson_ai_systems/shared-llm':
+        specifier: ^0.1.12
+        version: 0.1.12(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
+      '@robinson_ai_systems/shared-pipeline':
+        specifier: ^0.1.1
+        version: 0.1.1
+      '@robinson_ai_systems/shared-utils':
+        specifier: ^0.1.1
+        version: 0.1.1(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.19.0
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
   packages/free-agent-mcp:
     dependencies:
       '@anthropic-ai/sdk':
@@ -95,15 +120,6 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.4
         version: 1.21.1
-      '@robinson_ai_systems/shared-llm':
-        specifier: ^0.1.11
-        version: 0.1.12(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
-      '@robinson_ai_systems/shared-pipeline':
-        specifier: ^0.1.1
-        version: 0.1.1
-      '@robinson_ai_systems/shared-utils':
-        specifier: ^0.1.0
-        version: 0.1.1(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
@@ -132,6 +148,15 @@ importers:
         specifier: ^4.77.3
         version: 4.104.0(ws@8.18.3)(zod@3.25.76)
     devDependencies:
+      '@robinson_ai_systems/shared-llm':
+        specifier: ^0.1.12
+        version: 0.1.12(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
+      '@robinson_ai_systems/shared-pipeline':
+        specifier: ^0.1.1
+        version: 0.1.1
+      '@robinson_ai_systems/shared-utils':
+        specifier: ^0.1.1
+        version: 0.1.1(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
       '@types/node':
         specifier: ^22.10.2
         version: 22.19.0
@@ -147,15 +172,6 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.4
         version: 1.21.1
-      '@robinson_ai_systems/shared-llm':
-        specifier: ^0.1.11
-        version: 0.1.12(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
-      '@robinson_ai_systems/shared-pipeline':
-        specifier: ^0.1.1
-        version: 0.1.1
-      '@robinson_ai_systems/shared-utils':
-        specifier: ^0.1.0
-        version: 0.1.1(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
       better-sqlite3:
         specifier: ^11.10.0
         version: 11.10.0
@@ -163,6 +179,15 @@ importers:
         specifier: ^4.77.3
         version: 4.104.0(ws@8.18.3)(zod@3.25.76)
     devDependencies:
+      '@robinson_ai_systems/shared-llm':
+        specifier: ^0.1.12
+        version: 0.1.12(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
+      '@robinson_ai_systems/shared-pipeline':
+        specifier: ^0.1.1
+        version: 0.1.1
+      '@robinson_ai_systems/shared-utils':
+        specifier: ^0.1.1
+        version: 0.1.1(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
@@ -333,9 +358,6 @@ importers:
       '@mozilla/readability':
         specifier: ^0.4.4
         version: 0.4.4
-      '@robinson_ai_systems/robinsons-context-engine':
-        specifier: ^1.2.0
-        version: 1.2.0
       axios:
         specifier: ^1.12.2
         version: 1.13.2
@@ -415,6 +437,12 @@ importers:
         specifier: ^11.0.5
         version: 11.0.5
     devDependencies:
+      '@robinson_ai_systems/robinsons-context-engine':
+        specifier: ^1.2.0
+        version: 1.2.0
+      '@robinson_ai_systems/shared-utils':
+        specifier: ^0.1.1
+        version: 0.1.1(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
       '@types/node':
         specifier: ^22.18.13
         version: 22.19.0
@@ -4132,7 +4160,7 @@ snapshots:
       detect-libc: 2.1.2
       https-proxy-agent: 5.0.1
       make-dir: 3.1.0
-      node-fetch: 2.6.9
+      node-fetch: 2.7.0
       nopt: 5.0.0
       npmlog: 5.0.1
       rimraf: 3.0.2
