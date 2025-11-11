@@ -243,3 +243,7 @@ export * from '../prompt/index.js';
  */
 export * from '../memory/index.js';
 
+/**
+ * Export orchestrator components
+ */
+export * from '../orchestrator/index.js';
