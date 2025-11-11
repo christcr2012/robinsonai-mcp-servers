@@ -1,0 +1,99 @@
+{
+  "name": "free-agent-evals",
+  "version": "1.0.0",
+  "priority": "high",
+  "budget_credits": 500,
+  "status": "COMPLETE",
+  "steps": [
+    {
+      "id": "add_eval_harness",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": [
+        "packages/free-agent-mcp/src/evals/harness.ts",
+        "packages/free-agent-mcp/src/evals/metrics.ts",
+        "packages/free-agent-mcp/src/evals/scenarios.sample.json",
+        "packages/free-agent-mcp/src/evals/index.ts",
+        "scripts/run-evals.ts"
+      ],
+      "instructions": "Create eval harness, metrics, sample scenarios, and runner script.",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "build",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": [
+        "pnpm -w -C packages/free-agent-mcp build"
+      ],
+      "status": "COMPLETE"
+    }
+  ],
+  "results": {
+    "filesCreated": [
+      "packages/free-agent-mcp/src/evals/harness.ts",
+      "packages/free-agent-mcp/src/evals/metrics.ts",
+      "packages/free-agent-mcp/src/evals/scenarios.sample.json",
+      "packages/free-agent-mcp/src/evals/index.ts",
+      "scripts/run-evals.ts"
+    ],
+    "filesModified": [
+      "packages/free-agent-mcp/src/pipeline/index.ts"
+    ],
+    "buildStatus": "SUCCESS",
+    "buildSize": "365.07 KB",
+    "commit": "58d46f9"
+  },
+  "components": {
+    "harness": {
+      "description": "Scenario runner with latency tracking and regression detection",
+      "functions": [
+        "runScenario(scenario, runTask)",
+        "runScenarios(scenarios, runTask)",
+        "runScenariosWithBaseline(scenarios, runTask, baseline)",
+        "formatReport(report)",
+        "saveReport(report, filePath)",
+        "loadReport(filePath)",
+        "compareReports(current, previous)"
+      ]
+    },
+    "metrics": {
+      "description": "File content checks and code quality metrics",
+      "functions": [
+        "metrics.check(scenario)",
+        "metrics.getFileMetrics(filePath)",
+        "metrics.getDirectoryMetrics(dirPath)",
+        "countLines(filePath)",
+        "fileExists(filePath)",
+        "getFileSize(filePath)",
+        "isValidTypeScript(filePath)",
+        "hasTests(filePath)"
+      ]
+    },
+    "scenarios": {
+      "description": "8 sample scenarios for testing",
+      "count": 8,
+      "examples": [
+        "Add email notification service",
+        "Add user authentication middleware",
+        "Add database connection pool",
+        "Add caching layer",
+        "Add error handling utility",
+        "Add request validation middleware",
+        "Add logging service",
+        "Add rate limiting middleware"
+      ]
+    },
+    "runner": {
+      "description": "Eval runner script with CLI options",
+      "usage": "pnpm ts-node scripts/run-evals.ts [options]",
+      "options": [
+        "--baseline <path>: Load baseline for comparison",
+        "--save <path>: Save report to file",
+        "--verbose: Show detailed output"
+      ]
+    }
+  }
+}
+
