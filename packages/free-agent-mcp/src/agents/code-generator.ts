@@ -122,7 +122,7 @@ export class CodeGenerator {
       files: detailedFiles.filter(file => !file.deleted).map(file => ({ path: file.path, content: file.content })),
       augmentCreditsUsed,
       creditsSaved,
-      model: request.model || 'qwen2.5:3b',
+      model: request.model || this.selectModel(request.complexity), // Use intelligent model selection
       tokens: {
         input: 0, // Pipeline doesn't expose token counts yet
         output: 0,
@@ -210,7 +210,7 @@ Requirements:
       })),
       augmentCreditsUsed: 400,
       creditsSaved: 8000,
-      model: request.model || 'qwen2.5:3b',
+      model: request.model || this.selectModel(request.complexity), // Use intelligent model selection
       tokens: {
         input: 0,
         output: 0,
