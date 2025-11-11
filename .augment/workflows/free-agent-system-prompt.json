@@ -1,0 +1,68 @@
+{
+  "name": "free-agent-system-prompt",
+  "version": "1.0.0",
+  "priority": "high",
+  "budget_credits": 350,
+  "status": "COMPLETE",
+  "steps": [
+    {
+      "id": "add_prompt_modules",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": [
+        "packages/free-agent-mcp/src/prompt/system.ts",
+        "packages/free-agent-mcp/src/prompt/guardrails.ts",
+        "packages/free-agent-mcp/src/prompt/index.ts"
+      ],
+      "instructions": "Create the three files with system prompt builder, guardrails, and integration.",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "add_config",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": [
+        "packages/free-agent-mcp/config/system.prompt.json"
+      ],
+      "instructions": "Create example system prompt configuration.",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "update_exports",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": [
+        "packages/free-agent-mcp/src/pipeline/index.ts"
+      ],
+      "instructions": "Export prompt module from pipeline.",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "build",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": [
+        "cd packages/free-agent-mcp && pnpm build"
+      ],
+      "status": "COMPLETE"
+    }
+  ],
+  "results": {
+    "filesCreated": [
+      "packages/free-agent-mcp/src/prompt/system.ts",
+      "packages/free-agent-mcp/src/prompt/guardrails.ts",
+      "packages/free-agent-mcp/src/prompt/index.ts",
+      "packages/free-agent-mcp/config/system.prompt.json"
+    ],
+    "filesModified": [
+      "packages/free-agent-mcp/src/pipeline/index.ts"
+    ],
+    "buildStatus": "SUCCESS",
+    "buildSize": "319.72 KB",
+    "commit": "39f0430"
+  }
+}
+
