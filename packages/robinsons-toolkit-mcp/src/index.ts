@@ -73,6 +73,12 @@ import { qdrantTools } from './chris-infrastructure/qdrant-tools.js';
 import * as QdrantHandlers from './chris-infrastructure/qdrant-handlers.js';
 import { n8nTools } from './chris-infrastructure/n8n-tools.js';
 import * as N8nHandlers from './chris-infrastructure/n8n-handlers.js';
+import { langchainTools } from './chris-infrastructure/langchain-tools.js';
+import * as LangchainHandlers from './chris-infrastructure/langchain-handlers.js';
+import { gatewayTools } from './chris-infrastructure/gateway-tools.js';
+import * as GatewayHandlers from './chris-infrastructure/gateway-handlers.js';
+import { healthTools } from './chris-infrastructure/health-tools.js';
+import * as HealthHandlers from './chris-infrastructure/health-handlers.js';
 
 // Load environment variables from .env.local (in repo root)
 const __filename = fileURLToPath(import.meta.url);
@@ -2134,14 +2140,20 @@ const result = await toolkit_call({
       ...CLOUDFLARE_TOOLS_5,
 
       // ============================================================
-      // CHRIS'S INFRASTRUCTURE (72 tools) - INTEGRATED v1.15.0
+      // CHRIS'S INFRASTRUCTURE (30+ tools) - INTEGRATED v1.15.0
       // ============================================================
-      // PostgreSQL with pgvector (25 tools)
+      // Health & User (2 tools)
+      ...healthTools,
+      // PostgreSQL with pgvector (8 tools)
       ...postgresTools,
-      // Neo4j Knowledge Graph (20 tools)
+      // Neo4j Knowledge Graph (6 tools)
       ...neo4jTools,
-      // Qdrant Vector Search (15 tools)
+      // Qdrant Vector Search (7 tools)
       ...qdrantTools,
+      // LangChain RAG (4 tools)
+      ...langchainTools,
+      // Gateway Proxy (3 tools)
+      ...gatewayTools,
       // N8N Workflow Automation (12 tools)
       ...n8nTools
     ];
@@ -4635,6 +4647,50 @@ const result = await toolkit_call({
           case 'n8n_credential_list': return await N8nHandlers.handleN8nCredentialList(args);
           case 'n8n_credential_create': return await N8nHandlers.handleN8nCredentialCreate(args);
           case 'n8n_connection_test': return await N8nHandlers.handleN8nConnectionTest(args);
+
+          // ============================================================
+          // CHRIS INFRASTRUCTURE - FASTAPI GATEWAY (30+ tools)
+          // ============================================================
+
+          // HEALTH & USER (2 tools)
+          case 'fastapi_health_check': return await HealthHandlers.handleHealthCheck(args);
+          case 'fastapi_user_info': return await HealthHandlers.handleUserInfo(args);
+
+          // POSTGRESQL (8 tools)
+          case 'fastapi_postgres_info': return await PostgresHandlers.handlePostgresInfo(args);
+          case 'fastapi_postgres_schemas': return await PostgresHandlers.handlePostgresSchemas(args);
+          case 'fastapi_postgres_tables': return await PostgresHandlers.handlePostgresTables(args);
+          case 'fastapi_postgres_table_columns': return await PostgresHandlers.handlePostgresTableColumns(args);
+          case 'fastapi_postgres_table_indexes': return await PostgresHandlers.handlePostgresTableIndexes(args);
+          case 'fastapi_postgres_query': return await PostgresHandlers.handlePostgresQuery(args);
+          case 'fastapi_postgres_execute': return await PostgresHandlers.handlePostgresExecute(args);
+          case 'fastapi_postgres_vector_search': return await PostgresHandlers.handlePostgresVectorSearch(args);
+
+          // NEO4J (6 tools)
+          case 'fastapi_neo4j_info': return await Neo4jHandlers.handleNeo4jInfo(args);
+          case 'fastapi_neo4j_query': return await Neo4jHandlers.handleNeo4jQuery(args);
+          case 'fastapi_neo4j_execute': return await Neo4jHandlers.handleNeo4jExecute(args);
+          case 'fastapi_neo4j_nodes': return await Neo4jHandlers.handleNeo4jNodes(args);
+          case 'fastapi_neo4j_relationships': return await Neo4jHandlers.handleNeo4jRelationships(args);
+
+          // QDRANT (7 tools)
+          case 'fastapi_qdrant_collections': return await QdrantHandlers.handleQdrantCollections(args);
+          case 'fastapi_qdrant_collection_info': return await QdrantHandlers.handleQdrantCollectionInfo(args);
+          case 'fastapi_qdrant_vector_search': return await QdrantHandlers.handleQdrantVectorSearch(args);
+          case 'fastapi_qdrant_upsert_points': return await QdrantHandlers.handleQdrantUpsertPoints(args);
+          case 'fastapi_qdrant_delete_points': return await QdrantHandlers.handleQdrantDeletePoints(args);
+          case 'fastapi_qdrant_get_point': return await QdrantHandlers.handleQdrantGetPoint(args);
+
+          // LANGCHAIN (4 tools)
+          case 'fastapi_langchain_info': return await LangchainHandlers.handleLangchainInfo(args);
+          case 'fastapi_langchain_chat': return await LangchainHandlers.handleLangchainChat(args);
+          case 'fastapi_langchain_rag_query': return await LangchainHandlers.handleLangchainRagQuery(args);
+          case 'fastapi_langchain_ingest_document': return await LangchainHandlers.handleLangchainIngestDocument(args);
+
+          // GATEWAY (3 tools)
+          case 'fastapi_gateway_services': return await GatewayHandlers.handleGatewayServices(args);
+          case 'fastapi_gateway_service_health': return await GatewayHandlers.handleGatewayServiceHealth(args);
+          case 'fastapi_gateway_proxy': return await GatewayHandlers.handleGatewayProxy(args);
 
           default:
             return {

@@ -1,7 +1,7 @@
 /**
  * Qdrant Handlers for Chris's Infrastructure
- * 
- * Handler functions for all 15 Qdrant tools
+ *
+ * Handler functions for all 7 Qdrant tools
  */
 
 import { fastAPIClient } from './fastapi-client.js';
@@ -10,33 +10,17 @@ import { fastAPIClient } from './fastapi-client.js';
 // Collection Management
 // ============================================================================
 
-export async function handleQdrantCollectionCreate(args: any) {
-  const { collection_name, vector_size, distance = 'Cosine' } = args;
-  return await fastAPIClient.qdrantCreateCollection(collection_name, vector_size, distance);
+export async function handleQdrantCollections(args: any) {
+  return await fastAPIClient.request('/qdrant/collections', {
+    method: 'GET',
+  });
 }
 
-export async function handleQdrantCollectionList(args: any) {
-  return await fastAPIClient.qdrantListCollections();
-}
-
-export async function handleQdrantCollectionGet(args: any) {
+export async function handleQdrantCollectionInfo(args: any) {
   const { collection_name } = args;
-  return await fastAPIClient.qdrantGetCollection(collection_name);
-}
 
-export async function handleQdrantCollectionDelete(args: any) {
-  const { collection_name } = args;
-  return await fastAPIClient.qdrantDeleteCollection(collection_name);
-}
-
-export async function handleQdrantCollectionUpdate(args: any) {
-  const { collection_name, optimizers_config } = args;
-  
   return await fastAPIClient.request(`/qdrant/collections/${collection_name}`, {
-    method: 'PATCH',
-    body: JSON.stringify({
-      optimizers_config,
-    }),
+    method: 'GET',
   });
 }
 
@@ -44,28 +28,20 @@ export async function handleQdrantCollectionUpdate(args: any) {
 // Search Operations
 // ============================================================================
 
-export async function handleQdrantSearchSemantic(args: any) {
-  const { collection_name, query_vector, limit = 5, score_threshold, filter } = args;
-  
-  return await fastAPIClient.qdrantSearch(
-    collection_name,
-    query_vector,
-    limit,
-    score_threshold
-  );
-}
+export async function handleQdrantVectorSearch(args: any) {
+  const { collection_name, vector, limit = 10, score_threshold, filter } = args;
 
-export async function handleQdrantSearchBatch(args: any) {
-  const { collection_name, query_vectors, limit = 5 } = args;
-  
-  const searches = query_vectors.map((vector: number[]) => ({
-    vector,
-    limit,
-  }));
-  
-  return await fastAPIClient.request(`/qdrant/collections/${collection_name}/points/search/batch`, {
+  let url = `/qdrant/search?collection_name=${collection_name}&limit=${limit}`;
+  if (score_threshold !== undefined) {
+    url += `&score_threshold=${score_threshold}`;
+  }
+
+  return await fastAPIClient.request(url, {
     method: 'POST',
-    body: JSON.stringify({ searches }),
+    body: JSON.stringify({
+      vector,
+      filter,
+    }),
   });
 }
 
@@ -73,87 +49,33 @@ export async function handleQdrantSearchBatch(args: any) {
 // Point Operations
 // ============================================================================
 
-export async function handleQdrantPointUpsert(args: any) {
-  const { collection_name, point_id, vector, payload = {} } = args;
-  
-  const point = {
-    id: point_id,
-    vector,
-    payload,
-  };
-  
-  return await fastAPIClient.qdrantUpsertPoints(collection_name, [point]);
-}
-
-export async function handleQdrantPointGet(args: any) {
-  const { collection_name, point_id } = args;
-  
-  return await fastAPIClient.request(`/qdrant/collections/${collection_name}/points/${point_id}`, {
-    method: 'GET',
-  });
-}
-
-export async function handleQdrantPointDelete(args: any) {
-  const { collection_name, point_id } = args;
-  
-  return await fastAPIClient.request(`/qdrant/collections/${collection_name}/points/delete`, {
-    method: 'POST',
-    body: JSON.stringify({
-      points: [point_id],
-    }),
-  });
-}
-
-export async function handleQdrantPointSearch(args: any) {
-  const { collection_name, filter, limit = 10 } = args;
-  
-  return await fastAPIClient.request(`/qdrant/collections/${collection_name}/points/scroll`, {
-    method: 'POST',
-    body: JSON.stringify({
-      filter,
-      limit,
-    }),
-  });
-}
-
-export async function handleQdrantPointsBatchUpsert(args: any) {
+export async function handleQdrantUpsertPoints(args: any) {
   const { collection_name, points } = args;
-  return await fastAPIClient.qdrantUpsertPoints(collection_name, points);
-}
 
-// ============================================================================
-// Snapshot & Admin
-// ============================================================================
-
-export async function handleQdrantSnapshotCreate(args: any) {
-  const { collection_name } = args;
-  
-  return await fastAPIClient.request(`/qdrant/collections/${collection_name}/snapshots`, {
+  return await fastAPIClient.request(`/qdrant/points/upsert?collection_name=${collection_name}`, {
     method: 'POST',
+    body: JSON.stringify({
+      points,
+    }),
   });
 }
 
-export async function handleQdrantSnapshotList(args: any) {
-  const { collection_name } = args;
-  
-  return await fastAPIClient.request(`/qdrant/collections/${collection_name}/snapshots`, {
+export async function handleQdrantDeletePoints(args: any) {
+  const { collection_name, point_ids } = args;
+
+  return await fastAPIClient.request(`/qdrant/points/delete?collection_name=${collection_name}`, {
+    method: 'DELETE',
+    body: JSON.stringify({
+      point_ids,
+    }),
+  });
+}
+
+export async function handleQdrantGetPoint(args: any) {
+  const { collection_name, point_id } = args;
+
+  return await fastAPIClient.request(`/qdrant/points/${point_id}?collection_name=${collection_name}`, {
     method: 'GET',
   });
-}
-
-export async function handleQdrantConnectionTest(args: any) {
-  try {
-    const result = await fastAPIClient.qdrantListCollections();
-    return {
-      success: true,
-      message: 'Connection successful',
-      collections: result,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : 'Connection failed',
-    };
-  }
 }
 

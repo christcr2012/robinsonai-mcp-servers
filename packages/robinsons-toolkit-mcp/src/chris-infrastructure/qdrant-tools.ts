@@ -1,7 +1,8 @@
 /**
  * Qdrant Tools for Chris's Infrastructure
- * 
- * 15 tools for Qdrant vector search operations via FastAPI Gateway
+ *
+ * 7 tools for Qdrant vector search operations via FastAPI Gateway
+ * Matches OpenAPI spec exactly
  */
 
 export const qdrantTools = [
@@ -9,32 +10,7 @@ export const qdrantTools = [
   // Collection Management
   // ============================================================================
   {
-    name: 'qdrant_collection_create',
-    description: 'Create a new collection in Qdrant',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        collection_name: {
-          type: 'string',
-          description: 'Name of the collection to create',
-        },
-        vector_size: {
-          type: 'number',
-          description: 'Size of the vectors (e.g., 1536 for OpenAI embeddings)',
-        },
-        distance: {
-          type: 'string',
-          enum: ['Cosine', 'Euclid', 'Dot'],
-          default: 'Cosine',
-          description: 'Distance metric for similarity',
-        },
-      },
-      required: ['collection_name', 'vector_size'],
-    },
-  },
-
-  {
-    name: 'qdrant_collection_list',
+    name: 'fastapi_qdrant_collections',
     description: 'List all collections in Qdrant',
     inputSchema: {
       type: 'object',
@@ -43,48 +19,14 @@ export const qdrantTools = [
   },
 
   {
-    name: 'qdrant_collection_get',
-    description: 'Get information about a specific collection',
+    name: 'fastapi_qdrant_collection_info',
+    description: 'Get detailed information about a Qdrant collection',
     inputSchema: {
       type: 'object',
       properties: {
         collection_name: {
           type: 'string',
-          description: 'Name of the collection',
-        },
-      },
-      required: ['collection_name'],
-    },
-  },
-
-  {
-    name: 'qdrant_collection_delete',
-    description: 'Delete a collection from Qdrant',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        collection_name: {
-          type: 'string',
-          description: 'Name of the collection to delete',
-        },
-      },
-      required: ['collection_name'],
-    },
-  },
-
-  {
-    name: 'qdrant_collection_update',
-    description: 'Update collection configuration',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        collection_name: {
-          type: 'string',
-          description: 'Name of the collection to update',
-        },
-        optimizers_config: {
-          type: 'object',
-          description: 'Optimizer configuration',
+          description: 'Collection name',
         },
       },
       required: ['collection_name'],
@@ -95,23 +37,23 @@ export const qdrantTools = [
   // Search Operations
   // ============================================================================
   {
-    name: 'qdrant_search_semantic',
-    description: 'Perform semantic search in Qdrant collection',
+    name: 'fastapi_qdrant_vector_search',
+    description: 'Perform vector similarity search in Qdrant',
     inputSchema: {
       type: 'object',
       properties: {
         collection_name: {
           type: 'string',
-          description: 'Name of the collection to search',
+          description: 'Collection name',
         },
-        query_vector: {
+        vector: {
           type: 'array',
           items: { type: 'number' },
-          description: 'Query vector for similarity search',
+          description: 'Query vector',
         },
         limit: {
           type: 'number',
-          default: 5,
+          default: 10,
           description: 'Number of results to return',
         },
         score_threshold: {
@@ -123,35 +65,7 @@ export const qdrantTools = [
           description: 'Filter conditions (optional)',
         },
       },
-      required: ['collection_name', 'query_vector'],
-    },
-  },
-
-  {
-    name: 'qdrant_search_batch',
-    description: 'Perform batch search with multiple query vectors',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        collection_name: {
-          type: 'string',
-          description: 'Name of the collection to search',
-        },
-        query_vectors: {
-          type: 'array',
-          items: {
-            type: 'array',
-            items: { type: 'number' },
-          },
-          description: 'Array of query vectors',
-        },
-        limit: {
-          type: 'number',
-          default: 5,
-          description: 'Number of results per query',
-        },
-      },
-      required: ['collection_name', 'query_vectors'],
+      required: ['collection_name', 'vector'],
     },
   },
 
@@ -159,104 +73,14 @@ export const qdrantTools = [
   // Point Operations
   // ============================================================================
   {
-    name: 'qdrant_point_upsert',
-    description: 'Insert or update a point in Qdrant collection',
+    name: 'fastapi_qdrant_upsert_points',
+    description: 'Upsert points into a Qdrant collection',
     inputSchema: {
       type: 'object',
       properties: {
         collection_name: {
           type: 'string',
-          description: 'Name of the collection',
-        },
-        point_id: {
-          type: 'string',
-          description: 'Unique identifier for the point',
-        },
-        vector: {
-          type: 'array',
-          items: { type: 'number' },
-          description: 'Vector data',
-        },
-        payload: {
-          type: 'object',
-          description: 'Metadata payload',
-        },
-      },
-      required: ['collection_name', 'point_id', 'vector'],
-    },
-  },
-
-  {
-    name: 'qdrant_point_get',
-    description: 'Get a point by ID from Qdrant collection',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        collection_name: {
-          type: 'string',
-          description: 'Name of the collection',
-        },
-        point_id: {
-          type: 'string',
-          description: 'Point ID to retrieve',
-        },
-      },
-      required: ['collection_name', 'point_id'],
-    },
-  },
-
-  {
-    name: 'qdrant_point_delete',
-    description: 'Delete a point from Qdrant collection',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        collection_name: {
-          type: 'string',
-          description: 'Name of the collection',
-        },
-        point_id: {
-          type: 'string',
-          description: 'Point ID to delete',
-        },
-      },
-      required: ['collection_name', 'point_id'],
-    },
-  },
-
-  {
-    name: 'qdrant_point_search',
-    description: 'Search points with filters',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        collection_name: {
-          type: 'string',
-          description: 'Name of the collection',
-        },
-        filter: {
-          type: 'object',
-          description: 'Filter conditions',
-        },
-        limit: {
-          type: 'number',
-          default: 10,
-          description: 'Number of results to return',
-        },
-      },
-      required: ['collection_name', 'filter'],
-    },
-  },
-
-  {
-    name: 'qdrant_points_batch_upsert',
-    description: 'Batch insert or update multiple points',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        collection_name: {
-          type: 'string',
-          description: 'Name of the collection',
+          description: 'Collection name',
         },
         points: {
           type: 'array',
@@ -270,6 +94,7 @@ export const qdrantTools = [
               },
               payload: { type: 'object' },
             },
+            required: ['id', 'vector'],
           },
           description: 'Array of points to upsert',
         },
@@ -278,45 +103,42 @@ export const qdrantTools = [
     },
   },
 
-  // ============================================================================
-  // Snapshot & Admin
-  // ============================================================================
   {
-    name: 'qdrant_snapshot_create',
-    description: 'Create a snapshot of a collection',
+    name: 'fastapi_qdrant_delete_points',
+    description: 'Delete points from a Qdrant collection',
     inputSchema: {
       type: 'object',
       properties: {
         collection_name: {
           type: 'string',
-          description: 'Name of the collection to snapshot',
+          description: 'Collection name',
+        },
+        point_ids: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'List of point IDs to delete',
         },
       },
-      required: ['collection_name'],
+      required: ['collection_name', 'point_ids'],
     },
   },
 
   {
-    name: 'qdrant_snapshot_list',
-    description: 'List all snapshots for a collection',
+    name: 'fastapi_qdrant_get_point',
+    description: 'Get a specific point from a Qdrant collection',
     inputSchema: {
       type: 'object',
       properties: {
         collection_name: {
           type: 'string',
-          description: 'Name of the collection',
+          description: 'Collection name',
+        },
+        point_id: {
+          type: 'string',
+          description: 'Point ID',
         },
       },
-      required: ['collection_name'],
-    },
-  },
-
-  {
-    name: 'qdrant_connection_test',
-    description: 'Test connection to Qdrant',
-    inputSchema: {
-      type: 'object',
-      properties: {},
+      required: ['collection_name', 'point_id'],
     },
   },
 ];
