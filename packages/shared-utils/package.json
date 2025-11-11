@@ -11,15 +11,17 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -b ../../tsconfig.json --force",
     "clean": "rm -rf dist",
     "prepack": "npm run clean && npm run build"
   },
   "dependencies": {
-    "@robinson_ai_systems/shared-llm": "workspace:*",
-    "@robinson_ai_systems/robinsons-context-engine": "workspace:*",
+    "@robinson_ai_systems/shared-llm": "^0.1.11",
+    "@robinson_ai_systems/robinsons-context-engine": "^1.2.0",
     "fast-glob": "^3.3.2",
     "ignore": "^5.3.0"
   },
@@ -28,4 +30,3 @@
     "typescript": "^5.3.3"
   }
 }
-

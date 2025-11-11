@@ -10,15 +10,17 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -b ../../tsconfig.json --force",
     "clean": "rm -rf dist",
     "prepack": "npm run clean && npm run build"
   },
   "dependencies": {
-    "@robinson_ai_systems/shared-llm": "workspace:*",
-    "@robinson_ai_systems/shared-utils": "workspace:*",
+    "@robinson_ai_systems/shared-llm": "^0.1.11",
+    "@robinson_ai_systems/shared-utils": "^0.1.0",
     "dockerode": "^4.0.2",
     "tar-stream": "^3.1.7"
   },
