@@ -62,6 +62,16 @@ export class OllamaClient {
           useCase: ['code', 'medium', 'refactoring', 'tests', 'features', 'complex'],
         },
       ],
+      // ANALYSIS: Mistral 7B - Excellent for API integration, analysis, planning
+      [
+        'mistral:7b',
+        {
+          name: 'mistral:7b',
+          speed: 'medium',
+          quality: 'better',
+          useCase: ['analysis', 'api-integration', 'research', 'planning', 'tool-setup', 'configuration'],
+        },
+      ],
       // FALLBACK: DeepSeek Coder 1.3B - Small but code-specific
       [
         'deepseek-coder:1.3b',
@@ -122,15 +132,28 @@ export class OllamaClient {
       console.warn(`[OllamaClient] Requested model ${requestedModel} not found, auto-selecting...`);
     }
 
-    // Auto-select: Try Qwen Coder first (best 7B code model), then fallback
+    // Auto-select based on task type
     const modelManager_models = await modelManager.listAvailableModels();
 
-    // Prefer Qwen 2.5 Coder 7B - BEST 7B code model available
+    // For analysis/research/planning tasks, prefer Mistral (better reasoning)
+    if (options.complexity === 'simple' &&
+        (options.model?.includes('analysis') || options.model?.includes('research'))) {
+      if (modelManager_models.includes('mistral:7b')) {
+        return 'mistral:7b';
+      }
+    }
+
+    // For code generation, prefer Qwen 2.5 Coder 7B - BEST 7B code model
     if (modelManager_models.includes('qwen2.5-coder:7b')) {
       return 'qwen2.5-coder:7b';
     }
 
-    // Fallback to DeepSeek Coder (small but code-specific)
+    // Fallback to Mistral for general tasks
+    if (modelManager_models.includes('mistral:7b')) {
+      return 'mistral:7b';
+    }
+
+    // Last resort: DeepSeek Coder (small but code-specific)
     if (modelManager_models.includes('deepseek-coder:1.3b')) {
       return 'deepseek-coder:1.3b';
     }
@@ -290,6 +313,7 @@ export class OllamaClient {
       // Check if recommended models are available
       const recommendedModels = [
         'qwen2.5-coder:7b',     // PRIMARY: Best 7B code model
+        'mistral:7b',           // ANALYSIS: API integration, research, planning
         'deepseek-coder:1.3b',  // FALLBACK: Code-specific, small
         'qwen2.5:3b',           // ROUTER: Fast for routing
         'nomic-embed-text',     // EMBEDDINGS: For semantic search
