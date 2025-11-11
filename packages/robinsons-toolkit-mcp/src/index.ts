@@ -376,12 +376,15 @@ class UnifiedToolkit {
 
     // BROKER PATTERN: Generate dynamic broker tools with current category list
     const categoryNames = this.registry.getCategories().map(c => c.name);
+    console.error(`[Robinson Toolkit] Categories for broker: ${categoryNames.join(', ')}`);
     const brokerTools = generateBrokerTools(categoryNames);
+    console.error(`[Robinson Toolkit] Generated ${brokerTools.length} broker tools: ${brokerTools.map(t => t.name).join(', ')}`);
 
     // Expose only broker meta-tools to client
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: brokerTools
-    }));
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      console.error(`[Robinson Toolkit] ListTools called, returning ${brokerTools.length} broker tools`);
+      return { tools: brokerTools };
+    });
 
     // Handle initialization request with auto-discovery documentation
     this.server.setRequestHandler(InitializeRequestSchema, async () => ({
@@ -10729,6 +10732,10 @@ const result = await toolkit_call({
   async run() {
     try {
       console.error("[Robinson Toolkit] Starting server...");
+      console.error("[Robinson Toolkit] Package version: 1.15.3");
+      console.error("[Robinson Toolkit] Working directory:", process.cwd());
+      console.error("[Robinson Toolkit] Script path:", import.meta.url);
+
       const transport = new StdioServerTransport();
       console.error("[Robinson Toolkit] Transport created");
       await this.server.connect(transport);

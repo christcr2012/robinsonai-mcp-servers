@@ -100,20 +100,30 @@ async function listToolsWithRetry(
   retries = 10,
   delayMs = 300
 ): Promise<any> {
+  console.error(`[listToolsWithRetry] Starting with ${retries} retries, ${delayMs}ms delay`);
   let lastErr: unknown;
   for (let i = 0; i < retries; i++) {
     try {
+      console.error(`[listToolsWithRetry] Attempt ${i + 1}/${retries}...`);
       const res = await client.listTools();
-      if (res?.tools && res.tools.length > 0) return res;
+      console.error(`[listToolsWithRetry] Got response with ${res?.tools?.length || 0} tools`);
+      if (res?.tools && res.tools.length > 0) {
+        console.error(`[listToolsWithRetry] Success! Returning ${res.tools.length} tools`);
+        return res;
+      }
       // If we got an empty array, give the broker time to register
+      console.error(`[listToolsWithRetry] Empty response, waiting ${delayMs}ms...`);
       await new Promise(r => setTimeout(r, delayMs));
     } catch (e) {
+      console.error(`[listToolsWithRetry] Error on attempt ${i + 1}:`, e);
       lastErr = e;
       await new Promise(r => setTimeout(r, delayMs));
     }
   }
   // Final attempt throws if still empty
+  console.error(`[listToolsWithRetry] All retries exhausted, making final attempt...`);
   const final = await client.listTools();
+  console.error(`[listToolsWithRetry] Final attempt got ${final?.tools?.length || 0} tools`);
   if (!final?.tools?.length) {
     throw lastErr ?? new Error('No tools available after retries.');
   }
@@ -219,7 +229,11 @@ export class ToolkitClient {
 
       // Wait for tools to be available (handles async broker registration)
       console.error('[ToolkitClient] Waiting for tools to be available...');
-      await listToolsWithRetry(this.client);
+      const toolsResult = await listToolsWithRetry(this.client);
+      console.error(`[ToolkitClient] Got ${toolsResult.tools?.length || 0} tools from toolkit`);
+      if (toolsResult.tools?.length > 0) {
+        console.error(`[ToolkitClient] Tool names: ${toolsResult.tools.map((t: any) => t.name).join(', ')}`);
+      }
 
       this.connected = true;
       this.connecting = false;
