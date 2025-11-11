@@ -2154,3 +2154,6 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
+// Export tool bridge for use in generated code
+export { toolBridge, tryToolkitCall, tryThinkingTool, docsSearch } from './tools/bridge.js';
+export type { ToolkitResult, ThinkingToolResult, DocSearchResult } from './tools/bridge.js';

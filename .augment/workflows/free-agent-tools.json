@@ -1,0 +1,31 @@
+{
+  "name": "free-agent-tools",
+  "version": "1.0.0",
+  "priority": "high",
+  "budget_credits": 400,
+  "steps": [
+    {
+      "id": "add_tool_bridge",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": ["packages/free-agent-mcp/src/tools/bridge.ts"],
+      "instructions": "Create a bridge that lets generations issue toolkit_call / thinking_tool_call / safe_web_doc_search pseudo-calls. Provides safe access to Robinson's Toolkit, Thinking Tools, and whitelisted documentation."
+    },
+    {
+      "id": "update_prompt_hints",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": ["packages/free-agent-mcp/src/pipeline/prompt.ts"],
+      "instructions": "Add prompt hints to encourage toolkit_call for deployments/DB/APIs and docsSearch for authoritative syntax. Inject into house rules and context prompts."
+    },
+    {
+      "id": "build",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": ["cd packages/free-agent-mcp && pnpm build"]
+    }
+  ]
+}
+

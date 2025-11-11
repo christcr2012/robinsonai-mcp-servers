@@ -40,7 +40,13 @@ export function makeHouseRules(brief: ProjectBrief): string[] {
     '✅ Use ONLY real, documented APIs. Never invent or hallucinate methods.',
     '✅ Mirror existing patterns from the repo. Consistency over creativity.',
     '✅ If external APIs are required, use official clients or documented REST endpoints.',
-    '✅ Write tests that are independent, deterministic, and cover edge cases.'
+    '✅ Write tests that are independent, deterministic, and cover edge cases.',
+    '',
+    '## TOOL INTEGRATION (Use These for External Work)',
+    '✅ For deployments/databases/external APIs: Use tryToolkitCall() from tool bridge',
+    '✅ For authoritative API syntax: Call docsSearch() first, then follow official docs',
+    '✅ For complex analysis: Use tryThinkingTool() for frameworks like SWOT, root cause',
+    '✅ Never write shell scripts or guess API signatures - use the tool bridge instead'
   ];
 }
 
@@ -70,6 +76,17 @@ export function buildPromptWithContext(input: PromptInput): string {
     '',
     '## HOUSE RULES (MANDATORY)',
     rules.map(r => `${r}`).join('\n'),
+    '',
+    '## AVAILABLE TOOLS (Import from "tool-bridge")',
+    '```typescript',
+    '// For external work (deployments, databases, APIs):',
+    'import { tryToolkitCall, docsSearch, tryThinkingTool } from "./tool-bridge";',
+    '',
+    '// Examples:',
+    '// const result = await tryToolkitCall("github_create_repo", { owner, repo });',
+    '// const docs = await docsSearch("React hooks API");',
+    '// const analysis = await tryThinkingTool("framework_swot", { subject });',
+    '```',
     '',
     '## REPOSITORY GLOSSARY (Top Symbols)',
     glossaryText || '(none)',
