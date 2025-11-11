@@ -37,7 +37,7 @@ import { initializePricing, getModelPricing, getPricingInfo, refreshPricing } fr
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, estimateTaskCost, getModelConfig, COST_POLICY, requiresApproval, withinBudget } from './model-catalog.js';
 import { getSharedOllamaClient } from './ollama-client.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams } from '@robinson_ai_systems/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams, createLlmRouter, type LlmRouter } from '@robinson_ai_systems/shared-llm';
 import { buildStrictSystemPrompt } from './prompt-builder.js';
 import { getWorkspaceRoot } from './lib/workspace.js';
 
@@ -2470,6 +2470,18 @@ async function handleGenerateProjectBrief(args: any) {
  * Start server
  */
 async function main() {
+  // Set agent name for LLM router
+  process.env.AGENT_NAME = 'paid-agent';
+
+  // Initialize LLM router with cloud-first preference
+  try {
+    const router = await createLlmRouter();
+    console.error(`[Paid Agent] Using provider: ${router.order[0]}`);
+  } catch (error: any) {
+    console.error(`[Paid Agent] LLM Router initialization failed: ${error.message}`);
+    throw error;
+  }
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error('OpenAI Worker MCP server running on stdio');

@@ -41,7 +41,7 @@ import { CodeGenerator } from './agents/code-generator.js';
 import { CodeAnalyzer } from './agents/code-analyzer.js';
 import { CodeRefactor } from './agents/code-refactor.js';
 import { StatsTracker } from './utils/stats-tracker.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams } from '@robinson_ai_systems/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams, createLlmRouter, type LlmRouter } from '@robinson_ai_systems/shared-llm';
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, getModelConfig, estimateTaskCost } from './model-catalog.js';
 import { warmupAvailableModels } from './utils/model-warmup.js';
@@ -2110,6 +2110,18 @@ Generate the modified section now:`;
   }
 
   async run(): Promise<void> {
+    // Set agent name for LLM router
+    process.env.AGENT_NAME = 'free-agent';
+
+    // Initialize LLM router with Ollama health check
+    try {
+      const router = await createLlmRouter();
+      console.error(`[Free Agent] Using provider: ${router.order[0]}`);
+    } catch (error: any) {
+      console.error(`[Free Agent] LLM Router initialization failed: ${error.message}`);
+      throw error;
+    }
+
     // Warm up models on startup to avoid cold start delays (disabled for now - causes timeouts)
     // warmupAvailableModels().catch(error => {
     //   console.error('⚠️  Model warmup failed (non-fatal):', error);

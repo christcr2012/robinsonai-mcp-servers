@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/shared-utils",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared utilities for Robinson AI MCP Servers",
   "type": "module",
   "main": "./dist/index.js",

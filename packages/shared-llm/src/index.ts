@@ -16,4 +16,10 @@ export {
   resolveWorkspacePath,
   workspacePathExists
 } from './workspace.js';
+export {
+  createLlmRouter,
+  type LlmRouter,
+  type ProviderName,
+  type Providers
+} from './llm-router.js';
 
