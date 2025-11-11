@@ -96,9 +96,19 @@ export class ModelManager {
 
     // Detect capabilities based on name
     const capabilities: ModelCapability[] = ['chat']; // All models can chat
-    if (baseName.includes('coder') || baseName.includes('code') || family === 'codellama') {
+
+    // Code capability: explicit markers OR known code-capable models
+    const isCodeCapable = baseName.includes('coder') ||
+                         baseName.includes('code') ||
+                         family === 'codellama' ||
+                         family === 'mistral' ||  // Mistral is excellent for code
+                         family === 'deepseek' ||  // DeepSeek is code-focused
+                         family === 'qwen';        // Qwen models support code
+
+    if (isCodeCapable) {
       capabilities.push('code');
     }
+
     if (baseName.includes('vision') || baseName.includes('llava')) {
       capabilities.push('vision');
     }
@@ -263,10 +273,18 @@ export class ModelManager {
   }
 
   /**
+   * List available model names (for quick lookup)
+   */
+  async listAvailableModels(): Promise<string[]> {
+    await this.discoverModels();
+    return Array.from(this.models.keys());
+  }
+
+  /**
    * Get models by capability
    */
   getModelsByCapability(capability: ModelCapability): ModelInfo[] {
-    return Array.from(this.models.values()).filter(m => 
+    return Array.from(this.models.values()).filter(m =>
       m.capabilities.includes(capability)
     );
   }
