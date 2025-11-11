@@ -1,0 +1,212 @@
+[
+  {
+    "name": "Add email notification service",
+    "task": "Implement NotificationsService.sendEmail() and expose POST /api/notify with tests.",
+    "cwd": ".",
+    "timeout": 60000,
+    "expect": {
+      "filesContain": [
+        {
+          "path": "src/services/NotificationsService.ts",
+          "mustInclude": [
+            "export class NotificationsService",
+            "sendEmail("
+          ]
+        },
+        {
+          "path": "src/routes/api.notify.test.ts",
+          "mustInclude": [
+            "describe(",
+            "it(",
+            "expect("
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Add user authentication middleware",
+    "task": "Create AuthMiddleware that validates JWT tokens and expose it in Express app with tests.",
+    "cwd": ".",
+    "timeout": 60000,
+    "expect": {
+      "filesContain": [
+        {
+          "path": "src/middleware/AuthMiddleware.ts",
+          "mustInclude": [
+            "export class AuthMiddleware",
+            "validateToken("
+          ]
+        },
+        {
+          "path": "src/middleware/AuthMiddleware.test.ts",
+          "mustInclude": [
+            "describe(",
+            "it(",
+            "expect("
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Add database connection pool",
+    "task": "Implement DatabasePool class with connection management, retry logic, and health checks.",
+    "cwd": ".",
+    "timeout": 60000,
+    "expect": {
+      "filesContain": [
+        {
+          "path": "src/db/DatabasePool.ts",
+          "mustInclude": [
+            "export class DatabasePool",
+            "getConnection(",
+            "healthCheck("
+          ]
+        },
+        {
+          "path": "src/db/DatabasePool.test.ts",
+          "mustInclude": [
+            "describe(",
+            "it(",
+            "expect("
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Add caching layer",
+    "task": "Implement CacheManager with TTL support, invalidation, and statistics tracking.",
+    "cwd": ".",
+    "timeout": 60000,
+    "expect": {
+      "filesContain": [
+        {
+          "path": "src/cache/CacheManager.ts",
+          "mustInclude": [
+            "export class CacheManager",
+            "get(",
+            "set(",
+            "invalidate("
+          ]
+        },
+        {
+          "path": "src/cache/CacheManager.test.ts",
+          "mustInclude": [
+            "describe(",
+            "it(",
+            "expect("
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Add error handling utility",
+    "task": "Create ErrorHandler class with custom error types, logging, and HTTP response mapping.",
+    "cwd": ".",
+    "timeout": 60000,
+    "expect": {
+      "filesContain": [
+        {
+          "path": "src/utils/ErrorHandler.ts",
+          "mustInclude": [
+            "export class ErrorHandler",
+            "handle(",
+            "toHttpResponse("
+          ]
+        },
+        {
+          "path": "src/utils/ErrorHandler.test.ts",
+          "mustInclude": [
+            "describe(",
+            "it(",
+            "expect("
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Add request validation middleware",
+    "task": "Implement RequestValidator with schema validation, error messages, and type safety.",
+    "cwd": ".",
+    "timeout": 60000,
+    "expect": {
+      "filesContain": [
+        {
+          "path": "src/middleware/RequestValidator.ts",
+          "mustInclude": [
+            "export class RequestValidator",
+            "validate(",
+            "schema"
+          ]
+        },
+        {
+          "path": "src/middleware/RequestValidator.test.ts",
+          "mustInclude": [
+            "describe(",
+            "it(",
+            "expect("
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Add logging service",
+    "task": "Create LoggingService with levels (debug, info, warn, error), formatting, and file output.",
+    "cwd": ".",
+    "timeout": 60000,
+    "expect": {
+      "filesContain": [
+        {
+          "path": "src/services/LoggingService.ts",
+          "mustInclude": [
+            "export class LoggingService",
+            "debug(",
+            "info(",
+            "warn(",
+            "error("
+          ]
+        },
+        {
+          "path": "src/services/LoggingService.test.ts",
+          "mustInclude": [
+            "describe(",
+            "it(",
+            "expect("
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Add rate limiting middleware",
+    "task": "Implement RateLimiter with sliding window, per-user limits, and Redis support.",
+    "cwd": ".",
+    "timeout": 60000,
+    "expect": {
+      "filesContain": [
+        {
+          "path": "src/middleware/RateLimiter.ts",
+          "mustInclude": [
+            "export class RateLimiter",
+            "checkLimit(",
+            "slidingWindow"
+          ]
+        },
+        {
+          "path": "src/middleware/RateLimiter.test.ts",
+          "mustInclude": [
+            "describe(",
+            "it(",
+            "expect("
+          ]
+        }
+      ]
+    }
+  }
+]
+

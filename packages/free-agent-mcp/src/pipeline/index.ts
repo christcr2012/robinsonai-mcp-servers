@@ -247,3 +247,8 @@ export * from '../memory/index.js';
  * Export orchestrator components
  */
 export * from '../orchestrator/index.js';
+
+/**
+ * Export evaluation components
+ */
+export * from '../evals/index.js';
