@@ -1,20 +1,50 @@
 /**
- * SQL Memory
+ * SQL Memory (File-based Key-Value Store)
  *
- * Durable key-value store using SQLite.
+ * Durable key-value store using JSON file storage.
  * Persists across sessions.
+ * No native dependencies - works in all environments (pnpm dlx, Docker, etc.)
  */
 
-import Database from "better-sqlite3";
 import * as path from "path";
 import * as os from "os";
+import * as fs from "fs";
 
-// Use OS temp directory for database
-const dbPath = path.join(os.tmpdir(), "free-agent.memory.sqlite");
-const db = new Database(dbPath);
+// Use OS temp directory for storage
+const dbPath = path.join(os.tmpdir(), "free-agent.memory.json");
+let memoryCache: Record<string, string> = {};
+let initialized = false;
 
-// Initialize database
-db.exec("CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT)");
+/**
+ * Load memory from file
+ */
+function loadMemory(): void {
+  if (initialized) return;
+  initialized = true;
+
+  try {
+    if (fs.existsSync(dbPath)) {
+      const data = fs.readFileSync(dbPath, "utf-8");
+      memoryCache = JSON.parse(data);
+    } else {
+      memoryCache = {};
+    }
+  } catch (err) {
+    console.warn("[SQL] Failed to load memory from file, starting fresh:", err);
+    memoryCache = {};
+  }
+}
+
+/**
+ * Save memory to file
+ */
+function saveMemory(): void {
+  try {
+    fs.writeFileSync(dbPath, JSON.stringify(memoryCache, null, 2), "utf-8");
+  } catch (err) {
+    console.error("[SQL] Failed to save memory to file:", err);
+  }
+}
 
 /**
  * Set a value in SQL memory
@@ -30,7 +60,9 @@ db.exec("CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT)");
  */
 export function sqlSet(k: string, v: any): void {
   try {
-    db.prepare("REPLACE INTO kv (k,v) VALUES (?,?)").run(k, JSON.stringify(v));
+    loadMemory();
+    memoryCache[k] = JSON.stringify(v);
+    saveMemory();
   } catch (err) {
     console.error("[SQL] Failed to set key:", k, err);
   }
@@ -44,8 +76,9 @@ export function sqlSet(k: string, v: any): void {
  */
 export function sqlGet<T = any>(k: string): T | undefined {
   try {
-    const row = db.prepare("SELECT v FROM kv WHERE k=?").get(k) as any;
-    return row ? (JSON.parse(row.v) as T) : undefined;
+    loadMemory();
+    const v = memoryCache[k];
+    return v ? (JSON.parse(v) as T) : undefined;
   } catch (err) {
     console.error("[SQL] Failed to get key:", k, err);
     return undefined;
@@ -59,7 +92,9 @@ export function sqlGet<T = any>(k: string): T | undefined {
  */
 export function sqlDelete(k: string): void {
   try {
-    db.prepare("DELETE FROM kv WHERE k=?").run(k);
+    loadMemory();
+    delete memoryCache[k];
+    saveMemory();
   } catch (err) {
     console.error("[SQL] Failed to delete key:", k, err);
   }
@@ -73,8 +108,8 @@ export function sqlDelete(k: string): void {
  */
 export function sqlHas(k: string): boolean {
   try {
-    const row = db.prepare("SELECT 1 FROM kv WHERE k=?").get(k);
-    return !!row;
+    loadMemory();
+    return k in memoryCache;
   } catch (err) {
     console.error("[SQL] Failed to check key:", k, err);
     return false;
@@ -88,8 +123,8 @@ export function sqlHas(k: string): boolean {
  */
 export function sqlKeys(): string[] {
   try {
-    const rows = db.prepare("SELECT k FROM kv").all() as any[];
-    return rows.map(r => r.k);
+    loadMemory();
+    return Object.keys(memoryCache);
   } catch (err) {
     console.error("[SQL] Failed to get keys:", err);
     return [];
@@ -103,10 +138,10 @@ export function sqlKeys(): string[] {
  */
 export function sqlGetAll(): Record<string, any> {
   try {
-    const rows = db.prepare("SELECT k, v FROM kv").all() as any[];
+    loadMemory();
     const result: Record<string, any> = {};
-    rows.forEach(r => {
-      result[r.k] = JSON.parse(r.v);
+    Object.entries(memoryCache).forEach(([k, v]) => {
+      result[k] = JSON.parse(v);
     });
     return result;
   } catch (err) {
@@ -120,7 +155,9 @@ export function sqlGetAll(): Record<string, any> {
  */
 export function sqlClear(): void {
   try {
-    db.prepare("DELETE FROM kv").run();
+    loadMemory();
+    memoryCache = {};
+    saveMemory();
   } catch (err) {
     console.error("[SQL] Failed to clear:", err);
   }
@@ -133,8 +170,8 @@ export function sqlClear(): void {
  */
 export function sqlCount(): number {
   try {
-    const row = db.prepare("SELECT COUNT(*) as count FROM kv").get() as any;
-    return row?.count ?? 0;
+    loadMemory();
+    return Object.keys(memoryCache).length;
   } catch (err) {
     console.error("[SQL] Failed to count:", err);
     return 0;
@@ -142,15 +179,15 @@ export function sqlCount(): number {
 }
 
 /**
- * Search keys by pattern
+ * Search keys by pattern (simple substring match)
  *
- * @param pattern - SQL LIKE pattern
+ * @param pattern - Pattern to search for
  * @returns Matching keys
  */
 export function sqlSearchKeys(pattern: string): string[] {
   try {
-    const rows = db.prepare("SELECT k FROM kv WHERE k LIKE ?").all(pattern) as any[];
-    return rows.map(r => r.k);
+    loadMemory();
+    return Object.keys(memoryCache).filter(k => k.includes(pattern));
   } catch (err) {
     console.error("[SQL] Failed to search keys:", err);
     return [];
@@ -164,13 +201,11 @@ export function sqlSearchKeys(pattern: string): string[] {
  */
 export function sqlBatchSet(items: Array<[string, any]>): void {
   try {
-    const stmt = db.prepare("REPLACE INTO kv (k,v) VALUES (?,?)");
-    const transaction = db.transaction((items: Array<[string, any]>) => {
-      items.forEach(([k, v]) => {
-        stmt.run(k, JSON.stringify(v));
-      });
+    loadMemory();
+    items.forEach(([k, v]) => {
+      memoryCache[k] = JSON.stringify(v);
     });
-    transaction(items);
+    saveMemory();
   } catch (err) {
     console.error("[SQL] Failed to batch set:", err);
   }
@@ -211,7 +246,6 @@ export function getSqlMemoryInfo(): {
   dbSize: number;
 } {
   try {
-    const fs = require("fs");
     const stats = fs.statSync(dbPath);
     return {
       keyCount: sqlCount(),
@@ -229,13 +263,9 @@ export function getSqlMemoryInfo(): {
 }
 
 /**
- * Close database connection
+ * Close/cleanup (no-op for file-based storage)
  */
 export function closeSqlMemory(): void {
-  try {
-    db.close();
-  } catch (err) {
-    console.error("[SQL] Failed to close:", err);
-  }
+  // File-based storage doesn't need explicit cleanup
 }
 
