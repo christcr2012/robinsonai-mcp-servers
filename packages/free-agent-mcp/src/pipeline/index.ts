@@ -233,3 +233,8 @@ export * from './refine.js';
  */
 export * from '../schema/output.js';
 
+/**
+ * Export prompt components
+ */
+export * from '../prompt/index.js';
+
