@@ -7,7 +7,6 @@
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { spawn, ChildProcess } from 'node:child_process';
 import { createRequire } from 'node:module';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -16,79 +15,6 @@ export interface ToolkitCallParams {
   category: string;
   tool_name: string;
   arguments: Record<string, any>;
-}
-
-/**
- * Spawn Robinson's Toolkit MCP server using direct bin resolution
- * This avoids npx and PowerShell quirks on Windows
- */
-function spawnToolkitMcp(extraEnv: Record<string, string | undefined> = {}): ChildProcess {
-  // Resolve the package.json of the toolkit MCP from this package's context
-  const require = createRequire(import.meta.url);
-  let pkgJsonPath: string;
-
-  try {
-    pkgJsonPath = require.resolve('@robinson_ai_systems/robinsons-toolkit-mcp/package.json');
-  } catch (err) {
-    // Fallback: allow an env var to point to a built local path if needed
-    const local = process.env.TOOLKIT_MCP_BIN;
-    if (!local) throw new Error(
-      `Cannot resolve @robinson_ai_systems/robinsons-toolkit-mcp. ` +
-      `Install it or set TOOLKIT_MCP_BIN to a built entry file.`
-    );
-    const child = spawn(process.execPath, [local], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, ...extraEnv }
-    });
-    wireChildLogs(child, 'toolkit');
-    return child;
-  }
-
-  const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8')) as {
-    bin?: string | Record<string, string>;
-  };
-  const binRel =
-    typeof pkg.bin === 'string'
-      ? pkg.bin
-      : pkg.bin?.['robinsons-toolkit-mcp'] || (pkg.bin && Object.values(pkg.bin)[0]);
-
-  if (!binRel) {
-    throw new Error('robinsons-toolkit-mcp package.json has no "bin" field.');
-  }
-
-  const entry = path.join(path.dirname(pkgJsonPath), binRel);
-
-  // Launch with Node so we bypass npx/PowerShell quirks
-  const child = spawn(process.execPath, [entry], {
-    stdio: ['pipe', 'pipe', 'pipe'],
-    env: {
-      ...process.env,
-      // Helpful defaults; tweak as you like
-      MCP_LOG_LEVEL: process.env.MCP_LOG_LEVEL ?? 'debug',
-      NODE_NO_WARNINGS: '1',
-      ...extraEnv
-    }
-  });
-
-  wireChildLogs(child, 'toolkit');
-  return child;
-}
-
-/**
- * Wire child process logs to console
- */
-function wireChildLogs(child: ChildProcess, tag: string): void {
-  child.stdout?.on('data', (b) => {
-    const s = b.toString();
-    if (s.trim()) console.log(`[${tag}:stdout] ${s.trim()}`);
-  });
-  child.stderr?.on('data', (b) => {
-    const s = b.toString();
-    if (s.trim()) console.error(`[${tag}:stderr] ${s.trim()}`);
-  });
-  child.on('exit', (code) => {
-    console.error(`[${tag}] exited with code ${code}`);
-  });
 }
 
 /**
@@ -139,7 +65,6 @@ export interface ToolkitCallResult {
 export class ToolkitClient {
   private client: Client | null = null;
   private transport: StdioClientTransport | null = null;
-  private process: ChildProcess | null = null;
   private connected: boolean = false;
   private connecting: boolean = false;
 
@@ -162,22 +87,7 @@ export class ToolkitClient {
     try {
       console.error('[ToolkitClient] Connecting to Robinson\'s Toolkit MCP...');
 
-      // Spawn Robinson's Toolkit MCP server using direct bin resolution
-      // Force stdio transport to ensure compatibility
-      this.process = spawnToolkitMcp({ MCP_TRANSPORT: 'stdio' });
-
-      // Handle process errors
-      this.process.on('error', (error) => {
-        console.error('[ToolkitClient] Process error:', error);
-        this.connected = false;
-      });
-
-      this.process.on('exit', (code) => {
-        console.error(`[ToolkitClient] Process exited with code ${code}`);
-        this.connected = false;
-      });
-
-      // Create transport - use the resolved bin path
+      // Resolve the bin path for Robinson's Toolkit MCP
       const require = createRequire(import.meta.url);
       let binPath: string;
 
@@ -196,20 +106,25 @@ export class ToolkitClient {
         }
 
         binPath = path.join(path.dirname(pkgJsonPath), binRel);
+        console.error(`[ToolkitClient] Resolved bin path: ${binPath}`);
       } catch (err) {
         // Fallback to env var
         binPath = process.env.TOOLKIT_MCP_BIN || '';
         if (!binPath) {
           throw new Error('Cannot resolve Robinson\'s Toolkit MCP bin path');
         }
+        console.error(`[ToolkitClient] Using TOOLKIT_MCP_BIN: ${binPath}`);
       }
 
+      // Create transport - this will spawn the process
       this.transport = new StdioClientTransport({
         command: process.execPath,
         args: [binPath],
         env: {
           ...process.env,
-          MCP_TRANSPORT: 'stdio', // Force stdio transport
+          MCP_TRANSPORT: 'stdio',
+          MCP_LOG_LEVEL: process.env.MCP_LOG_LEVEL ?? 'debug',
+          NODE_NO_WARNINGS: '1',
         },
       });
 
@@ -270,12 +185,12 @@ export class ToolkitClient {
       this.client = null;
     }
 
-    if (this.process) {
-      this.process.kill();
-      this.process = null;
+    if (this.transport) {
+      // StdioClientTransport will handle killing the process
+      await this.transport.close();
+      this.transport = null;
     }
 
-    this.transport = null;
     this.connected = false;
     this.connecting = false;
 

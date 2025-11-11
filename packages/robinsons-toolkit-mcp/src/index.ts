@@ -17521,7 +17521,14 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 export { UnifiedToolkit };
 
 // Only run as MCP server if this is the main module
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Check if this file is being run directly (not imported)
+const isMainModule = process.argv[1] && (
+  import.meta.url === `file://${process.argv[1]}` ||
+  import.meta.url.endsWith(process.argv[1]) ||
+  import.meta.url.includes('robinsons-toolkit-mcp/dist/index.js')
+);
+
+if (isMainModule) {
   console.error("[Robinson Toolkit] Initializing...");
   const toolkit = new UnifiedToolkit();
   console.error("[Robinson Toolkit] Instance created, starting run()...");
@@ -17529,4 +17536,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.error("[Robinson Toolkit] FATAL ERROR in run():", error);
     process.exit(1);
   });
+} else {
+  console.error("[Robinson Toolkit] Not main module, skipping auto-start");
+  console.error(`[Robinson Toolkit] import.meta.url: ${import.meta.url}`);
+  console.error(`[Robinson Toolkit] process.argv[1]: ${process.argv[1]}`);
 }
