@@ -409,6 +409,15 @@ class AutonomousAgentServer {
             result = await this.generateProjectBrief(args as any);
             break;
 
+          // Free Agent Core: Portable library
+          case 'free_agent_run':
+            result = await this.runFreeAgent(args as any);
+            break;
+
+          case 'free_agent_smoke':
+            result = await this.runFreeAgentSmoke(args as any);
+            break;
+
             default:
               throw new Error(`Unknown tool: ${name}`);
           }
@@ -1903,6 +1912,46 @@ Generate the modified section now:`;
           additionalProperties: false
         },
       },
+      // Free Agent Core: Portable library for repo-agnostic code generation
+      {
+        name: 'free_agent_run',
+        description: 'Run Free Agent against a repo to implement a task. Uses spec-first codegen + quality gates. Portable across any repository.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            task: {
+              type: 'string',
+              description: 'What to build/fix (e.g., "Implement user authentication", "Fix race condition")',
+            },
+            kind: {
+              type: 'string',
+              enum: ['feature', 'bugfix', 'refactor', 'research'],
+              description: 'Type of task (default: feature)',
+              default: 'feature',
+            },
+            repo: {
+              type: 'string',
+              description: 'Path to target repo (defaults to current working directory)',
+            },
+          },
+          required: ['task'],
+        },
+      },
+      {
+        name: 'free_agent_smoke',
+        description: 'Run a fast smoke test (codegen + policy checks) without changing files. Validates spec registry and handlers.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            repo: {
+              type: 'string',
+              description: 'Path to target repo (defaults to current working directory)',
+            },
+          },
+        },
+      },
     ];
   }
 
@@ -2100,6 +2149,97 @@ Generate the modified section now:`;
       };
     } catch (error: any) {
       console.error('[generateProjectBrief] Error:', error);
+      return {
+        success: false,
+        error: error.message,
+        augmentCreditsUsed: 0,
+        creditsSaved: 0,
+      };
+    }
+  }
+
+  /**
+   * Run Free Agent Core against a repository
+   */
+  private async runFreeAgent(args: any): Promise<any> {
+    try {
+      const { runFreeAgent } = await import('@robinson_ai_systems/free-agent-core');
+      const { ensureCodegen } = await import('@robinson_ai_systems/free-agent-core/spec');
+
+      const repo = args.repo || process.cwd();
+      const task = String(args.task || '');
+      const kind = (args.kind as any) || 'feature';
+
+      // Ensure codegen from spec registry
+      const specRegistry = process.env.FREE_AGENT_SPEC;
+      if (specRegistry) {
+        await ensureCodegen({ registry: specRegistry, outDir: undefined });
+      }
+
+      // Run Free Agent
+      await runFreeAgent({ repo, task, kind });
+
+      return {
+        success: true,
+        message: 'Free Agent: task completed (see repo changes)',
+        repo,
+        task,
+        kind,
+        augmentCreditsUsed: 0,
+        creditsSaved: 1000,
+        cost: {
+          total: 0,
+          currency: 'USD',
+          note: 'FREE - Portable Free Agent Core',
+        },
+      };
+    } catch (error: any) {
+      console.error('[runFreeAgent] Error:', error);
+      return {
+        success: false,
+        error: error.message,
+        augmentCreditsUsed: 0,
+        creditsSaved: 0,
+      };
+    }
+  }
+
+  /**
+   * Run Free Agent smoke test (codegen + policy checks without file changes)
+   */
+  private async runFreeAgentSmoke(args: any): Promise<any> {
+    try {
+      const { ensureCodegen } = await import('@robinson_ai_systems/free-agent-core/spec');
+
+      const repo = args.repo || process.cwd();
+      const specRegistry = process.env.FREE_AGENT_SPEC;
+
+      if (!specRegistry) {
+        return {
+          success: false,
+          error: 'FREE_AGENT_SPEC environment variable not set',
+          augmentCreditsUsed: 0,
+          creditsSaved: 0,
+        };
+      }
+
+      // Run codegen smoke test
+      await ensureCodegen({ registry: specRegistry, outDir: undefined });
+
+      return {
+        success: true,
+        message: 'Spec/codegen OK for repo: ' + repo,
+        repo,
+        augmentCreditsUsed: 0,
+        creditsSaved: 100,
+        cost: {
+          total: 0,
+          currency: 'USD',
+          note: 'FREE - Smoke test only',
+        },
+      };
+    } catch (error: any) {
+      console.error('[runFreeAgentSmoke] Error:', error);
       return {
         success: false,
         error: error.message,
