@@ -1,0 +1,63 @@
+{
+  "name": "free-agent-memory",
+  "version": "1.0.0",
+  "priority": "high",
+  "budget_credits": 500,
+  "status": "COMPLETE",
+  "steps": [
+    {
+      "id": "add_memory_layers",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": [
+        "packages/free-agent-mcp/src/memory/episodic.ts",
+        "packages/free-agent-mcp/src/memory/working.ts",
+        "packages/free-agent-mcp/src/memory/vector.ts",
+        "packages/free-agent-mcp/src/memory/sql.ts",
+        "packages/free-agent-mcp/src/memory/files.ts",
+        "packages/free-agent-mcp/src/memory/index.ts"
+      ],
+      "instructions": "Create the six memory system files.",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "deps",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": [
+        "pnpm -w add better-sqlite3"
+      ],
+      "status": "COMPLETE"
+    },
+    {
+      "id": "build",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": [
+        "pnpm -w -C packages/free-agent-mcp build"
+      ],
+      "status": "COMPLETE"
+    }
+  ],
+  "results": {
+    "filesCreated": [
+      "packages/free-agent-mcp/src/memory/episodic.ts",
+      "packages/free-agent-mcp/src/memory/working.ts",
+      "packages/free-agent-mcp/src/memory/vector.ts",
+      "packages/free-agent-mcp/src/memory/sql.ts",
+      "packages/free-agent-mcp/src/memory/files.ts",
+      "packages/free-agent-mcp/src/memory/index.ts"
+    ],
+    "filesModified": [
+      "packages/free-agent-mcp/src/pipeline/index.ts"
+    ],
+    "dependenciesAdded": [
+      "better-sqlite3"
+    ],
+    "buildStatus": "SUCCESS",
+    "buildSize": "338.00 KB",
+    "commit": "e50076e"
+  }
+}
+
