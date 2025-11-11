@@ -1,6 +1,6 @@
 /**
  * Synthesize (Coder) stage
- * 
+ *
  * Generates code + tests together with strict constraints:
  * - Output constrained to JSON schema
  * - Tests generated FIRST (or in parallel)
@@ -13,6 +13,8 @@ import { DEFAULT_PIPELINE_CONFIG } from './types.js';
 import { ollamaGenerate, llmGenerate } from '@robinson_ai_systems/shared-llm';
 import { makeProjectBrief, formatBriefForPrompt, type ProjectBrief } from '../utils/project-brief.js';
 import { retrieveCodeContext } from '../utils/code-retrieval.js';
+import { getRepoBrief, buildGlossaryFromBrief, retrieveNearbyFiles } from './context.js';
+import { buildPromptWithContext, makeHouseRules } from './prompt.js';
 
 // Cache project brief (regenerate every 5 minutes)
 let cachedBrief: { brief: ProjectBrief; timestamp: number } | null = null;
@@ -190,7 +192,7 @@ Use @jest/globals for imports. Make tests independent and deterministic.`;
 }
 
 /**
- * Build the coder prompt with strict constraints
+ * Build the coder prompt with strict constraints and context injection
  */
 async function buildCoderPrompt(
   spec: string,
@@ -199,159 +201,48 @@ async function buildCoderPrompt(
 ): Promise<string> {
   const allowedLibs = config.allowedLibraries ?? DEFAULT_PIPELINE_CONFIG.allowedLibraries;
 
-  // Get project brief
+  // Get project brief (with caching)
   const brief = await getProjectBrief();
-  const briefText = formatBriefForPrompt(brief);
+
+  // Build glossary from project brief
+  const glossary = await buildGlossaryFromBrief();
+
+  // Get nearby files for context
+  const cwd = process.cwd();
+  const targetPath = `${cwd}/src/index.ts`; // Use a default path
+  const nearby = retrieveNearbyFiles(targetPath, { limit: 3 });
 
   // Get few-shot examples from similar code
   const fewShotExamples = await getFewShotExamples(spec);
 
-  let prompt = `You are writing production-quality code for THIS SPECIFIC REPOSITORY.
+  // Build enhanced prompt with context and house rules
+  const prompt = buildPromptWithContext({
+    task: spec,
+    brief,
+    glossary,
+    nearby
+  });
 
-${briefText}
-
-${fewShotExamples}
-
-Return ONLY valid JSON in this exact format:
-
-{
-  "files": [
-    {"path": "src/example.ts", "content": "...full file content..."}
-  ],
-  "tests": [
-    {"path": "src/example.test.ts", "content": "...full test file content..."}
-  ],
-  "conventions_used": [
-    {"new": "customerPlanId", "mirrors": "customerId, planId in models/Plan.ts"},
-    {"new": "toISODate", "mirrors": "toIsoString helper in utils/date.ts"}
-  ],
-  "notes": "optional brief notes about implementation decisions"
-}
-
-TASK:
-${spec}
-
-CRITICAL REQUIREMENTS (MANDATORY):
-
-1. REAL APIs ONLY
-   - Use ONLY real, documented APIs from allowed libraries
-   - DO NOT invent or hallucinate methods, classes, or functions
-   - If you're unsure if an API exists, DON'T use it
-   - For simple tasks, write simple code (don't overcomplicate)
-
-2. REPO-NATIVE CODE (HOUSE RULES)
-   - Naming: ${brief.naming.variables} for variables, ${brief.naming.types} for types, ${brief.naming.constants} for constants
-   - File naming: ${brief.naming.files}
-   - Layering: ${brief.layering.layers ? brief.layering.layers.map(l => `${l.name} can import ${l.canImport.join(', ')}`).join('; ') : 'respect folder boundaries'}
-   - Testing: ${brief.testing.framework} with pattern ${brief.testing.testPattern}
-   - Mirror existing patterns from the repo (see Project Brief above)
-   - Use existing domain names from glossary: ${brief.glossary.entities.slice(0, 10).join(', ')}
-   - DO NOT invent new names when existing ones exist
-
-3. ALLOWED LIBRARIES:
-${allowedLibs.map(lib => `   - ${lib}`).join('\n')}
-   - You may ONLY import from these libraries
-   - Any other import will cause SECURITY VIOLATION and automatic rejection
-
-5. NO PLACEHOLDERS
-   - NO TODO, FIXME, PLACEHOLDER, STUB, TBD, MOCK
-   - NO comments like "implement this later" or "not implemented"
-   - Every function must be FULLY implemented
-   - Every test must be COMPLETE and runnable
-
-6. TESTS FIRST
-   - Write comprehensive tests that cover:
-     * Basic functionality (happy path)
-     * Edge cases (empty, null, undefined, large values)
-     * Error cases (invalid input, exceptions)
-   - Tests must be independent and deterministic
-   - Use ${brief.testing.framework} framework
-
-7. CODE QUALITY
-   - Code must compile with TypeScript (strict mode)
-   - Code must pass eslint with no errors
-   - Code must be formatted with prettier
-   - Functions must be pure unless spec requires side effects
-   - No globals, no nondeterminism, no time-based logic
-
-8. SECURITY
-   - No network calls unless explicitly required
-   - No system calls beyond standard library
-   - No eval, Function constructor, or dynamic code execution
-   - All inputs must be validated
-
-`;
-
-  // Add feedback from previous attempt if available
-  if (previousVerdict) {
-    prompt += `
-PREVIOUS ATTEMPT FAILED:
-- Root cause: ${previousVerdict.explanations.root_cause}
-- Required fix: ${previousVerdict.explanations.minimal_fix}
-
-Fix plan:
-${previousVerdict.fix_plan.map((f, i) => `${i + 1}. ${f.operation} ${f.file}: ${f.brief}`).join('\n')}
-
-DO NOT repeat these mistakes. Generate CORRECTED code.
-`;
+  // Add few-shot examples if available
+  let finalPrompt = prompt;
+  if (fewShotExamples) {
+    finalPrompt = prompt.replace(
+      '## NEARBY EXAMPLES (Mirror These Patterns)',
+      `## NEARBY EXAMPLES (Mirror These Patterns)\n\n${fewShotExamples}`
+    );
   }
 
-  prompt += `
-EXAMPLES:
+  // Add allowed libraries constraint
+  if (allowedLibs && allowedLibs.length > 0) {
+    finalPrompt += `\n\n## ALLOWED LIBRARIES\nYou may ONLY use these libraries:\n${allowedLibs.map(lib => `- ${lib}`).join('\n')}\n\nDO NOT use any other libraries.`;
+  }
 
-CORRECT (simple task, simple code):
-Task: "Create a function that adds two numbers"
-{
-  "files": [
-    {
-      "path": "src/math.ts",
-      "content": "export function add(a: number, b: number): number {\\n  return a + b;\\n}"
-    }
-  ],
-  "tests": [
-    {
-      "path": "src/math.test.ts",
-      "content": "import { add } from './math';\\n\\ntest('adds two numbers', () => {\\n  expect(add(2, 3)).toBe(5);\\n});\\n\\ntest('handles negative numbers', () => {\\n  expect(add(-1, 1)).toBe(0);\\n});\\n\\ntest('handles zero', () => {\\n  expect(add(0, 0)).toBe(0);\\n});"
-    }
-  ],
-  "notes": "Simple pure function, no external dependencies needed"
-}
+  // Add previous verdict feedback if available
+  if (previousVerdict) {
+    finalPrompt += `\n\n## PREVIOUS ATTEMPT FEEDBACK\n${previousVerdict.explanations?.minimal_fix || 'Fix the issues from the previous attempt.'}`;
+  }
 
-WRONG (overcomplicated with fake APIs):
-{
-  "files": [
-    {
-      "path": "src/math.ts",
-      "content": "import { sum } from '@aws-sdk/client-cognito-identity';\\n\\nexport async function add(a: number, b: number): Promise<number> {\\n  const result = await sum(a, b);\\n  return result;\\n}"
-    }
-  ],
-  "tests": [...],
-  "notes": "Uses AWS Cognito for addition"
-}
-❌ WRONG because:
-- AWS Cognito doesn't have a 'sum' function (FAKE API)
-- Overcomplicated for a simple task
-- Unnecessary async/await
-- Not in allowed libraries list
-
-WRONG (placeholders):
-{
-  "files": [
-    {
-      "path": "src/math.ts",
-      "content": "export function add(a: number, b: number): number {\\n  // TODO: implement addition\\n  return 0;\\n}"
-    }
-  ]
-}
-❌ WRONG because:
-- Contains TODO (forbidden)
-- Not fully implemented
-- Returns wrong value
-
-Now generate the code for the task. Return ONLY the JSON, no other text.
-`;
-
-  return prompt;
+  return finalPrompt;
 }
 
 /**

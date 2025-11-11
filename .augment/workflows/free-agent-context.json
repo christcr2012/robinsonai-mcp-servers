@@ -1,0 +1,23 @@
+{
+  "name": "free-agent-context",
+  "version": "1.0.0",
+  "priority": "high",
+  "budget_credits": 500,
+  "steps": [
+    {
+      "id": "add_context_hooks",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": ["packages/free-agent-mcp/src/pipeline/context.ts", "packages/free-agent-mcp/src/pipeline/prompt.ts"],
+      "instructions": "Create/extend context.ts and prompt.ts using the patches below."
+    },
+    {
+      "id": "build",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": ["pnpm -w -C packages/free-agent-mcp build || npm --workspaces -w run build"]
+    }
+  ]
+}
+

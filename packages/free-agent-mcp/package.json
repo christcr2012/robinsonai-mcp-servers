@@ -129,6 +129,7 @@
     "@types/jsdom": "^27.0.0",
     "better-sqlite3": "^11.10.0",
     "diff": "^4.0.2",
+    "glob": "^11.0.3",
     "handlebars": "^4.7.8",
     "jsdom": "^27.1.0",
     "ollama": "^0.5.9",

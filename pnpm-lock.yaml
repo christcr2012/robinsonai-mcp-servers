@@ -87,31 +87,6 @@ importers:
         specifier: ^4.7.8
         version: 4.7.8
 
-  packages/custom-api-mcp:
-    dependencies:
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.0.4
-        version: 1.21.1
-      node-fetch:
-        specifier: ^3.3.2
-        version: 3.3.2
-    devDependencies:
-      '@robinson_ai_systems/shared-llm':
-        specifier: ^0.1.12
-        version: 0.1.12(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
-      '@robinson_ai_systems/shared-pipeline':
-        specifier: ^0.1.1
-        version: 0.1.1
-      '@robinson_ai_systems/shared-utils':
-        specifier: ^0.1.1
-        version: 0.1.1(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.19.0
-      typescript:
-        specifier: ^5.7.2
-        version: 5.9.3
-
   packages/free-agent-mcp:
     dependencies:
       '@anthropic-ai/sdk':
@@ -135,6 +110,9 @@ importers:
       diff:
         specifier: ^4.0.2
         version: 4.0.2
+      glob:
+        specifier: ^11.0.3
+        version: 11.0.3
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
