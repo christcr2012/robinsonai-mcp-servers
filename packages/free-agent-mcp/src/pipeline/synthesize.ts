@@ -17,6 +17,7 @@ import { retrieveCodeContext } from '../utils/code-retrieval.js';
 import { getRepoBrief, buildGlossaryFromBrief, retrieveNearbyFiles } from './context.js';
 import { buildPromptWithContext, makeHouseRules } from './prompt.js';
 import { normalizeOutput, validateOutput } from '../schema/output.js';
+import { getGlobalOrchestrator } from '../agents/model-orchestrator.js';
 
 // Cache project brief (regenerate every 5 minutes)
 let cachedBrief: { brief: ProjectBrief; timestamp: number } | null = null;
@@ -110,9 +111,19 @@ export async function generateCodeAndTests(
 
   console.log(`[Synthesize] Using ${provider}/${model}`);
 
-  // Use unified LLM client
+  // Initialize model orchestrator for intelligent switching
+  const orchestrator = getGlobalOrchestrator({
+    enableSwitching: config.enableModelSwitching !== false, // Default: enabled
+    initialModel: model,
+    provider: provider as any,
+    maxSwitches: 5,
+    logSwitches: true,
+  });
+  orchestrator.initializeTask(spec);
+
+  // Use unified LLM client with intelligent model switching
   try {
-    const llmResult = await llmGenerate({
+    const llmResult = await orchestrator.generateWithSwitching({
       provider,
       model,
       prompt,
@@ -161,6 +172,12 @@ Use @jest/globals for imports. Make tests independent and deterministic.`;
       const testResult = JSON.parse(testLlmResult.text);
       result.tests = testResult.tests || [];
       result.cost += testLlmResult.cost || 0;
+    }
+
+    // Log model switches if any occurred
+    const switchSummary = orchestrator.getSwitchSummary();
+    if (switchSummary !== 'No model switches occurred') {
+      console.log(`[Synthesize] ${switchSummary}`);
     }
 
     console.log(`[Synthesize] Success! Files: ${result.files.length}, Tests: ${result.tests.length}, Cost: $${result.cost?.toFixed(4) || '0.0000'}`);
