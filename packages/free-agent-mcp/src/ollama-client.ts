@@ -52,24 +52,24 @@ export class OllamaClient {
 
   private initializeModels(): Map<string, ModelConfig> {
     return new Map([
-      // PRIMARY: Mistral 7B - Excellent for code generation (NEW)
-      [
-        'mistral:7b',
-        {
-          name: 'mistral:7b',
-          speed: 'medium',
-          quality: 'better',
-          useCase: ['code', 'medium', 'refactoring', 'tests', 'features'],
-        },
-      ],
-      // FALLBACK: Qwen 7B Coder - Good alternative if Mistral unavailable
+      // PRIMARY: Qwen 2.5 Coder 7B - BEST 7B code model available
       [
         'qwen2.5-coder:7b',
         {
           name: 'qwen2.5-coder:7b',
           speed: 'medium',
+          quality: 'best',
+          useCase: ['code', 'medium', 'refactoring', 'tests', 'features', 'complex'],
+        },
+      ],
+      // FALLBACK: DeepSeek Coder 1.3B - Small but code-specific
+      [
+        'deepseek-coder:1.3b',
+        {
+          name: 'deepseek-coder:1.3b',
+          speed: 'fast',
           quality: 'good',
-          useCase: ['code', 'medium', 'refactoring', 'tests'],
+          useCase: ['code', 'simple', 'quick-generation'],
         },
       ],
       // ROUTER: Qwen 3B - Fast for routing/intent detection only
@@ -104,11 +104,11 @@ export class OllamaClient {
     // If model explicitly specified, use it (but verify it exists)
     if (options.model && options.model !== 'auto') {
       const modelMap: Record<string, string> = {
-        'primary': 'mistral:7b',
-        'fallback': 'qwen2.5-coder:7b',
+        'primary': 'qwen2.5-coder:7b',
+        'fallback': 'deepseek-coder:1.3b',
         'router': 'qwen2.5:3b',
-        'mistral': 'mistral:7b',
         'qwen-coder': 'qwen2.5-coder:7b',
+        'deepseek': 'deepseek-coder:1.3b',
       };
       const requestedModel = modelMap[options.model] || options.model;
 
@@ -122,17 +122,17 @@ export class OllamaClient {
       console.warn(`[OllamaClient] Requested model ${requestedModel} not found, auto-selecting...`);
     }
 
-    // Auto-select: Try Mistral first (primary), then fallback to Qwen
+    // Auto-select: Try Qwen Coder first (best 7B code model), then fallback
     const modelManager_models = await modelManager.listAvailableModels();
 
-    // Prefer Mistral for code generation
-    if (modelManager_models.includes('mistral:7b')) {
-      return 'mistral:7b';
-    }
-
-    // Fallback to Qwen 7B Coder
+    // Prefer Qwen 2.5 Coder 7B - BEST 7B code model available
     if (modelManager_models.includes('qwen2.5-coder:7b')) {
       return 'qwen2.5-coder:7b';
+    }
+
+    // Fallback to DeepSeek Coder (small but code-specific)
+    if (modelManager_models.includes('deepseek-coder:1.3b')) {
+      return 'deepseek-coder:1.3b';
     }
 
     // Last resort: use ModelManager's selection
@@ -289,8 +289,8 @@ export class OllamaClient {
 
       // Check if recommended models are available
       const recommendedModels = [
-        'mistral:7b',           // PRIMARY: Excellent for code
-        'qwen2.5-coder:7b',     // FALLBACK: Good alternative
+        'qwen2.5-coder:7b',     // PRIMARY: Best 7B code model
+        'deepseek-coder:1.3b',  // FALLBACK: Code-specific, small
         'qwen2.5:3b',           // ROUTER: Fast for routing
         'nomic-embed-text',     // EMBEDDINGS: For semantic search
       ];
