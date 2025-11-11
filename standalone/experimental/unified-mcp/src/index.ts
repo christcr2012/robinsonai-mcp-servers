@@ -230,6 +230,7 @@ class UnifiedMCP {
             ...this.getSequentialThinkingTools(),
             ...this.getContext7Tools(),
             ...this.getPlaywrightTools(),
+            ...this.getGitHubTools(),
           ],
         };
       }
@@ -358,7 +359,38 @@ class UnifiedMCP {
   }
   private getContext7Tools() { return []; }
   private getPlaywrightTools() { return []; }
-  private getGitHubTools() { return []; }
+  private getGitHubTools() {
+    return [
+      {
+        name: "github_list_repos",
+        description: "List repositories for the authenticated user",
+        inputSchema: {
+          type: "object",
+          properties: {
+            visibility: { type: "string", enum: ["all","public","private"], default: "all" },
+            per_page: { type: "number", default: 30 },
+            page: { type: "number", default: 1 }
+          }
+        }
+      },
+      {
+        name: "github_create_issue",
+        description: "Create an issue in a repository",
+        inputSchema: {
+          type: "object",
+          required: ["owner","repo","title"],
+          properties: {
+            owner: { type: "string" },
+            repo: { type: "string" },
+            title: { type: "string" },
+            body: { type: "string" },
+            assignees: { type: "array", items: { type: "string" } },
+            labels: { type: "array", items: { type: "string" } }
+          }
+        }
+      }
+    ];
+  }
   private getVercelTools() { return []; }
   private getNeonTools() { return []; }
   private getGoogleWorkspaceTools() { return []; }
@@ -470,7 +502,46 @@ class UnifiedMCP {
   }
   private async handleContext7Tool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
   private async handlePlaywrightTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
-  private async handleGitHubTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
+  private async handleGitHubTool(name: string, args: any) {
+    const token = process.env.GITHUB_TOKEN;
+    if (!token) throw new Error("GITHUB_TOKEN is not set");
+
+    const base = "https://api.github.com";
+    const headers = {
+      "Authorization": `token ${token}`,
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      "Content-Type": "application/json"
+    };
+
+    const ok = async (res: Response) => {
+      if (!res.ok) throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
+      return res.json();
+    };
+
+    if (name === "github_list_repos") {
+      const v = args?.visibility ?? "all";
+      const per = args?.per_page ?? 30;
+      const page = args?.page ?? 1;
+      const url = `${base}/user/repos?visibility=${encodeURIComponent(v)}&per_page=${per}&page=${page}`;
+      const data = await ok(await fetch(url, { headers }));
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    }
+
+    if (name === "github_create_issue") {
+      const { owner, repo, title, body, assignees, labels } = args ?? {};
+      if (!owner || !repo || !title) throw new Error("owner, repo, title are required");
+      const url = `${base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`;
+      const data = await ok(await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ title, body, assignees, labels })
+      }));
+      return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+    }
+
+    throw new Error(`GitHub tool not implemented: ${name}`);
+  }
   private async handleVercelTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
   private async handleNeonTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }
   private async handleGoogleWorkspaceTool(name: string, args: any): Promise<never> { throw new Error('Not implemented'); }

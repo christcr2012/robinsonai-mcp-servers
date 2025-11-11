@@ -1,0 +1,49 @@
+{
+  "name": "unified-mcp-min-github",
+  "version": "1.0.0",
+  "description": "Implement minimal GitHub tool flow in unified-mcp",
+  "budget_credits": 800,
+  "priority": "high",
+  "steps": [
+    {
+      "id": "prep_env",
+      "agent": "architect",
+      "action": "write_instructions",
+      "output": "env_instructions",
+      "content": [
+        "Add env var GITHUB_TOKEN (classic or fine-grained) with repo read/write as needed.",
+        "In shell before running unified-mcp: export GITHUB_TOKEN=ghp_xxx"
+      ]
+    },
+    {
+      "id": "add_github_tools",
+      "agent": "free",
+      "action": "edit_files",
+      "files": [
+        "standalone/experimental/unified-mcp/src/index.ts"
+      ],
+      "patch_strategy": "surgical",
+      "instructions": "Implement getGitHubTools() and handleGitHubTool() exactly as in the provided snippet (below)."
+    },
+    {
+      "id": "build_and_test",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": [
+        "cd standalone/experimental/unified-mcp",
+        "npm ci || npm i",
+        "npm run build"
+      ]
+    },
+    {
+      "id": "smoke_list_tools",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": [
+        "node dist/index.js"
+      ],
+      "notes": "Verify ListTools includes github_* tools. From your MCP client, call github_list_repos and github_create_issue."
+    }
+  ]
+}
+
