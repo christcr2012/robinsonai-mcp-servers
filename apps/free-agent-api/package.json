@@ -1,0 +1,25 @@
+{
+  "name": "@robinson_ai_systems/free-agent-api",
+  "version": "0.1.0",
+  "description": "HTTP API for Free Agent task submissions",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsup",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "@robinson_ai_systems/free-agent-mcp": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0"
+  }
+}
+

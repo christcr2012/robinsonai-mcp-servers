@@ -2157,3 +2157,6 @@ process.on('SIGTERM', async () => {
 // Export tool bridge for use in generated code
 export { toolBridge, tryToolkitCall, tryThinkingTool, docsSearch } from './tools/bridge.js';
 export type { ToolkitResult, ThinkingToolResult, DocSearchResult } from './tools/bridge.js';
+
+// Export orchestrator for external use (e.g., HTTP API)
+export { submit, submitMultiple, initializeOrchestrator, getOrchestratorStatus } from './orchestrator/index.js';

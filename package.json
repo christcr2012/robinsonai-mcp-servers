@@ -48,7 +48,9 @@
   },
   "dependencies": {
     "@mozilla/readability": "^0.4.4",
+    "@types/express": "^5.0.5",
     "diff": "^5.2.0",
+    "express": "^5.1.0",
     "fast-glob": "^3.3.3",
     "jsdom": "^22.1.0",
     "micromatch": "^4.0.8",

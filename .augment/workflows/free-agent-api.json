@@ -1,0 +1,100 @@
+{
+  "name": "free-agent-api",
+  "version": "1.0.0",
+  "priority": "medium",
+  "budget_credits": 200,
+  "status": "COMPLETE",
+  "steps": [
+    {
+      "id": "add_api",
+      "agent": "free",
+      "action": "edit_files",
+      "patch_strategy": "surgical",
+      "files": [
+        "apps/free-agent-api/src/index.ts",
+        "apps/free-agent-api/package.json",
+        "apps/free-agent-api/tsconfig.json",
+        "apps/free-agent-api/tsup.config.ts"
+      ],
+      "instructions": "Create a tiny Express server exposing POST /tasks → orchestrator.submit",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "add_dependencies",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": [
+        "pnpm -w add express @types/express"
+      ],
+      "status": "COMPLETE"
+    },
+    {
+      "id": "export_orchestrator",
+      "agent": "free",
+      "action": "edit_files",
+      "files": [
+        "packages/free-agent-mcp/src/index.ts"
+      ],
+      "instructions": "Export submit, submitMultiple, initializeOrchestrator, getOrchestratorStatus from orchestrator",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "build",
+      "agent": "free",
+      "action": "run_commands",
+      "commands": [
+        "cd packages/free-agent-mcp && pnpm build",
+        "cd apps/free-agent-api && pnpm build"
+      ],
+      "status": "COMPLETE"
+    }
+  ],
+  "results": {
+    "files_created": [
+      "apps/free-agent-api/src/index.ts",
+      "apps/free-agent-api/package.json",
+      "apps/free-agent-api/tsconfig.json",
+      "apps/free-agent-api/tsup.config.ts"
+    ],
+    "files_modified": [
+      "packages/free-agent-mcp/src/index.ts"
+    ],
+    "build_status": "✅ Success",
+    "build_size": "1.49 KB (dist/index.js)",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/tasks",
+        "description": "Submit task to orchestrator",
+        "request": {
+          "kind": "feature|bugfix|refactor|research|analysis|optimization",
+          "detail": "Task description",
+          "cwd": "Working directory (default: '.')"
+        },
+        "response": {
+          "ok": true,
+          "result": "Task result"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/health",
+        "description": "Health check",
+        "response": {
+          "ok": true,
+          "status": "Free Agent API running"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/task-kinds",
+        "description": "List available task kinds",
+        "response": {
+          "ok": true,
+          "kinds": ["feature", "bugfix", "refactor", "research", "analysis", "optimization"]
+        }
+      }
+    ]
+  }
+}
+
