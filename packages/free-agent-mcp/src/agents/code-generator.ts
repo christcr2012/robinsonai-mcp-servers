@@ -13,6 +13,8 @@ import { getModelManager } from '../utils/model-manager.js';
 import { isDockerAvailable, runDockerSandboxPipeline } from '../pipeline/docker-sandbox.js';
 import { runSandboxPipeline } from '../pipeline/sandbox.js';
 import { formatGMCode, formatUnifiedDiffs, stripCodeFences, type OutputFile } from '../utils/output-format.js';
+import { getGlobalOrchestrator } from './model-orchestrator.js';
+import { llmGenerate } from '../shared/shared-llm/llm-client.js';
 
 export interface GenerateRequest {
   task: string;
@@ -230,7 +232,7 @@ Requirements:
 
   /**
    * Fast mode: Generate code without sandbox execution
-   * - Uses direct Ollama generation
+   * - Uses direct Ollama generation with intelligent model switching
    * - No quality gates or test execution
    * - Fast response (<5 seconds)
    * - Good for simple tasks and rapid iteration
@@ -252,17 +254,32 @@ Requirements:
     const model = request.model || this.selectModel(request.complexity);
     console.error(`[CodeGenerator] Selected model: ${model}`);
 
-    // Generate code using Ollama
-    const options: GenerateOptions = {
-      model,
-      complexity: request.complexity || 'simple',
-      temperature: 0.2, // Low temperature for more deterministic code
-      maxTokens: 4096,
-    };
+    // Initialize model orchestrator for intelligent switching
+    const orchestrator = getGlobalOrchestrator({
+      enableSwitching: true,
+      initialModel: model,
+      provider: 'ollama',
+      maxSwitches: 5,
+      logSwitches: true,
+    });
+    orchestrator.initializeTask(request.task);
 
-    console.error('[CodeGenerator] Calling Ollama.generate...');
-    const result = await this.ollama.generate(prompt, options);
-    console.error(`[CodeGenerator] Ollama.generate completed in ${Date.now() - startTime}ms`);
+    // Generate code using unified LLM client with model switching
+    console.error('[CodeGenerator] Calling LLM with intelligent model switching...');
+    const result = await orchestrator.generateWithSwitching({
+      provider: 'ollama',
+      model,
+      prompt,
+      format: 'json',
+      timeoutMs: 300000, // 5 min for Ollama (cold start)
+    });
+    console.error(`[CodeGenerator] Generation completed in ${Date.now() - startTime}ms`);
+
+    // Log model switches if any occurred
+    const switchSummary = orchestrator.getSwitchSummary();
+    if (switchSummary !== 'No model switches occurred') {
+      console.error(`[CodeGenerator] ${switchSummary}`);
+    }
 
     // Parse the generated code
     console.error('[CodeGenerator] Parsing generated code...');
@@ -289,14 +306,14 @@ Requirements:
       }],
       augmentCreditsUsed: 0, // FREE!
       creditsSaved: 13000,
-      model: result.model,
+      model: orchestrator.getCurrentModel(), // Use final model after any switches
       tokens: {
-        input: result.tokensInput || 0,
-        output: result.tokensGenerated || 0,
-        total: result.tokensTotal || 0,
+        input: result.inputTokens || 0,
+        output: result.outputTokens || 0,
+        total: (result.inputTokens || 0) + (result.outputTokens || 0),
       },
       cost: {
-        total: 0,
+        total: result.cost || 0,
         currency: 'USD',
         note: 'FREE - Fast mode (no sandbox)',
       },
