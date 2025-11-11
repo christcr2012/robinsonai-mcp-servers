@@ -1,0 +1,268 @@
+{
+  "$schema": "https://robinsonai/spec-first/1",
+  "services": {
+    "apiRoot": {
+      "baseEnv": "FREE_AGENT_API_ROOT",
+      "defaultBase": "https://chris.srv823383.hstgr.cloud",
+      "endpoints": {
+        "health_check": {
+          "path": "/health",
+          "method": "GET",
+          "description": "Check server health status"
+        },
+        "get_user_info": {
+          "path": "/user",
+          "method": "GET",
+          "description": "Get current user information"
+        },
+        "postgres_info": {
+          "path": "/postgres/info",
+          "method": "GET",
+          "description": "Get PostgreSQL database info"
+        },
+        "postgres_schemas": {
+          "path": "/postgres/schemas",
+          "method": "GET",
+          "description": "List all schemas in PostgreSQL"
+        },
+        "postgres_tables": {
+          "path": "/postgres/tables",
+          "method": "GET",
+          "description": "List all tables in PostgreSQL"
+        },
+        "postgres_query": {
+          "path": "/postgres/query",
+          "method": "POST",
+          "description": "Execute a SELECT query",
+          "input": {
+            "type": "object",
+            "props": {
+              "query": "string:min1",
+              "params": "array:any:opt"
+            }
+          }
+        },
+        "postgres_execute": {
+          "path": "/postgres/execute",
+          "method": "POST",
+          "description": "Execute a DML statement (INSERT/UPDATE/DELETE)",
+          "input": {
+            "type": "object",
+            "props": {
+              "query": "string:min1",
+              "params": "array:any:opt"
+            }
+          }
+        },
+        "postgres_table_columns": {
+          "path": "/postgres/table/{table_name}/columns",
+          "method": "GET",
+          "description": "Get columns for a specific table",
+          "pathParams": ["table_name"]
+        },
+        "postgres_table_indexes": {
+          "path": "/postgres/table/{table_name}/indexes",
+          "method": "GET",
+          "description": "Get indexes for a specific table",
+          "pathParams": ["table_name"]
+        },
+        "postgres_vector_search": {
+          "path": "/postgres/vector-search",
+          "method": "POST",
+          "description": "Vector search in PostgreSQL",
+          "input": {
+            "type": "object",
+            "props": {
+              "query": "string:min1",
+              "limit": "number:int:1-100:opt"
+            }
+          }
+        },
+        "neo4j_info": {
+          "path": "/neo4j/info",
+          "method": "GET",
+          "description": "Get Neo4j database info"
+        },
+        "neo4j_query": {
+          "path": "/neo4j/query",
+          "method": "POST",
+          "description": "Execute a Cypher query",
+          "input": {
+            "type": "object",
+            "props": {
+              "query": "string:min1",
+              "params": "record:any:opt"
+            }
+          }
+        },
+        "neo4j_execute": {
+          "path": "/neo4j/execute",
+          "method": "POST",
+          "description": "Execute a Cypher statement",
+          "input": {
+            "type": "object",
+            "props": {
+              "query": "string:min1",
+              "params": "record:any:opt"
+            }
+          }
+        },
+        "neo4j_nodes": {
+          "path": "/neo4j/nodes",
+          "method": "GET",
+          "description": "List all nodes in Neo4j"
+        },
+        "neo4j_relationships": {
+          "path": "/neo4j/relationships",
+          "method": "GET",
+          "description": "List all relationships in Neo4j"
+        },
+        "neo4j_search": {
+          "path": "/neo4j/search",
+          "method": "POST",
+          "description": "Search Neo4j graph",
+          "input": {
+            "type": "object",
+            "props": {
+              "query": "string:min1"
+            }
+          }
+        },
+        "qdrant_collections": {
+          "path": "/qdrant/collections",
+          "method": "GET",
+          "description": "List all Qdrant collections"
+        },
+        "qdrant_collection_info": {
+          "path": "/qdrant/collection/{collection_name}",
+          "method": "GET",
+          "description": "Get info about a specific collection",
+          "pathParams": ["collection_name"]
+        },
+        "qdrant_vector_search": {
+          "path": "/qdrant/vector-search",
+          "method": "POST",
+          "description": "Vector search in Qdrant",
+          "input": {
+            "type": "object",
+            "props": {
+              "collection": "string:min1",
+              "query_vector": "array:any",
+              "limit": "number:int:1-100:opt"
+            }
+          }
+        },
+        "qdrant_upsert_points": {
+          "path": "/qdrant/upsert",
+          "method": "POST",
+          "description": "Upsert points into Qdrant",
+          "input": {
+            "type": "object",
+            "props": {
+              "collection": "string:min1",
+              "points": "array:any"
+            }
+          }
+        },
+        "qdrant_delete_points": {
+          "path": "/qdrant/delete",
+          "method": "POST",
+          "description": "Delete points from Qdrant",
+          "input": {
+            "type": "object",
+            "props": {
+              "collection": "string:min1",
+              "point_ids": "array:any"
+            }
+          }
+        },
+        "qdrant_get_point": {
+          "path": "/qdrant/point/{collection_name}/{point_id}",
+          "method": "GET",
+          "description": "Get a specific point from Qdrant",
+          "pathParams": ["collection_name", "point_id"]
+        },
+        "qdrant_scroll": {
+          "path": "/qdrant/scroll",
+          "method": "POST",
+          "description": "Scroll through Qdrant points",
+          "input": {
+            "type": "object",
+            "props": {
+              "collection": "string:min1",
+              "limit": "number:int:1-100:opt",
+              "offset": "string:opt"
+            }
+          }
+        },
+        "langchain_info": {
+          "path": "/langchain/info",
+          "method": "GET",
+          "description": "Get LangChain info"
+        },
+        "langchain_chat": {
+          "path": "/langchain/chat",
+          "method": "POST",
+          "description": "Chat with LangChain",
+          "input": {
+            "type": "object",
+            "props": {
+              "message": "string:min1",
+              "history": "array:any:opt"
+            }
+          }
+        },
+        "langchain_rag_query": {
+          "path": "/langchain/rag-query",
+          "method": "POST",
+          "description": "RAG query with LangChain",
+          "input": {
+            "type": "object",
+            "props": {
+              "query": "string:min1",
+              "top_k": "number:int:1-20:opt"
+            }
+          }
+        },
+        "langchain_ingest_document": {
+          "path": "/langchain/ingest",
+          "method": "POST",
+          "description": "Ingest document into LangChain",
+          "input": {
+            "type": "object",
+            "props": {
+              "content": "string:min1",
+              "metadata": "record:any:opt"
+            }
+          }
+        },
+        "gateway_services": {
+          "path": "/gateway/services",
+          "method": "GET",
+          "description": "List all gateway services"
+        },
+        "gateway_service_health": {
+          "path": "/gateway/service/{service_name}/health",
+          "method": "GET",
+          "description": "Check health of a specific service",
+          "pathParams": ["service_name"]
+        },
+        "gateway_proxy": {
+          "path": "/gateway/proxy",
+          "method": "POST",
+          "description": "Proxy request through gateway",
+          "input": {
+            "type": "object",
+            "props": {
+              "service": "string:min1",
+              "endpoint": "string:min1",
+              "method": "enum:GET,POST,PUT,PATCH,DELETE",
+              "data": "record:any:opt"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

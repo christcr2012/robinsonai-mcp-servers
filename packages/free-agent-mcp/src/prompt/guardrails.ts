@@ -20,6 +20,20 @@ export const DEFAULT_GUARDS = [
 ];
 
 /**
+ * Spec-first guardrails for external API integration
+ */
+export const SPEC_FIRST_GUARDS = [
+  "Spec-first: all external calls MUST use a generated handler from the spec registry.",
+  "Do NOT invent endpoints, hosts, or collections; update the spec registry instead.",
+  "If a needed endpoint is missing, output a minimal spec patch (JSON) and stop.",
+  "All handlers are auto-generated from tools.registry.json — never hand-code HTTP calls.",
+  "Validate all inputs with Zod schemas before use.",
+  "Block unregistered URLs with assertTrustedUrl.",
+  "Prefer tool calls over shell; always pass parameters via validated inputs (no any).",
+  "Keep patches minimal; follow repo style; add/adjust tests to satisfy the gates."
+];
+
+/**
  * Security guardrails
  */
 export const SECURITY_GUARDS = [

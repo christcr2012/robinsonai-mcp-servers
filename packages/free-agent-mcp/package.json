@@ -99,13 +99,15 @@
     "bin/"
   ],
   "scripts": {
-    "build": "tsup",
+    "prebuild": "tsx scripts/gen-tools.ts && tsx scripts/check-spec-coverage.ts",
+    "build": "npm run prebuild && tsup",
     "clean": "rm -rf dist",
     "build:sandbox": "docker build -t free-agent-sandbox:latest .docker",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
     "test": "echo \"Tests coming soon\"",
     "check-training": "node dist/learning/auto-train-monitor.js check",
+    "spec:smoke": "tsx src/evals/spec.smoke.ts",
     "prepack": "npm run clean && npm run build"
   },
   "keywords": [
@@ -131,13 +133,15 @@
     "handlebars": "^4.7.8",
     "jsdom": "^27.1.0",
     "ollama": "^0.5.9",
-    "openai": "^4.77.3"
+    "openai": "^4.77.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@robinson_ai_systems/shared-llm": "^0.1.12",
     "@robinson_ai_systems/shared-pipeline": "^0.1.1",
     "@robinson_ai_systems/shared-utils": "^0.1.1",
     "@types/node": "^22.10.2",
+    "tsx": "^4.20.6",
     "typescript": "^5.7.2"
   },
   "engines": {
