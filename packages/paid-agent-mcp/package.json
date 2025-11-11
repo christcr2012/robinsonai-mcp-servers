@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/paid-agent-mcp",
-  "version": "0.5.4",
+  "version": "0.6.0",
   "description": "Paid Agent MCP - Execute tasks using PAID models (OpenAI, Claude, etc.)",
   "type": "module",
   "main": "./dist/index.js",
@@ -13,9 +13,9 @@
     "bin/"
   ],
   "scripts": {
-    "build": "tsc -b ../../tsconfig.json --force",
+    "build": "tsup",
     "clean": "rm -rf dist",
-    "dev": "tsc --watch",
+    "dev": "tsup --watch",
     "start": "node dist/index.js",
     "test": "echo \"Tests coming soon\"",
     "prepack": "npm run clean && npm run build"
@@ -35,13 +35,13 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "@robinson_ai_systems/shared-llm": "^0.1.11",
-    "@robinson_ai_systems/shared-pipeline": "^0.1.1",
-    "@robinson_ai_systems/shared-utils": "^0.1.0",
     "better-sqlite3": "^11.10.0",
     "openai": "^4.77.3"
   },
   "devDependencies": {
+    "@robinson_ai_systems/shared-llm": "^0.1.12",
+    "@robinson_ai_systems/shared-pipeline": "^0.1.2",
+    "@robinson_ai_systems/shared-utils": "^0.1.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2"

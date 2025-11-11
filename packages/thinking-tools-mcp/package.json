@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/thinking-tools-mcp",
-  "version": "1.25.2",
+  "version": "1.26.0",
   "description": "Comprehensive Thinking Tools MCP - 24 cognitive frameworks + Context Engine with semantic search + Documentation Intelligence + Memory System + Multi-Language Support + Bridged Context7 Integration (works in concert with Robinson's Toolkit MCP)",
   "type": "module",
   "main": "./dist/index.js",
@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "tsc -b ../../tsconfig.json --force",
+    "build": "tsup",
     "pretest": "npm run build",
     "test": "node test/run-tests.mjs",
     "prepack": "npm run clean && npm run build",
@@ -46,7 +46,6 @@
     "@extractus/article-extractor": "^8.0.20",
     "@modelcontextprotocol/sdk": "^1.20.1",
     "@mozilla/readability": "^0.4.4",
-    "@robinson_ai_systems/robinsons-context-engine": "^1.2.0",
     "axios": "^1.12.2",
     "cheerio": "^1.1.2",
     "chokidar": "^3.3.1",
@@ -75,6 +74,8 @@
     "unified": "^11.0.5"
   },
   "devDependencies": {
+    "@robinson_ai_systems/robinsons-context-engine": "^1.2.0",
+    "@robinson_ai_systems/shared-utils": "^0.1.1",
     "@types/node": "^22.18.13",
     "rimraf": "^6.0.0",
     "typescript": "^5.7.3",
