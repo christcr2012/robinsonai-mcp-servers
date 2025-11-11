@@ -35,25 +35,25 @@ export interface TaskContext {
 
 /**
  * Detect subtask type from text content
+ *
+ * IMPORTANT: This should be CONSERVATIVE - only switch when there's a clear signal
+ * Default to code generation (qwen-coder) unless we have strong evidence otherwise
  */
 export function detectSubtaskType(text: string): SubtaskDetection | null {
   const lowerText = text.toLowerCase();
 
-  // API Integration detection
-  if (
-    lowerText.includes('api') ||
-    lowerText.includes('openai') ||
-    lowerText.includes('supabase') ||
-    lowerText.includes('google workspace') ||
-    lowerText.includes('n8n') ||
-    lowerText.includes('webhook') ||
-    lowerText.includes('authentication') ||
-    lowerText.includes('oauth')
-  ) {
+  // Count keyword matches for confidence scoring
+  const apiKeywords = ['openai', 'supabase', 'google oauth', 'google workspace', 'n8n', 'webhook', 'oauth', 'rest api', 'graphql'];
+  const apiMatches = apiKeywords.filter(kw => lowerText.includes(kw)).length;
+
+  // API Integration detection - require MULTIPLE strong signals
+  if (apiMatches >= 2 ||
+      lowerText.includes('set up') && (lowerText.includes('api') || lowerText.includes('oauth')) ||
+      lowerText.includes('configure') && (lowerText.includes('api') || lowerText.includes('authentication'))) {
     return {
       type: 'api_integration',
-      confidence: 0.85,
-      keywords: ['api', 'openai', 'supabase', 'google', 'n8n', 'webhook', 'auth'],
+      confidence: Math.min(0.85, 0.5 + (apiMatches * 0.15)),
+      keywords: apiKeywords.filter(kw => lowerText.includes(kw)),
       suggestedModel: 'mistral:7b',
       reason: 'Mistral excels at API integration and configuration',
     };

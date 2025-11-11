@@ -393,15 +393,17 @@ Requirements:
    * Select model based on complexity
    */
   private selectModel(complexity?: string): string {
+    // Default to coder model for all code generation tasks
+    // The orchestrator will switch to Mistral if it detects API/DB setup needs
     switch (complexity) {
       case 'simple':
-        return 'qwen2.5:3b'; // Fast model (1.9 GB)
+        return 'qwen2.5-coder:7b'; // Use coder model even for simple tasks
       case 'medium':
         return 'qwen2.5-coder:7b'; // Balanced model (4.7 GB)
       case 'complex':
         return 'qwen2.5-coder:7b'; // Use 7b for now (deepseek-coder:1.3b is too small)
       default:
-        return 'qwen2.5:3b';
+        return 'qwen2.5-coder:7b'; // Default to coder model
     }
   }
 
