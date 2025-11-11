@@ -1,0 +1,13 @@
+{
+  "name": "robinsonai-mcp-servers",
+  "cmd": {
+    "install": "pnpm i",
+    "eslint": "pnpm -w lint",
+    "tsc": "pnpm -w tsc --noEmit",
+    "tests": "pnpm -w vitest run",
+    "build": "pnpm -w build"
+  },
+  "specRegistry": "packages/free-agent-mcp/spec/tools.registry.json",
+  "codegenOutDir": ".free-agent/.generated"
+}
+
