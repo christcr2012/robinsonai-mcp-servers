@@ -37,7 +37,7 @@ import { initializePricing, getModelPricing, getPricingInfo, refreshPricing } fr
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, estimateTaskCost, getModelConfig, COST_POLICY, requiresApproval, withinBudget } from './model-catalog.js';
 import { getSharedOllamaClient } from './ollama-client.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams } from '@robinson_ai_systems/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams } from './shared/shared-llm/index.js';
 import { buildStrictSystemPrompt } from './prompt-builder.js';
 import { getWorkspaceRoot } from './lib/workspace.js';
 
@@ -1649,7 +1649,7 @@ Respond ONLY with the JSON array, no other text.`;
 
     // Use selected model (Ollama or OpenAI/Claude)
     if (modelConfig.provider === 'ollama') {
-      const { ollamaGenerate } = await import('@robinson_ai_systems/shared-llm');
+      const { ollamaGenerate } = await import('./shared/shared-llm/index.js');
       response = await ollamaGenerate({
         model: modelId,
         prompt: analysisPrompt,
@@ -1871,7 +1871,7 @@ Generate the modified section now:`;
 
     // Use selected model (Ollama or OpenAI/Claude)
     if (modelConfig.provider === 'ollama') {
-      const { ollamaGenerate } = await import('@robinson_ai_systems/shared-llm');
+      const { ollamaGenerate } = await import('./shared/shared-llm/index.js');
       newCode = await ollamaGenerate({
         model: modelId,
         prompt: codeGenPrompt,
@@ -2176,11 +2176,18 @@ async function handleListThinkingTools() {
 async function handleExecuteWithQualityGates(args: any) {
   try {
     // ✅ FIXED: Import from shared libraries instead of FREE agent
-    const { iterateTask } = await import('@robinson_ai_systems/shared-pipeline');
+    let iterateTask: any = null;
+    try {
+      // @ts-ignore - optional dependency may be missing at runtime
+      ({ iterateTask } = await import('./shared/shared-pipeline/index.js'));
+    } catch (error) {
+      console.warn('[PAID-AGENT] Optional shared-pipeline module not available. Quality gates iteration disabled.');
+    }
+
     let makeProjectBrief: ((repoPath: string) => Promise<any>) | null = null;
     try {
       // @ts-ignore - optional dependency may be missing at runtime
-      ({ makeProjectBrief } = await import('@robinson_ai_systems/shared-utils'));
+      ({ makeProjectBrief } = await import('./shared/shared-utils/index.js'));
     } catch (error) {
       console.warn('[PAID-AGENT] Optional shared-utils module not available. Project brief generation disabled.');
     }
@@ -2283,7 +2290,7 @@ async function handleExecuteWithQualityGates(args: any) {
 async function handleJudgeCodeQuality(args: any) {
   try {
     // ✅ FIXED: Import from shared-pipeline instead of FREE agent
-    const { judgeCode } = await import('@robinson_ai_systems/shared-pipeline');
+    const { judgeCode } = await import('./shared/shared-pipeline/index.js');
 
     // Build signals from provided data or create empty signals
     const signals = args.signals || {
@@ -2347,7 +2354,7 @@ async function handleJudgeCodeQuality(args: any) {
 async function handleRefineCode(args: any) {
   try {
     // ✅ FIXED: Import from shared-pipeline instead of FREE agent
-    const { applyFixPlan } = await import('@robinson_ai_systems/shared-pipeline');
+    const { applyFixPlan } = await import('./shared/shared-pipeline/index.js');
 
     // Convert code string to file structure
     const currentFiles = [{
@@ -2422,7 +2429,7 @@ async function handleRefineCode(args: any) {
 async function handleGenerateProjectBrief(args: any) {
   try {
     // @ts-ignore - optional dependency may be missing at runtime
-    const { makeProjectBrief } = await import('@robinson_ai_systems/shared-utils');
+    const { makeProjectBrief } = await import('./shared/shared-utils/index.js');
 
     const repoPath = args.repoPath || getWorkspaceRoot();
     const brief = await makeProjectBrief(repoPath);

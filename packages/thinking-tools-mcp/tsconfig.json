@@ -1,17 +1,11 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "dist",
-    "rootDir": "src",
-    "declaration": true,
-    "sourceMap": false,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": true
-  },
-  "include": ["src/**/*"]
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {"outDir": "dist", "rootDir": "src"},
+  "include": ["src"],
+  "references": [
+    {"path": "../shared-llm"},
+    {"path": "../shared-utils"},
+    {"path": "../shared-pipeline"},
+    {"path": "../robinsons-context-engine"}
+  ]
 }
-

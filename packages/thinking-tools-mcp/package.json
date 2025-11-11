@@ -3,8 +3,8 @@
   "version": "1.25.2",
   "description": "Comprehensive Thinking Tools MCP - 24 cognitive frameworks + Context Engine with semantic search + Documentation Intelligence + Memory System + Multi-Language Support + Bridged Context7 Integration (works in concert with Robinson's Toolkit MCP)",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -19,11 +19,11 @@
     "bin/"
   ],
   "scripts": {
-    "clean": "rimraf dist",
-    "build": "tsc -p tsconfig.json",
-    "pretest": "pnpm run build",
+    "clean": "rm -rf dist",
+    "build": "tsc -b",
+    "pretest": "npm run build",
     "test": "node test/run-tests.mjs",
-    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs",
+    "prepack": "npm run clean && npm run build",
     "start": "node bin/thinking-tools-mcp.js",
     "smoke": "node scripts/handshake-smoke.mjs"
   },

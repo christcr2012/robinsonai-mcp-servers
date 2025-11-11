@@ -1,20 +1,14 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "lib": ["ES2022"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
-  },
-  "exclude": ["node_modules", "dist"]
+  "files": [],
+  "references": [
+    { "path": "packages/shared-llm" },
+    { "path": "packages/shared-utils" },
+    { "path": "packages/shared-pipeline" },
+    { "path": "packages/robinsons-context-engine" },
+    { "path": "packages/free-agent-mcp" },
+    { "path": "packages/paid-agent-mcp" },
+    { "path": "packages/thinking-tools-mcp" },
+    { "path": "packages/credit-optimizer-mcp" },
+    { "path": "packages/robinsons-toolkit-mcp" }
+  ]
 }
-

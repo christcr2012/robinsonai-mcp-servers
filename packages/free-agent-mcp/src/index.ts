@@ -41,7 +41,7 @@ import { CodeGenerator } from './agents/code-generator.js';
 import { CodeAnalyzer } from './agents/code-analyzer.js';
 import { CodeRefactor } from './agents/code-refactor.js';
 import { StatsTracker } from './utils/stats-tracker.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams } from '@robinson_ai_systems/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams } from './shared/shared-llm/index.js';
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, getModelConfig, estimateTaskCost } from './model-catalog.js';
 import { warmupAvailableModels } from './utils/model-warmup.js';
@@ -793,7 +793,7 @@ Respond ONLY with the JSON array, no other text.`;
 
     try {
       // Use Ollama to analyze and plan file operations
-      const { ollamaGenerate } = await import('@robinson_ai_systems/shared-llm');
+      const { ollamaGenerate } = await import('./shared/shared-llm/index.js');
       const response = await ollamaGenerate({
         model: process.env.DEFAULT_OLLAMA_MODEL || 'qwen2.5-coder:7b',
         prompt: analysisPrompt,
@@ -987,7 +987,7 @@ INSTRUCTIONS:
 
 Generate the modified section now:`;
 
-      const { ollamaGenerate } = await import('@robinson_ai_systems/shared-llm');
+      const { ollamaGenerate } = await import('./shared/shared-llm/index.js');
       let newCode = await ollamaGenerate({
         model: process.env.DEFAULT_OLLAMA_MODEL || 'qwen2.5-coder:7b',
         prompt: codeGenPrompt,

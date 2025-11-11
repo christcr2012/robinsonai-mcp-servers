@@ -1,9 +1,10 @@
 {
   "name": "@robinson_ai_systems/credit-optimizer-mcp",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "MCP server that optimizes Augment Code credit usage through tool discovery, templates, caching, and autonomous workflows",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "credit-optimizer-mcp": "./bin/credit-optimizer-mcp.js"
   },
@@ -12,11 +13,12 @@
     "bin/"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b",
+    "clean": "rm -rf dist",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs"
+    "prepack": "npm run clean && npm run build"
   },
   "keywords": [
     "mcp",

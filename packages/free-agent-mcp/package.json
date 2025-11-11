@@ -1,10 +1,10 @@
 {
   "name": "@robinson_ai_systems/free-agent-mcp",
-  "version": "0.4.8",
+  "version": "0.4.10",
   "description": "Free Agent MCP - Execute tasks using FREE models (Ollama, etc.)",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -99,13 +99,14 @@
     "bin/"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b",
+    "clean": "rm -rf dist",
     "build:sandbox": "docker build -t free-agent-sandbox:latest .docker",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test": "echo \"Tests coming soon\"",
     "check-training": "node dist/learning/auto-train-monitor.js check",
-    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs"
+    "prepack": "npm run clean && npm run build"
   },
   "keywords": [
     "mcp",
@@ -124,6 +125,8 @@
     "@anthropic-ai/sdk": "^0.32.1",
     "@modelcontextprotocol/sdk": "^1.0.4",
     "@robinson_ai_systems/shared-llm": "workspace:*",
+    "@robinson_ai_systems/shared-pipeline": "workspace:*",
+    "@robinson_ai_systems/shared-utils": "workspace:*",
     "@types/better-sqlite3": "^7.6.13",
     "@types/diff": "^7.0.2",
     "@types/jsdom": "^27.0.0",

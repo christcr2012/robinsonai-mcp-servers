@@ -2,11 +2,19 @@
   "name": "@robinson_ai_systems/shared-pipeline",
   "version": "0.1.1",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "prepare": "npm run build"
+    "build": "tsc -b",
+    "clean": "rm -rf dist",
+    "prepack": "npm run clean && npm run build"
   },
   "dependencies": {
     "@robinson_ai_systems/shared-llm": "workspace:*",

@@ -3,8 +3,8 @@
   "version": "0.5.2",
   "description": "Paid Agent MCP - Execute tasks using PAID models (OpenAI, Claude, etc.)",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "paid-agent-mcp": "./bin/paid-agent-mcp.js"
   },
@@ -13,11 +13,12 @@
     "bin/"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b",
+    "clean": "rm -rf dist",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test": "echo \"Tests coming soon\"",
-    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs"
+    "prepack": "npm run clean && npm run build"
   },
   "keywords": [
     "mcp",
@@ -35,8 +36,8 @@
     "@anthropic-ai/sdk": "^0.32.1",
     "@modelcontextprotocol/sdk": "^1.0.4",
     "@robinson_ai_systems/shared-llm": "workspace:*",
-    "@robinson_ai_systems/shared-utils": "workspace:*",
     "@robinson_ai_systems/shared-pipeline": "workspace:*",
+    "@robinson_ai_systems/shared-utils": "workspace:*",
     "better-sqlite3": "^11.10.0",
     "openai": "^4.77.3"
   },

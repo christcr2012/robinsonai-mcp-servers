@@ -1,22 +1,6 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "Node16",
-    "moduleResolution": "Node16",
-    "lib": ["ES2022"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {"outDir": "dist", "rootDir": "src"},
+  "include": ["src"],
+  "references": [{"path": "../shared-llm"}, {"path": "../shared-pipeline"}, {"path": "../shared-utils"}]
 }
-

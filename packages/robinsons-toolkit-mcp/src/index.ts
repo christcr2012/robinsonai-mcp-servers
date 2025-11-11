@@ -12289,7 +12289,7 @@ const result = await toolkit_call({
         };
       }
 
-      const data = await response.json();
+      const data = await response.json() as any;
       const monthlyBudget = args.monthly_budget || parseFloat(process.env.OPENAI_MONTHLY_BUDGET || '100');
 
       return {
@@ -12297,8 +12297,8 @@ const result = await toolkit_call({
           type: 'text',
           text: JSON.stringify({
             total_budget: monthlyBudget,
-            used: data.total_usage || 0,
-            remaining: monthlyBudget - (data.total_usage || 0),
+            used: (data as any)?.total_usage || 0,
+            remaining: monthlyBudget - ((data as any)?.total_usage || 0),
             currency: 'USD',
             period: 'current_month'
           }, null, 2)
@@ -15868,9 +15868,9 @@ private async tasksUpdateTasklist(args: any): Promise<{ content: Array<{ type: s
 
       // If org_id not provided, get current user's default org
       if (!args.org_id) {
-        const userResult = await this.neonFetch(`/users/me`);
-        if (userResult.organizations && userResult.organizations.length > 0) {
-          params.append('org_id', userResult.organizations[0].id);
+        const userResult = await this.neonFetch(`/users/me`) as any;
+        if ((userResult as any)?.organizations && (userResult as any).organizations.length > 0) {
+          params.append('org_id', (userResult as any).organizations[0].id);
         }
       } else {
         params.append('org_id', args.org_id);

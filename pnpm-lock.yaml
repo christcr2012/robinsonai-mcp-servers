@@ -94,7 +94,13 @@ importers:
         version: 1.21.1
       '@robinson_ai_systems/shared-llm':
         specifier: workspace:*
-        version: link:../../standalone/libraries/shared-llm
+        version: link:../shared-llm
+      '@robinson_ai_systems/shared-pipeline':
+        specifier: workspace:*
+        version: link:../shared-pipeline
+      '@robinson_ai_systems/shared-utils':
+        specifier: workspace:*
+        version: link:../shared-utils
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
@@ -140,13 +146,13 @@ importers:
         version: 1.21.1
       '@robinson_ai_systems/shared-llm':
         specifier: workspace:*
-        version: link:../../standalone/libraries/shared-llm
+        version: link:../shared-llm
       '@robinson_ai_systems/shared-pipeline':
         specifier: workspace:*
-        version: link:../../standalone/libraries/shared-pipeline
+        version: link:../shared-pipeline
       '@robinson_ai_systems/shared-utils':
         specifier: workspace:*
-        version: link:../../standalone/libraries/shared-utils
+        version: link:../shared-utils
       better-sqlite3:
         specifier: ^11.10.0
         version: 11.10.0
@@ -162,6 +168,19 @@ importers:
         version: 22.19.0
       typescript:
         specifier: ^5.7.2
+        version: 5.9.3
+
+  packages/robinsons-context-engine:
+    dependencies:
+      '@robinson_ai_systems/shared-utils':
+        specifier: workspace:*
+        version: link:../shared-utils
+    devDependencies:
+      rimraf:
+        specifier: ^6.0.0
+        version: 6.1.0
+      typescript:
+        specifier: ^5.6.3
         version: 5.9.3
 
   packages/robinsons-toolkit-mcp:
@@ -235,6 +254,69 @@ importers:
         version: 5.0.6
       typescript:
         specifier: ^5.7.2
+        version: 5.9.3
+
+  packages/shared-llm:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.32.1
+        version: 0.32.1
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.0.4
+        version: 1.21.1
+      openai:
+        specifier: ^4.77.3
+        version: 4.104.0(ws@8.18.3)(zod@3.25.76)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.19.0
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
+  packages/shared-pipeline:
+    dependencies:
+      '@robinson_ai_systems/shared-llm':
+        specifier: workspace:*
+        version: link:../shared-llm
+      '@robinson_ai_systems/shared-utils':
+        specifier: workspace:*
+        version: link:../shared-utils
+      dockerode:
+        specifier: ^4.0.2
+        version: 4.0.9
+      tar-stream:
+        specifier: ^3.1.7
+        version: 3.1.7
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.19.0
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
+  packages/shared-utils:
+    dependencies:
+      '@robinson_ai_systems/robinsons-context-engine':
+        specifier: workspace:*
+        version: link:../robinsons-context-engine
+      '@robinson_ai_systems/shared-llm':
+        specifier: workspace:*
+        version: link:../shared-llm
+      fast-glob:
+        specifier: ^3.3.2
+        version: 3.3.3
+      ignore:
+        specifier: ^5.3.0
+        version: 5.3.2
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.24
+      typescript:
+        specifier: ^5.3.3
         version: 5.9.3
 
   packages/thinking-tools-mcp:
@@ -367,82 +449,6 @@ importers:
       vercel:
         specifier: ^33.0.1
         version: 33.7.1
-
-  standalone/libraries/robinsons-context-engine:
-    dependencies:
-      '@robinson_ai_systems/shared-utils':
-        specifier: workspace:*
-        version: link:../shared-utils
-    devDependencies:
-      rimraf:
-        specifier: ^6.0.0
-        version: 6.1.0
-      typescript:
-        specifier: ^5.6.3
-        version: 5.9.3
-
-  standalone/libraries/shared-llm:
-    dependencies:
-      '@anthropic-ai/sdk':
-        specifier: ^0.32.1
-        version: 0.32.1
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.0.4
-        version: 1.21.1
-      openai:
-        specifier: ^4.77.3
-        version: 4.104.0(ws@8.18.3)(zod@3.25.76)
-    devDependencies:
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.19.0
-      typescript:
-        specifier: ^5.7.2
-        version: 5.9.3
-
-  standalone/libraries/shared-pipeline:
-    dependencies:
-      '@robinson_ai_systems/shared-llm':
-        specifier: workspace:*
-        version: link:../shared-llm
-      '@robinson_ai_systems/shared-utils':
-        specifier: workspace:*
-        version: link:../shared-utils
-      dockerode:
-        specifier: ^4.0.2
-        version: 4.0.9
-      tar-stream:
-        specifier: ^3.1.7
-        version: 3.1.7
-    devDependencies:
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.19.0
-      typescript:
-        specifier: ^5.7.2
-        version: 5.9.3
-
-  standalone/libraries/shared-utils:
-    dependencies:
-      '@robinson_ai_systems/robinsons-context-engine':
-        specifier: workspace:*
-        version: link:../robinsons-context-engine
-      '@robinson_ai_systems/shared-llm':
-        specifier: workspace:*
-        version: link:../shared-llm
-      fast-glob:
-        specifier: ^3.3.2
-        version: 3.3.3
-      ignore:
-        specifier: ^5.3.0
-        version: 5.3.2
-    devDependencies:
-      '@types/node':
-        specifier: ^20.10.0
-        version: 20.19.24
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
 
 packages:
 
