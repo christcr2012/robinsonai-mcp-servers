@@ -120,6 +120,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.4
         version: 1.21.1
+      '@robinson_ai_systems/free-agent-core':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@types/diff':
         specifier: ^7.0.2
         version: 7.0.2
@@ -1074,6 +1077,11 @@ packages:
     resolution: {integrity: sha512-c1Q99M5ljsIuc4YdaCwfUEXsofakb9c8+Zse2qxTadu8TalLXuAESzLvFAvNVbkmSlvlzIQOLpBCmWI9wTOt+g==}
     peerDependencies:
       '@redis/client': ^1.0.0
+
+  '@robinson_ai_systems/free-agent-core@1.0.1':
+    resolution: {integrity: sha512-gtnVIApQWE0v43CBRfPs6bT3o/F8RTJ7QKfmbc9VfGzcvEwclFCeD0+EoYuSjDcqrZsrjLLNS8z+cmdh3n5IOg==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
 
   '@robinson_ai_systems/robinsons-context-engine@1.2.0':
     resolution: {integrity: sha512-A9m2BH/qOSF0BKHyHXUW3sXN30XRCP4LejQgMzx3YxNWAlKkbmKqNnAxKd5f5WD0gmI2DIdwVOurLahhMGn2xQ==}
@@ -4750,6 +4758,10 @@ snapshots:
   '@redis/time-series@1.1.0(@redis/client@1.6.1)':
     dependencies:
       '@redis/client': 1.6.1
+
+  '@robinson_ai_systems/free-agent-core@1.0.1':
+    dependencies:
+      zod: 4.1.12
 
   '@robinson_ai_systems/robinsons-context-engine@1.2.0': {}
 
