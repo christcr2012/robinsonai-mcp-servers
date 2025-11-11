@@ -1,0 +1,35 @@
+{
+  "name": "@robinson_ai_systems/free-agent-core",
+  "version": "1.0.0",
+  "description": "Portable, repo-agnostic Free Agent core with spec-first codegen and quality gates",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "free-agent": "dist/cli.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./runner": "./dist/runner.js",
+    "./pipeline": "./dist/pipeline/index.js",
+    "./spec": "./dist/spec/codegen.js",
+    "./repo": "./dist/repo/adapter.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.2",
+    "tsup": "^8.5.0",
+    "vitest": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
