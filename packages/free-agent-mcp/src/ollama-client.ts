@@ -52,7 +52,27 @@ export class OllamaClient {
 
   private initializeModels(): Map<string, ModelConfig> {
     return new Map([
-      // Fast router models (3B) - for intent & scaffolding
+      // PRIMARY: Mistral 7B - Excellent for code generation (NEW)
+      [
+        'mistral:7b',
+        {
+          name: 'mistral:7b',
+          speed: 'medium',
+          quality: 'better',
+          useCase: ['code', 'medium', 'refactoring', 'tests', 'features'],
+        },
+      ],
+      // FALLBACK: Qwen 7B Coder - Good alternative if Mistral unavailable
+      [
+        'qwen2.5-coder:7b',
+        {
+          name: 'qwen2.5-coder:7b',
+          speed: 'medium',
+          quality: 'good',
+          useCase: ['code', 'medium', 'refactoring', 'tests'],
+        },
+      ],
+      // ROUTER: Qwen 3B - Fast for routing/intent detection only
       [
         'qwen2.5:3b',
         {
@@ -62,41 +82,14 @@ export class OllamaClient {
           useCase: ['router', 'intent', 'scaffolding', 'simple'],
         },
       ],
+      // EMBEDDINGS: Nomic Embed Text - For semantic search
       [
-        'llama3.2:3b',
+        'nomic-embed-text',
         {
-          name: 'llama3.2:3b',
+          name: 'nomic-embed-text',
           speed: 'fast',
           quality: 'good',
-          useCase: ['router', 'intent', 'scaffolding', 'simple'],
-        },
-      ],
-      // Big coder models (32-34B) - for complex tasks
-      [
-        'deepseek-coder:33b',
-        {
-          name: 'deepseek-coder:33b',
-          speed: 'slow',
-          quality: 'best',
-          useCase: ['complex', 'algorithms', 'architecture'],
-        },
-      ],
-      [
-        'qwen2.5-coder:32b',
-        {
-          name: 'qwen2.5-coder:32b',
-          speed: 'fast',
-          quality: 'good',
-          useCase: ['simple', 'crud', 'boilerplate'],
-        },
-      ],
-      [
-        'codellama:34b',
-        {
-          name: 'codellama:34b',
-          speed: 'medium',
-          quality: 'better',
-          useCase: ['medium', 'refactoring', 'tests'],
+          useCase: ['embeddings', 'semantic-search'],
         },
       ],
     ]);
@@ -111,11 +104,11 @@ export class OllamaClient {
     // If model explicitly specified, use it (but verify it exists)
     if (options.model && options.model !== 'auto') {
       const modelMap: Record<string, string> = {
+        'primary': 'mistral:7b',
+        'fallback': 'qwen2.5-coder:7b',
         'router': 'qwen2.5:3b',
-        'router-alt': 'llama3.2:3b',
-        'deepseek-coder': 'deepseek-coder:1.3b',
+        'mistral': 'mistral:7b',
         'qwen-coder': 'qwen2.5-coder:7b',
-        'codellama': 'qwen2.5-coder:7b',
       };
       const requestedModel = modelMap[options.model] || options.model;
 
@@ -129,18 +122,31 @@ export class OllamaClient {
       console.warn(`[OllamaClient] Requested model ${requestedModel} not found, auto-selecting...`);
     }
 
-    // Auto-select using ModelManager
+    // Auto-select: Try Mistral first (primary), then fallback to Qwen
+    const modelManager_models = await modelManager.listAvailableModels();
+
+    // Prefer Mistral for code generation
+    if (modelManager_models.includes('mistral:7b')) {
+      return 'mistral:7b';
+    }
+
+    // Fallback to Qwen 7B Coder
+    if (modelManager_models.includes('qwen2.5-coder:7b')) {
+      return 'qwen2.5-coder:7b';
+    }
+
+    // Last resort: use ModelManager's selection
     const criteria: ModelSelectionCriteria = {
       task: 'code', // Default to code task
-      complexity: (options.complexity as any) || 'simple',
-      preferSpeed: options.complexity === 'simple',
+      complexity: (options.complexity as any) || 'medium',
+      preferSpeed: false, // Prefer quality over speed for code
       requiredCapabilities: ['code'],
     };
 
     const selectedModel = await modelManager.selectModel(criteria);
 
     if (!selectedModel) {
-      throw new Error('No Ollama models available. Please pull at least one model.');
+      throw new Error('No Ollama models available. Please pull mistral:7b or qwen2.5-coder:7b.');
     }
 
     return selectedModel;
@@ -169,12 +175,23 @@ export class OllamaClient {
     const model = await this.selectModel(options);
     const startTime = Date.now();
 
-    // Get adaptive timeout based on model size
-    // Don't assume cold start - models are usually warm after first use
-    const isColdStart = false;
-    const timeout = await modelManager.getAdaptiveTimeout(model, isColdStart);
+    // Get adaptive timeout based on model size and environment config
+    // Check if model is already loaded (warm start) or needs to be loaded (cold start)
+    const isColdStart = false; // Assume warm start after first use
 
-    console.error(`[OllamaClient] Using model: ${model} (timeout: ${timeout}ms)`);
+    // Use environment-configured timeouts if available
+    let timeout = await modelManager.getAdaptiveTimeout(model, isColdStart);
+
+    // Override with environment variables if set
+    if (process.env.OLLAMA_REQUEST_TIMEOUT) {
+      timeout = parseInt(process.env.OLLAMA_REQUEST_TIMEOUT, 10) * 1000; // Convert seconds to ms
+    } else if (isColdStart && process.env.OLLAMA_STARTUP_TIMEOUT) {
+      timeout = parseInt(process.env.OLLAMA_STARTUP_TIMEOUT, 10) * 1000;
+    } else if (!isColdStart && process.env.OLLAMA_WARMUP_TIMEOUT) {
+      timeout = parseInt(process.env.OLLAMA_WARMUP_TIMEOUT, 10) * 1000;
+    }
+
+    console.error(`[OllamaClient] Using model: ${model} (timeout: ${timeout}ms, cold_start: ${isColdStart})`);
     console.error(`[OllamaClient] Prompt length: ${prompt.length} chars`);
 
     try {
@@ -272,10 +289,10 @@ export class OllamaClient {
 
       // Check if recommended models are available
       const recommendedModels = [
-        'qwen2.5:3b',           // Fast router
-        'deepseek-coder:33b',   // Best quality
-        'qwen2.5-coder:32b',    // Fast coder
-        'codellama:34b',        // Balanced
+        'mistral:7b',           // PRIMARY: Excellent for code
+        'qwen2.5-coder:7b',     // FALLBACK: Good alternative
+        'qwen2.5:3b',           // ROUTER: Fast for routing
+        'nomic-embed-text',     // EMBEDDINGS: For semantic search
       ];
 
       for (const model of recommendedModels) {
@@ -315,9 +332,9 @@ export class OllamaClient {
   private async startOllama(): Promise<void> {
     console.error('🚀 Auto-starting Ollama...');
 
-    // Get configurable timeout (default: 120 seconds, increased from 60)
-    const timeoutSeconds = parseInt(process.env.OLLAMA_START_TIMEOUT || '120', 10);
-    console.error(`⏱️ Using timeout: ${timeoutSeconds} seconds`);
+    // Get configurable timeout from environment (default: 180 seconds for cold start)
+    const timeoutSeconds = parseInt(process.env.OLLAMA_STARTUP_TIMEOUT || '180', 10);
+    console.error(`⏱️ Using startup timeout: ${timeoutSeconds} seconds`);
 
     // Get Ollama path from environment or use defaults
     const ollamaPath = process.env.OLLAMA_PATH || (
