@@ -56,6 +56,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import { formatGMCode, formatUnifiedDiffs, stripCodeFences, type OutputFile } from './utils/output-format.js';
 import { run_parallel } from './tools/run_parallel.js';
+import { paths_probe } from './tools/paths_probe.js';
 
 type VersatileTaskType =
   | 'code_generation'
@@ -442,6 +443,10 @@ class AutonomousAgentServer {
 
           case 'run_parallel':
             result = await run_parallel.handler({ args, server: this });
+            break;
+
+          case 'paths_probe':
+            result = await paths_probe.handler(args);
             break;
 
             default:
@@ -2193,20 +2198,25 @@ Generate the modified section now:`;
    */
   private async runFreeAgent(args: any): Promise<any> {
     try {
-      const repo = args.repo || process.cwd();
       const task = String(args.task || '');
       const kind = (args.kind as any) || 'feature';
 
       console.log('[runFreeAgent] Using Free Agent Core with PCE and pluggable generator...');
 
-      // Import Free Agent Core's runFreeAgent function
+      // Import Free Agent Core's runFreeAgent function and path resolver
       const { runFreeAgent: coreRunFreeAgent } = await import(
         '@robinson_ai_systems/free-agent-core'
       );
+      const { resolveRepoRoot } = await import(
+        '@robinson_ai_systems/free-agent-core/dist/utils/paths.js'
+      );
+
+      // Resolve repo path (handles relative paths, env vars, etc.)
+      const repoRoot = resolveRepoRoot(args.repo);
 
       // Run the full pipeline with PCE
       await coreRunFreeAgent({
-        repo,
+        repo: repoRoot,
         task,
         kind,
       });
@@ -2214,7 +2224,7 @@ Generate the modified section now:`;
       return {
         success: true,
         message: 'Free Agent: task completed with PCE and quality gates',
-        repo,
+        repo: repoRoot,
         task,
         kind,
         augmentCreditsUsed: 0,

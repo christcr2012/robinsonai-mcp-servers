@@ -5,9 +5,6 @@
     "build": "pnpm build",
     "test": "pnpm test",
     "lint": "pnpm lint"
-  },
-  "specRegistry": "packages/robinsons-toolkit-mcp/spec/tools.registry.json",
-  "codegenOutDir": "packages/robinsons-toolkit-mcp/src/generated",
-  "generatorModule": "packages/free-agent-mcp/dist/generation/mcp-generator.js"
+  }
 }
 

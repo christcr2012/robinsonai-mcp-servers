@@ -6,6 +6,7 @@ import { validatePatchUnifiedDiff } from "../shared/patchGuard.js";
 import { applyUnifiedDiff } from "../shared/diff.js";
 import { loadGenerator, createFallbackGenerator } from "../generation/loader.js";
 import { DiffGenerator } from "../generation/types.js";
+import { resolveFromRepo, debugPaths } from "../utils/paths.js";
 
 export async function loadAdapter(repo: string): Promise<Adapter> {
   const cfgPath = join(repo, ".free-agent", "config.json");
@@ -13,21 +14,37 @@ export async function loadAdapter(repo: string): Promise<Adapter> {
   if (existsSync(cfgPath)) {
     console.log(`[Adapter] Loading config from ${cfgPath}`);
     const cfg = JSON.parse(readFileSync(cfgPath, "utf8"));
-    return makeAdapterFromConfig(cfg);
+    return makeAdapterFromConfig(cfg, repo);
   }
 
   console.log(`[Adapter] No config found, using defaults`);
   return defaultAdapter();
 }
 
-function makeAdapterFromConfig(cfg: any): Adapter {
+function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
   let generator: DiffGenerator | null = null;
+
+  // Resolve spec registry path relative to repo
+  const specRegistry = cfg.specRegistry
+    ? resolveFromRepo(repoRoot, cfg.specRegistry)
+    : undefined;
+
+  // Resolve codegen output dir relative to repo
+  const codegenOutDir = cfg.codegenOutDir
+    ? resolveFromRepo(repoRoot, cfg.codegenOutDir)
+    : undefined;
+
+  debugPaths("adapter", {
+    repoRoot,
+    specRegistry: specRegistry || "(none)",
+    codegenOutDir: codegenOutDir || "(none)",
+  });
 
   return {
     name: cfg.name || "custom",
     cmd: cfg.cmd || {},
-    specRegistry: cfg.specRegistry,
-    codegenOutDir: cfg.codegenOutDir,
+    specRegistry,
+    codegenOutDir,
 
     async prepare(repo) {
       if (cfg.cmd?.install) {
@@ -38,7 +55,7 @@ function makeAdapterFromConfig(cfg: any): Adapter {
       // Load generator on first prepare
       if (!generator) {
         try {
-          generator = await loadGenerator(cfg.generatorModule);
+          generator = await loadGenerator(cfg.generatorModule, repoRoot);
         } catch (err: any) {
           console.warn(`[Adapter] ${err.message}`);
           generator = createFallbackGenerator();
@@ -53,7 +70,7 @@ function makeAdapterFromConfig(cfg: any): Adapter {
     async synthesize({ repo, task, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
-          generator = await loadGenerator(cfg.generatorModule);
+          generator = await loadGenerator(cfg.generatorModule, repoRoot);
         } catch (err: any) {
           console.warn(`[Adapter] ${err.message}`);
           generator = createFallbackGenerator();
@@ -74,7 +91,7 @@ function makeAdapterFromConfig(cfg: any): Adapter {
     async refine({ repo, task, diagnostics, lastDiff, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
-          generator = await loadGenerator(cfg.generatorModule);
+          generator = await loadGenerator(cfg.generatorModule, repoRoot);
         } catch (err: any) {
           console.warn(`[Adapter] ${err.message}`);
           generator = createFallbackGenerator();

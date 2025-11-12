@@ -8,6 +8,7 @@ import {
 import { tmpdir } from "os";
 import { join } from "path";
 import { generateFromRegistry } from "./generator.js";
+import { ensureFile } from "../utils/paths.js";
 
 export async function ensureCodegen({
   registry,
@@ -34,6 +35,11 @@ export async function ensureCodegen({
     spec = await res.json();
   } else {
     console.log(`[Codegen] Reading from file...`);
+    // Ensure file exists with default content if missing
+    if (!existsSync(registry)) {
+      console.log(`[Codegen] Creating missing spec registry: ${registry}`);
+      ensureFile(registry, '{"services":{}}\n');
+    }
     spec = JSON.parse(readFileSync(registry, "utf8"));
   }
 

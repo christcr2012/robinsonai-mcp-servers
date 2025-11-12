@@ -1,8 +1,8 @@
 import { DiffGenerator } from "./types.js";
-import { resolve } from "path";
 import { existsSync } from "fs";
+import { resolveFromRepo, resolveRepoRoot } from "../utils/paths.js";
 
-export async function loadGenerator(modulePath?: string): Promise<DiffGenerator> {
+export async function loadGenerator(modulePath?: string, repoRoot?: string): Promise<DiffGenerator> {
   const fromEnv = process.env.FREE_AGENT_GENERATOR;
   const candidate = modulePath || fromEnv;
 
@@ -12,7 +12,10 @@ export async function loadGenerator(modulePath?: string): Promise<DiffGenerator>
     );
   }
 
-  const abs = resolve(candidate);
+  // Resolve relative to workspace root if repoRoot provided, otherwise use current workspace
+  const wsRoot = repoRoot ? resolveRepoRoot() : process.cwd();
+  const abs = resolveFromRepo(wsRoot, candidate);
+
   if (!existsSync(abs)) {
     throw new Error(`Generator module not found: ${abs}`);
   }
