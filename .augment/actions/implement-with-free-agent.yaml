@@ -1,0 +1,205 @@
+# Augment Action: Implement Feature with Free Agent
+# End-to-end orchestration of repo-native code implementation
+
+actions:
+  - id: "implement.feature.with.free.agent"
+    summary: "Repo-native code implementation with dynamic tool use and quality gates"
+    description: |
+      Orchestrates the full lifecycle of feature implementation:
+      1. Context gathering (project brief, similar code, tool discovery)
+      2. Planning (multi-file breakdown, integration strategy)
+      3. Code generation (using Free Agent MCP)
+      4. Verification (build, lint, tests)
+      5. Refinement (if verification fails)
+      6. Final delivery (working code + tests + report)
+    
+    inputs:
+      - name: title
+        type: string
+        required: true
+        description: "Short feature title (e.g., 'Add notifications API')"
+      
+      - name: description
+        type: string
+        required: true
+        description: "Detailed description of what to build"
+      
+      - name: acceptance_criteria
+        type: array
+        required: false
+        description: "List of acceptance criteria (optional)"
+        default: []
+      
+      - name: target_paths
+        type: array
+        required: false
+        description: "Specific files/directories to modify (optional)"
+        default: []
+      
+      - name: complexity
+        type: string
+        required: false
+        description: "Task complexity: simple|medium|complex|expert"
+        default: "medium"
+      
+      - name: quality_mode
+        type: string
+        required: false
+        description: "Quality level: fast|balanced|best"
+        default: "balanced"
+    
+    steps:
+      # Step 1: Apply policies for context gathering
+      - name: "apply_policies"
+        use_policies:
+          - "fa.use.context"
+          - "fa.retrieve.similar"
+          - "fa.tool.discovery"
+          - "fa.quality.gates"
+          - "fa.autoroute.large"
+          - "fa.safe.webdocs"
+          - "fa.dont.hallucinate"
+          - "fa.design.validation"
+          - "fa.require.tests"
+        description: "Apply all relevant policies based on task characteristics"
+      
+      # Step 2: Generate project brief
+      - name: "generate_project_brief"
+        call: "thinking_tools_mcp.free_agent_generate_project_brief"
+        with:
+          cache: true
+        description: "Generate or retrieve cached project brief"
+        store_as: "project_brief"
+      
+      # Step 3: Retrieve similar code
+      - name: "retrieve_context"
+        call: "thinking_tools_mcp.context_query"
+        with:
+          query: "${inputs.description}"
+          top_k: 12
+        description: "Find semantically similar code"
+        store_as: "context_results"
+      
+      # Step 4: Discover relevant tools
+      - name: "discover_tools"
+        call: "robinsons_toolkit_mcp.toolkit_discover"
+        with:
+          query: "${inputs.description}"
+          limit: 10
+        description: "Find relevant integration tools"
+        store_as: "toolkit_search"
+      
+      # Step 5: Plan implementation (for complex tasks)
+      - name: "plan_implementation"
+        when: "${inputs.complexity} in ['complex', 'expert'] or ${inputs.target_paths.length} > 6"
+        call: "free_agent_mcp.free_agent_run"
+        with:
+          task: "Create implementation plan for: ${inputs.description}"
+          kind: "research"
+          repo: "${workspace.root}"
+        description: "Generate detailed implementation plan"
+        store_as: "implementation_plan"
+      
+      # Step 6: Generate code
+      - name: "generate_code"
+        call: "free_agent_mcp.free_agent_run"
+        with:
+          task: "${inputs.description}"
+          kind: "feature"
+          repo: "${workspace.root}"
+        description: "Generate production-ready code"
+        store_as: "code_output"
+      
+      # Step 7: Verify code quality
+      - name: "verify_code"
+        call: "free_agent_mcp.free_agent_judge_code_quality"
+        with:
+          code: "${steps.generate_code.output.code}"
+          spec: "${inputs.description}"
+          signals:
+            build_output: "${build.output}"
+            lint_output: "${lint.output}"
+            test_output: "${test.output}"
+        description: "Judge code quality with structured rubric"
+        store_as: "verification_report"
+      
+      # Step 8: Refinement loop (if needed)
+      - name: "refine_code"
+        when: "${steps.verify_code.output.verdict.accept} == false"
+        loop:
+          max_attempts: 3
+          until: "${steps.verify_code.output.verdict.accept} == true"
+          steps:
+            # 8a: Root cause analysis
+            - name: "analyze_failures"
+              call: "thinking_tools_mcp.framework_root_cause"
+              with:
+                problem: "${steps.verify_code.output.verdict.issues}"
+                context: "Find root cause of build/test failures"
+              description: "5 Whys analysis of failures"
+              store_as: "root_cause"
+            
+            # 8b: Apply fixes
+            - name: "apply_fixes"
+              call: "free_agent_mcp.free_agent_refine_code"
+              with:
+                code: "${steps.generate_code.output.code}"
+                verdict: "${steps.verify_code.output.verdict}"
+              description: "Apply fixes based on judge feedback"
+              store_as: "refined_code"
+            
+            # 8c: Re-verify
+            - name: "reverify_code"
+              call: "free_agent_mcp.free_agent_judge_code_quality"
+              with:
+                code: "${steps.apply_fixes.output.code}"
+                spec: "${inputs.description}"
+              description: "Re-verify after fixes"
+              store_as: "verification_report"
+      
+      # Step 9: Final delivery
+      - name: "deliver_results"
+        return:
+          files: "${steps.generate_code.output.files || steps.apply_fixes.output.files}"
+          tests: "${steps.generate_code.output.tests || steps.apply_fixes.output.tests}"
+          integrations: "${steps.generate_code.output.integrations}"
+          report:
+            verification: "${steps.verify_code.output.verdict}"
+            refinement_attempts: "${steps.refine_code.attempts || 0}"
+            quality_score: "${steps.verify_code.output.verdict.weighted_score}"
+            build_status: "${steps.verify_code.output.verdict.build_ok}"
+            test_status: "${steps.verify_code.output.verdict.tests_ok}"
+            lint_status: "${steps.verify_code.output.verdict.lint_ok}"
+          context_used:
+            project_brief: "${steps.generate_project_brief.output}"
+            similar_files: "${steps.retrieve_context.output}"
+            tools_discovered: "${steps.discover_tools.output}"
+        description: "Return complete implementation with quality report"
+
+  # Helper action: Quick code fix (no planning)
+  - id: "quick.fix.with.free.agent"
+    summary: "Quick bugfix or small change with Free Agent"
+    inputs:
+      - name: description
+        type: string
+        required: true
+      - name: file_path
+        type: string
+        required: true
+    steps:
+      - name: "generate_fix"
+        call: "free_agent_mcp.free_agent_run"
+        with:
+          task: "${inputs.description}"
+          kind: "bugfix"
+          repo: "${workspace.root}"
+      - name: "verify_fix"
+        call: "free_agent_mcp.free_agent_judge_code_quality"
+        with:
+          code: "${steps.generate_fix.output.code}"
+          spec: "${inputs.description}"
+      - name: "return_fix"
+        return:
+          files: "${steps.generate_fix.output.files}"
+          verification: "${steps.verify_fix.output.verdict}"
+

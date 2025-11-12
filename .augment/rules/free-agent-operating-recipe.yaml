@@ -1,0 +1,135 @@
+# Free Agent MCP Operating Recipe
+# Comprehensive rules for Augment to drive Free Agent correctly
+
+policies:
+  # Context retrieval before code generation
+  - id: "fa.use.context"
+    when: task.intent in ["codegen","bugfix","refactor","feature"]
+    do:
+      - call: thinking_tools_mcp.free_agent_generate_project_brief
+        description: "Generate repo summary with conventions, architecture, patterns"
+      - call: thinking_tools_mcp.context_query
+        with: { query: task.summary, top_k: 12 }
+        description: "Retrieve semantically similar code"
+      - inject_as_context: ["project_brief", "context_results"]
+
+  # Tool discovery for integrations
+  - id: "fa.tool.discovery"
+    when: task.needs in ["deploy","db","http","blob","queue","email","auth","search","cache","cron","host","secrets","github","vercel","neon","upstash","stripe","supabase"]
+    do:
+      - call: robinsons_toolkit_mcp.toolkit_list_categories
+        description: "List available integration categories"
+      - call: robinsons_toolkit_mcp.toolkit_discover
+        with: { query: task.needs, limit: 10 }
+        description: "Fuzzy search for relevant tools"
+      - inject_as_context: ["toolkit_categories", "toolkit_search_results"]
+
+  # Quality gates for code generation
+  - id: "fa.quality.gates"
+    when: task.intent in ["codegen","feature","refactor","bugfix"]
+    do:
+      - set: free_agent.quality_mode = "balanced"   # fast|balanced|best
+      - set: free_agent.return_test_report = true
+      - set: free_agent.require_build_clean = true
+      - set: free_agent.reject_placeholders = true
+      - set: free_agent.enforce_import_resolution = true
+
+  # Multi-file planning for large tasks
+  - id: "fa.autoroute.large"
+    when: (task.estimated_tokens > 48000) or (task.files_touched > 6)
+    do:
+      - set: free_agent.multifile = true
+      - set: free_agent.plan_first = true
+      - call: thinking_tools_mcp.framework_first_principles
+        with: 
+          problem: task.description
+          context: "Break down into minimal file changes"
+        description: "Expand requirements using first principles"
+      - inject_as_context: ["expanded_requirements"]
+
+  # Fetch official docs for known services
+  - id: "fa.safe.webdocs"
+    when: task.needs in ["stripe","supabase","vercel","nextjs","prisma","graphql","fastapi","openai","anthropic"]
+    do:
+      - call: thinking_tools_mcp.context7_get_library_docs
+        with: { library: task.needs }
+        description: "Fetch official documentation"
+      - inject_as_context: ["official_docs"]
+
+  # Anti-hallucination guardrails
+  - id: "fa.dont.hallucinate"
+    always: true
+    do:
+      - set: free_agent.reject_placeholders = true
+      - set: free_agent.enforce_import_resolution = true
+      - set: free_agent.reference_existing_first = true
+      - set: free_agent.verify_tool_schemas = true
+
+  # Retrieve similar implementations
+  - id: "fa.retrieve.similar"
+    when: task.intent in ["codegen","feature","refactor"]
+    do:
+      - call: thinking_tools_mcp.context_query
+        with: { query: task.summary, top_k: 6 }
+      - inject_as_context: ["similar_files"]
+
+  # Design validation for complex features
+  - id: "fa.design.validation"
+    when: task.complexity in ["complex","expert"] or task.files_touched > 10
+    do:
+      - call: thinking_tools_mcp.framework_premortem
+        with:
+          problem: task.description
+          context: "Imagine this implementation fails - what went wrong?"
+        description: "Premortem analysis to catch issues early"
+      - call: thinking_tools_mcp.framework_devils_advocate
+        with:
+          problem: task.description
+          context: "Challenge assumptions in the implementation plan"
+        description: "Devil's advocate to find flaws"
+      - inject_as_context: ["premortem_analysis", "devils_advocate_critique"]
+
+  # Audit existing code before changes
+  - id: "fa.audit.before.change"
+    when: task.intent in ["refactor","bugfix"]
+    do:
+      - call: thinking_tools_mcp.context_audit
+        description: "Audit codebase for TODOs, placeholders, stubs"
+      - call: thinking_tools_mcp.docs_audit_repo
+        description: "Cross-reference docs against code"
+      - inject_as_context: ["audit_results", "docs_audit"]
+
+  # Test generation requirements
+  - id: "fa.require.tests"
+    when: task.intent in ["codegen","feature"] and task.touches_logic = true
+    do:
+      - set: free_agent.generate_tests = true
+      - set: free_agent.test_coverage_min = 80
+      - set: free_agent.test_framework = "auto"  # detect from repo
+
+  # Incremental refinement on failures
+  - id: "fa.refine.on.failure"
+    when: verification.status != "pass"
+    do:
+      - call: thinking_tools_mcp.framework_root_cause
+        with:
+          problem: verification.errors
+          context: "Find root cause of build/test failures"
+        description: "5 Whys analysis"
+      - call: free_agent_mcp.free_agent_refine_code
+        with:
+          code: last_output.code
+          verdict: verification.report
+        description: "Apply fixes based on judge feedback"
+      - max_attempts: 3
+
+# Environment defaults
+env_defaults:
+  FREE_AGENT_QUALITY: "balanced"
+  FREE_AGENT_REJECT_PLACEHOLDERS: "1"
+  FREE_AGENT_ENFORCE_IMPORTS: "1"
+  FREE_AGENT_MULTIFILE_DEFAULT: "1"
+  FREE_AGENT_REFERENCE_EXISTING: "1"
+  THINKING_TOOLS_SAFE_DOCS: "1"
+  TOOLKIT_DISCOVERY_STRICT: "0"  # allow fuzzy fallback
+
