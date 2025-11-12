@@ -1,0 +1,1489 @@
+{
+  "summary": {
+    "total": 241,
+    "correct": 199,
+    "needs_review": 42,
+    "incorrect": 0
+  },
+  "migrations": {
+    "github_add_assignees": "github_add_assignee",
+    "github_add_copilot_seats": "github_add_copilot_seat",
+    "github_add_labels": "github_add_label",
+    "github_compare_commits": "github_compare_commit",
+    "github_delete_workflow_run_logs": "github_delete_workflow_run_log",
+    "github_disable_automated_security_fixes": "github_disable_automated_security_fixe",
+    "github_disable_vulnerability_alerts": "github_disable_vulnerability_alert",
+    "github_enable_automated_security_fixes": "github_enable_automated_security_fixe",
+    "github_enable_vulnerability_alerts": "github_enable_vulnerability_alert",
+    "github_get_copilot_org_settings": "github_get_copilot_org_setting",
+    "github_get_repo_clones": "github_get_repo_clone",
+    "github_get_repo_stats_contributors": "github_get_repo_stats_contributor",
+    "github_get_repo_top_paths": "github_get_repo_top_path",
+    "github_get_repo_top_referrers": "github_get_repo_top_referrer",
+    "github_get_repo_views": "github_get_repo_view",
+    "github_get_required_status_checks": "github_get_required_status_check",
+    "github_list_issue_timeline": "github_list_issue_timelines",
+    "github_list_org_projects_v2": "github_list_org_projects_v2s",
+    "github_list_pull_requests_associated_with_commit": "github_list_pull_requests_associated_with_commits",
+    "github_list_user_following": "github_list_user_followings",
+    "github_remove_assignees": "github_remove_assignee",
+    "github_remove_copilot_seats": "github_remove_copilot_seat",
+    "github_remove_pull_request_reviewers": "github_remove_pull_request_reviewer",
+    "github_request_pull_request_reviewers": "github_request_pull_request_reviewer",
+    "github_rerun_failed_jobs": "github_rerun_failed_job",
+    "github_search_commits": "github_search_commit",
+    "github_search_issues": "github_search_issue",
+    "github_search_repositories": "github_search_repositorie",
+    "github_search_topics": "github_search_topic",
+    "github_search_users": "github_search_user",
+    "github_update_required_status_checks": "github_update_required_status_check"
+  },
+  "analysis": [
+    {
+      "current": "github_add_assignees",
+      "status": "needs_review",
+      "suggested": "github_add_assignee",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_add_assignee"
+    },
+    {
+      "current": "github_add_collaborator",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_add_copilot_seats",
+      "status": "needs_review",
+      "suggested": "github_add_copilot_seat",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_add_copilot_seat"
+    },
+    {
+      "current": "github_add_labels",
+      "status": "needs_review",
+      "suggested": "github_add_label",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_add_label"
+    },
+    {
+      "current": "github_add_project_item",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_cancel_workflow_run",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_check_collaborator",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_check_following",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_check_gist_star",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_check_org_membership",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_check_pull_request_reviewability",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_compare_commits",
+      "status": "needs_review",
+      "suggested": "github_compare_commit",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_compare_commit"
+    },
+    {
+      "current": "github_convert_issue_to_pull_request",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_blob",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_branch",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_codespace",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_commit",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_commit_comment",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_commit_status",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_deploy_key",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_discussion",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_discussion_comment",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_gist",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_issue",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_issue_comment",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_label",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_milestone",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_or_update_file",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_or_update_repo_secret",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_project",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_project_v2",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_pull_request",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_pull_request_review",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_pull_request_review_comment",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_release",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_repo",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_team",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_tree",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_webhook",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_create_workflow_dispatch",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_branch",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_branch_protection",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_codespace",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_discussion",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_file",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_gist",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_invitation",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_issue_comment",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_label",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_milestone",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_package",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_package_version",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_project_v2",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_pull_request_review_comment",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_release",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_release_asset",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_repo",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_repo_secret",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_team",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_webhook",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_workflow_run",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_delete_workflow_run_logs",
+      "status": "needs_review",
+      "suggested": "github_delete_workflow_run_log",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_delete_workflow_run_log"
+    },
+    {
+      "current": "github_disable_automated_security_fixes",
+      "status": "needs_review",
+      "suggested": "github_disable_automated_security_fixe",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_disable_automated_security_fixe"
+    },
+    {
+      "current": "github_disable_vulnerability_alerts",
+      "status": "needs_review",
+      "suggested": "github_disable_vulnerability_alert",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_disable_vulnerability_alert"
+    },
+    {
+      "current": "github_disable_workflow",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_dismiss_pull_request_review",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_download_job_logs",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'download' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_download_workflow_run_logs",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'download' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_enable_automated_security_fixes",
+      "status": "needs_review",
+      "suggested": "github_enable_automated_security_fixe",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_enable_automated_security_fixe"
+    },
+    {
+      "current": "github_enable_vulnerability_alerts",
+      "status": "needs_review",
+      "suggested": "github_enable_vulnerability_alert",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_enable_vulnerability_alert"
+    },
+    {
+      "current": "github_enable_workflow",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_fork_gist",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_generate_release_notes",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'generate' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_get_admin_enforcement",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_archive",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_authenticated_user",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_blob",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_branch",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_branch_protection",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_code_scanning_alert",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_codespace",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_collaborator_permission",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_commit",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_commit_signature_verification",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_commit_status",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_content",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_copilot_org_settings",
+      "status": "needs_review",
+      "suggested": "github_get_copilot_org_setting",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_get_copilot_org_setting"
+    },
+    {
+      "current": "github_get_copilot_usage",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_discussion",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_gist",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_issue",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_latest_release",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_milestone",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_org",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_package",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_package_version",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_project",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_project_v2",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_pull_request",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_pull_request_diff",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_pull_request_merge_status",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_pull_request_patch",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_pull_request_review",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_pull_request_review_enforcement",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_ref",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_release",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_release_asset",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_release_by_tag",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_repo",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_repo_clones",
+      "status": "needs_review",
+      "suggested": "github_get_repo_clone",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_get_repo_clone"
+    },
+    {
+      "current": "github_get_repo_community_profile",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_repo_license",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_repo_readme",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_repo_stats_commit_activity",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_repo_stats_contributors",
+      "status": "needs_review",
+      "suggested": "github_get_repo_stats_contributor",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_get_repo_stats_contributor"
+    },
+    {
+      "current": "github_get_repo_top_paths",
+      "status": "needs_review",
+      "suggested": "github_get_repo_top_path",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_get_repo_top_path"
+    },
+    {
+      "current": "github_get_repo_top_referrers",
+      "status": "needs_review",
+      "suggested": "github_get_repo_top_referrer",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_get_repo_top_referrer"
+    },
+    {
+      "current": "github_get_repo_views",
+      "status": "needs_review",
+      "suggested": "github_get_repo_view",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_get_repo_view"
+    },
+    {
+      "current": "github_get_required_status_checks",
+      "status": "needs_review",
+      "suggested": "github_get_required_status_check",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_get_required_status_check"
+    },
+    {
+      "current": "github_get_team",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_tree",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_user",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_webhook",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_workflow",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_workflow_run",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_get_workflow_run_job",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_branches",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_code_scanning_alerts",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_codespaces",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_collaborators",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_commit_comments",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_commit_statuses",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_commits",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_copilot_seats",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_deploy_keys",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_discussion_categories",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_discussion_comments",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_discussions",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_gist_commits",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_gists",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_invitations",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_issue_comments",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_issue_events",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_issue_timeline",
+      "status": "needs_review",
+      "suggested": "github_list_issue_timelines",
+      "reason": "List operations should use plural nouns. Suggested: github_list_issue_timelines"
+    },
+    {
+      "current": "github_list_issues",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_labels",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_milestones",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_org_members",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_org_projects_v2",
+      "status": "needs_review",
+      "suggested": "github_list_org_projects_v2s",
+      "reason": "List operations should use plural nouns. Suggested: github_list_org_projects_v2s"
+    },
+    {
+      "current": "github_list_org_teams",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_package_versions",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_packages",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_project_items",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_projects",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_pull_request_commits",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_pull_request_files",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_pull_request_review_comments",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_pull_request_reviews",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_pull_requests",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_pull_requests_associated_with_commit",
+      "status": "needs_review",
+      "suggested": "github_list_pull_requests_associated_with_commits",
+      "reason": "List operations should use plural nouns. Suggested: github_list_pull_requests_associated_with_commits"
+    },
+    {
+      "current": "github_list_release_assets",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_releases",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_repo_codespaces",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_repo_contributors",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_repo_languages",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_repo_secrets",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_repo_tags",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_repo_teams",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_repo_topics",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_repos",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_requested_reviewers",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_secret_scanning_alerts",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_team_members",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_user_followers",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_user_following",
+      "status": "needs_review",
+      "suggested": "github_list_user_followings",
+      "reason": "List operations should use plural nouns. Suggested: github_list_user_followings"
+    },
+    {
+      "current": "github_list_user_gists",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_user_orgs",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_user_repos",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_webhook_deliveries",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_webhooks",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_workflow_run_artifacts",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_workflow_run_jobs",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_workflow_runs",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_list_workflows",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_lock_issue",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_merge_branch",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_merge_pull_request",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_ping_webhook",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'ping' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_remove_assignees",
+      "status": "needs_review",
+      "suggested": "github_remove_assignee",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_remove_assignee"
+    },
+    {
+      "current": "github_remove_collaborator",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_remove_copilot_seats",
+      "status": "needs_review",
+      "suggested": "github_remove_copilot_seat",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_remove_copilot_seat"
+    },
+    {
+      "current": "github_remove_label",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_remove_org_member",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_remove_project_item",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_remove_pull_request_reviewers",
+      "status": "needs_review",
+      "suggested": "github_remove_pull_request_reviewer",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_remove_pull_request_reviewer"
+    },
+    {
+      "current": "github_rename_branch",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_replace_labels",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'replace' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_replace_repo_topics",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'replace' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_request_pull_request_reviewers",
+      "status": "needs_review",
+      "suggested": "github_request_pull_request_reviewer",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_request_pull_request_reviewer"
+    },
+    {
+      "current": "github_rerun_failed_jobs",
+      "status": "needs_review",
+      "suggested": "github_rerun_failed_job",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_rerun_failed_job"
+    },
+    {
+      "current": "github_rerun_workflow",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_restore_package",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_restore_package_version",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_search_code",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_search_commits",
+      "status": "needs_review",
+      "suggested": "github_search_commit",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_search_commit"
+    },
+    {
+      "current": "github_search_issues",
+      "status": "needs_review",
+      "suggested": "github_search_issue",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_search_issue"
+    },
+    {
+      "current": "github_search_repositories",
+      "status": "needs_review",
+      "suggested": "github_search_repositorie",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_search_repositorie"
+    },
+    {
+      "current": "github_search_topics",
+      "status": "needs_review",
+      "suggested": "github_search_topic",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_search_topic"
+    },
+    {
+      "current": "github_search_users",
+      "status": "needs_review",
+      "suggested": "github_search_user",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_search_user"
+    },
+    {
+      "current": "github_set_admin_enforcement",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'set' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_star_gist",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_start_codespace",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'start' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_stop_codespace",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'stop' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_submit_pull_request_review",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'submit' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_test_webhook",
+      "status": "needs_review",
+      "suggested": null,
+      "reason": "Verb 'test' is not in standard verb list. May need to add to standard or rename."
+    },
+    {
+      "current": "github_transfer_repo",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_unlock_issue",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_unstar_gist",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_authenticated_user",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_branch_protection",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_code_scanning_alert",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_discussion",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_gist",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_invitation",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_issue",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_issue_comment",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_milestone",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_org",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_project_v2",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_pull_request",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_pull_request_branch",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_pull_request_review_comment",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_pull_request_review_enforcement",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_ref",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_release",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_release_asset",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_repo",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_required_status_checks",
+      "status": "needs_review",
+      "suggested": "github_update_required_status_check",
+      "reason": "Non-list operations should use singular nouns. Suggested: github_update_required_status_check"
+    },
+    {
+      "current": "github_update_secret_scanning_alert",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_team",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    },
+    {
+      "current": "github_update_webhook",
+      "status": "correct",
+      "suggested": null,
+      "reason": "Follows standard pattern: github_{verb}_{noun}"
+    }
+  ]
+}
