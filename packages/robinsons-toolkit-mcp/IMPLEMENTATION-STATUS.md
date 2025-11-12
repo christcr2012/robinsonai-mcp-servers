@@ -2,35 +2,67 @@
 
 **Version:** 1.5.1
 **Last Updated:** 2025-01-12
-**Total Tools:** 1,681
-**Implementation Status:** ✅ **100% IMPLEMENTED & WORKING**
+**Total Tools (Active):** 1,464
+**Total Tools (Potential):** 1,583 (if unused files activated)
+**Implementation Status:** ✅ **100% IMPLEMENTED** | ⚠️ **119 tools in unused files**
 
 ---
 
 ## 📊 Summary
 
-Robinson's Toolkit MCP is **FULLY IMPLEMENTED** with all 1,681 tools registered, callable via `toolkit_call`, and working with real API integrations.
+Robinson's Toolkit MCP has **1,464 active tools** across **16 categories**, all registered, callable via `toolkit_call`, and working with real API integrations.
+
+**IMPORTANT:** An additional **119 tools** exist in unused files (`supabase-tools-2.ts` and `twilio-tools-2.ts`) that are NOT currently imported. See "Unused Tools" section below.
 
 ### Coverage by Category
 
-| Category | Total Tools | Status |
-|----------|-------------|--------|
-| **GitHub** | 241 | ✅ 100% implemented |
-| **Vercel** | 150 | ✅ 100% implemented |
-| **Neon** | 167 | ✅ 100% implemented |
-| **Upstash** | 157 | ✅ 100% implemented |
-| **Google Workspace** | 262 | ✅ 100% implemented |
-| **OpenAI** | 73 | ✅ 100% implemented |
-| **Stripe** | 150 | ✅ 100% implemented |
-| **Cloudflare** | 160 | ✅ 100% implemented |
-| **Supabase** | 97 | ✅ 100% implemented |
-| **Playwright** | 49 | ✅ 100% implemented |
-| **Twilio** | 83 | ✅ 100% implemented |
-| **Resend** | 40 | ✅ 100% implemented |
-| **Context7** | 12 | ✅ 100% implemented |
-| **FastAPI/Infrastructure** | 28 | ✅ 100% implemented |
-| **N8N** | 12 | ✅ 100% implemented |
-| **TOTAL** | **1,681** | ✅ **100%** |
+| Category | Active Tools | Unused Tools | Total Potential | Status |
+|----------|--------------|--------------|-----------------|--------|
+| **GitHub** | 241 | 0 | 241 | ✅ 100% active |
+| **Vercel** | 150 | 0 | 150 | ✅ 100% active |
+| **Neon** | 167 | 0 | 167 | ✅ 100% active |
+| **Upstash** | 157 | 0 | 157 | ✅ 100% active |
+| **Google Workspace** | 274 | 0 | 274 | ✅ 100% active |
+| **OpenAI** | 73 | 0 | 73 | ✅ 100% active |
+| **Stripe** | 150 | 0 | 150 | ✅ 100% active |
+| **Cloudflare** | 172 | 0 | 172 | ✅ 100% active |
+| **Supabase** | 46 | 58 | 104 | ⚠️ 44% active |
+| **Playwright** | 50 | 0 | 50 | ✅ 100% active |
+| **Twilio** | 22 | 61 | 83 | ⚠️ 27% active |
+| **Resend** | 44 | 0 | 44 | ✅ 100% active |
+| **Context7** | 12 | 0 | 12 | ✅ 100% active |
+| **PostgreSQL** | 11 | 0 | 11 | ✅ 100% active |
+| **Neo4j** | 5 | 0 | 5 | ✅ 100% active |
+| **Qdrant** | 11 | 0 | 11 | ✅ 100% active |
+| **LangChain** | 8 | 0 | 8 | ✅ 100% active |
+| **N8N** | 15 | 0 | 15 | ✅ 100% active |
+| **Gateway** | 3 | 0 | 3 | ✅ 100% active |
+| **Health** | 2 | 0 | 2 | ✅ 100% active |
+| **TOTAL** | **1,464** | **119** | **1,583** | **92.5% active** |
+
+---
+
+## ⚠️ UNUSED TOOLS (Not Currently Imported)
+
+### Supabase - 58 Additional Tools
+**File:** `src/supabase-tools-2.ts`
+**Status:** Defined but NOT imported in index.ts
+**Impact:** Would bring Supabase from 46 → 104 tools
+
+**To Activate:**
+1. Import `SUPABASE_TOOLS_2` in index.ts
+2. Add `...SUPABASE_TOOLS_2` to tool array
+3. Verify handlers exist in supabase-handlers-2.ts
+
+### Twilio - 61 Additional Tools
+**File:** `src/twilio-tools-2.ts`
+**Status:** Defined but NOT imported in index.ts
+**Impact:** Would bring Twilio from 22 → 83 tools
+
+**To Activate:**
+1. Import `TWILIO_TOOLS_2` in index.ts
+2. Add `...TWILIO_TOOLS_2` to tool array
+3. Verify handlers exist in twilio-handlers-2.ts and twilio-handlers-3.ts
 
 ---
 
@@ -148,7 +180,9 @@ Robinson's Toolkit MCP is **FULLY IMPLEMENTED** with all 1,681 tools registered,
 - ✅ Webhooks (create, update, delete, list)
 - ✅ Events (retrieve, list)
 
-### 8. Cloudflare (160 tools)
+### 8. Cloudflare (172 tools) - Split across 5 files
+**Files:** cloudflare-tools.ts (27), cloudflare-tools-2.ts (29), cloudflare-tools-3.ts (29), cloudflare-tools-4.ts (40), cloudflare-tools-5.ts (47)
+
 - ✅ Zones (create, update, delete, list, purge cache)
 - ✅ DNS Records (create, update, delete, list, import, export)
 - ✅ Firewall Rules (create, update, delete, list)
@@ -161,14 +195,17 @@ Robinson's Toolkit MCP is **FULLY IMPLEMENTED** with all 1,681 tools registered,
 - ✅ Analytics (dashboard, colos, events)
 - ✅ Logs (logpush, logpull, jobs)
 
-### 9. Supabase (97 tools)
+### 9. Supabase (46 tools active, 58 unused)
+**Active File:** supabase-tools.ts (46 tools)
+**Unused File:** supabase-tools-2.ts (58 tools) - NOT imported
+
 - ✅ Projects (create, update, delete, list, settings)
 - ✅ Database (tables, columns, functions, triggers, policies)
 - ✅ Auth (users, sessions, providers, settings)
 - ✅ Storage (buckets, objects, policies)
-- ✅ Edge Functions (create, update, delete, deploy, invoke)
-- ✅ Realtime (channels, presence, broadcast)
-- ✅ API (REST, GraphQL endpoints)
+- ⚠️ Edge Functions - IN UNUSED FILE
+- ⚠️ Realtime - IN UNUSED FILE
+- ⚠️ Additional API tools - IN UNUSED FILE
 
 ### 10. Playwright (49 tools)
 - ✅ Browser (launch, close, contexts, pages)
@@ -178,16 +215,20 @@ Robinson's Toolkit MCP is **FULLY IMPLEMENTED** with all 1,681 tools registered,
 - ✅ Screenshots and PDFs
 - ✅ Tracing and debugging
 
-### 11. Twilio (83 tools)
-- ✅ Messages (send, list, get, delete, media)
-- ✅ Calls (create, update, list, recordings)
-- ✅ Phone Numbers (buy, update, release, list, search)
-- ✅ Verify (create, check, list services)
-- ✅ Conversations (create, update, delete, messages, participants)
-- ✅ Video (rooms, participants, recordings)
-- ✅ Webhooks (create, update, delete, list)
+### 11. Twilio (22 tools active, 61 unused)
+**Active File:** twilio-tools.ts (22 tools)
+**Unused File:** twilio-tools-2.ts (61 tools) - NOT imported
 
-### 12. Resend (40 tools)
+- ✅ Messages (send, list, get, delete) - BASIC ONLY
+- ⚠️ Advanced messaging - IN UNUSED FILE
+- ⚠️ Calls - IN UNUSED FILE
+- ⚠️ Phone Numbers - IN UNUSED FILE
+- ⚠️ Verify - IN UNUSED FILE
+- ⚠️ Conversations - IN UNUSED FILE
+- ⚠️ Video - IN UNUSED FILE
+- ⚠️ Webhooks - IN UNUSED FILE
+
+### 12. Resend (44 tools)
 - ✅ Emails (send, get, list, cancel)
 - ✅ Domains (create, update, delete, list, verify)
 - ✅ API Keys (create, delete, list)
@@ -201,17 +242,58 @@ Robinson's Toolkit MCP is **FULLY IMPLEMENTED** with all 1,681 tools registered,
 - ✅ Version comparison (compare versions, migration guides)
 - ✅ Examples (get code examples)
 
-### 14. FastAPI/Infrastructure (28 tools)
-- ✅ Health checks (system, user)
-- ✅ PostgreSQL (queries, transactions, schema)
-- ✅ Neo4j (graph queries, nodes, relationships)
-- ✅ Qdrant (vector search, collections, points)
-- ✅ LangChain (embeddings, chains, agents)
-- ✅ Gateway (proxy, routing)
+### 14. PostgreSQL (11 tools)
+**File:** chris-infrastructure/postgres-tools.ts
+**Category:** postgres
 
-### 15. N8N (12 tools)
+- ✅ Database queries and transactions
+- ✅ pgvector support for semantic search
+- ✅ Schema management
+
+### 15. Neo4j (5 tools)
+**File:** chris-infrastructure/neo4j-tools.ts
+**Category:** neo4j
+
+- ✅ Graph queries
+- ✅ Node and relationship management
+- ✅ Knowledge graph operations
+
+### 16. Qdrant (11 tools)
+**File:** chris-infrastructure/qdrant-tools.ts
+**Category:** qdrant
+
+- ✅ Vector search
+- ✅ Collection management
+- ✅ Point operations
+
+### 17. LangChain (8 tools)
+**File:** chris-infrastructure/langchain-tools.ts
+**Category:** langchain (needs metadata)
+
+- ✅ Embeddings
+- ✅ Chains
+- ✅ Agents
+
+### 18. N8N (15 tools)
+**File:** chris-infrastructure/n8n-tools.ts
+**Category:** n8n
+
 - ✅ Workflows (create, update, delete, list, execute)
 - ✅ Executions (list, get, delete, retry)
+
+### 19. Gateway (3 tools)
+**File:** chris-infrastructure/gateway-tools.ts
+**Category:** gateway (needs metadata)
+
+- ✅ Proxy operations
+- ✅ Routing
+
+### 20. Health (2 tools)
+**File:** chris-infrastructure/health-tools.ts
+**Category:** health (needs metadata)
+
+- ✅ System health checks
+- ✅ User health checks
 - ✅ Credentials (create, update, delete, list)
 
 ---
@@ -324,13 +406,57 @@ All integrations support managing multiple instances:
 
 ## 📊 Statistics
 
-**Total Tools:** 1,681
-**Total Categories:** 15
-**Average Tools per Category:** 112
-**Largest Category:** Google Workspace (262 tools)
-**Smallest Category:** Context7 (12 tools)
+**Active Tools:** 1,464
+**Unused Tools:** 119 (in supabase-tools-2.ts and twilio-tools-2.ts)
+**Potential Total:** 1,583
+**Total Categories:** 20 (16 with metadata, 4 missing metadata)
+**Average Tools per Category:** 73 (active) / 79 (potential)
+**Largest Category:** Google Workspace (274 tools)
+**Smallest Category:** Health (2 tools)
 
-**Implementation Status:** ✅ 100% Complete
+**Implementation Status:** ✅ 92.5% Active (1,464/1,583)
 **Last Updated:** 2025-01-12
 **Version:** 1.5.1
+
+---
+
+## 🔧 IMMEDIATE ACTION ITEMS
+
+### 1. Activate Unused Tools (+119 tools)
+**Priority:** HIGH
+**Effort:** 30 minutes
+
+```typescript
+// In src/index.ts, add these imports:
+import { SUPABASE_TOOLS_2 } from './supabase-tools-2.js';
+import { TWILIO_TOOLS_2 } from './twilio-tools-2.js';
+
+// In getOriginalToolDefinitions(), add to tools array:
+...SUPABASE_TOOLS_2,  // After ...SUPABASE_TOOLS
+...TWILIO_TOOLS_2,    // After ...TWILIO_TOOLS
+```
+
+### 2. Add Missing Category Metadata
+**Priority:** MEDIUM
+**Effort:** 15 minutes
+
+Add to `CATEGORY_METADATA` in `tool-registry.ts`:
+- context7
+- langchain
+- gateway
+- health
+
+### 3. Fix Header Comment in index.ts
+**Priority:** LOW
+**Effort:** 5 minutes
+
+Update tool counts in header comment to match reality.
+
+### 4. Standardize File Organization
+**Priority:** MEDIUM
+**Effort:** 2-4 hours
+
+- Consolidate handler files OR use subcategory-based naming
+- Document file organization pattern
+- Create contribution guidelines
 
