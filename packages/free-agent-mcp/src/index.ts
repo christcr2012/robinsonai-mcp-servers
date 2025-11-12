@@ -46,9 +46,14 @@ import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, getModelConfig, estimateTaskCost } from './model-catalog.js';
 import { warmupAvailableModels } from './utils/model-warmup.js';
 import { FeedbackCapture, FeedbackSource } from './learning/feedback-capture.js';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { homedir } from 'os';
 import { loadBetterSqlite } from './utils/sqlite.js';
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 import { formatGMCode, formatUnifiedDiffs, stripCodeFences, type OutputFile } from './utils/output-format.js';
 
 type VersatileTaskType =
