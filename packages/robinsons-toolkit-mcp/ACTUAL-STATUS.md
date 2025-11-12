@@ -83,10 +83,18 @@ These have **complete handlers** and **no build warnings**:
 - **Status:** WORKING but needs duplicate cleanup
 - **NOTE:** Server reports 262 but source has 268 (6 tool discrepancy)
 
-### 6. **OpenAI** (73 tools) ✅
-- All handlers implemented in main index.ts
+### 6. **OpenAI** (73 tools implemented, 259 planned) ⚠️
+- All 73 handlers implemented in main index.ts
 - No warnings
 - **Status:** FULLY WORKING
+- **NOTE:** Documentation claims 259 tools but only 73 are implemented
+- **MISSING:** 186 tools were planned but never implemented
+- **Planned expansion included:**
+  - Account Management (organization, users, API keys)
+  - Realtime API (sessions, conversations)
+  - Additional model management tools
+  - Extended fine-tuning capabilities
+  - More batch processing tools
 
 ### 7. **Stripe** (150 tools) ✅
 - Handlers in stripe-handlers.ts, stripe-handlers-2.ts, stripe-handlers-3.ts
@@ -302,26 +310,51 @@ Check if handlers are properly exported in:
 
 ## 🔍 WHAT'S MISSING
 
-### Missing Tool Definitions (144 tools)
+### 1. Missing Tool Definitions (144 tools)
 Supabase and Twilio have handlers but missing tool definitions:
 - **Supabase:** 51 handlers without definitions (supabase-tools-2.ts exists but not imported?)
 - **Twilio:** 61 handlers without definitions (twilio-tools-2.ts exists but not imported?)
 
-### Missing Handler Exports (60+ tools)
+### 2. Missing Handler Exports (60+ tools)
 PostgreSQL, Neo4j, and Qdrant have case statements but handlers aren't exported:
 - **PostgreSQL:** 25+ handlers referenced but undefined
 - **Neo4j:** 20+ handlers referenced but undefined
 - **Qdrant:** 15+ handlers referenced but undefined
 
-### Duplicate Case Statements (~118 tools)
+### 3. Duplicate Case Statements (~118 tools)
 - **GitHub:** 6 duplicates
 - **Vercel:** 100+ duplicates
 - **Google Workspace:** 12 duplicates
+
+### 4. Unimplemented OpenAI Tools (186 tools)
+**Planned but never implemented:**
+- Account Management (organization, users, API keys)
+- Realtime API (sessions, conversations)
+- Extended model management
+- Additional fine-tuning tools
+- More batch processing capabilities
+- Advanced vector store operations
+
+**Evidence:**
+- README.md claims "259 tools" ✅
+- Code comment says "OPENAI (259 tools)"
+- IMPLEMENTATION-PLAN.md says "73 tools + expansion"
+- **Only 73 tools actually implemented**
+- **186 tools missing** (259 planned - 73 implemented)
+
+---
+
+## 📊 DISCREPANCY EXPLAINED
 
 **This explains the 250 tool discrepancy!**
 - Source files: 1,575 tools
 - + Missing definitions: 144 tools (Supabase/Twilio)
 - + Duplicates: ~118 tools
 - = **~1,837 tools** (close to the 1,825 registered!)
+
+**But wait - what about the 186 missing OpenAI tools?**
+- They were **planned** but never implemented
+- The 259 count in documentation is **aspirational**, not actual
+- The comment in code is **outdated/incorrect**
 
 
