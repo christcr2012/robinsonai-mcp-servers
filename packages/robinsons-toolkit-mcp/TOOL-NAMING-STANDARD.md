@@ -40,6 +40,35 @@ Use standard CRUD + common operations:
 - `cancel_*` - Cancel operations
 - `archive_*` - Archive (soft delete)
 - `restore_*` - Restore archived items
+- `add_*` - Add item to collection
+- `remove_*` - Remove item from collection
+- `check_*` - Check status/existence
+- `enable_*` - Enable feature/setting
+- `disable_*` - Disable feature/setting
+- `merge_*` - Merge resources
+- `compare_*` - Compare resources
+- `fork_*` - Fork/copy resource
+- `star_*` / `unstar_*` - Star/unstar (GitHub)
+- `watch_*` / `unwatch_*` - Watch/unwatch
+- `lock_*` / `unlock_*` - Lock/unlock
+- `pin_*` / `unpin_*` - Pin/unpin
+- `transfer_*` - Transfer ownership
+- `rename_*` - Rename resource
+- `sync_*` - Synchronize
+- `trigger_*` - Trigger event/workflow
+- `request_*` - Request action
+- `approve_*` - Approve request
+- `reject_*` - Reject request
+- `dismiss_*` - Dismiss notification/alert
+- `rerun_*` - Rerun operation
+- `replace_*` - Replace entire resource
+- `set_*` - Set configuration value
+- `submit_*` - Submit for review/processing
+- `generate_*` - Generate content/data
+- `test_*` - Test functionality
+- `ping_*` - Ping/health check
+- `start_*` - Start service/process
+- `stop_*` - Stop service/process
 
 ### 4. **Singular Nouns for Resources**
 Use singular form for the resource being acted upon:
