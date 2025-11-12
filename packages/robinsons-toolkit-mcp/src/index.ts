@@ -87,7 +87,7 @@ const envPath = join(__dirname, '..', '..', '..', '.env.local');
 config({ path: envPath });
 
 // ============================================================
-// GITHUB (301 tools)
+// GITHUB (330 tools)
 // ============================================================
 
 interface GitHubClient {
@@ -899,7 +899,7 @@ const result = await toolkit_call({
         { name: 'github_get_pull_request_patch', description: 'Get PR patch', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
         { name: 'github_convert_issue_to_pull_request', description: 'Convert issue to PR', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, head: { type: 'string' }, base: { type: 'string' } }, required: ['owner', 'repo', 'issue_number', 'head', 'base'] } },
 
-        // GITHUB ACTIONS (20 tools)
+        // GITHUB ACTIONS (49 tools: 20 workflows + 4 OIDC + 8 permissions + 6 org secrets + 11 runners)
         { name: 'github_list_workflows', description: 'List repository workflows', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
         { name: 'github_get_workflow', description: 'Get workflow details', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' } }, required: ['owner', 'repo', 'workflow_id'] } },
         { name: 'github_disable_workflow', description: 'Disable a workflow', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, workflow_id: { type: 'string' } }, required: ['owner', 'repo', 'workflow_id'] } },
@@ -920,6 +920,43 @@ const result = await toolkit_call({
         { name: 'github_list_repo_secrets', description: 'List repository secrets', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
         { name: 'github_create_or_update_repo_secret', description: 'Create/update repository secret', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' }, encrypted_value: { type: 'string' } }, required: ['owner', 'repo', 'secret_name', 'encrypted_value'] } },
         { name: 'github_delete_repo_secret', description: 'Delete repository secret', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' } }, required: ['owner', 'repo', 'secret_name'] } },
+
+        // ACTIONS OIDC (4 tools)
+        { name: 'github_get_oidc_customization', description: 'Get OIDC subject claim customization', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_set_oidc_customization', description: 'Set OIDC subject claim customization', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, use_default: { type: 'boolean' }, include_claim_keys: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'use_default'] } },
+        { name: 'github_get_org_oidc_customization', description: 'Get org OIDC customization', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_set_org_oidc_customization', description: 'Set org OIDC customization', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, include_claim_keys: { type: 'array', items: { type: 'string' } } }, required: ['org', 'include_claim_keys'] } },
+
+        // ACTIONS PERMISSIONS (8 tools)
+        { name: 'github_get_actions_permissions', description: 'Get Actions permissions', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_set_actions_permissions', description: 'Set Actions permissions', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, enabled: { type: 'boolean' }, allowed_actions: { type: 'string' } }, required: ['owner', 'repo', 'enabled'] } },
+        { name: 'github_get_workflow_access', description: 'Get workflow access level', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_set_workflow_access', description: 'Set workflow access level', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, access_level: { type: 'string' } }, required: ['owner', 'repo', 'access_level'] } },
+        { name: 'github_get_allowed_actions', description: 'Get allowed actions', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_set_allowed_actions', description: 'Set allowed actions', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, github_owned_allowed: { type: 'boolean' }, verified_allowed: { type: 'boolean' }, patterns_allowed: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_default_workflow_permissions', description: 'Get default workflow permissions', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_set_default_workflow_permissions', description: 'Set default workflow permissions', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, default_workflow_permissions: { type: 'string' }, can_approve_pull_request_reviews: { type: 'boolean' } }, required: ['owner', 'repo'] } },
+
+        // ACTIONS ORG SECRETS (6 tools)
+        { name: 'github_list_org_secrets', description: 'List org secrets', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org'] } },
+        { name: 'github_get_org_secrets_public_key', description: 'Get org secrets public key', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_get_org_secret', description: 'Get org secret', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, secret_name: { type: 'string' } }, required: ['org', 'secret_name'] } },
+        { name: 'github_create_or_update_org_secret', description: 'Create or update org secret', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, secret_name: { type: 'string' }, encrypted_value: { type: 'string' }, visibility: { type: 'string' }, selected_repository_ids: { type: 'array', items: { type: 'number' } } }, required: ['org', 'secret_name', 'encrypted_value', 'visibility'] } },
+        { name: 'github_delete_org_secret', description: 'Delete org secret', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, secret_name: { type: 'string' } }, required: ['org', 'secret_name'] } },
+        { name: 'github_list_org_secret_repos', description: 'List repos with access to org secret', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, secret_name: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org', 'secret_name'] } },
+
+        // ACTIONS SELF-HOSTED RUNNERS (11 tools)
+        { name: 'github_list_self_hosted_runners', description: 'List self-hosted runners', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_list_runner_downloads', description: 'List runner application downloads', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_create_runner_registration_token', description: 'Create runner registration token', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_create_runner_remove_token', description: 'Create runner remove token', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_self_hosted_runner', description: 'Get self-hosted runner', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, runner_id: { type: 'number' } }, required: ['owner', 'repo', 'runner_id'] } },
+        { name: 'github_delete_self_hosted_runner', description: 'Delete self-hosted runner', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, runner_id: { type: 'number' } }, required: ['owner', 'repo', 'runner_id'] } },
+        { name: 'github_list_runner_labels', description: 'List runner labels', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, runner_id: { type: 'number' } }, required: ['owner', 'repo', 'runner_id'] } },
+        { name: 'github_add_runner_labels', description: 'Add runner labels', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, runner_id: { type: 'number' }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'runner_id', 'labels'] } },
+        { name: 'github_set_runner_labels', description: 'Set runner labels', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, runner_id: { type: 'number' }, labels: { type: 'array', items: { type: 'string' } } }, required: ['owner', 'repo', 'runner_id', 'labels'] } },
+        { name: 'github_remove_runner_label', description: 'Remove runner label', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, runner_id: { type: 'number' }, name: { type: 'string' } }, required: ['owner', 'repo', 'runner_id', 'name'] } },
+        { name: 'github_remove_all_runner_labels', description: 'Remove all runner labels', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, runner_id: { type: 'number' } }, required: ['owner', 'repo', 'runner_id'] } },
 
         // ACTIONS ARTIFACTS (5 tools)
         { name: 'github_list_artifacts', description: 'List repository artifacts', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
@@ -2362,6 +2399,43 @@ const result = await toolkit_call({
           case 'github_list_repo_secrets': return await this.listRepoSecrets(args);
           case 'github_create_or_update_repo_secret': return await this.createOrUpdateRepoSecret(args);
           case 'github_delete_repo_secret': return await this.deleteRepoSecret(args);
+
+          // ACTIONS OIDC
+          case 'github_get_oidc_customization': return await this.getOidcCustomization(args);
+          case 'github_set_oidc_customization': return await this.setOidcCustomization(args);
+          case 'github_get_org_oidc_customization': return await this.getOrgOidcCustomization(args);
+          case 'github_set_org_oidc_customization': return await this.setOrgOidcCustomization(args);
+
+          // ACTIONS PERMISSIONS
+          case 'github_get_actions_permissions': return await this.getActionsPermissions(args);
+          case 'github_set_actions_permissions': return await this.setActionsPermissions(args);
+          case 'github_get_workflow_access': return await this.getWorkflowAccess(args);
+          case 'github_set_workflow_access': return await this.setWorkflowAccess(args);
+          case 'github_get_allowed_actions': return await this.getAllowedActions(args);
+          case 'github_set_allowed_actions': return await this.setAllowedActions(args);
+          case 'github_get_default_workflow_permissions': return await this.getDefaultWorkflowPermissions(args);
+          case 'github_set_default_workflow_permissions': return await this.setDefaultWorkflowPermissions(args);
+
+          // ACTIONS ORG SECRETS
+          case 'github_list_org_secrets': return await this.listOrgSecrets(args);
+          case 'github_get_org_secrets_public_key': return await this.getOrgSecretsPublicKey(args);
+          case 'github_get_org_secret': return await this.getOrgSecret(args);
+          case 'github_create_or_update_org_secret': return await this.createOrUpdateOrgSecret(args);
+          case 'github_delete_org_secret': return await this.deleteOrgSecret(args);
+          case 'github_list_org_secret_repos': return await this.listOrgSecretRepos(args);
+
+          // ACTIONS SELF-HOSTED RUNNERS
+          case 'github_list_self_hosted_runners': return await this.listSelfHostedRunners(args);
+          case 'github_list_runner_downloads': return await this.listRunnerDownloads(args);
+          case 'github_create_runner_registration_token': return await this.createRunnerRegistrationToken(args);
+          case 'github_create_runner_remove_token': return await this.createRunnerRemoveToken(args);
+          case 'github_get_self_hosted_runner': return await this.getSelfHostedRunner(args);
+          case 'github_delete_self_hosted_runner': return await this.deleteSelfHostedRunner(args);
+          case 'github_list_runner_labels': return await this.listRunnerLabels(args);
+          case 'github_add_runner_labels': return await this.addRunnerLabels(args);
+          case 'github_set_runner_labels': return await this.setRunnerLabels(args);
+          case 'github_remove_runner_label': return await this.removeRunnerLabel(args);
+          case 'github_remove_all_runner_labels': return await this.removeAllRunnerLabels(args);
 
           // RELEASES
           case 'github_list_releases': return await this.listReleases(args);
@@ -7704,6 +7778,155 @@ const result = await toolkit_call({
   private async deleteRepoSecret(args: any) {
     await this.client.delete(`/repos/${args.owner}/${args.repo}/actions/secrets/${args.secret_name}`);
     return { content: [{ type: 'text', text: 'Secret deleted successfully' }] };
+  }
+
+  // ACTIONS OIDC
+  private async getOidcCustomization(args: any) {
+    const data = await this.client.get(`/repos/${args.owner}/${args.repo}/actions/oidc/customization/sub`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async setOidcCustomization(args: any) {
+    await this.client.put(`/repos/${args.owner}/${args.repo}/actions/oidc/customization/sub`, { use_default: args.use_default, include_claim_keys: args.include_claim_keys });
+    return { content: [{ type: 'text', text: 'OIDC customization updated successfully' }] };
+  }
+
+  private async getOrgOidcCustomization(args: any) {
+    const data = await this.client.get(`/orgs/${args.org}/actions/oidc/customization/sub`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async setOrgOidcCustomization(args: any) {
+    await this.client.put(`/orgs/${args.org}/actions/oidc/customization/sub`, { include_claim_keys: args.include_claim_keys });
+    return { content: [{ type: 'text', text: 'Org OIDC customization updated successfully' }] };
+  }
+
+  // ACTIONS PERMISSIONS
+  private async getActionsPermissions(args: any) {
+    const data = await this.client.get(`/repos/${args.owner}/${args.repo}/actions/permissions`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async setActionsPermissions(args: any) {
+    await this.client.put(`/repos/${args.owner}/${args.repo}/actions/permissions`, { enabled: args.enabled, allowed_actions: args.allowed_actions });
+    return { content: [{ type: 'text', text: 'Actions permissions updated successfully' }] };
+  }
+
+  private async getWorkflowAccess(args: any) {
+    const data = await this.client.get(`/repos/${args.owner}/${args.repo}/actions/permissions/access`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async setWorkflowAccess(args: any) {
+    await this.client.put(`/repos/${args.owner}/${args.repo}/actions/permissions/access`, { access_level: args.access_level });
+    return { content: [{ type: 'text', text: 'Workflow access updated successfully' }] };
+  }
+
+  private async getAllowedActions(args: any) {
+    const data = await this.client.get(`/repos/${args.owner}/${args.repo}/actions/permissions/selected-actions`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async setAllowedActions(args: any) {
+    await this.client.put(`/repos/${args.owner}/${args.repo}/actions/permissions/selected-actions`, { github_owned_allowed: args.github_owned_allowed, verified_allowed: args.verified_allowed, patterns_allowed: args.patterns_allowed });
+    return { content: [{ type: 'text', text: 'Allowed actions updated successfully' }] };
+  }
+
+  private async getDefaultWorkflowPermissions(args: any) {
+    const data = await this.client.get(`/repos/${args.owner}/${args.repo}/actions/permissions/workflow`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async setDefaultWorkflowPermissions(args: any) {
+    await this.client.put(`/repos/${args.owner}/${args.repo}/actions/permissions/workflow`, { default_workflow_permissions: args.default_workflow_permissions, can_approve_pull_request_reviews: args.can_approve_pull_request_reviews });
+    return { content: [{ type: 'text', text: 'Default workflow permissions updated successfully' }] };
+  }
+
+  // ACTIONS ORG SECRETS
+  private async listOrgSecrets(args: any) {
+    const data = await this.client.get(`/orgs/${args.org}/actions/secrets`, { per_page: args.per_page, page: args.page });
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async getOrgSecretsPublicKey(args: any) {
+    const data = await this.client.get(`/orgs/${args.org}/actions/secrets/public-key`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async getOrgSecret(args: any) {
+    const data = await this.client.get(`/orgs/${args.org}/actions/secrets/${args.secret_name}`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async createOrUpdateOrgSecret(args: any) {
+    await this.client.put(`/orgs/${args.org}/actions/secrets/${args.secret_name}`, { encrypted_value: args.encrypted_value, visibility: args.visibility, selected_repository_ids: args.selected_repository_ids });
+    return { content: [{ type: 'text', text: 'Org secret created/updated successfully' }] };
+  }
+
+  private async deleteOrgSecret(args: any) {
+    await this.client.delete(`/orgs/${args.org}/actions/secrets/${args.secret_name}`);
+    return { content: [{ type: 'text', text: 'Org secret deleted successfully' }] };
+  }
+
+  private async listOrgSecretRepos(args: any) {
+    const data = await this.client.get(`/orgs/${args.org}/actions/secrets/${args.secret_name}/repositories`, { per_page: args.per_page, page: args.page });
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  // ACTIONS SELF-HOSTED RUNNERS
+  private async listSelfHostedRunners(args: any) {
+    const data = await this.client.get(`/repos/${args.owner}/${args.repo}/actions/runners`, { per_page: args.per_page, page: args.page });
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async listRunnerDownloads(args: any) {
+    const data = await this.client.get(`/repos/${args.owner}/${args.repo}/actions/runners/downloads`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async createRunnerRegistrationToken(args: any) {
+    const data = await this.client.post(`/repos/${args.owner}/${args.repo}/actions/runners/registration-token`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async createRunnerRemoveToken(args: any) {
+    const data = await this.client.post(`/repos/${args.owner}/${args.repo}/actions/runners/remove-token`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async getSelfHostedRunner(args: any) {
+    const data = await this.client.get(`/repos/${args.owner}/${args.repo}/actions/runners/${args.runner_id}`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async deleteSelfHostedRunner(args: any) {
+    await this.client.delete(`/repos/${args.owner}/${args.repo}/actions/runners/${args.runner_id}`);
+    return { content: [{ type: 'text', text: 'Runner deleted successfully' }] };
+  }
+
+  private async listRunnerLabels(args: any) {
+    const data = await this.client.get(`/repos/${args.owner}/${args.repo}/actions/runners/${args.runner_id}/labels`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async addRunnerLabels(args: any) {
+    const data = await this.client.post(`/repos/${args.owner}/${args.repo}/actions/runners/${args.runner_id}/labels`, { labels: args.labels });
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async setRunnerLabels(args: any) {
+    const data = await this.client.put(`/repos/${args.owner}/${args.repo}/actions/runners/${args.runner_id}/labels`, { labels: args.labels });
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async removeRunnerLabel(args: any) {
+    const data = await this.client.delete(`/repos/${args.owner}/${args.repo}/actions/runners/${args.runner_id}/labels/${args.name}`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+
+  private async removeAllRunnerLabels(args: any) {
+    const data = await this.client.delete(`/repos/${args.owner}/${args.repo}/actions/runners/${args.runner_id}/labels`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
   }
 
   private async listReleases(args: any) {
