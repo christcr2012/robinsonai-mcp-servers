@@ -40,6 +40,9 @@ const ROOT = join(__dirname, '..');
 const SRC = join(ROOT, 'src');
 const DIST = join(ROOT, 'dist');
 
+// Use DIST for imports since TypeScript has already compiled
+const IMPORT_DIR = DIST;
+
 // Category metadata (matches tool-registry.ts)
 const CATEGORY_METADATA = {
   github: { displayName: 'GitHub', description: 'GitHub repository, issue, PR, workflow, and collaboration tools' },
@@ -65,28 +68,36 @@ const CATEGORY_METADATA = {
 };
 
 // Map tool file names to categories and handler modules
+// Only include the main combined files, skip the -2, -3, etc. parts
 const TOOL_FILE_MAPPING = {
-  'stripe-tools.ts': { category: 'stripe', handlerModule: './stripe-handlers.js' },
-  'supabase-tools.ts': { category: 'supabase', handlerModule: './supabase-handlers.js' },
-  'supabase-tools-2.ts': { category: 'supabase', handlerModule: './supabase-handlers-2.js' },
-  'playwright-tools.ts': { category: 'playwright', handlerModule: './playwright-handlers.js' },
-  'twilio-tools.ts': { category: 'twilio', handlerModule: './twilio-handlers.js' },
-  'twilio-tools-2.ts': { category: 'twilio', handlerModule: './twilio-handlers-2.js' },
-  'resend-tools.ts': { category: 'resend', handlerModule: './resend-handlers.js' },
-  'context7-tools.ts': { category: 'context7', handlerModule: './context7-handlers.js' },
-  'cloudflare-tools.ts': { category: 'cloudflare', handlerModule: './cloudflare-handlers.js' },
-  'cloudflare-tools-2.ts': { category: 'cloudflare', handlerModule: './cloudflare-handlers-2.js' },
-  'cloudflare-tools-3.ts': { category: 'cloudflare', handlerModule: './cloudflare-handlers-3.js' },
-  'cloudflare-tools-4.ts': { category: 'cloudflare', handlerModule: './cloudflare-handlers-4.js' },
-  'cloudflare-tools-5.ts': { category: 'cloudflare', handlerModule: './cloudflare-handlers-5.js' },
-  'postgres-tools.ts': { category: 'postgres', handlerModule: './chris-infrastructure/postgres-handlers.js' },
-  'neo4j-tools.ts': { category: 'neo4j', handlerModule: './chris-infrastructure/neo4j-handlers.js' },
-  'qdrant-tools.ts': { category: 'qdrant', handlerModule: './chris-infrastructure/qdrant-handlers.js' },
-  'n8n-tools.ts': { category: 'n8n', handlerModule: './chris-infrastructure/n8n-handlers.js' },
-  'langchain-tools.ts': { category: 'langchain', handlerModule: './chris-infrastructure/langchain-handlers.js' },
-  'gateway-tools.ts': { category: 'gateway', handlerModule: './chris-infrastructure/gateway-handlers.js' },
-  'health-tools.ts': { category: 'health', handlerModule: './chris-infrastructure/health-handlers.js' },
+  'stripe-tools.ts': { category: 'stripe', handlerModule: './stripe-handlers.js', exportName: 'STRIPE_TOOLS' },
+  'supabase-tools.ts': { category: 'supabase', handlerModule: './supabase-handlers.js', exportName: 'SUPABASE_TOOLS' },
+  'playwright-tools.ts': { category: 'playwright', handlerModule: './playwright-handlers.js', exportName: 'PLAYWRIGHT_TOOLS' },
+  'twilio-tools.ts': { category: 'twilio', handlerModule: './twilio-handlers.js', exportName: 'TWILIO_TOOLS' },
+  'resend-tools.ts': { category: 'resend', handlerModule: './resend-handlers.js', exportName: 'RESEND_TOOLS' },
+  'context7-tools.ts': { category: 'context7', handlerModule: './context7-handlers.js', exportName: 'CONTEXT7_TOOLS' },
+  'cloudflare-tools.ts': { category: 'cloudflare', handlerModule: './cloudflare-handlers.js', exportName: 'CLOUDFLARE_TOOLS' },
+  'postgres-tools.ts': { category: 'postgres', handlerModule: './chris-infrastructure/postgres-handlers.js', exportName: 'postgresTools' },
+  'neo4j-tools.ts': { category: 'neo4j', handlerModule: './chris-infrastructure/neo4j-handlers.js', exportName: 'neo4jTools' },
+  'qdrant-tools.ts': { category: 'qdrant', handlerModule: './chris-infrastructure/qdrant-handlers.js', exportName: 'qdrantTools' },
+  'n8n-tools.ts': { category: 'n8n', handlerModule: './chris-infrastructure/n8n-handlers.js', exportName: 'n8nTools' },
+  'langchain-tools.ts': { category: 'langchain', handlerModule: './chris-infrastructure/langchain-handlers.js', exportName: 'langchainTools' },
+  'gateway-tools.ts': { category: 'gateway', handlerModule: './chris-infrastructure/gateway-handlers.js', exportName: 'gatewayTools' },
+  'health-tools.ts': { category: 'health', handlerModule: './chris-infrastructure/health-handlers.js', exportName: 'healthTools' },
 };
+
+// Skip these files - they're parts that get combined into the main files
+const SKIP_FILES = new Set([
+  'supabase-tools-2.ts',
+  'cloudflare-tools-2.ts',
+  'cloudflare-tools-3.ts',
+  'cloudflare-tools-4.ts',
+  'cloudflare-tools-5.ts',
+  'twilio-tools-2.ts',
+  'resend-tools-2.ts',
+  'stripe-handlers-2.ts',
+  'stripe-handlers-3.ts',
+]);
 
 /**
  * Find all *-tools.ts files recursively
@@ -129,41 +140,28 @@ function extractSubcategory(toolName) {
   return null;
 }
 
-console.log('🔍 Scanning for tool files...');
-const toolFiles = findToolFiles(SRC);
-console.log(`Found ${toolFiles.length} tool files`);
+console.log('📦 Loading tools from dist/all-tools.js...');
+
+// Import the all-tools.js which has all tool arrays exported
+const allToolsPath = join(DIST, 'all-tools.js');
+const allToolsModule = await import(`file:///${allToolsPath.replace(/\\/g, '/')}`);
 
 const allTools = [];
 const categoryCounts = new Map();
 const subcategoriesMap = new Map();
 
-for (const toolFile of toolFiles) {
-  const fileName = toolFile.split(/[/\\]/).pop()!;
-  const mapping = TOOL_FILE_MAPPING[fileName];
-  
-  if (!mapping) {
-    console.warn(`⚠️  No mapping for ${fileName}, skipping`);
-    continue;
-  }
-
+// Process each tool category from the mapping
+for (const [fileName, mapping] of Object.entries(TOOL_FILE_MAPPING)) {
   console.log(`📦 Processing ${fileName} (category: ${mapping.category})`);
-  
+
   try {
-    // Read the file and extract the exported array
-    const content = readFileSync(toolFile, 'utf-8');
-    
-    // Find the export statement (e.g., "export const STRIPE_TOOLS = [")
-    const exportMatch = content.match(/export\s+const\s+(\w+)\s*=\s*\[/);
-    if (!exportMatch) {
-      console.warn(`⚠️  No export found in ${fileName}`);
+    const exportName = mapping.exportName;
+    const tools = allToolsModule[exportName];
+
+    if (!tools) {
+      console.warn(`⚠️  Export ${exportName} not found in all-tools.js, skipping ${fileName}`);
       continue;
     }
-    
-    // Use dynamic import to load the module
-    const relPath = relative(ROOT, toolFile).replace(/\\/g, '/');
-    const module = await import(`file:///${join(ROOT, relPath)}`);
-    const exportName = exportMatch[1];
-    const tools = module[exportName];
     
     if (!Array.isArray(tools)) {
       console.warn(`⚠️  ${exportName} is not an array in ${fileName}`);
@@ -189,7 +187,7 @@ for (const toolFile of toolFiles) {
         if (!subcategoriesMap.has(category)) {
           subcategoriesMap.set(category, new Set());
         }
-        subcategoriesMap.get(category)!.add(subcategory);
+        subcategoriesMap.get(category).add(subcategory);
       }
     }
     
