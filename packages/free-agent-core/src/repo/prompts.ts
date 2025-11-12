@@ -33,16 +33,29 @@ export async function buildAdapterPrompt(
   // Add pattern contract if available
   if (contract) {
     context.push("=== PATTERN CONTRACT ===");
-    context.push(`Containers: ${contract.containers.map(c => `${c.name} (${c.file})`).join(", ")}`);
-    context.push(`Wrappers: ${contract.wrappers.map(w => `${w.name} from ${w.importFrom}`).join(", ")}`);
-    context.push(`Forbidden: ${contract.forbid.join(", ")}`);
+    context.push(`Language: ${contract.language}`);
+    context.push(`Base Directory: ${contract.layout.baseDir}`);
+    context.push(`Containers (where code goes):`);
+    contract.containers.forEach(c => {
+      context.push(`  - ${c.name} (${c.kind}) in ${c.file}`);
+      context.push(`    Method style: ${c.methodStyle}`);
+    });
+    context.push(`Wrappers (helper functions to use):`);
+    contract.wrappers.forEach(w => {
+      context.push(`  - ${w.name}() from ${w.importFrom}${w.mustUse ? ' [REQUIRED]' : ''}`);
+    });
+    context.push(`Naming conventions:`);
+    context.push(`  - Methods: ${contract.naming.methodCase}`);
+    context.push(`  - Files: ${contract.naming.fileCase}`);
+    context.push(`Forbidden patterns: ${contract.forbid.join(", ")}`);
   }
 
   // Add exemplars if available
   if (exemplars && exemplars.length > 0) {
-    context.push("=== CODE EXEMPLARS ===");
-    exemplars.forEach(ex => {
-      context.push(`File: ${ex.path}\n${ex.content.slice(0, 500)}...`);
+    context.push("=== CODE EXEMPLARS (follow this style) ===");
+    exemplars.forEach((ex, i) => {
+      context.push(`\n--- Example ${i + 1}: ${ex.path} ---`);
+      context.push(ex.content.slice(0, 1000));
     });
   }
 
