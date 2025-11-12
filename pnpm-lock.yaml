@@ -95,6 +95,12 @@ importers:
 
   packages/free-agent-core:
     dependencies:
+      diff:
+        specifier: ^5.2.0
+        version: 5.2.0
+      fast-glob:
+        specifier: ^3.3.2
+        version: 3.3.3
       zod:
         specifier: ^4.1.12
         version: 4.1.12
