@@ -119,5 +119,7 @@ export class MCPGenerator implements DiffGenerator {
 }
 
 // Export as default for loader
-export default new MCPGenerator();
+const generator = new MCPGenerator();
+export default generator;
+export { generator };
 
