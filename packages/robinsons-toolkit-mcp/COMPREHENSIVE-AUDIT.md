@@ -19,6 +19,7 @@
 3. **Missing Handlers:** PostgreSQL (25), Neo4j (20), Qdrant (15), LangChain (0), Gateway (0), Health (0)
 4. **Incomplete OpenAI:** 73 implemented, 186 planned but missing
 5. **Inconsistent Organization:** Mix of inline definitions and separate files
+6. **Partial Lazy Loading:** API clients lazy-loaded ✅ but handler code loaded at startup ❌
 
 ---
 
