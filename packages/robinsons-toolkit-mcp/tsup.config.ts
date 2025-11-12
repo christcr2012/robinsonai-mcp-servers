@@ -14,5 +14,11 @@ export default defineConfig({
     '@robinson_ai_systems/shared-utils',
     '@robinson_ai_systems/shared-pipeline'
   ],
+  // IMPORTANT: Never bundle Node built-ins or deps with dynamic require()
+  // This prevents bundling issues and keeps the build stable
+  external: [
+    'fs', 'path', 'url', 'module', 'os', 'util', 'crypto', 'stream',
+    'fast-glob', 'globby', 'chokidar', '@parcel/watcher', '@swc/core'
+  ],
 });
 

@@ -1,0 +1,186 @@
+/**
+ * Runtime Registry Loader for Robinson's Toolkit
+ * 
+ * Loads the generated registry.json and categories.json at runtime.
+ * Provides the single source of truth for all tools and categories.
+ */
+
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { validateTools } from '../util/sanitizeTool.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT = join(__dirname, '..', '..'); // packages/robinsons-toolkit-mcp
+
+export interface ToolRecord {
+  name: string;
+  description?: string;
+  inputSchema?: any;
+  category: string;
+  subcategory?: string;
+  handler: string; // Path to handler module (e.g., './stripe-handlers.js')
+}
+
+export interface CategoryInfo {
+  name: string;
+  displayName: string;
+  description: string;
+  toolCount: number;
+  subcategories?: string[];
+}
+
+export interface Registry {
+  tools: ToolRecord[];
+  categories: Record<string, CategoryInfo>;
+  toolsByCategory: Map<string, ToolRecord[]>;
+  toolsByName: Map<string, ToolRecord>;
+}
+
+let cachedRegistry: Registry | null = null;
+
+/**
+ * Load the registry from dist/registry.json and dist/categories.json
+ * Caches the result for subsequent calls.
+ */
+export function loadRegistry(): Registry {
+  if (cachedRegistry) {
+    return cachedRegistry;
+  }
+
+  try {
+    // Load registry.json
+    const registryPath = join(ROOT, 'dist', 'registry.json');
+    const toolsRaw = JSON.parse(readFileSync(registryPath, 'utf8'));
+    
+    // Load categories.json
+    const categoriesPath = join(ROOT, 'dist', 'categories.json');
+    const categories = JSON.parse(readFileSync(categoriesPath, 'utf8'));
+    
+    // Validate tools (final guard)
+    const tools = validateTools(toolsRaw) as ToolRecord[];
+    
+    // Build lookup maps
+    const toolsByCategory = new Map<string, ToolRecord[]>();
+    const toolsByName = new Map<string, ToolRecord>();
+    
+    for (const tool of tools) {
+      // By category
+      if (!toolsByCategory.has(tool.category)) {
+        toolsByCategory.set(tool.category, []);
+      }
+      toolsByCategory.get(tool.category)!.push(tool);
+      
+      // By name
+      toolsByName.set(tool.name, tool);
+    }
+    
+    cachedRegistry = {
+      tools,
+      categories,
+      toolsByCategory,
+      toolsByName,
+    };
+    
+    return cachedRegistry;
+  } catch (error) {
+    console.error('Failed to load registry:', error);
+    throw new Error(`Registry not found. Run 'npm run build' to generate it.`);
+  }
+}
+
+/**
+ * Get all tools in a category
+ */
+export function getToolsByCategory(category: string): ToolRecord[] {
+  const registry = loadRegistry();
+  return registry.toolsByCategory.get(category) || [];
+}
+
+/**
+ * Get a specific tool by name
+ */
+export function getToolByName(name: string): ToolRecord | undefined {
+  const registry = loadRegistry();
+  return registry.toolsByName.get(name);
+}
+
+/**
+ * Get all categories
+ */
+export function getCategories(): Record<string, CategoryInfo> {
+  const registry = loadRegistry();
+  return registry.categories;
+}
+
+/**
+ * Get all tools (validated and deduplicated)
+ */
+export function getAllTools(): ToolRecord[] {
+  const registry = loadRegistry();
+  return registry.tools;
+}
+
+/**
+ * Search tools by query (fuzzy search across name and description)
+ */
+export function searchTools(query: string, limit: number = 10): ToolRecord[] {
+  const registry = loadRegistry();
+  const lowerQuery = query.toLowerCase();
+  
+  const results: Array<{ tool: ToolRecord; score: number }> = [];
+  
+  for (const tool of registry.tools) {
+    let score = 0;
+    
+    // Exact name match
+    if (tool.name === query) {
+      score += 100;
+    }
+    // Name contains query
+    else if (tool.name.toLowerCase().includes(lowerQuery)) {
+      score += 50;
+    }
+    // Name starts with query
+    else if (tool.name.toLowerCase().startsWith(lowerQuery)) {
+      score += 75;
+    }
+    
+    // Description contains query
+    if (tool.description?.toLowerCase().includes(lowerQuery)) {
+      score += 25;
+    }
+    
+    // Category match
+    if (tool.category.toLowerCase().includes(lowerQuery)) {
+      score += 10;
+    }
+    
+    if (score > 0) {
+      results.push({ tool, score });
+    }
+  }
+  
+  // Sort by score descending
+  results.sort((a, b) => b.score - a.score);
+  
+  return results.slice(0, limit).map(r => r.tool);
+}
+
+/**
+ * Get registry statistics
+ */
+export function getRegistryStats() {
+  const registry = loadRegistry();
+  return {
+    totalTools: registry.tools.length,
+    totalCategories: Object.keys(registry.categories).length,
+    categoryCounts: Object.entries(registry.categories).map(([name, info]) => ({
+      category: name,
+      displayName: info.displayName,
+      count: info.toolCount,
+    })),
+  };
+}
+
