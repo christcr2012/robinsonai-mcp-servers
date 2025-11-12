@@ -12,7 +12,10 @@ import { validateTools } from '../util/sanitizeTool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const ROOT = join(__dirname, '..', '..'); // packages/robinsons-toolkit-mcp
+// When compiled, this file is at dist/lib/registry.js
+// Registry files are at dist/registry.json and dist/categories.json
+// So we need to go up one level from dist/lib/ to dist/
+const DIST_DIR = join(__dirname, '..');
 
 export interface ToolRecord {
   name: string;
@@ -51,11 +54,11 @@ export function loadRegistry(): Registry {
 
   try {
     // Load registry.json
-    const registryPath = join(ROOT, 'dist', 'registry.json');
+    const registryPath = join(DIST_DIR, 'registry.json');
     const toolsRaw = JSON.parse(readFileSync(registryPath, 'utf8'));
-    
+
     // Load categories.json
-    const categoriesPath = join(ROOT, 'dist', 'categories.json');
+    const categoriesPath = join(DIST_DIR, 'categories.json');
     const categories = JSON.parse(readFileSync(categoriesPath, 'utf8'));
     
     // Validate tools (final guard)
