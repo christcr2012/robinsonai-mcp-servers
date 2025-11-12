@@ -500,6 +500,7 @@ class AutonomousAgentServer {
           template: params.template,
           model: params.model,
           complexity: params.complexity,
+          quality: params.quality, // FIXED: Pass quality parameter from params
         });
 
       case 'code_analysis':
