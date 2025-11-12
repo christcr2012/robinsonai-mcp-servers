@@ -19,6 +19,7 @@ import {
 
 import { loadRegistry, getToolByName, getToolsByCategory, searchTools, getCategories } from './lib/registry.js';
 import { generateBrokerTools } from './broker-tools.js';
+import { UnifiedToolkit } from './handlers.js';
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -307,8 +308,8 @@ class RobinsonsToolkitServer {
       const handlerModule = await import(tool.handler);
 
       // Find the handler function
-      // Convention: handler modules export functions named after the tool
-      // e.g., stripe_customer_create → handleStripeCustomerCreate or stripeCustomerCreate
+      // Convention: handler modules export functions in camelCase
+      // e.g., stripe_customer_create → stripeCustomerCreate
       const handlerFnName = this.getHandlerFunctionName(toolName);
       const handlerFn = handlerModule[handlerFnName] || handlerModule.default;
 
@@ -342,11 +343,13 @@ class RobinsonsToolkitServer {
   }
 
   private getHandlerFunctionName(toolName: string): string {
-    // Convert tool_name to handlerFunctionName
-    // e.g., stripe_customer_create → handleStripeCustomerCreate
+    // Convert tool_name to camelCase function name
+    // e.g., stripe_customer_create → stripeCustomerCreate
     const parts = toolName.split('_');
-    const capitalized = parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join('');
-    return `handle${capitalized}`;
+    const capitalized = parts.map((p, i) =>
+      i === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1)
+    ).join('');
+    return capitalized;
   }
 
   private healthCheck() {
