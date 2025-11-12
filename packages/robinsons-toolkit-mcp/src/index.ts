@@ -2437,6 +2437,70 @@ const result = await toolkit_call({
           case 'github_remove_runner_label': return await this.removeRunnerLabel(args);
           case 'github_remove_all_runner_labels': return await this.removeAllRunnerLabels(args);
 
+          // REPOSITORY CUSTOM PROPERTIES
+          case 'github_list_repo_custom_properties': return await this.listRepoCustomProperties(args);
+          case 'github_create_repo_custom_property': return await this.createRepoCustomProperty(args);
+          case 'github_delete_repo_custom_property': return await this.deleteRepoCustomProperty(args);
+
+          // REPOSITORY RULESETS
+          case 'github_list_repo_rulesets': return await this.listRepoRulesets(args);
+          case 'github_get_repo_ruleset': return await this.getRepoRuleset(args);
+          case 'github_create_repo_ruleset': return await this.createRepoRuleset(args);
+          case 'github_update_repo_ruleset': return await this.updateRepoRuleset(args);
+          case 'github_delete_repo_ruleset': return await this.deleteRepoRuleset(args);
+          case 'github_list_repo_rule_suites': return await this.listRepoRuleSuites(args);
+          case 'github_get_repo_rule_suite': return await this.getRepoRuleSuite(args);
+
+          // ISSUE DEPENDENCIES & SUB-ISSUES
+          case 'github_list_issue_dependencies': return await this.listIssueDependencies(args);
+          case 'github_create_issue_dependency': return await this.createIssueDependency(args);
+          case 'github_delete_issue_dependency': return await this.deleteIssueDependency(args);
+          case 'github_list_sub_issues': return await this.listSubIssues(args);
+          case 'github_create_sub_issue': return await this.createSubIssue(args);
+          case 'github_remove_sub_issue': return await this.removeSubIssue(args);
+
+          // ACTIONS ARTIFACTS & CACHE & VARIABLES (already have definitions, adding handlers)
+          case 'github_list_artifacts': return await this.listArtifacts(args);
+          case 'github_get_artifact': return await this.getArtifact(args);
+          case 'github_download_artifact': return await this.downloadArtifact(args);
+          case 'github_delete_artifact': return await this.deleteArtifact(args);
+          case 'github_list_workflow_artifacts': return await this.listWorkflowArtifacts(args);
+          case 'github_list_caches': return await this.listCaches(args);
+          case 'github_get_cache_usage': return await this.getCacheUsage(args);
+          case 'github_delete_cache': return await this.deleteCache(args);
+          case 'github_delete_caches_by_key': return await this.deleteCachesByKey(args);
+          case 'github_list_repo_variables': return await this.listRepoVariables(args);
+          case 'github_get_repo_variable': return await this.getRepoVariable(args);
+          case 'github_create_repo_variable': return await this.createRepoVariable(args);
+          case 'github_update_repo_variable': return await this.updateRepoVariable(args);
+          case 'github_delete_repo_variable': return await this.deleteRepoVariable(args);
+          case 'github_list_org_variables': return await this.listOrgVariables(args);
+
+          // ORGANIZATION TOOLS
+          case 'github_list_org_webhooks': return await this.listOrgWebhooks(args);
+          case 'github_create_org_webhook': return await this.createOrgWebhook(args);
+          case 'github_delete_org_webhook': return await this.deleteOrgWebhook(args);
+          case 'github_list_org_outside_collaborators': return await this.listOrgOutsideCollaborators(args);
+          case 'github_remove_org_outside_collaborator': return await this.removeOrgOutsideCollaborator(args);
+          case 'github_list_org_security_managers': return await this.listOrgSecurityManagers(args);
+          case 'github_add_org_security_manager': return await this.addOrgSecurityManager(args);
+          case 'github_remove_org_security_manager': return await this.removeOrgSecurityManager(args);
+          case 'github_list_org_blocked_users': return await this.listOrgBlockedUsers(args);
+          case 'github_check_org_blocked_user': return await this.checkOrgBlockedUser(args);
+          case 'github_block_org_user': return await this.blockOrgUser(args);
+          case 'github_unblock_org_user': return await this.unblockOrgUser(args);
+          case 'github_list_org_custom_properties': return await this.listOrgCustomProperties(args);
+          case 'github_create_org_custom_property': return await this.createOrgCustomProperty(args);
+
+          // SECURITY TOOLS
+          case 'github_list_dependabot_alerts': return await this.listDependabotAlerts(args);
+          case 'github_get_dependabot_alert': return await this.getDependabotAlert(args);
+          case 'github_update_dependabot_alert': return await this.updateDependabotAlert(args);
+          case 'github_list_security_advisories': return await this.listSecurityAdvisories(args);
+          case 'github_get_security_advisory': return await this.getSecurityAdvisory(args);
+          case 'github_create_security_advisory': return await this.createSecurityAdvisory(args);
+          case 'github_update_security_advisory': return await this.updateSecurityAdvisory(args);
+
           // RELEASES
           case 'github_list_releases': return await this.listReleases(args);
           case 'github_get_release': return await this.getRelease(args);
