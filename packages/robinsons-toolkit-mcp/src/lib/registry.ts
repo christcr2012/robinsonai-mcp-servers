@@ -12,10 +12,10 @@ import { validateTools } from '../util/sanitizeTool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-// When compiled, this file is at dist/lib/registry.js
+// When tsup bundles, this code ends up in dist/index.js, so __dirname is dist/
 // Registry files are at dist/registry.json and dist/categories.json
-// So we need to go up one level from dist/lib/ to dist/
-const DIST_DIR = join(__dirname, '..');
+// So DIST_DIR should just be __dirname
+const DIST_DIR = __dirname;
 
 export interface ToolRecord {
   name: string;
