@@ -260,7 +260,35 @@ class AutonomousAgentServer {
         try {
           switch (name) {
             case 'delegate_code_generation':
-              result = await this.codeGenerator.generate(args as any);
+              // Check if we're in a repository - if so, use Free Agent Core with PCE
+              const isRepo = existsSync(join(process.cwd(), '.git'));
+              if (isRepo) {
+                console.log('[delegate_code_generation] Repository detected, using Free Agent Core with PCE...');
+                try {
+                  const { runFreeAgent: coreRunFreeAgent } = await import(
+                    '@robinson_ai_systems/free-agent-core'
+                  );
+                  await coreRunFreeAgent({
+                    repo: process.cwd(),
+                    task: args.task,
+                    kind: 'feature',
+                    tier: 'free',
+                    quality: 'best',
+                  });
+                  result = {
+                    success: true,
+                    message: 'Code generated using Free Agent Core with PCE',
+                    augmentCreditsUsed: 0,
+                    creditsSaved: 13000,
+                    cost: { total: 0, currency: 'USD', note: 'FREE - Free Agent Core with PCE' },
+                  };
+                } catch (err) {
+                  console.error('[delegate_code_generation] Free Agent Core failed, falling back to CodeGenerator:', err);
+                  result = await this.codeGenerator.generate(args as any);
+                }
+              } else {
+                result = await this.codeGenerator.generate(args as any);
+              }
               // Add runId for feedback tracking
               result.runId = `run_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
               break;
