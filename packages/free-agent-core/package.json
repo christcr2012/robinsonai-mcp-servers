@@ -1,11 +1,18 @@
 {
   "name": "@robinson_ai_systems/free-agent-core",
-  "version": "0.0.0-internal",
-  "description": "Internal core library for Free Agent MCP (bundled, not published)",
-  "private": true,
+  "version": "1.0.16",
+  "description": "Core library for Free Agent MCP - code generation with FREE models",
   "type": "module",
+  "main": "./dist/index.js",
   "exports": {
-    "./src/*": "./src/*"
+    ".": "./dist/index.js",
+    "./generation/*": "./dist/generation/*.js",
+    "./patterns/*": "./dist/patterns/*.js",
+    "./repo/*": "./dist/repo/*.js",
+    "./utils/*": "./dist/utils/*.js",
+    "./anchors/*": "./dist/anchors/*.js",
+    "./patch/*": "./dist/patch/*.js",
+    "./spec/*": "./dist/spec/*.js"
   },
   "scripts": {
     "build": "tsup",
