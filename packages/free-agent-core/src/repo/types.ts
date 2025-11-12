@@ -22,6 +22,8 @@ export type Adapter = {
     kind: string;
     contract?: PatternContract;
     exemplars?: Example[];
+    tier?: "free" | "paid";
+    quality?: "fast" | "balanced" | "best";
   }): Promise<{ diff: string }>;
   refine(args: {
     repo: string;
@@ -30,6 +32,8 @@ export type Adapter = {
     lastDiff: string;
     contract?: PatternContract;
     exemplars?: Example[];
+    tier?: "free" | "paid";
+    quality?: "fast" | "balanced" | "best";
   }): Promise<{ diff: string }>;
   applyPatch(repo: string, unifiedDiff: string, contract?: PatternContract): Promise<void>;
 };

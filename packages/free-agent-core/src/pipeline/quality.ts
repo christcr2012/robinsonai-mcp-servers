@@ -54,6 +54,8 @@ export async function refineOnce({
   adapter,
   contract,
   exemplars,
+  tier,
+  quality,
 }: {
   repo: string;
   task: string;
@@ -62,6 +64,8 @@ export async function refineOnce({
   adapter: Adapter;
   contract?: PatternContract;
   exemplars?: Example[];
+  tier?: "free" | "paid";
+  quality?: "fast" | "balanced" | "best";
 }): Promise<string> {
   console.log(`[Quality] Refining based on diagnostics...`);
 
@@ -73,6 +77,8 @@ export async function refineOnce({
     lastDiff,
     contract,
     exemplars,
+    tier,
+    quality,
   });
 
   return next.diff;

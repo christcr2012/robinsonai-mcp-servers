@@ -50,7 +50,7 @@ function makeAdapterFromConfig(cfg: any): Adapter {
       return spawn(repo, cmd);
     },
 
-    async synthesize({ repo, task, contract, exemplars }) {
+    async synthesize({ repo, task, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
           generator = await loadGenerator(cfg.generatorModule);
@@ -65,11 +65,13 @@ function makeAdapterFromConfig(cfg: any): Adapter {
         task,
         contract: contract!,
         examples: exemplars || [],
+        tier,
+        quality,
       });
       return { diff };
     },
 
-    async refine({ repo, task, diagnostics, lastDiff, contract, exemplars }) {
+    async refine({ repo, task, diagnostics, lastDiff, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
           generator = await loadGenerator(cfg.generatorModule);
@@ -85,6 +87,8 @@ function makeAdapterFromConfig(cfg: any): Adapter {
         task: task + "\n\nFix these issues:\n" + diag,
         contract: contract!,
         examples: exemplars || [],
+        tier,
+        quality,
       });
       return { diff };
     },
@@ -122,7 +126,7 @@ function defaultAdapter(): Adapter {
       return spawn(repo, cmd);
     },
 
-    async synthesize({ repo, task, contract, exemplars }) {
+    async synthesize({ repo, task, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
           generator = await loadGenerator();
@@ -137,11 +141,13 @@ function defaultAdapter(): Adapter {
         task,
         contract: contract!,
         examples: exemplars || [],
+        tier,
+        quality,
       });
       return { diff };
     },
 
-    async refine({ repo, task, diagnostics, contract, exemplars }) {
+    async refine({ repo, task, diagnostics, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
           generator = await loadGenerator();
@@ -157,6 +163,8 @@ function defaultAdapter(): Adapter {
         task: task + "\n\nFix these issues:\n" + diag,
         contract: contract!,
         examples: exemplars || [],
+        tier,
+        quality,
       });
       return { diff };
     },

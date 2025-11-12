@@ -9,6 +9,8 @@ export async function runFreeAgent(opts: {
   repo: string;
   task: string;
   kind: "feature" | "bugfix" | "refactor" | "research";
+  tier?: "free" | "paid";
+  quality?: "fast" | "balanced" | "best";
 }) {
   // 1) pick adapter: per-repo config > auto-discover > defaults
   const base = await discover(opts.repo);
@@ -19,7 +21,9 @@ export async function runFreeAgent(opts: {
   // 2) learn pattern contract from repo
   const contract = learnPatternContract(base);
   const exemplars = pickExamples(base, contract, 6);
-  console.log(`[Runner] Learned contract with ${contract.containers.length} containers, ${contract.wrappers.length} wrappers`);
+  console.log(
+    `[Runner] Learned contract with ${contract.containers.length} containers, ${contract.wrappers.length} wrappers`
+  );
 
   // 3) ensure spec-first handlers exist (registry path/URL, not repo-bound)
   const specRegistry =
@@ -34,6 +38,9 @@ export async function runFreeAgent(opts: {
 
   // 4) run repo-specific gates/commands via adapter (build/lint/test are abstract)
   const pipe = buildPipeline({ adapter, repo: base, contract, exemplars });
-  await pipe.run(opts.kind, opts.task);
+  await pipe.run(opts.kind, opts.task, {
+    tier: opts.tier || (process.env.FREE_AGENT_TIER as any) || "free",
+    quality: opts.quality || (process.env.FREE_AGENT_QUALITY as any) || "best",
+  });
 }
 

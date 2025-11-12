@@ -20,6 +20,7 @@ export interface GenInput {
   examples: Example[];
   targets?: FileTarget[];
   tier?: "free" | "paid";
+  quality?: "fast" | "balanced" | "best";
 }
 
 export interface DiffGenerator {

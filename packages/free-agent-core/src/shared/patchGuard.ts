@@ -38,6 +38,17 @@ export function validatePatchUnifiedDiff(diff: string, contract?: PatternContrac
     );
   }
 
+  // Guard: Reject new class files when container exists
+  if (contract && (contract.containers || []).length > 0) {
+    const creatingNewTs = /new file mode 100644\n\+\+\+ b\/.*\.ts/m.test(diff);
+    const definesClass = /(^|\n)\+.*export\s+class\s+/m.test(diff);
+    if (creatingNewTs && definesClass) {
+      throw new Error(
+        `[Patch Guard] Patch rejected: new class file created while container exists — add a method to the existing container.`
+      );
+    }
+  }
+
   // If contract provided, enforce it
   if (contract) {
     enforceContractOnDiff(diff, contract);

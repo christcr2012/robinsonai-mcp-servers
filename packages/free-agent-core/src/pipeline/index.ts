@@ -10,7 +10,11 @@ export function buildPipeline(ctx: {
   exemplars?: Example[];
 }) {
   return {
-    async run(kind: string, task: string) {
+    async run(
+      kind: string,
+      task: string,
+      opts?: { tier?: "free" | "paid"; quality?: "fast" | "balanced" | "best" }
+    ) {
       console.log(`[Pipeline] Starting quality gates loop...`);
 
       // Prepare repo (install deps, bootstrap)
@@ -24,6 +28,8 @@ export function buildPipeline(ctx: {
         kind,
         contract: ctx.contract,
         exemplars: ctx.exemplars,
+        tier: opts?.tier,
+        quality: opts?.quality,
       });
 
       // Apply initial patch
@@ -55,6 +61,8 @@ export function buildPipeline(ctx: {
             adapter: ctx.adapter,
             contract: ctx.contract,
             exemplars: ctx.exemplars,
+            tier: opts?.tier,
+            quality: opts?.quality,
           });
 
           await ctx.adapter.applyPatch(ctx.repo, diff, ctx.contract);

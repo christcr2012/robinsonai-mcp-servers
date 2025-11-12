@@ -23,6 +23,8 @@ export interface GenerateRequest {
   model?: string;
   complexity?: 'simple' | 'medium' | 'complex';
   quality?: 'fast' | 'balanced' | 'best'; // NEW: Quality vs speed tradeoff
+  tier?: 'free' | 'paid'; // NEW: Model tier (free=Ollama, paid=OpenAI/Claude)
+  sandbox?: boolean; // NEW: Force sandbox/gates (overrides quality default)
 }
 
 export interface GenerateResult {
@@ -66,13 +68,49 @@ export class CodeGenerator {
    * This produces REAL, WORKING code with hard quality gates
    */
   async generate(request: GenerateRequest): Promise<GenerateResult> {
-    // Determine quality mode (default: fast for simple tasks, balanced for medium, best for complex)
-    const quality = request.quality || this.getDefaultQuality(request.complexity);
+    // ✅ Precedence: explicit arg → env → default
+    const quality: 'fast' | 'balanced' | 'best' =
+      request.quality ??
+      (process.env.CODEGEN_QUALITY as any) ??
+      this.getDefaultQuality(request.complexity);
+
+    const tier: 'free' | 'paid' =
+      request.tier ??
+      (process.env.CODEGEN_TIER as any) ??
+      'free';
+
+    // Quality config: what gates/retries to use
+    const qualityConfig = {
+      fast: { sandbox: false, retries: 0, runTests: false, lint: false },
+      balanced: { sandbox: true, retries: 1, runTests: true, lint: true },
+      best: { sandbox: true, retries: 2, runTests: true, lint: true },
+    };
+
+    const qcfg = qualityConfig[quality];
+    // Allow caller to force sandbox explicitly (never turn it off if quality wants it on)
+    const sandbox = request.sandbox === true ? true : qcfg.sandbox;
+
+    // Guard: fail loud if misconfigured
+    if (quality !== 'fast' && sandbox === false) {
+      throw new Error(
+        `Quality "${quality}" requires sandbox, but sandbox is disabled. Check generator plumbing.`
+      );
+    }
+
+    // Debug logging
+    if (process.env.CODEGEN_VERBOSE) {
+      console.log(
+        `[CodeGenerator] quality=${quality} tier=${tier} sandbox=${sandbox} retries=${qcfg.retries}`
+      );
+    }
 
     // Fast mode: Skip sandbox for speed (good for 80% of tasks)
     if (quality === 'fast') {
+      console.log(`[CodeGenerator] Using fast mode (no sandbox)`);
       return await this.generateFast(request);
     }
+
+    console.log(`[CodeGenerator] Using full pipeline with quality gates (sandbox=${sandbox}, retries=${qcfg.retries})`);
 
     // Full pipeline mode: Use sandbox with quality gates
     const startTime = Date.now();

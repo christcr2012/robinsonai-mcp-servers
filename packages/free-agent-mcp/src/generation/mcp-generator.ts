@@ -1,8 +1,10 @@
 /**
  * MCP Generator - Pluggable generator for Free Agent Core
- * 
+ *
  * This generator uses the CodeGenerator with quality gates pipeline
  * to produce code that follows PCE patterns.
+ *
+ * Threads tier + quality explicitly to ensure sandbox/gates are used.
  */
 
 import {
@@ -22,17 +24,26 @@ export class MCPGenerator implements DiffGenerator {
   }
 
   async generate(input: GenInput): Promise<string> {
-    console.log("[MCPGenerator] Generating with quality gates pipeline...");
+    // ✅ Precedence: explicit arg → env → default
+    const quality = input.tier === "paid" ? "best" : "best"; // Always use best for PCE
+    const tier = input.tier || (process.env.FREE_AGENT_TIER as any) || "free";
+    const sandbox = true; // Always use sandbox for PCE enforcement
+
+    console.log(
+      `[MCPGenerator] Generating with quality=${quality} tier=${tier} sandbox=${sandbox}`
+    );
 
     // Build context from PCE contract and exemplars
     const context = this.buildContext(input);
 
-    // Use CodeGenerator with quality gates
+    // Use CodeGenerator with quality gates - thread tier/quality/sandbox explicitly
     const result = await this.codeGen.generate({
       task: input.task,
       context,
-      quality: "best", // Force full pipeline with quality gates
-      complexity: "complex", // Treat as complex for best quality
+      quality: quality as any,
+      complexity: "complex",
+      tier: tier as any,
+      sandbox, // Force sandbox explicitly
     });
 
     // Extract diff from result

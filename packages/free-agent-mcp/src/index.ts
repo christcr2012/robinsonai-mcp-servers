@@ -114,6 +114,14 @@ class AutonomousAgentServer {
   private jobQueue: Array<{ resolve: Function; reject: Function }> = [];
 
   constructor() {
+    // Set up Free Agent Core environment
+    // Point to the MCPGenerator for PCE enforcement
+    if (!process.env.FREE_AGENT_GENERATOR) {
+      const generatorPath = join(__dirname, 'generation', 'mcp-generator.js');
+      process.env.FREE_AGENT_GENERATOR = generatorPath;
+      console.log(`[MCP] Set FREE_AGENT_GENERATOR=${generatorPath}`);
+    }
+
     this.server = new Server(
       {
         name: 'free-agent-mcp',
@@ -2161,7 +2169,7 @@ Generate the modified section now:`;
 
   /**
    * Run Free Agent Core against a repository
-   * Uses CodeGenerator with quality gates for better results
+   * Uses PCE to learn patterns and pluggable generator with quality gates
    */
   private async runFreeAgent(args: any): Promise<any> {
     try {
@@ -2169,32 +2177,33 @@ Generate the modified section now:`;
       const task = String(args.task || '');
       const kind = (args.kind as any) || 'feature';
 
-      console.log('[runFreeAgent] Using CodeGenerator with quality gates...');
+      console.log('[runFreeAgent] Using Free Agent Core with PCE and pluggable generator...');
 
-      // Use CodeGenerator with quality gates instead of raw Ollama
-      const result = await this.codeGenerator.generate({
+      // Import Free Agent Core's runFreeAgent function
+      const { runFreeAgent: coreRunFreeAgent } = await import(
+        '@robinson_ai_systems/free-agent-core'
+      );
+
+      // Run the full pipeline with PCE
+      await coreRunFreeAgent({
+        repo,
         task,
-        context: `Repository: ${repo}\nTask type: ${kind}`,
-        quality: 'best', // Force full pipeline with quality gates
-        complexity: 'complex', // Treat as complex to get best quality
+        kind,
       });
 
       return {
         success: true,
-        message: 'Free Agent: task completed with quality gates',
+        message: 'Free Agent: task completed with PCE and quality gates',
         repo,
         task,
         kind,
-        files: result.files,
         augmentCreditsUsed: 0,
         creditsSaved: 13000,
         cost: {
           total: 0,
           currency: 'USD',
-          note: 'FREE - CodeGenerator with quality gates pipeline',
+          note: 'FREE - Free Agent Core with PCE + pluggable generator',
         },
-        validation: result.validation,
-        refinementAttempts: result.refinementAttempts,
       };
     } catch (error: any) {
       console.error('[runFreeAgent] Error:', error);
