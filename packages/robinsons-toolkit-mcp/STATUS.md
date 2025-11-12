@@ -1,11 +1,45 @@
 # Robinson's Toolkit MCP - Current Status
 
-**Last Updated:** 2025-01-06  
-**Version:** 1.5.1
+**Last Updated:** 2025-01-12
+**Version:** 1.16.5+
 
 ---
 
-## ✅ CRITICAL FIX COMPLETED
+## ✅ BROKER ARCHITECTURE COMPLETE & TESTED
+
+### Critical Fixes Applied (2025-01-12)
+
+**Issue 1: Missing handlers.js import**
+- `src/index.ts` imported non-existent `./handlers.js` file
+- **Fix:** Removed ghost import (line 22)
+- **Result:** Build now succeeds without errors
+
+**Issue 2: Tool name mismatch between server and client**
+- Server exposed tools with plain names (e.g., `toolkit_call`)
+- ToolkitClient called with suffixed names (e.g., `toolkit_call_robinsons-toolkit-mcp`)
+- **Fix:** Added name normalization in `handleToolCall()` to strip `_robinsons-toolkit-mcp` suffix
+- **Result:** Both plain names (Augment) and suffixed names (ToolkitClient) now work
+
+**Testing:** ✅ All tests passing (see `test-broker-complete.mjs`)
+- ✅ Plain names work (Augment compatibility)
+- ✅ Suffixed names work (ToolkitClient compatibility)
+- ✅ All 8 broker tools functional
+- ✅ Registry loaded: 631 tools across 9 categories
+
+### Legacy Code Cleanup
+
+**Marked as LEGACY (not used by current architecture):**
+- `src/tool-registry.ts` - Old ToolRegistry class
+- `src/broker-handlers.ts` - Old BrokerHandlers class
+
+**Current Architecture:**
+- `src/lib/registry.ts` - Runtime registry loader (active)
+- `src/index.ts` - Main server with broker pattern (active)
+- `scripts/generate-registry.mjs` - Registry generator (active)
+
+---
+
+## ✅ PREVIOUS CRITICAL FIX COMPLETED
 
 ### Neon Tools Bug Fixed
 **Issue:** All 166 Neon case statements were calling the wrong handlers.
