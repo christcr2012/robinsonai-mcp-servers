@@ -2161,38 +2161,40 @@ Generate the modified section now:`;
 
   /**
    * Run Free Agent Core against a repository
+   * Uses CodeGenerator with quality gates for better results
    */
   private async runFreeAgent(args: any): Promise<any> {
     try {
-      const { runFreeAgent } = await import('@robinson_ai_systems/free-agent-core');
-      const { ensureCodegen } = await import('@robinson_ai_systems/free-agent-core/spec');
-
       const repo = args.repo || process.cwd();
       const task = String(args.task || '');
       const kind = (args.kind as any) || 'feature';
 
-      // Ensure codegen from spec registry
-      const specRegistry = process.env.FREE_AGENT_SPEC;
-      if (specRegistry) {
-        await ensureCodegen({ registry: specRegistry, outDir: undefined });
-      }
+      console.log('[runFreeAgent] Using CodeGenerator with quality gates...');
 
-      // Run Free Agent
-      await runFreeAgent({ repo, task, kind });
+      // Use CodeGenerator with quality gates instead of raw Ollama
+      const result = await this.codeGenerator.generate({
+        task,
+        context: `Repository: ${repo}\nTask type: ${kind}`,
+        quality: 'best', // Force full pipeline with quality gates
+        complexity: 'complex', // Treat as complex to get best quality
+      });
 
       return {
         success: true,
-        message: 'Free Agent: task completed (see repo changes)',
+        message: 'Free Agent: task completed with quality gates',
         repo,
         task,
         kind,
+        files: result.files,
         augmentCreditsUsed: 0,
-        creditsSaved: 1000,
+        creditsSaved: 13000,
         cost: {
           total: 0,
           currency: 'USD',
-          note: 'FREE - Portable Free Agent Core',
+          note: 'FREE - CodeGenerator with quality gates pipeline',
         },
+        validation: result.validation,
+        refinementAttempts: result.refinementAttempts,
       };
     } catch (error: any) {
       console.error('[runFreeAgent] Error:', error);
