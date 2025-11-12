@@ -1,6 +1,9 @@
+// LEGACY: Not used by the current broker architecture (lib/registry.ts + index.ts).
+// Kept for historical reference. Safe to delete once confirmed no one depends on it.
+
 /**
  * Tool Registry for Robinson's Toolkit Broker Pattern
- * 
+ *
  * Maps all 714 tools by category and name for fast lookup.
  * Enables discovery and execution without loading all tool definitions into context.
  */

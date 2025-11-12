@@ -1,6 +1,9 @@
+// LEGACY: Not used by the current broker architecture (lib/registry.ts + index.ts).
+// Kept for historical reference. Safe to delete once confirmed no one depends on it.
+
 /**
  * Broker Tool Handlers
- * 
+ *
  * Implements the 5 broker meta-tools that provide access to all 714 integration tools.
  */
 

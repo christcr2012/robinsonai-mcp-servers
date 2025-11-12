@@ -19,7 +19,6 @@ import {
 
 import { loadRegistry, getToolByName, getToolsByCategory, searchTools, getCategories } from './lib/registry.js';
 import { generateBrokerTools } from './broker-tools.js';
-import { UnifiedToolkit } from './handlers.js';
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -101,8 +100,13 @@ class RobinsonsToolkitServer {
   }
 
   private async handleToolCall(name: string, args: any): Promise<any> {
+    // Accept both plain and suffixed names for compatibility
+    // Augment uses plain names (e.g., 'toolkit_call')
+    // ToolkitClient uses suffixed names (e.g., 'toolkit_call_robinsons-toolkit-mcp')
+    const normalized = name.replace(/_robinsons-toolkit-mcp$/, '');
+
     // Handle broker/meta tools
-    switch (name) {
+    switch (normalized) {
       case 'toolkit_list_categories':
         return this.listCategories();
 
@@ -119,6 +123,7 @@ class RobinsonsToolkitServer {
         return this.discoverTools(args);
 
       case 'toolkit_call':
+        // Note: client sends { category, tool_name, arguments }
         return this.executeToolLazy(args.tool_name, args.arguments);
 
       case 'toolkit_health_check':
@@ -129,7 +134,8 @@ class RobinsonsToolkitServer {
 
       default:
         // Not a broker tool - try to execute directly
-        return this.executeToolLazy(name, args);
+        // Use normalized name for direct tool calls too
+        return this.executeToolLazy(normalized, args);
     }
   }
 
