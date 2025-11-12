@@ -5,6 +5,14 @@
     "build": "pnpm build",
     "test": "pnpm test",
     "lint": "pnpm lint"
-  }
+  },
+  "spec": {
+    "registryPath": "src/spec/registry.json",
+    "exemplarsGlob": "src/**/examples/**/*.ts",
+    "generatorModule": "@robinson_ai_systems/free-agent-mcp/generators/ops"
+  },
+  "targets": [
+    "src/index.ts"
+  ]
 }
 

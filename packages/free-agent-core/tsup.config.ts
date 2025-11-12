@@ -9,6 +9,7 @@ export default defineConfig({
     "spec/codegen": "src/spec/codegen.ts",
     "repo/adapter": "src/repo/adapter.ts",
     "evals/batch": "src/evals/batch.ts",
+    "generation/ops-generator-wrapper": "src/generation/ops-generator-wrapper.ts",
   },
   format: ["esm"],
   dts: true,

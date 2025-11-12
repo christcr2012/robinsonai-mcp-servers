@@ -55,8 +55,8 @@ export class OpsGenerator implements DiffGenerator {
       ops = await this.llmSynthesizeOps(prompt, quality || "auto", tier || "free");
     } catch (e) {
       console.warn(`[OpsGenerator] Initial synthesis failed, escalating quality...`);
-      // Escalate: fast → safe → best
-      const nextQuality = quality === "fast" ? "safe" : quality === "safe" ? "best" : "best";
+      // Escalate: fast → balanced → best
+      const nextQuality = quality === "fast" ? "balanced" : quality === "balanced" ? "best" : "best";
       ops = await this.llmSynthesizeOps(prompt, nextQuality, tier || "free");
     }
 
@@ -155,9 +155,9 @@ export class OpsGenerator implements DiffGenerator {
     if (examples?.length) {
       parts.push(`# EXAMPLES FROM THIS REPO (Mirror These Patterns)`);
       examples.forEach((ex, i) => {
-        parts.push(`## Example ${i + 1}:`);
+        parts.push(`## Example ${i + 1}: ${ex.path}`);
         parts.push("```");
-        parts.push(ex);
+        parts.push(ex.content);
         parts.push("```");
       });
       parts.push("");

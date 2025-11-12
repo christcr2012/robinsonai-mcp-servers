@@ -5,7 +5,7 @@ export const paths_probe = {
   name: "paths_probe",
   description: "Resolve repo + registry absolute paths for debugging.",
   inputSchema: {
-    type: "object",
+    type: "object" as const,
     required: ["repo", "registryRel"],
     properties: {
       repo: { type: "string" },

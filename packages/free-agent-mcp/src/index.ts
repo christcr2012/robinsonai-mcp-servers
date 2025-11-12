@@ -57,6 +57,7 @@ const __dirname = dirname(__filename);
 import { formatGMCode, formatUnifiedDiffs, stripCodeFences, type OutputFile } from './utils/output-format.js';
 import { run_parallel } from './tools/run_parallel.js';
 import { paths_probe } from './tools/paths_probe.js';
+import { generator_probe } from './tools/generator_probe.js';
 
 type VersatileTaskType =
   | 'code_generation'
@@ -1986,6 +1987,10 @@ Generate the modified section now:`;
       },
       // Parallel execution tool
       run_parallel,
+      // Path debugging tool
+      paths_probe,
+      // Generator debugging tool
+      generator_probe,
     ];
   }
 

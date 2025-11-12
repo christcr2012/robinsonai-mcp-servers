@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/free-agent-mcp",
-  "version": "0.6.19",
+  "version": "0.6.20",
   "description": "Free Agent MCP - Execute tasks using FREE models (Ollama, etc.)",
   "type": "module",
   "main": "./dist/index.js",
@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./generators/ops": {
+      "types": "./dist/generators/ops/index.d.ts",
+      "import": "./dist/generators/ops/index.js"
     },
     "./utils/symbol-indexer": {
       "types": "./dist/utils/symbol-indexer.d.ts",

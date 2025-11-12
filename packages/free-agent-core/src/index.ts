@@ -20,4 +20,5 @@ export type { PatternContract } from "./patterns/contract.js";
 export type { Example } from "./patterns/examples.js";
 export type { DiffGenerator, GenInput, FileTarget } from "./generation/types.js";
 export { loadGenerator, createFallbackGenerator } from "./generation/loader.js";
+export { OpsGenerator } from "./generation/ops-generator.js";
 

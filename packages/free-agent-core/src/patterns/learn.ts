@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { PatternContract } from "./contract";
+import { PatternContract } from "./contract.js";
 
 function listFiles(base: string, exts = [".ts", ".tsx", ".js", ".jsx"]): string[] {
   const out: string[] = [];

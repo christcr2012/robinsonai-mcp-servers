@@ -9,7 +9,7 @@ export const run_parallel = {
   name: "run_parallel",
   description: "Run many free_agent_run jobs concurrently with backoff and progress.",
   inputSchema: {
-    type: "object", required: ["tasks"],
+    type: "object" as const, required: ["tasks"],
     properties: {
       tasks: { type: "array", items: { type: "object", required: ["repo","task"],
         properties: {

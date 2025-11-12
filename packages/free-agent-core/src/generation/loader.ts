@@ -1,8 +1,68 @@
-import { DiffGenerator } from "./types.js";
+import { DiffGenerator, GeneratorFactory } from "./types.js";
 import { existsSync } from "fs";
-import { resolveFromRepo, resolveRepoRoot } from "../utils/paths.js";
+import path from "path";
+import { pathToFileURL } from "url";
+import { resolveFromRepo, resolveRepoRoot, findWorkspaceRoot } from "../utils/paths.js";
 
-export async function loadGenerator(modulePath?: string, repoRoot?: string): Promise<DiffGenerator> {
+/**
+ * Check if a specifier is a bare module specifier (not a path)
+ */
+function isBare(spec: string): boolean {
+  return !spec.startsWith(".") && !spec.startsWith("/") && !spec.startsWith("file:");
+}
+
+/**
+ * Resolve a generator specifier to an importable path
+ * @param raw - Generator specifier (bare module name or path)
+ * @returns Resolved specifier (bare module or file URL)
+ */
+export async function resolveGeneratorSpecifier(raw?: string): Promise<string> {
+  const input = raw || process.env.FREE_AGENT_GENERATOR || "";
+  if (!input) {
+    throw new Error(
+      "No generator specified. Set config.spec.generatorModule or FREE_AGENT_GENERATOR."
+    );
+  }
+
+  // If it's a bare specifier (package export), let Node resolve it
+  if (isBare(input)) {
+    return input;
+  }
+
+  // Otherwise, resolve as a file path
+  const ws = process.env.WORKSPACE_ROOT || findWorkspaceRoot() || process.cwd();
+  const abs = path.isAbsolute(input) ? input : path.resolve(ws, input);
+  return pathToFileURL(abs).href; // file URL for dynamic import
+}
+
+/**
+ * Load a generator factory from a module specifier
+ * @param raw - Generator specifier (bare module name or path)
+ * @returns GeneratorFactory function
+ */
+export async function loadGenerator(raw?: string): Promise<GeneratorFactory> {
+  const spec = await resolveGeneratorSpecifier(raw);
+
+  console.log(`[Generator] Loading generator from: ${spec}`);
+
+  const mod = await import(spec);
+  const factory = (mod.default || mod.createGenerator) as GeneratorFactory | undefined;
+
+  if (!factory) {
+    throw new Error(
+      `Generator module "${spec}" missing default/createGenerator export.`
+    );
+  }
+
+  console.log(`[Generator] Successfully loaded generator factory`);
+  return factory;
+}
+
+/**
+ * Legacy loader for backward compatibility
+ * @deprecated Use loadGenerator instead
+ */
+export async function loadGeneratorLegacy(modulePath?: string, repoRoot?: string): Promise<DiffGenerator> {
   const fromEnv = process.env.FREE_AGENT_GENERATOR;
   const candidate = modulePath || fromEnv;
 

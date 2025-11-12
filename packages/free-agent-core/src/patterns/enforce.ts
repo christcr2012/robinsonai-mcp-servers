@@ -1,4 +1,4 @@
-import { PatternContract } from "./contract";
+import { PatternContract } from "./contract.js";
 
 export function enforceContractOnDiff(diff: string, contract: PatternContract): void {
   const violations: string[] = [];
@@ -42,18 +42,18 @@ export function enforceContractOnDiff(diff: string, contract: PatternContract): 
 
     // Wrapper usage (if any wrapper is marked mustUse, assert presence when calling http/fetch)
     const usesHttp = /\b(fetch|http|axios)\s*\(/.test(added);
-    const must = contract.wrappers.filter(w => w.mustUse);
+    const must = contract.wrappers.filter((w: any) => w.mustUse);
     if (usesHttp && must.length) {
-      const ok = must.some(w => new RegExp(`\\b${w.name}\\s*\\(`).test(added));
+      const ok = must.some((w: any) => new RegExp(`\\b${w.name}\\s*\\(`).test(added));
       if (!ok) {
         violations.push(
-          `Contract violation: must use wrapper ${must.map(w => w.name).join(" or ")} instead of raw fetch/http in ${file}`
+          `Contract violation: must use wrapper ${must.map((w: any) => w.name).join(" or ")} instead of raw fetch/http in ${file}`
         );
       }
     }
 
     // Container enforcement (if repo prefers class container)
-    const wantsClass = contract.containers.some(c => c.kind === "class");
+    const wantsClass = contract.containers.some((c: any) => c.kind === "class");
     if (wantsClass && /(export\s+function|const\s+\w+\s*=\s*\()/m.test(added) && /class\s+\w+/.test(added) === false) {
       // If project uses container classes, discourage standalone functions
       // (soft warning for now)

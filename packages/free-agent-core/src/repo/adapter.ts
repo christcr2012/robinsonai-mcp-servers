@@ -4,8 +4,8 @@ import { spawnSync } from "child_process";
 import { Adapter } from "./types.js";
 import { validatePatchUnifiedDiff } from "../shared/patchGuard.js";
 import { applyUnifiedDiff } from "../shared/diff.js";
-import { loadGenerator, createFallbackGenerator } from "../generation/loader.js";
-import { DiffGenerator } from "../generation/types.js";
+import { loadGenerator, loadGeneratorLegacy, createFallbackGenerator } from "../generation/loader.js";
+import { DiffGenerator, Generator } from "../generation/types.js";
 import { resolveFromRepo, debugPaths } from "../utils/paths.js";
 
 export async function loadAdapter(repo: string): Promise<Adapter> {
@@ -22,7 +22,7 @@ export async function loadAdapter(repo: string): Promise<Adapter> {
 }
 
 function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
-  let generator: DiffGenerator | null = null;
+  let generator: Generator | DiffGenerator | null = null;
 
   // Resolve spec registry path relative to repo
   const specRegistry = cfg.specRegistry
@@ -55,7 +55,15 @@ function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
       // Load generator on first prepare
       if (!generator) {
         try {
-          generator = await loadGenerator(cfg.generatorModule, repoRoot);
+          // Try new factory pattern first
+          const generatorModule = cfg.spec?.generatorModule || cfg.generatorModule;
+          if (generatorModule) {
+            const factory = await loadGenerator(generatorModule);
+            generator = factory({ logger: console });
+          } else {
+            // Fall back to legacy loader
+            generator = await loadGeneratorLegacy(cfg.generatorModule, repoRoot);
+          }
         } catch (err: any) {
           console.warn(`[Adapter] ${err.message}`);
           generator = createFallbackGenerator();
@@ -70,14 +78,22 @@ function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
     async synthesize({ repo, task, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
-          generator = await loadGenerator(cfg.generatorModule, repoRoot);
+          // Try new factory pattern first
+          const generatorModule = cfg.spec?.generatorModule || cfg.generatorModule;
+          if (generatorModule) {
+            const factory = await loadGenerator(generatorModule);
+            generator = factory({ logger: console });
+          } else {
+            // Fall back to legacy loader
+            generator = await loadGeneratorLegacy(cfg.generatorModule, repoRoot);
+          }
         } catch (err: any) {
           console.warn(`[Adapter] ${err.message}`);
           generator = createFallbackGenerator();
         }
       }
 
-      const diff = await generator.generate({
+      const result = await generator.generate({
         repo,
         task,
         contract: contract!,
@@ -85,13 +101,23 @@ function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
         tier,
         quality,
       });
+      // Handle both old DiffGenerator (returns string) and new Generator (returns GenResult)
+      const diff = typeof result === 'string' ? result : result.diff;
       return { diff };
     },
 
     async refine({ repo, task, diagnostics, lastDiff, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
-          generator = await loadGenerator(cfg.generatorModule, repoRoot);
+          // Try new factory pattern first
+          const generatorModule = cfg.spec?.generatorModule || cfg.generatorModule;
+          if (generatorModule) {
+            const factory = await loadGenerator(generatorModule);
+            generator = factory({ logger: console });
+          } else {
+            // Fall back to legacy loader
+            generator = await loadGeneratorLegacy(cfg.generatorModule, repoRoot);
+          }
         } catch (err: any) {
           console.warn(`[Adapter] ${err.message}`);
           generator = createFallbackGenerator();
@@ -99,7 +125,7 @@ function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
       }
 
       const diag = JSON.stringify(diagnostics, null, 2);
-      const diff = await generator.generate({
+      const result = await generator.generate({
         repo,
         task: task + "\n\nFix these issues:\n" + diag,
         contract: contract!,
@@ -107,6 +133,8 @@ function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
         tier,
         quality,
       });
+      // Handle both old DiffGenerator (returns string) and new Generator (returns GenResult)
+      const diff = typeof result === 'string' ? result : result.diff;
       return { diff };
     },
 
@@ -118,7 +146,7 @@ function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
 }
 
 function defaultAdapter(): Adapter {
-  let generator: DiffGenerator | null = null;
+  let generator: Generator | DiffGenerator | null = null;
 
   return {
     name: "auto",
@@ -131,7 +159,8 @@ function defaultAdapter(): Adapter {
       // Load generator on first prepare
       if (!generator) {
         try {
-          generator = await loadGenerator();
+          const factory = await loadGenerator();
+          generator = factory({ logger: console });
         } catch (err: any) {
           console.warn(`[Adapter] ${err.message}`);
           generator = createFallbackGenerator();
@@ -146,14 +175,15 @@ function defaultAdapter(): Adapter {
     async synthesize({ repo, task, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
-          generator = await loadGenerator();
+          const factory = await loadGenerator();
+          generator = factory({ logger: console });
         } catch (err: any) {
           console.warn(`[Adapter] ${err.message}`);
           generator = createFallbackGenerator();
         }
       }
 
-      const diff = await generator.generate({
+      const result = await generator.generate({
         repo,
         task,
         contract: contract!,
@@ -161,13 +191,16 @@ function defaultAdapter(): Adapter {
         tier,
         quality,
       });
+      // Handle both old DiffGenerator (returns string) and new Generator (returns GenResult)
+      const diff = typeof result === 'string' ? result : result.diff;
       return { diff };
     },
 
     async refine({ repo, task, diagnostics, contract, exemplars, tier, quality }) {
       if (!generator) {
         try {
-          generator = await loadGenerator();
+          const factory = await loadGenerator();
+          generator = factory({ logger: console });
         } catch (err: any) {
           console.warn(`[Adapter] ${err.message}`);
           generator = createFallbackGenerator();
@@ -175,7 +208,7 @@ function defaultAdapter(): Adapter {
       }
 
       const diag = JSON.stringify(diagnostics, null, 2);
-      const diff = await generator.generate({
+      const result = await generator.generate({
         repo,
         task: task + "\n\nFix these issues:\n" + diag,
         contract: contract!,
@@ -183,6 +216,8 @@ function defaultAdapter(): Adapter {
         tier,
         quality,
       });
+      // Handle both old DiffGenerator (returns string) and new Generator (returns GenResult)
+      const diff = typeof result === 'string' ? result : result.diff;
       return { diff };
     },
 
