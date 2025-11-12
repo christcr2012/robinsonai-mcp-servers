@@ -1,24 +1,25 @@
 #!/usr/bin/env node
 /**
  * Free Agent MCP CLI
- * 
+ *
  * Usage:
  *   free-agent-mcp serve            # Run as MCP server (stdio)
  *   free-agent-mcp run --repo <path> --task "..." [options]
  */
 
-const [,, cmd, ...rest] = process.argv;
+(async () => {
+  const [,, cmd, ...rest] = process.argv;
 
-if (cmd === "serve") {
-  // Start MCP server over stdio
-  const { startServer } = await import("./index.js");
-  await startServer();
-} else if (cmd === "run") {
-  // One-shot codegen/patch for any repo
-  const { runOneShot } = await import("./one-shot.js");
-  await runOneShot(rest);
-} else {
-  console.log(`Free Agent MCP - Portable, workspace-agnostic code generation
+  if (cmd === "serve") {
+    // Start MCP server over stdio
+    const { startServer } = await import("./index.js");
+    await startServer();
+  } else if (cmd === "run") {
+    // One-shot codegen/patch for any repo
+    const { runOneShot } = await import("./one-shot.js");
+    await runOneShot(rest);
+  } else {
+    console.log(`Free Agent MCP - Portable, workspace-agnostic code generation
 
 Usage:
   free-agent-mcp serve
@@ -51,6 +52,7 @@ Examples:
     --quality auto \\
     --kind feature
 `);
-  process.exit(cmd ? 1 : 0);
-}
+    process.exit(cmd ? 1 : 0);
+  }
+})();
 

@@ -10,8 +10,9 @@ export default defineConfig({
     'src/cli.ts',
     'src/generators/ops/index.ts'
   ],
-  format: ['esm'],
-  target: 'node22',
+  format: ['cjs'],           // Ship CJS for the server to avoid dynamic require issues
+  platform: 'node',
+  target: 'node18',
   splitting: false,
   sourcemap: true,
   dts: false,
@@ -23,6 +24,11 @@ export default defineConfig({
     '@robinson_ai_systems/shared-llm',
     '@robinson_ai_systems/shared-utils',
     '@robinson_ai_systems/shared-pipeline'
+  ],
+  // Never bundle Node built-ins or deps with dynamic requires
+  external: [
+    'fs', 'path', 'url', 'module', 'os', 'util', 'crypto', 'stream',
+    'fast-glob', 'globby', 'chokidar', '@parcel/watcher', '@swc/core', 'diff'
   ],
   esbuildOptions(options) {
     // Resolve @fa/core alias to the actual path

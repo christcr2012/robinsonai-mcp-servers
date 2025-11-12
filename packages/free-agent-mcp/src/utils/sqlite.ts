@@ -1,5 +1,3 @@
-import { createRequire } from 'module';
-
 let cachedModule: any | null = null;
 let cachedError: Error | null = null;
 
@@ -8,7 +6,7 @@ export function loadBetterSqlite() {
     return { Database: cachedModule, error: cachedError };
   }
 
-  const require = createRequire(import.meta.url);
+  // CJS has require built-in
   try {
     const mod = require('better-sqlite3');
     cachedModule = mod?.default ?? mod;
