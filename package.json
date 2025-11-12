@@ -25,7 +25,9 @@
     "precommit": "pnpm run qa",
     "check-training": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js check",
     "watch-training": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js watch",
-    "train-colab": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js open"
+    "train-colab": "node packages/free-agent-mcp/dist/learning/auto-train-monitor.js open",
+    "test:routing": "node scripts/test-free-agent-routing.js",
+    "test:ci": "pnpm run test:routing"
   },
   "keywords": [
     "mcp",
