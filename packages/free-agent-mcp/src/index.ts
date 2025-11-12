@@ -55,6 +55,7 @@ import { loadBetterSqlite } from './utils/sqlite.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import { formatGMCode, formatUnifiedDiffs, stripCodeFences, type OutputFile } from './utils/output-format.js';
+import { run_parallel } from './tools/run_parallel.js';
 
 type VersatileTaskType =
   | 'code_generation'
@@ -437,6 +438,10 @@ class AutonomousAgentServer {
 
           case 'free_agent_smoke':
             result = await this.runFreeAgentSmoke(args as any);
+            break;
+
+          case 'run_parallel':
+            result = await run_parallel.handler({ args, server: this });
             break;
 
             default:
@@ -1974,6 +1979,8 @@ Generate the modified section now:`;
           },
         },
       },
+      // Parallel execution tool
+      run_parallel,
     ];
   }
 

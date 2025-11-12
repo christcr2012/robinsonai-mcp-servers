@@ -94,7 +94,7 @@ function makeAdapterFromConfig(cfg: any): Adapter {
     },
 
     async applyPatch(repo, diff, contract) {
-      validatePatchUnifiedDiff(diff, contract);
+      diff = validatePatchUnifiedDiff(diff, contract);
       await applyUnifiedDiff(repo, diff);
     },
   };
@@ -170,7 +170,7 @@ function defaultAdapter(): Adapter {
     },
 
     async applyPatch(repo, diff, contract) {
-      validatePatchUnifiedDiff(diff, contract);
+      diff = validatePatchUnifiedDiff(diff, contract);
       await applyUnifiedDiff(repo, diff);
     },
   };
