@@ -59,13 +59,32 @@ export async function buildAdapterPrompt(
     });
   }
 
+  // Add actual file content if we can find the target file
+  const fileContext: string[] = [];
+  if (contract && contract.containers.length > 0) {
+    const mainContainer = contract.containers[0];
+    const filePath = join(repo, mainContainer.file);
+    if (existsSync(filePath)) {
+      fileContext.push(`=== TARGET FILE: ${mainContainer.file} ===`);
+      fileContext.push(`Class: ${mainContainer.name}`);
+      fileContext.push(`Current content (first 2000 chars):`);
+      fileContext.push(readFileSync(filePath, "utf8").slice(0, 2000));
+      fileContext.push(`...[file continues]`);
+    }
+  }
+
   const user = [
     "=== TASK ===",
     task,
     "=== CONTEXT ===",
     context.join("\n\n"),
-    "=== OUTPUT ===",
-    "Return ONLY a valid unified diff. No explanation.",
+    fileContext.length > 0 ? fileContext.join("\n\n") : "",
+    "=== INSTRUCTIONS ===",
+    "1. ONLY modify existing files, NEVER create new files",
+    "2. Add methods to existing classes, NEVER create new classes",
+    "3. Use the exact wrapper functions shown in the pattern contract",
+    "4. Follow the exact return type format shown in exemplars",
+    "5. Output ONLY a valid unified diff. No explanation.",
   ].join("\n\n");
 
   // Wire to Ollama via dynamic import to avoid circular deps

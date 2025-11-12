@@ -1,0 +1,12 @@
+{
+  "name": "robinsons-toolkit",
+  "cmd": {
+    "install": "pnpm install",
+    "build": "pnpm build",
+    "test": "pnpm test",
+    "lint": "pnpm lint"
+  },
+  "specRegistry": "packages/robinsons-toolkit-mcp/spec/tools.registry.json",
+  "codegenOutDir": "packages/robinsons-toolkit-mcp/src/generated"
+}
+
