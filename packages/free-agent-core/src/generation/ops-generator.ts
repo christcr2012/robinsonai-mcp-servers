@@ -11,6 +11,9 @@ import { applyOpsInPlace } from "../patch/applyOps.js";
 import { bundleUnified } from "../patch/unified.js";
 import { gitApplyCheck } from "../patch/validate.js";
 import { validatePatchUnifiedDiff } from "../shared/patchGuard.js";
+import { buildAnchorHints } from "../anchors/indexer.js";
+import { nearestAllowed } from "../anchors/suggest.js";
+import { AnchorHints } from "../anchors/types.js";
 
 export class OpsGenerator implements DiffGenerator {
   name = "ops-generator";
@@ -25,10 +28,28 @@ export class OpsGenerator implements DiffGenerator {
 
     console.log(`[OpsGenerator] Generating ops for task: ${task.slice(0, 60)}...`);
 
-    // 1) Build prompt that requests PatchOps JSON
-    const prompt = this.buildOpsPrompt(input);
+    // 1) Build anchor hints from target files and exemplars
+    const targetPaths = this.extractTargetPaths(task, contract);
+    const exemplarPaths = (examples || []).map((ex: any) => {
+      if (typeof ex === 'string') {
+        // Extract path from code fence if present
+        const match = ex.match(/^```(?:\w+)?\s*\n\/\/\s*(.+?)\n/);
+        return match ? match[1] : null;
+      }
+      return ex.path || null;
+    }).filter(Boolean);
 
-    // 2) Get ops from LLM (with quality escalation on failure)
+    const hints = await buildAnchorHints(repo, targetPaths, exemplarPaths);
+
+    // Log anchor counts
+    for (const [file, data] of Object.entries(hints.byFile)) {
+      console.log(`[Anchors] ${file}: ${data.allowed.length} allowed`);
+    }
+
+    // 2) Build prompt that requests PatchOps JSON (with anchor hints)
+    const prompt = this.buildOpsPrompt(input, hints);
+
+    // 3) Get ops from LLM (with quality escalation on failure)
     let ops: PatchOps;
     try {
       ops = await this.llmSynthesizeOps(prompt, quality || "auto", tier || "free");
@@ -41,24 +62,72 @@ export class OpsGenerator implements DiffGenerator {
 
     console.log(`[OpsGenerator] Synthesized ${ops.ops.length} ops`);
 
-    // 3) Apply ops in place (modifies files on disk)
+    // 4) Validate and normalize anchors
+    ops = this.validateAnchors(ops, hints);
+    console.log(`[Ops] ${ops.ops.length} ops returned; anchors normalized to allowed set`);
+
+    // 5) Apply ops in place (modifies files on disk)
     const changes = applyOpsInPlace(repo, ops.ops);
     console.log(`[OpsGenerator] Applied ops to ${changes.length} files`);
 
-    // 4) Build valid unified diff from before/after
+    // 6) Build valid unified diff from before/after
     let unified = bundleUnified(changes);
 
-    // 5) Apply guardrails (MIGRATE mode: rewrite TODO/new any)
+    // 7) Apply guardrails (MIGRATE mode: rewrite TODO/new any)
     unified = validatePatchUnifiedDiff(unified, contract);
 
-    // 6) Validate patch is syntactically correct
+    // 8) Validate patch is syntactically correct
     gitApplyCheck(unified, repo);
     console.log(`[OpsGenerator] git apply --check OK`);
 
     return unified;
   }
 
-  private buildOpsPrompt(input: GenInput): string {
+  private extractTargetPaths(task: string, contract: any): string[] {
+    // Extract file paths from task and contract
+    const paths: string[] = [];
+
+    // From contract containers
+    if (contract?.containers) {
+      paths.push(...contract.containers);
+    }
+
+    // Try to extract from task (look for file paths)
+    const fileMatches = task.match(/[\w\-./]+\.(?:ts|js|tsx|jsx|json)/g);
+    if (fileMatches) {
+      paths.push(...fileMatches);
+    }
+
+    return [...new Set(paths)]; // dedupe
+  }
+
+  private validateAnchors(ops: PatchOps, hints: AnchorHints): PatchOps {
+    for (const op of ops.ops) {
+      // Validate anchor field (insert_after, insert_before)
+      if ("anchor" in op && typeof (op as any).anchor === "string") {
+        const a = (op as any).anchor as string;
+        const fixed = nearestAllowed(op.path, a, hints);
+        if (!fixed) {
+          const examples = (hints.byFile[op.path]?.allowed ?? []).slice(0, 5).join(" | ");
+          throw new Error(`Invalid anchor for ${op.path}: "${a}". Allowed examples: ${examples}`);
+        }
+        (op as any).anchor = fixed; // normalize to the allowed literal
+      }
+
+      // Validate start/end anchors (replace_between)
+      if ((op as any).start && typeof (op as any).start === "string") {
+        const fixedStart = nearestAllowed(op.path, (op as any).start, hints);
+        if (fixedStart) (op as any).start = fixedStart;
+      }
+      if ((op as any).end && typeof (op as any).end === "string") {
+        const fixedEnd = nearestAllowed(op.path, (op as any).end, hints);
+        if (fixedEnd) (op as any).end = fixedEnd;
+      }
+    }
+    return ops;
+  }
+
+  private buildOpsPrompt(input: GenInput, hints: AnchorHints): string {
     const { task, contract, examples } = input;
 
     const parts: string[] = [];
@@ -94,6 +163,22 @@ export class OpsGenerator implements DiffGenerator {
       parts.push("");
     }
 
+    // Anchor hints
+    if (Object.keys(hints.byFile).length > 0) {
+      parts.push(`# ANCHOR HINTS`);
+      parts.push(`For each file, you MUST choose anchors from the allowed list below:`);
+      parts.push("");
+      for (const [file, data] of Object.entries(hints.byFile)) {
+        parts.push(`## ${file}`);
+        parts.push(`Allowed anchors (choose from these):`);
+        data.allowed.slice(0, 20).forEach(a => parts.push(`- ${a}`));
+        if (data.allowed.length > 20) {
+          parts.push(`... and ${data.allowed.length - 20} more`);
+        }
+        parts.push("");
+      }
+    }
+
     // Ops-only instruction (from step 6 of the plan)
     parts.push(this.getOpsOnlyFragment());
 
@@ -118,7 +203,9 @@ Return: { "ops": EditOp[] }
 Rules:
 - Use existing repo patterns and containers learned from exemplars.
 - Prefer modifying the existing container file; do NOT create new files or classes if a container exists.
-- Fill in exact anchors from the current file content. Keep anchors short but unique.
+- For any op with an "anchor" field, the value MUST be exactly one string from that file's allowed anchor list (see ANCHOR HINTS above).
+- If anchors are provided for a file, you MUST choose from them; do not invent new anchors.
+- Prefer the most semantically close anchor (e.g., switch case label for that endpoint, or the containing class/method signature).
 - "code" must be complete, compile-ready TypeScript (no placeholders, no TODO).
 - No prose. No markdown. JSON ONLY.
 `.trim();

@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/free-agent-core",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Portable, repo-agnostic Free Agent core with spec-first codegen and quality gates",
   "type": "module",
   "main": "dist/index.js",

@@ -11,6 +11,28 @@ function nthIndexOf(hay: string, needle: string, occur = 1) {
   return idx;
 }
 
+function norm(s: string) {
+  return s.replace(/\s+/g, " ").trim();
+}
+
+function findAnchor(content: string, anchor: string, occur = 1) {
+  // exact first
+  let idx = nthIndexOf(content, anchor, occur);
+  if (idx >= 0) return idx;
+
+  // whitespace-insensitive
+  const N = norm(content);
+  const A = norm(anchor);
+  idx = nthIndexOf(N, A, occur);
+  if (idx >= 0) {
+    // approximate mapping back is tricky; fallback to first exact occurrence of the first 12 chars
+    const head = anchor.slice(0, Math.min(12, anchor.length));
+    const rough = content.indexOf(head);
+    return rough >= 0 ? rough : -1;
+  }
+  return -1;
+}
+
 function upsertImport(content: string, spec: string, from: string) {
   const importRe = new RegExp(`^import\\s+[^;]*\\s+from\\s+['"]${escapeReg(from)}['"];?\\s*$`, "m");
   if (importRe.test(content)) {
@@ -30,14 +52,14 @@ export function applyOpsToContent(filePath: string, content: string, ops: EditOp
   for (const op of ops) {
     switch (op.type) {
       case "insert_after": {
-        const idx = nthIndexOf(s, op.anchor, op.occur ?? 1);
+        const idx = findAnchor(s, op.anchor, op.occur ?? 1);
         if (idx < 0) throw new Error(`anchor not found (after): ${op.anchor}`);
         const insertAt = idx + op.anchor.length;
         s = s.slice(0, insertAt) + op.code + s.slice(insertAt);
         break;
       }
       case "insert_before": {
-        const idx = nthIndexOf(s, op.anchor, op.occur ?? 1);
+        const idx = findAnchor(s, op.anchor, op.occur ?? 1);
         if (idx < 0) throw new Error(`anchor not found (before): ${op.anchor}`);
         s = s.slice(0, idx) + op.code + s.slice(idx);
         break;
