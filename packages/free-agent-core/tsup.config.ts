@@ -8,6 +8,7 @@ export default defineConfig({
     "pipeline/index": "src/pipeline/index.ts",
     "spec/codegen": "src/spec/codegen.ts",
     "repo/adapter": "src/repo/adapter.ts",
+    "evals/batch": "src/evals/batch.ts",
   },
   format: ["esm"],
   dts: true,

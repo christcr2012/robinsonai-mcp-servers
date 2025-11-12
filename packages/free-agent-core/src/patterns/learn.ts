@@ -63,8 +63,11 @@ function findContainers(files: string[]) {
       const methodCount = (code.match(/\n\s*(public\s+)?(async\s+)?[A-Za-z0-9_]+\s*\(/g) || []).length;
       const fetchCount = (code.match(/\b(fetch|http|Fetch|axios)\s*\(/g) || []).length;
       if (methodCount >= 5 || fetchCount >= 2) {
-        const name = classDecls[0].split("class")[1].trim();
-        containers.push({ kind: "class", name, file: relPath(f), methodStyle: "instance" });
+        const parts = classDecls[0].split("class");
+        const name = parts[1]?.trim();
+        if (name) {
+          containers.push({ kind: "class", name, file: relPath(f), methodStyle: "instance" });
+        }
       }
     } catch (e) {
       // skip files that can't be read
