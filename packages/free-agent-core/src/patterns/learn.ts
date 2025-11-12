@@ -63,9 +63,9 @@ function findContainers(files: string[]) {
       const methodCount = (code.match(/\n\s*(public\s+)?(async\s+)?[A-Za-z0-9_]+\s*\(/g) || []).length;
       const fetchCount = (code.match(/\b(fetch|http|Fetch|axios)\s*\(/g) || []).length;
       if (methodCount >= 5 || fetchCount >= 2) {
-        const parts = classDecls[0].split("class");
+        const parts = classDecls[0]?.split("class") || [];
         const name = parts[1]?.trim();
-        if (name) {
+        if (name && name.length > 0) {
           containers.push({ kind: "class", name, file: relPath(f), methodStyle: "instance" });
         }
       }

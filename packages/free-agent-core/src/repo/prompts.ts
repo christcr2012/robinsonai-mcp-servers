@@ -55,13 +55,20 @@ export async function buildAdapterPrompt(
     "Return ONLY a valid unified diff. No explanation.",
   ].join("\n\n");
 
-  // TODO: Wire your LLM provider here (OpenAI, Anthropic, local, etc.)
-  // For now, return a no-op diff
-  console.log(
-    "[Prompts] TODO: Wire LLM provider in buildAdapterPrompt()"
-  );
-
-  return `diff --git a/.free-agent/README.md b/.free-agent/README.md
+  // Wire to Ollama via dynamic import to avoid circular deps
+  try {
+    const { Ollama } = await import("ollama");
+    const ollama = new Ollama({ host: process.env.OLLAMA_HOST || "http://localhost:11434" });
+    const response = await ollama.generate({
+      model: "mistral:7b",
+      prompt: system + "\n\n" + user,
+      stream: false,
+    });
+    return response.response || "";
+  } catch (err) {
+    console.error("[Prompts] Failed to call Ollama:", err);
+    // Fallback: return no-op diff
+    return `diff --git a/.free-agent/README.md b/.free-agent/README.md
 new file mode 100644
 index 0000000..1111111
 --- /dev/null
@@ -69,5 +76,6 @@ index 0000000..1111111
 @@ -0,0 +1 @@
 +# Free Agent generated this file
 `;
+  }
 }
 
