@@ -1,10 +1,14 @@
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
+import { PatternContract } from "../patterns/contract.js";
+import { Example } from "../patterns/examples.js";
 
 export async function buildAdapterPrompt(
   repo: string,
   task: string,
-  cfg: any
+  cfg: any,
+  contract?: PatternContract,
+  exemplars?: Example[]
 ) {
   const system = [
     "You are a code generator that must output a unified diff ONLY.",
@@ -24,6 +28,22 @@ export async function buildAdapterPrompt(
   const tsconfig = join(repo, "tsconfig.json");
   if (existsSync(tsconfig)) {
     context.push("tsconfig.json:\n" + readFileSync(tsconfig, "utf8"));
+  }
+
+  // Add pattern contract if available
+  if (contract) {
+    context.push("=== PATTERN CONTRACT ===");
+    context.push(`Containers: ${contract.containers.map(c => `${c.name} (${c.file})`).join(", ")}`);
+    context.push(`Wrappers: ${contract.wrappers.map(w => `${w.name} from ${w.importFrom}`).join(", ")}`);
+    context.push(`Forbidden: ${contract.forbid.join(", ")}`);
+  }
+
+  // Add exemplars if available
+  if (exemplars && exemplars.length > 0) {
+    context.push("=== CODE EXEMPLARS ===");
+    exemplars.forEach(ex => {
+      context.push(`File: ${ex.path}\n${ex.content.slice(0, 500)}...`);
+    });
   }
 
   const user = [

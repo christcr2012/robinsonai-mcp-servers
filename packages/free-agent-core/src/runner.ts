@@ -2,6 +2,8 @@ import { loadAdapter } from "./repo/adapter.js";
 import { discover } from "./repo/discover.js";
 import { ensureCodegen } from "./spec/codegen.js";
 import { buildPipeline } from "./pipeline/index.js";
+import { learnPatternContract } from "./patterns/learn.js";
+import { pickExamples } from "./patterns/examples.js";
 
 export async function runFreeAgent(opts: {
   repo: string;
@@ -14,7 +16,12 @@ export async function runFreeAgent(opts: {
 
   console.log(`[Runner] Adapter: ${adapter.name}`);
 
-  // 2) ensure spec-first handlers exist (registry path/URL, not repo-bound)
+  // 2) learn pattern contract from repo
+  const contract = learnPatternContract(base);
+  const exemplars = pickExamples(base, contract, 6);
+  console.log(`[Runner] Learned contract with ${contract.containers.length} containers, ${contract.wrappers.length} wrappers`);
+
+  // 3) ensure spec-first handlers exist (registry path/URL, not repo-bound)
   const specRegistry =
     process.env.FREE_AGENT_SPEC ?? adapter.specRegistry;
   if (specRegistry) {
@@ -25,8 +32,8 @@ export async function runFreeAgent(opts: {
     });
   }
 
-  // 3) run repo-specific gates/commands via adapter (build/lint/test are abstract)
-  const pipe = buildPipeline({ adapter, repo: base });
+  // 4) run repo-specific gates/commands via adapter (build/lint/test are abstract)
+  const pipe = buildPipeline({ adapter, repo: base, contract, exemplars });
   await pipe.run(opts.kind, opts.task);
 }
 

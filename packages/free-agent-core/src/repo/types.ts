@@ -1,3 +1,6 @@
+import { PatternContract } from "../patterns/contract.js";
+import { Example } from "../patterns/examples.js";
+
 export type Cmds = {
   eslint?: string;
   tsc?: string;
@@ -17,13 +20,17 @@ export type Adapter = {
     repo: string;
     task: string;
     kind: string;
+    contract?: PatternContract;
+    exemplars?: Example[];
   }): Promise<{ diff: string }>;
   refine(args: {
     repo: string;
     task: string;
     diagnostics: any;
     lastDiff: string;
+    contract?: PatternContract;
+    exemplars?: Example[];
   }): Promise<{ diff: string }>;
-  applyPatch(repo: string, unifiedDiff: string): Promise<void>;
+  applyPatch(repo: string, unifiedDiff: string, contract?: PatternContract): Promise<void>;
 };
 

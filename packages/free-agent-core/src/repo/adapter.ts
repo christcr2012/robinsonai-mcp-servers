@@ -37,23 +37,25 @@ function makeAdapterFromConfig(cfg: any): Adapter {
       return spawn(repo, cmd);
     },
 
-    async synthesize({ repo, task }) {
-      const diff = await buildAdapterPrompt(repo, task, cfg);
+    async synthesize({ repo, task, contract, exemplars }) {
+      const diff = await buildAdapterPrompt(repo, task, cfg, contract, exemplars);
       return { diff };
     },
 
-    async refine({ repo, task, diagnostics, lastDiff }) {
+    async refine({ repo, task, diagnostics, lastDiff, contract, exemplars }) {
       const diag = JSON.stringify(diagnostics, null, 2);
       const diff = await buildAdapterPrompt(
         repo,
         task + "\n\nDiagnostics:\n" + diag,
-        cfg
+        cfg,
+        contract,
+        exemplars
       );
       return { diff };
     },
 
-    async applyPatch(repo, diff) {
-      validatePatchUnifiedDiff(diff);
+    async applyPatch(repo, diff, contract) {
+      validatePatchUnifiedDiff(diff, contract);
       await applyUnifiedDiff(repo, diff);
     },
   };
@@ -73,23 +75,25 @@ function defaultAdapter(): Adapter {
       return spawn(repo, cmd);
     },
 
-    async synthesize({ repo, task }) {
-      const diff = await buildAdapterPrompt(repo, task, {});
+    async synthesize({ repo, task, contract, exemplars }) {
+      const diff = await buildAdapterPrompt(repo, task, {}, contract, exemplars);
       return { diff };
     },
 
-    async refine({ repo, task, diagnostics }) {
+    async refine({ repo, task, diagnostics, contract, exemplars }) {
       const diag = JSON.stringify(diagnostics, null, 2);
       const diff = await buildAdapterPrompt(
         repo,
         task + "\n\nDiagnostics:\n" + diag,
-        {}
+        {},
+        contract,
+        exemplars
       );
       return { diff };
     },
 
-    async applyPatch(repo, diff) {
-      validatePatchUnifiedDiff(diff);
+    async applyPatch(repo, diff, contract) {
+      validatePatchUnifiedDiff(diff, contract);
       await applyUnifiedDiff(repo, diff);
     },
   };

@@ -1,4 +1,6 @@
 import { Adapter } from "../repo/types.js";
+import { PatternContract } from "../patterns/contract.js";
+import { Example } from "../patterns/examples.js";
 
 export async function runQualityGates(
   adapter: Adapter,
@@ -50,12 +52,16 @@ export async function refineOnce({
   gates,
   lastDiff,
   adapter,
+  contract,
+  exemplars,
 }: {
   repo: string;
   task: string;
   gates: any;
   lastDiff: string;
   adapter: Adapter;
+  contract?: PatternContract;
+  exemplars?: Example[];
 }): Promise<string> {
   console.log(`[Quality] Refining based on diagnostics...`);
 
@@ -65,6 +71,8 @@ export async function refineOnce({
     task,
     diagnostics: gates.report,
     lastDiff,
+    contract,
+    exemplars,
   });
 
   return next.diff;
