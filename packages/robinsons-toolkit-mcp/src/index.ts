@@ -2394,18 +2394,6 @@ const result = await toolkit_call({
           case 'get_project': return await this.getProject(args);
           case 'create_project': return await this.createProject(args);
 
-          // Advanced Actions
-          case 'github_list_workflow_runs': return await this.listWorkflowRuns(args);
-          case 'github_get_workflow_run': return await this.getWorkflowRun(args);
-          case 'github_cancel_workflow_run': return await this.cancelWorkflowRun(args);
-          case 'github_rerun_workflow': return await this.rerunWorkflow(args);
-          case 'github_download_workflow_logs': return await this.downloadWorkflowRunLogs(args);
-          case 'github_list_workflow_jobs': return await this.listWorkflowRunJobs(args);
-          case 'github_get_workflow_job': return await this.getWorkflowRunJob(args);
-          case 'github_download_job_logs': return await this.downloadJobLogs(args);
-          case 'github_list_repo_secrets': return await this.listRepoSecrets(args);
-          case 'github_create_repo_secret': return await this.createRepoSecretHandler(args);
-
           // Packages
           case 'github_list_packages': return await this.listPackages(args);
           case 'github_get_package': return await this.getPackage(args);
