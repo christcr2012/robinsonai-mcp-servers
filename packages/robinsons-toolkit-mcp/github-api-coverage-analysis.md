@@ -1,8 +1,8 @@
 # GitHub API Coverage Analysis
 
-**Generated:** 2025-11-12  
-**Source:** https://docs.github.com/en/rest (Latest 2025 documentation)  
-**Current Tools:** 241 GitHub tools in Robinson's Toolkit
+**Generated:** 2025-11-12
+**Source:** https://docs.github.com/en/rest (Latest 2025 documentation)
+**Current Tools:** 301 GitHub tools in Robinson's Toolkit (241 existing + 5 Models API NEW 2025)
 
 ---
 
@@ -87,10 +87,12 @@ The GitHub REST API is organized into **60+ major categories**:
 - ✅ create_webhook, list_webhooks, delete_webhook
 - ✅ Repository topics, tags, autolinks
 
-**Missing:**
-- ❌ Repository custom properties
-- ❌ Repository rule suites
-- ❌ Repository rules (rulesets)
+**Added:**
+- ✅ Repository custom properties (3 tools)
+- ✅ Repository rule suites (2 tools)
+- ✅ Repository rules/rulesets (5 tools)
+
+**Still Missing:**
 - ❌ Repository caching
 
 #### 2. Issues
@@ -101,11 +103,12 @@ The GitHub REST API is organized into **60+ major categories**:
 - ✅ create_milestone, list_milestones, delete_milestone
 - ✅ add_assignees, remove_assignees
 
-**Missing:**
-- ❌ Issue dependencies (NEW)
-- ❌ Sub-issues (NEW)
+**Added:**
+- ✅ Issue dependencies (3 tools: list, create, delete)
+- ✅ Sub-issues (3 tools: list, create, remove)
+
+**Still Missing:**
 - ❌ Issue types (organization-level)
-- ❌ Issue timeline events
 
 #### 3. Pull Requests
 **Our tools:** ~20 tools
@@ -149,16 +152,18 @@ The GitHub REST API is organized into **60+ major categories**:
 - ✅ download_workflow_run_logs, delete_workflow_run_logs
 - ✅ list_workflow_jobs, get_workflow_job
 
-**Missing (HIGH PRIORITY):**
-- ❌ Actions artifacts (list, get, download, delete)
-- ❌ Actions cache (list, get, delete)
+**Added:**
+- ✅ Actions artifacts (5 tools: list, get, download, delete, list_workflow_artifacts)
+- ✅ Actions cache (4 tools: list, get_usage, delete, delete_by_key)
+- ✅ Actions variables (6 tools: list/get/create/update/delete repo, list org)
+
+**Still Missing (HIGH PRIORITY):**
 - ❌ Actions hosted runners
 - ❌ Actions OIDC
 - ❌ Actions permissions
-- ❌ Actions secrets (org-level, repo-level)
+- ❌ Actions secrets (org-level)
 - ❌ Actions self-hosted runner groups
 - ❌ Actions self-hosted runners
-- ❌ Actions variables
 
 **Impact:** Actions is a MAJOR GitHub feature - we're missing ~80% of endpoints!
 
@@ -217,13 +222,15 @@ The GitHub REST API is organized into **60+ major categories**:
 
 ### ❌ **MISSING CATEGORIES** (0% coverage)
 
-#### 11. **Models** (NEW in 2025!) - 0 tools
-**Subcategories:**
-- Models catalog
-- Models embeddings
-- Models inference
+#### 11. **Models** (NEW in 2025!) - ✅ **5 tools IMPLEMENTED**
+**Our tools:**
+- ✅ github_list_models - List all available AI models
+- ✅ github_create_embedding - Create embeddings (user context)
+- ✅ github_create_org_embedding - Create embeddings (org context)
+- ✅ github_create_inference - Run AI inference (user context)
+- ✅ github_create_org_inference - Run AI inference (org context)
 
-**Priority:** HIGH - This is GitHub's new AI/ML feature!
+**Status:** ✅ COMPLETE - All 5 GitHub Models API endpoints implemented!
 
 #### 12. **Copilot** - 0 tools
 **Subcategories:**
@@ -374,8 +381,10 @@ The GitHub REST API is organized into **60+ major categories**:
 ### Phase 1: HIGH PRIORITY (Immediate)
 **Add ~150 tools** to cover critical missing categories:
 
-1. **Models** (NEW 2025) - ~20 tools
-   - AI/ML catalog, embeddings, inference
+1. **Models** (NEW 2025) - **5 tools** (VERIFIED from docs)
+   - Catalog: list_models (1 tool)
+   - Embeddings: create_embedding (org), create_embedding (user) (2 tools)
+   - Inference: create_inference (org), create_inference (user) (2 tools)
    
 2. **Copilot** - ~15 tools
    - Metrics, user management
@@ -389,7 +398,7 @@ The GitHub REST API is organized into **60+ major categories**:
 5. **Security** - ~35 tools
    - Code scanning, secret scanning, Dependabot, security advisories
 
-**Total Phase 1:** ~150 tools → **391 total tools**
+**Total Phase 1:** ~135 tools → **376 total tools** (revised after verifying actual API endpoints)
 
 ### Phase 2: MEDIUM PRIORITY
 **Add ~100 tools** for important features:

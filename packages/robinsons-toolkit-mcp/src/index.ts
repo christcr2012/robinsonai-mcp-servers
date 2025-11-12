@@ -2,8 +2,8 @@
 /**
  * Robinson's Toolkit - Unified MCP Server
  *
- * ACTIVE INTEGRATIONS (1237+ tools):
- * - GitHub: 241 tools
+ * ACTIVE INTEGRATIONS (1297+ tools):
+ * - GitHub: 301 tools (241 base + 5 Models + 15 Actions + 10 Repo + 14 Org + 10 Security + 6 Issues)
  * - Vercel: 150 tools
  * - Neon: 166 tools
  * - Upstash Redis: 157 tools
@@ -87,7 +87,7 @@ const envPath = join(__dirname, '..', '..', '..', '.env.local');
 config({ path: envPath });
 
 // ============================================================
-// GITHUB (240 tools)
+// GITHUB (301 tools)
 // ============================================================
 
 interface GitHubClient {
@@ -408,7 +408,7 @@ class UnifiedToolkit {
 Unified access to 1,782+ integration tools across 12 categories through a broker pattern.
 
 ## 📦 Available Categories
-- **GitHub** (241 tools) - Repos, issues, PRs, workflows, releases, secrets
+- **GitHub** (246 tools) - Repos, issues, PRs, workflows, releases, secrets, Models API (NEW 2025)
 - **Vercel** (150 tools) - Projects, deployments, domains, env vars, logs
 - **Neon** (167 tools) - Serverless Postgres databases, branches, endpoints
 - **Upstash** (157 tools) - Redis operations, database management
@@ -515,8 +515,8 @@ toolkit_call({
 
 ## 📚 Categories Overview
 
-### GitHub (241 tools)
-Repositories, Issues, Pull Requests, Workflows, Releases, Secrets, Webhooks, Organizations, Teams
+### GitHub (246 tools)
+Repositories, Issues, Pull Requests, Workflows, Releases, Secrets, Webhooks, Organizations, Teams, **Models API (NEW 2025)** - AI/ML catalog, embeddings, inference
 
 ### Vercel (150 tools)
 Projects, Deployments, Domains, DNS, Environment Variables, Webhooks, Edge Config, Logs, Analytics
@@ -797,6 +797,22 @@ const result = await toolkit_call({
         { name: 'github_get_repo_stats_contributors', description: 'Get contributor statistics', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
         { name: 'github_get_repo_stats_commit_activity', description: 'Get commit activity statistics', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
 
+        // REPOSITORY CUSTOM PROPERTIES (3 tools)
+        { name: 'github_list_repo_custom_properties', description: 'List repository custom properties', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_create_repo_custom_property', description: 'Create repository custom property', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, property_name: { type: 'string' }, value: { type: 'string' } }, required: ['owner', 'repo', 'property_name', 'value'] } },
+        { name: 'github_delete_repo_custom_property', description: 'Delete repository custom property', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, property_name: { type: 'string' } }, required: ['owner', 'repo', 'property_name'] } },
+
+        // REPOSITORY RULESETS (5 tools)
+        { name: 'github_list_repo_rulesets', description: 'List repository rulesets', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_ruleset', description: 'Get repository ruleset', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, ruleset_id: { type: 'number' } }, required: ['owner', 'repo', 'ruleset_id'] } },
+        { name: 'github_create_repo_ruleset', description: 'Create repository ruleset', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, enforcement: { type: 'string' }, rules: { type: 'array' } }, required: ['owner', 'repo', 'name', 'enforcement'] } },
+        { name: 'github_update_repo_ruleset', description: 'Update repository ruleset', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, ruleset_id: { type: 'number' }, name: { type: 'string' }, enforcement: { type: 'string' }, rules: { type: 'array' } }, required: ['owner', 'repo', 'ruleset_id'] } },
+        { name: 'github_delete_repo_ruleset', description: 'Delete repository ruleset', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, ruleset_id: { type: 'number' } }, required: ['owner', 'repo', 'ruleset_id'] } },
+
+        // REPOSITORY RULE SUITES (2 tools)
+        { name: 'github_list_repo_rule_suites', description: 'List repository rule suites', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_rule_suite', description: 'Get repository rule suite', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, rule_suite_id: { type: 'number' } }, required: ['owner', 'repo', 'rule_suite_id'] } },
+
         // BRANCHES (15 tools)
         { name: 'github_list_branches', description: 'List repository branches', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, protected: { type: 'boolean' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
         { name: 'github_get_branch', description: 'Get branch details', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, branch: { type: 'string' } }, required: ['owner', 'repo', 'branch'] } },
@@ -848,6 +864,14 @@ const result = await toolkit_call({
         { name: 'github_create_label', description: 'Create a label', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' }, color: { type: 'string' }, description: { type: 'string' } }, required: ['owner', 'repo', 'name', 'color'] } },
         { name: 'github_delete_label', description: 'Delete a label', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, name: { type: 'string' } }, required: ['owner', 'repo', 'name'] } },
 
+        // ISSUE DEPENDENCIES & SUB-ISSUES (6 tools)
+        { name: 'github_list_issue_dependencies', description: 'List issue dependencies', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_create_issue_dependency', description: 'Create issue dependency', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, dependency_issue_number: { type: 'number' } }, required: ['owner', 'repo', 'issue_number', 'dependency_issue_number'] } },
+        { name: 'github_delete_issue_dependency', description: 'Delete issue dependency', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' }, dependency_issue_number: { type: 'number' } }, required: ['owner', 'repo', 'issue_number', 'dependency_issue_number'] } },
+        { name: 'github_list_sub_issues', description: 'List sub-issues', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, issue_number: { type: 'number' } }, required: ['owner', 'repo', 'issue_number'] } },
+        { name: 'github_create_sub_issue', description: 'Create sub-issue', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, parent_issue_number: { type: 'number' }, title: { type: 'string' }, body: { type: 'string' } }, required: ['owner', 'repo', 'parent_issue_number', 'title'] } },
+        { name: 'github_remove_sub_issue', description: 'Remove sub-issue relationship', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, parent_issue_number: { type: 'number' }, sub_issue_number: { type: 'number' } }, required: ['owner', 'repo', 'parent_issue_number', 'sub_issue_number'] } },
+
         // PULL REQUESTS (25 tools)
         { name: 'github_list_pull_requests', description: 'List pull requests', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'all'] }, head: { type: 'string' }, base: { type: 'string' }, sort: { type: 'string' }, direction: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
         { name: 'github_get_pull_request', description: 'Get pull request details', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, pull_number: { type: 'number' } }, required: ['owner', 'repo', 'pull_number'] } },
@@ -896,6 +920,27 @@ const result = await toolkit_call({
         { name: 'github_list_repo_secrets', description: 'List repository secrets', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
         { name: 'github_create_or_update_repo_secret', description: 'Create/update repository secret', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' }, encrypted_value: { type: 'string' } }, required: ['owner', 'repo', 'secret_name', 'encrypted_value'] } },
         { name: 'github_delete_repo_secret', description: 'Delete repository secret', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, secret_name: { type: 'string' } }, required: ['owner', 'repo', 'secret_name'] } },
+
+        // ACTIONS ARTIFACTS (5 tools)
+        { name: 'github_list_artifacts', description: 'List repository artifacts', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_artifact', description: 'Get artifact details', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, artifact_id: { type: 'number' } }, required: ['owner', 'repo', 'artifact_id'] } },
+        { name: 'github_download_artifact', description: 'Download artifact', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, artifact_id: { type: 'number' } }, required: ['owner', 'repo', 'artifact_id'] } },
+        { name: 'github_delete_artifact', description: 'Delete artifact', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, artifact_id: { type: 'number' } }, required: ['owner', 'repo', 'artifact_id'] } },
+        { name: 'github_list_workflow_artifacts', description: 'List artifacts for workflow run', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, run_id: { type: 'number' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo', 'run_id'] } },
+
+        // ACTIONS CACHE (4 tools)
+        { name: 'github_list_caches', description: 'List repository caches', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_cache_usage', description: 'Get cache usage for repository', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_delete_cache', description: 'Delete cache by ID', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, cache_id: { type: 'number' } }, required: ['owner', 'repo', 'cache_id'] } },
+        { name: 'github_delete_caches_by_key', description: 'Delete caches by key', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, key: { type: 'string' }, ref: { type: 'string' } }, required: ['owner', 'repo', 'key'] } },
+
+        // ACTIONS VARIABLES (6 tools)
+        { name: 'github_list_repo_variables', description: 'List repository variables', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_repo_variable', description: 'Get repository variable', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, variable_name: { type: 'string' } }, required: ['owner', 'repo', 'variable_name'] } },
+        { name: 'github_create_repo_variable', description: 'Create repository variable', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string'}, repo: { type: 'string' }, variable_name: { type: 'string' }, value: { type: 'string' } }, required: ['owner', 'repo', 'variable_name', 'value'] } },
+        { name: 'github_update_repo_variable', description: 'Update repository variable', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, variable_name: { type: 'string' }, value: { type: 'string' } }, required: ['owner', 'repo', 'variable_name', 'value'] } },
+        { name: 'github_delete_repo_variable', description: 'Delete repository variable', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, variable_name: { type: 'string' } }, required: ['owner', 'repo', 'variable_name'] } },
+        { name: 'github_list_org_variables', description: 'List organization variables', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org'] } },
 
         // RELEASES (12 tools)
         { name: 'github_list_releases', description: 'List releases', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
@@ -964,6 +1009,22 @@ const result = await toolkit_call({
         { name: 'github_update_team', description: 'Update a team', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, team_slug: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, privacy: { type: 'string' } }, required: ['org', 'team_slug'] } },
         { name: 'github_delete_team', description: 'Delete a team', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, team_slug: { type: 'string' } }, required: ['org', 'team_slug'] } },
         { name: 'github_list_team_members', description: 'List team members', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, team_slug: { type: 'string' }, role: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org', 'team_slug'] } },
+
+        // ORGANIZATION ADVANCED (14 tools)
+        { name: 'github_list_org_webhooks', description: 'List organization webhooks', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org'] } },
+        { name: 'github_create_org_webhook', description: 'Create organization webhook', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, name: { type: 'string' }, config: { type: 'object' }, events: { type: 'array' }, active: { type: 'boolean' } }, required: ['org', 'name', 'config'] } },
+        { name: 'github_delete_org_webhook', description: 'Delete organization webhook', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, hook_id: { type: 'number' } }, required: ['org', 'hook_id'] } },
+        { name: 'github_list_org_outside_collaborators', description: 'List organization outside collaborators', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org'] } },
+        { name: 'github_remove_org_outside_collaborator', description: 'Remove outside collaborator from organization', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, username: { type: 'string' } }, required: ['org', 'username'] } },
+        { name: 'github_list_org_security_managers', description: 'List organization security managers', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_add_org_security_manager', description: 'Add organization security manager team', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, team_slug: { type: 'string' } }, required: ['org', 'team_slug'] } },
+        { name: 'github_remove_org_security_manager', description: 'Remove organization security manager team', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, team_slug: { type: 'string' } }, required: ['org', 'team_slug'] } },
+        { name: 'github_list_org_blocked_users', description: 'List organization blocked users', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['org'] } },
+        { name: 'github_check_org_blocked_user', description: 'Check if user is blocked by organization', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, username: { type: 'string' } }, required: ['org', 'username'] } },
+        { name: 'github_block_org_user', description: 'Block user from organization', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, username: { type: 'string' } }, required: ['org', 'username'] } },
+        { name: 'github_unblock_org_user', description: 'Unblock user from organization', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, username: { type: 'string' } }, required: ['org', 'username'] } },
+        { name: 'github_list_org_custom_properties', description: 'List organization custom properties', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' } }, required: ['org'] } },
+        { name: 'github_create_org_custom_property', description: 'Create organization custom property', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, property_name: { type: 'string' }, value_type: { type: 'string' }, required: { type: 'boolean' } }, required: ['org', 'property_name', 'value_type'] } },
 
         // SEARCH (6 tools)
         { name: 'github_search_repositories', description: 'Search repositories', inputSchema: { type: 'object', additionalProperties: false, properties: { q: { type: 'string' }, sort: { type: 'string' }, order: { type: 'string' }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['q'] } },
@@ -1053,12 +1114,28 @@ const result = await toolkit_call({
         { name: 'github_remove_copilot_seats', description: 'Remove Copilot seats', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' }, selected_usernames: { type: 'array', items: { type: 'string' } } }, required: ['org', 'selected_usernames'] } },
         { name: 'github_get_copilot_usage', description: 'Get Copilot usage metrics', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string' } }, required: ['org'] } },
 
-        // ADVANCED SECURITY (5 tools)
+        // MODELS API (5 tools) - NEW 2025!
+        { name: 'github_list_models', description: 'List all available AI models in GitHub Models catalog', inputSchema: { type: 'object', additionalProperties: false, properties: {} } },
+        { name: 'github_create_embedding', description: 'Create text embeddings using GitHub Models (user context)', inputSchema: { type: 'object', additionalProperties: false, properties: { model: { type: 'string', description: 'Model ID (e.g., "text-embedding-3-small")' }, input: { type: 'string', description: 'Text to embed' } }, required: ['model', 'input'] } },
+        { name: 'github_create_org_embedding', description: 'Create text embeddings using GitHub Models (organization context)', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string', description: 'Organization name' }, model: { type: 'string', description: 'Model ID' }, input: { type: 'string', description: 'Text to embed' } }, required: ['org', 'model', 'input'] } },
+        { name: 'github_create_inference', description: 'Run AI inference/completion using GitHub Models (user context)', inputSchema: { type: 'object', additionalProperties: false, properties: { model: { type: 'string', description: 'Model ID (e.g., "gpt-4o", "claude-3-5-sonnet")' }, messages: { type: 'array', items: { type: 'object' }, description: 'Chat messages' }, max_tokens: { type: 'number' }, temperature: { type: 'number' } }, required: ['model', 'messages'] } },
+        { name: 'github_create_org_inference', description: 'Run AI inference/completion using GitHub Models (organization context)', inputSchema: { type: 'object', additionalProperties: false, properties: { org: { type: 'string', description: 'Organization name' }, model: { type: 'string', description: 'Model ID' }, messages: { type: 'array', items: { type: 'object' }, description: 'Chat messages' }, max_tokens: { type: 'number' }, temperature: { type: 'number' } }, required: ['org', 'model', 'messages'] } },
+
+        // ADVANCED SECURITY (15 tools)
         { name: 'github_list_code_scanning_alerts', description: 'List code scanning alerts', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'closed', 'dismissed', 'fixed'] } }, required: ['owner', 'repo'] } },
         { name: 'github_get_code_scanning_alert', description: 'Get code scanning alert', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' } }, required: ['owner', 'repo', 'alert_number'] } },
         { name: 'github_update_code_scanning_alert', description: 'Update code scanning alert', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['dismissed', 'open'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
         { name: 'github_list_secret_scanning_alerts', description: 'List secret scanning alerts', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo'] } },
         { name: 'github_update_secret_scanning_alert', description: 'Update secret scanning alert', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['open', 'resolved'] } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
+        { name: 'github_list_dependabot_alerts', description: 'List Dependabot alerts', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['auto_dismissed', 'dismissed', 'fixed', 'open'] }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_dependabot_alert', description: 'Get Dependabot alert', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' } }, required: ['owner', 'repo', 'alert_number'] } },
+        { name: 'github_update_dependabot_alert', description: 'Update Dependabot alert', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, alert_number: { type: 'number' }, state: { type: 'string', enum: ['dismissed', 'open'] }, dismissed_reason: { type: 'string' } }, required: ['owner', 'repo', 'alert_number', 'state'] } },
+        { name: 'github_list_security_advisories', description: 'List repository security advisories', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, state: { type: 'string', enum: ['triage', 'draft', 'published', 'closed'] }, per_page: { type: 'number' }, page: { type: 'number' } }, required: ['owner', 'repo'] } },
+        { name: 'github_get_security_advisory', description: 'Get security advisory', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, ghsa_id: { type: 'string' } }, required: ['owner', 'repo', 'ghsa_id'] } },
+        { name: 'github_create_security_advisory', description: 'Create security advisory', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, summary: { type: 'string' }, description: { type: 'string' }, severity: { type: 'string', enum: ['low', 'medium', 'high', 'critical'] } }, required: ['owner', 'repo', 'summary', 'description'] } },
+        { name: 'github_update_security_advisory', description: 'Update security advisory', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' }, ghsa_id: { type: 'string' }, summary: { type: 'string' }, description: { type: 'string' }, severity: { type: 'string' } }, required: ['owner', 'repo', 'ghsa_id'] } },
+        { name: 'github_enable_automated_security_fixes', description: 'Enable automated security fixes', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
+        { name: 'github_disable_automated_security_fixes', description: 'Disable automated security fixes', inputSchema: { type: 'object', additionalProperties: false, properties: { owner: { type: 'string' }, repo: { type: 'string' } }, required: ['owner', 'repo'] } },
 // ==================== PROJECT MANAGEMENT ====================
         { name: 'vercel_list_projects', description: 'List all Vercel projects', inputSchema: { type: 'object', additionalProperties: false, properties: {'teamId':{'type':'string','description':'Optional team ID'}} } },
         { name: 'vercel_get_project', description: 'Get details of a specific project', inputSchema: { type: 'object', additionalProperties: false, properties: {'projectId':{'type':'string','description':'Project ID or name'}}, required: ["projectId"] } },
@@ -2439,6 +2516,13 @@ const result = await toolkit_call({
           case 'github_add_copilot_seats': return await this.addCopilotSeats(args);
           case 'github_remove_copilot_seats': return await this.removeCopilotSeats(args);
           case 'github_get_copilot_usage': return await this.getCopilotUsage(args);
+
+          // Models API (NEW 2025)
+          case 'github_list_models': return await this.listModels(args);
+          case 'github_create_embedding': return await this.createEmbedding(args);
+          case 'github_create_org_embedding': return await this.createOrgEmbedding(args);
+          case 'github_create_inference': return await this.createInference(args);
+          case 'github_create_org_inference': return await this.createOrgInference(args);
 
           // Advanced Security
           case 'github_list_code_scanning_alerts': return await this.listCodeScanningAlerts(args);
@@ -8493,6 +8577,59 @@ const result = await toolkit_call({
     const response = await this.client.get(`/orgs/${args.org}/copilot/usage`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
+
+  // ============================================================
+  // MODELS API (NEW 2025) - 5 methods
+  // ============================================================
+
+  private async listModels(args: any) {
+    const response = await this.client.get('/models');
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async createEmbedding(args: any) {
+    const body = {
+      model: args.model,
+      input: args.input
+    };
+    const response = await this.client.post('/user/models/embeddings', body);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async createOrgEmbedding(args: any) {
+    const body = {
+      model: args.model,
+      input: args.input
+    };
+    const response = await this.client.post(`/orgs/${args.org}/models/embeddings`, body);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async createInference(args: any) {
+    const body: any = {
+      model: args.model,
+      messages: args.messages
+    };
+    if (args.max_tokens) body.max_tokens = args.max_tokens;
+    if (args.temperature !== undefined) body.temperature = args.temperature;
+    const response = await this.client.post('/user/models/inference', body);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  private async createOrgInference(args: any) {
+    const body: any = {
+      model: args.model,
+      messages: args.messages
+    };
+    if (args.max_tokens) body.max_tokens = args.max_tokens;
+    if (args.temperature !== undefined) body.temperature = args.temperature;
+    const response = await this.client.post(`/orgs/${args.org}/models/inference`, body);
+    return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
+  }
+
+  // ============================================================
+  // SECURITY & SCANNING
+  // ============================================================
 
   private async listCodeScanningAlerts(args: any) {
     const params: any = {};
