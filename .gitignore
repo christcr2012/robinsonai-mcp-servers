@@ -5,6 +5,9 @@ dist/
 .DS_Store
 *.tsbuildinfo
 
+# Windows artifacts
+nul
+
 # Environment files
 .env
 .env.local
