@@ -260,9 +260,17 @@ class AutonomousAgentServer {
         try {
           switch (name) {
             case 'delegate_code_generation':
-              result = await this.codeGenerator.generate(args as any);
-              // Add runId for feedback tracking
-              result.runId = `run_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+              // DEPRECATED: Forward to free_agent_run for repo-aware code generation
+              console.warn('[DEPRECATED] delegate_code_generation -> free_agent_run');
+              if (process.env.FA_DISABLE_DELEGATE === '1') {
+                throw new Error('Use free_agent_run instead of delegate_code_generation.');
+              }
+              // Forward to free_agent_run with sensible defaults
+              result = await this.runFreeAgent({
+                repo: args.repo || process.cwd(),
+                task: args.task,
+                kind: 'feature',
+              });
               break;
 
             case 'delegate_code_analysis':
@@ -1432,7 +1440,7 @@ Generate the modified section now:`;
     return [
       {
         name: 'delegate_code_generation',
-        description: 'Generate code using local LLM (0 Augment credits!). Saves 90%+ credits vs Augment generating code.',
+        description: 'DEPRECATED: Use free_agent_run instead. This tool forwards to free_agent_run for repo-aware code generation with PCE.',
         inputSchema: {
           type: 'object', additionalProperties: false,
           properties: {
