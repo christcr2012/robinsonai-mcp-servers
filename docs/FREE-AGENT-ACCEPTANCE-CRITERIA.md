@@ -26,23 +26,41 @@ When Free Agent generates code, it must meet ALL of these criteria:
 - [ ] **Uses `free_agent_run` tool** (not `delegate_code_generation`)
 - [ ] **Uses Free Agent Core** (with PCE pattern learning)
 - [ ] **Uses MCPGenerator** (with quality gates pipeline)
-- [ ] **Uses quality=best** (sandbox + 2 retries)
-- [ ] **Uses tier=paid** (OpenAI/Claude for best results)
-- [ ] **Uses sandbox=true** (isolated environment for gates)
+- [ ] **Uses quality=auto** (intelligent routing based on task complexity)
+  - Simple tasks (complexity ≤ 1): `fast` mode with `free` tier (qwen2.5-coder:7b)
+  - Medium tasks (complexity 2-3): `balanced` mode with `free` tier (qwen2.5-coder:14b)
+  - Complex tasks (complexity ≥ 4): `best` mode with `paid` tier (gpt-4o)
+- [ ] **PatchGuard always runs** (even in fast mode - enforces patterns, no placeholders, no `any`)
 
 ### ✅ Logs to Verify
-When running, you should see these logs:
+When running with `quality=auto`, you should see these logs:
 
+**For simple tasks (e.g., "Add upstashRedisLpush method"):**
 ```
 [runFreeAgent] Using Free Agent Core with PCE and pluggable generator...
-[MCPGenerator] Generating with quality=best tier=paid sandbox=true
-[CodeGen] quality=best tier=paid sandbox=true retries=2
-[CodeGen] Using full pipeline with quality gates (sandbox=true, retries=2)
+[CodeGenerator] AUTO routing: complexity=1 → quality=fast tier=free
+[CodeGenerator] quality=fast tier=free model=qwen2.5-coder:7b sandbox=false retries=0
+[CodeGenerator] Using fast mode (no sandbox)
+```
+
+**For medium tasks (e.g., "Add 10 Redis handlers"):**
+```
+[runFreeAgent] Using Free Agent Core with PCE and pluggable generator...
+[CodeGenerator] AUTO routing: complexity=3 → quality=balanced tier=free
+[CodeGenerator] quality=balanced tier=free model=qwen2.5-coder:14b sandbox=true retries=1
+[CodeGenerator] Using full pipeline with quality gates (sandbox=true, retries=1)
+```
+
+**For complex tasks (e.g., "Implement OAuth authentication with database migration"):**
+```
+[runFreeAgent] Using Free Agent Core with PCE and pluggable generator...
+[CodeGenerator] AUTO routing: complexity=6 → quality=best tier=paid
+[CodeGenerator] quality=best tier=paid model=gpt-4o sandbox=true retries=2
+[CodeGenerator] Using full pipeline with quality gates (sandbox=true, retries=2)
 ```
 
 You should **NOT** see:
 ```
-FREE - Fast mode (no sandbox)
 [DEPRECATED] delegate_code_generation -> free_agent_run
 ```
 
@@ -57,10 +75,17 @@ FREE - Fast mode (no sandbox)
 ### 1. Set Environment Variables
 ```bash
 export FREE_AGENT_GENERATOR=packages/free-agent-mcp/dist/generation/mcp-generator.js
-export FREE_AGENT_TIER=paid
-export FREE_AGENT_QUALITY=best
+export FREE_AGENT_TIER=free
+export FREE_AGENT_QUALITY=auto
 export CODEGEN_VERBOSE=1
 export FA_DISABLE_DELEGATE=1
+
+# Model routing (optional - defaults are set)
+export FREE_MODEL_TINY=qwen2.5-coder:7b
+export FREE_MODEL_STD=qwen2.5-coder:14b
+export FREE_MODEL_STRICT=qwen2.5-coder:32b
+export PAID_MODEL_STD=gpt-4o-mini
+export PAID_MODEL_BEST=gpt-4o
 ```
 
 ### 2. Call the Tool
@@ -96,17 +121,25 @@ This should output:
 
 ## Common Issues and Fixes
 
-### Issue: Still seeing "FREE - Fast mode (no sandbox)"
-**Fix**: Check that `FREE_AGENT_QUALITY=best` is set and that the CodeGenerator is using the correct precedence (arg → env → default).
+### Issue: Task complexity not being estimated correctly
+**Fix**: Check the task description for keywords. The complexity estimator looks for:
+- High-risk: `schema`, `migration`, `sql`, `database`, `oauth`, `auth`, `token`, `secrets` (+3)
+- Medium-risk: `handler`, `adapter`, `client`, `codegen`, `generator` (+2)
+- Infrastructure: `infra`, `deploy`, `vercel`, `upstash`, `supabase`, `neon`, `redis` (+2)
+- Simple: `refactor`, `rename`, `insert method`, `add method` (+1)
+- Low-risk: `docs`, `readme`, `comment` (-2)
 
 ### Issue: Still creating new files instead of editing existing ones
-**Fix**: Check that the PatchGuard rule is enabled and that the pattern contract is being learned correctly.
+**Fix**: PatchGuard runs in ALL modes (fast, balanced, best). Check that the pattern contract is being learned correctly and that containers are detected.
 
 ### Issue: Still using `delegate_code_generation`
 **Fix**: Set `FA_DISABLE_DELEGATE=1` to completely disable the old tool.
 
 ### Issue: Model ignores structure/patterns
 **Fix**: Ensure `FREE_AGENT_GENERATOR` points to the MCPGenerator (not a raw LLM). The generator must use the quality gates pipeline.
+
+### Issue: Want to force a specific quality level
+**Fix**: Set `FREE_AGENT_QUALITY=fast|balanced|best` instead of `auto`. Or pass `quality` explicitly in the tool call.
 
 ## Success Metrics
 
