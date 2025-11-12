@@ -120,9 +120,6 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.4
         version: 1.21.1
-      '@robinson_ai_systems/free-agent-core':
-        specifier: ^1.0.10
-        version: 1.0.10
       '@types/diff':
         specifier: ^7.0.2
         version: 7.0.2
@@ -141,6 +138,9 @@ importers:
       jsdom:
         specifier: ^27.1.0
         version: 27.1.0
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
       ollama:
         specifier: ^0.5.9
         version: 0.5.18
@@ -151,6 +151,9 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
     devDependencies:
+      '@robinson_ai_systems/free-agent-core':
+        specifier: workspace:*
+        version: link:../free-agent-core
       '@robinson_ai_systems/shared-llm':
         specifier: ^0.1.12
         version: 0.1.12(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@4.1.12))
@@ -160,9 +163,15 @@ importers:
       '@robinson_ai_systems/shared-utils':
         specifier: ^0.1.1
         version: 0.1.1(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@4.1.12))
+      '@types/minimist':
+        specifier: ^1.2.5
+        version: 1.2.5
       '@types/node':
         specifier: ^22.10.2
         version: 22.19.0
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
@@ -1078,11 +1087,6 @@ packages:
     peerDependencies:
       '@redis/client': ^1.0.0
 
-  '@robinson_ai_systems/free-agent-core@1.0.10':
-    resolution: {integrity: sha512-z/UlVKA6xkOXbxm2Fw7xwxhdUj9XoxWkm07UsKU/6aiEasxdYUegm1ggfRiu0Eb6dVZ620/YjUgxLoLkx8f7wg==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
-
   '@robinson_ai_systems/robinsons-context-engine@1.2.0':
     resolution: {integrity: sha512-A9m2BH/qOSF0BKHyHXUW3sXN30XRCP4LejQgMzx3YxNWAlKkbmKqNnAxKd5f5WD0gmI2DIdwVOurLahhMGn2xQ==}
     engines: {node: '>=18.18.0'}
@@ -1315,6 +1319,9 @@ packages:
 
   '@types/mime@1.3.5':
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
+
+  '@types/minimist@1.2.5':
+    resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
@@ -4759,10 +4766,6 @@ snapshots:
     dependencies:
       '@redis/client': 1.6.1
 
-  '@robinson_ai_systems/free-agent-core@1.0.10':
-    dependencies:
-      zod: 4.1.12
-
   '@robinson_ai_systems/robinsons-context-engine@1.2.0': {}
 
   '@robinson_ai_systems/shared-llm@0.1.12(@anthropic-ai/sdk@0.32.1)(openai@4.104.0(ws@8.18.3)(zod@3.25.76))':
@@ -5030,6 +5033,8 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/mime@1.3.5': {}
+
+  '@types/minimist@1.2.5': {}
 
   '@types/ms@2.1.0': {}
 

@@ -8,8 +8,8 @@
 import {
   DiffGenerator,
   GenInput,
-} from "@robinson_ai_systems/free-agent-core/dist/generation/types.js";
-import { OpsGenerator } from "@robinson_ai_systems/free-agent-core/dist/generation/ops-generator.js";
+} from "@fa/core/generation/types.js";
+import { OpsGenerator } from "@fa/core/generation/ops-generator.js";
 import { OllamaClient } from "../ollama-client.js";
 import { llmGenerate } from "@robinson_ai_systems/shared-llm";
 

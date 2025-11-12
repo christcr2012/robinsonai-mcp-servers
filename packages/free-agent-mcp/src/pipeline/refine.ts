@@ -12,7 +12,7 @@ import { generateMultiFileDiff, formatDiffsForPrompt } from '../utils/diff-gener
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
 import { formatDiagnosticsForPrompt, extractCriticalErrors } from './execute.js';
 import { normalizeOutput, validateOutput, countOutputFiles } from '../schema/output.js';
-import { validatePatchUnifiedDiff } from '@robinson_ai_systems/free-agent-core';
+import { validatePatchUnifiedDiff } from '@fa/core';
 
 /**
  * Apply fix plan from judge

@@ -17,7 +17,7 @@ export const paths_probe = {
     
     // Import path utilities from free-agent-core
     const { resolveRepoRoot, resolveFromRepo, debugPaths } = await import(
-      '@robinson_ai_systems/free-agent-core/dist/utils/paths.js'
+      '@fa/core/utils/paths.js'
     );
     
     const repoRoot = resolveRepoRoot(repo);

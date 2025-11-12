@@ -2210,10 +2210,10 @@ Generate the modified section now:`;
 
       // Import Free Agent Core's runFreeAgent function and path resolver
       const { runFreeAgent: coreRunFreeAgent } = await import(
-        '@robinson_ai_systems/free-agent-core'
+        '@fa/core'
       );
       const { resolveRepoRoot } = await import(
-        '@robinson_ai_systems/free-agent-core/dist/utils/paths.js'
+        '@fa/core/utils/paths.js'
       );
 
       // Resolve repo path (handles relative paths, env vars, etc.)
@@ -2256,7 +2256,7 @@ Generate the modified section now:`;
    */
   private async runFreeAgentSmoke(args: any): Promise<any> {
     try {
-      const { ensureCodegen } = await import('@robinson_ai_systems/free-agent-core/spec');
+      const { ensureCodegen } = await import('@fa/core/spec');
 
       const repo = args.repo || process.cwd();
       const specRegistry = process.env.FREE_AGENT_SPEC;
@@ -2321,25 +2321,36 @@ Generate the modified section now:`;
   }
 }
 
-// Start the server
-const server = new AutonomousAgentServer();
-server.run().catch((error) => {
-  console.error('Fatal error:', error);
-  process.exit(1);
-});
+/**
+ * Start the Free Agent MCP server
+ * Exported for use by CLI (serve command)
+ */
+export async function startServer() {
+  const server = new AutonomousAgentServer();
 
-// Cleanup on shutdown
-process.on('SIGINT', async () => {
-  console.error('\n🛑 Shutting down Free Agent MCP...');
-  await server['ollama'].cleanup();
-  process.exit(0);
-});
+  // Cleanup on shutdown
+  process.on('SIGINT', async () => {
+    console.error('\n🛑 Shutting down Free Agent MCP...');
+    await server['ollama'].cleanup();
+    process.exit(0);
+  });
 
-process.on('SIGTERM', async () => {
-  console.error('\n🛑 Shutting down Free Agent MCP...');
-  await server['ollama'].cleanup();
-  process.exit(0);
-});
+  process.on('SIGTERM', async () => {
+    console.error('\n🛑 Shutting down Free Agent MCP...');
+    await server['ollama'].cleanup();
+    process.exit(0);
+  });
+
+  await server.run();
+}
+
+// Auto-start server if run directly (not imported)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  startServer().catch((error) => {
+    console.error('Fatal error:', error);
+    process.exit(1);
+  });
+}
 
 // Export tool bridge for use in generated code
 export { toolBridge, tryToolkitCall, tryThinkingTool, docsSearch } from './tools/bridge.js';

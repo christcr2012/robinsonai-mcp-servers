@@ -3,9 +3,9 @@
  * Uses CodeGenerator with quality gates instead of raw Ollama calls
  */
 
-import { Adapter } from '@robinson_ai_systems/free-agent-core/dist/repo/types.js';
-import { PatternContract } from '@robinson_ai_systems/free-agent-core/dist/patterns/contract.js';
-import { Example } from '@robinson_ai_systems/free-agent-core/dist/patterns/examples.js';
+import { Adapter } from '@fa/core/repo/types.js';
+import { PatternContract } from '@fa/core/patterns/contract.js';
+import { Example } from '@fa/core/patterns/examples.js';
 import { CodeGenerator } from '../agents/code-generator.js';
 import { OllamaClient } from '../ollama-client.js';
 import { spawnSync } from 'child_process';

@@ -1,18 +1,11 @@
 {
   "name": "@robinson_ai_systems/free-agent-core",
-  "version": "1.0.15",
-  "description": "Portable, repo-agnostic Free Agent core with spec-first codegen and quality gates",
+  "version": "0.0.0-internal",
+  "description": "Internal core library for Free Agent MCP (bundled, not published)",
+  "private": true,
   "type": "module",
-  "main": "dist/index.js",
-  "bin": {
-    "free-agent": "dist/cli.js"
-  },
   "exports": {
-    ".": "./dist/index.js",
-    "./runner": "./dist/runner.js",
-    "./pipeline": "./dist/pipeline/index.js",
-    "./spec": "./dist/spec/codegen.js",
-    "./repo": "./dist/repo/adapter.js"
+    "./src/*": "./src/*"
   },
   "scripts": {
     "build": "tsup",

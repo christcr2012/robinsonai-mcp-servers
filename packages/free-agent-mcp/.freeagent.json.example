@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/robinsonai/robinsonai-mcp-servers/main/packages/free-agent-mcp/schema/config.schema.json",
+  "spec": {
+    "registryPath": "src/spec/registry.json",
+    "exemplarsGlob": "src/**/examples/**/*.ts",
+    "generatorModule": "free-agent-mcp/generators/ops"
+  },
+  "quality": {
+    "default": "auto",
+    "minCoverage": 80,
+    "acceptThreshold": 0.9
+  },
+  "tier": "free",
+  "verbose": false
+}
+
