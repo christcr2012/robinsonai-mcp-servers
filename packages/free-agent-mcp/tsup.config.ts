@@ -24,6 +24,28 @@ export default defineConfig({
     '@robinson_ai_systems/shared-utils',
     '@robinson_ai_systems/shared-pipeline'
   ],
+  // Keep Node.js built-ins external
+  external: [
+    'node:*',
+    'fs',
+    'path',
+    'os',
+    'crypto',
+    'stream',
+    'util',
+    'events',
+    'buffer',
+    'url',
+    'http',
+    'https',
+    'net',
+    'tls',
+    'zlib',
+    'child_process',
+    'worker_threads',
+    'perf_hooks',
+    'async_hooks'
+  ],
   esbuildOptions(options) {
     // Resolve @fa/core alias to the actual path
     options.alias = {

@@ -1,6 +1,6 @@
 {
   "name": "free-agent-mcp",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Free Agent MCP - Portable, workspace-agnostic code generation using FREE models (Ollama)",
   "type": "module",
   "main": "./dist/index.js",
