@@ -2,7 +2,7 @@
 
 **Generated:** 2025-11-12
 **Source:** https://docs.github.com/en/rest (Latest 2025 documentation)
-**Current Tools:** 301 GitHub tools in Robinson's Toolkit (241 existing + 5 Models API NEW 2025)
+**Current Tools:** 330 GitHub tools in Robinson's Toolkit (241 existing + 5 Models API + 29 Actions + 55 pending handlers)
 
 ---
 
@@ -156,14 +156,14 @@ The GitHub REST API is organized into **60+ major categories**:
 - ✅ Actions artifacts (5 tools: list, get, download, delete, list_workflow_artifacts)
 - ✅ Actions cache (4 tools: list, get_usage, delete, delete_by_key)
 - ✅ Actions variables (6 tools: list/get/create/update/delete repo, list org)
+- ✅ **Actions OIDC (4 tools: get/set customization for repo and org)** - COMPLETED 2025-11-12
+- ✅ **Actions Permissions (8 tools: get/set permissions, workflow access, allowed actions, default permissions)** - COMPLETED 2025-11-12
+- ✅ **Actions Org Secrets (6 tools: list, get, create/update, delete, get public key, list repos)** - COMPLETED 2025-11-12
+- ✅ **Actions Self-Hosted Runners (11 tools: list, downloads, tokens, get, delete, labels management)** - COMPLETED 2025-11-12
 
 **Still Missing (HIGH PRIORITY):**
 - ❌ Actions hosted runners
-- ❌ Actions OIDC
-- ❌ Actions permissions
-- ❌ Actions secrets (org-level)
 - ❌ Actions self-hosted runner groups
-- ❌ Actions self-hosted runners
 
 **Impact:** Actions is a MAJOR GitHub feature - we're missing ~80% of endpoints!
 
