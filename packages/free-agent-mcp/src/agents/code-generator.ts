@@ -16,15 +16,94 @@ import { formatGMCode, formatUnifiedDiffs, stripCodeFences, type OutputFile } fr
 import { getGlobalOrchestrator } from './model-orchestrator.js';
 import { llmGenerate } from '../shared/shared-llm/llm-client.js';
 
+// Quality configuration profiles
+const QUALITY_PROFILES = {
+  fast: { sandbox: false, retries: 0, runTests: false, lint: false },
+  balanced: { sandbox: true, retries: 1, runTests: true, lint: true },
+  best: { sandbox: true, retries: 2, runTests: true, lint: true },
+} as const;
+
+/**
+ * Estimate task complexity based on keywords and context
+ * Returns a score from 0-10 (higher = more complex/risky)
+ */
+function estimateComplexity(req: GenerateRequest): number {
+  let score = 0;
+  const task = req.task.toLowerCase();
+
+  // High-risk patterns (database, auth, secrets)
+  if (/(schema|migration|sql|database|oauth|auth|token|secrets?)/.test(task)) score += 3;
+
+  // Medium-risk patterns (handlers, adapters, code generation)
+  if (/(handler|adapter|client|codegen|generator)/.test(task)) score += 2;
+
+  // Infrastructure/deployment patterns
+  if (/(infra|deploy|vercel|upstash|supabase|neon|redis)/.test(task)) score += 2;
+
+  // Simple refactoring patterns
+  if (/(refactor|rename|insert method|add method)/.test(task)) score += 1;
+
+  // Low-risk patterns (documentation)
+  if (/(docs?|readme|comment)/.test(task)) score -= 2;
+
+  // Multiple targets = more complex
+  if (req.targets && req.targets.length > 1) score += req.targets.length - 1;
+
+  // No pattern contract = higher risk (new repo/unfamiliar patterns)
+  if (!req.patternContract?.containers?.length) score += 2;
+
+  return Math.max(0, score);
+}
+
+/**
+ * Decide quality profile and tier based on task complexity
+ */
+function decideProfileAuto(req: GenerateRequest): { profile: 'fast' | 'balanced' | 'best'; tier: Tier } {
+  const complexity = estimateComplexity(req);
+
+  if (complexity <= 1) {
+    // Simple tasks: fast mode with free tier
+    return { profile: 'fast', tier: 'free' };
+  } else if (complexity <= 3) {
+    // Medium tasks: balanced mode with free tier
+    return { profile: 'balanced', tier: 'free' };
+  } else {
+    // Complex/risky tasks: best mode with paid tier
+    return { profile: 'best', tier: 'paid' };
+  }
+}
+
+/**
+ * Pick model based on tier and profile
+ */
+function pickModel({ tier, profile }: { tier: Tier; profile: 'fast' | 'balanced' | 'best' }): string {
+  const env = process.env;
+
+  if (tier === 'free') {
+    if (profile === 'fast') return env.FREE_MODEL_TINY ?? 'qwen2.5-coder:7b';
+    if (profile === 'balanced') return env.FREE_MODEL_STD ?? 'qwen2.5-coder:14b';
+    return env.FREE_MODEL_STRICT ?? 'qwen2.5-coder:32b';
+  } else {
+    if (profile === 'best') return env.PAID_MODEL_BEST ?? 'gpt-4o';
+    return env.PAID_MODEL_STD ?? 'gpt-4o-mini';
+  }
+}
+
+export type Quality = 'fast' | 'balanced' | 'best' | 'auto';
+export type Tier = 'free' | 'paid';
+
 export interface GenerateRequest {
   task: string;
   context: string;
   template?: string;
   model?: string;
   complexity?: 'simple' | 'medium' | 'complex';
-  quality?: 'fast' | 'balanced' | 'best'; // NEW: Quality vs speed tradeoff
-  tier?: 'free' | 'paid'; // NEW: Model tier (free=Ollama, paid=OpenAI/Claude)
-  sandbox?: boolean; // NEW: Force sandbox/gates (overrides quality default)
+  quality?: Quality; // Quality vs speed tradeoff (auto = intelligent routing)
+  tier?: Tier; // Model tier (free=Ollama, paid=OpenAI/Claude)
+  sandbox?: boolean; // Force sandbox/gates (overrides quality default)
+  patternContract?: any; // Pattern contract for complexity estimation
+  targets?: Array<{ path: string; container?: { kind: 'class' | 'module'; name: string } }>;
+  budgetUsd?: number; // Optional budget limit
 }
 
 export interface GenerateResult {
@@ -68,27 +147,39 @@ export class CodeGenerator {
    * This produces REAL, WORKING code with hard quality gates
    */
   async generate(request: GenerateRequest): Promise<GenerateResult> {
-    // ✅ Precedence: explicit arg → env → default
-    const quality: 'fast' | 'balanced' | 'best' =
-      request.quality ??
-      (process.env.CODEGEN_QUALITY as any) ??
-      this.getDefaultQuality(request.complexity);
+    // ✅ Precedence: explicit arg → env → default/auto
+    let quality: Quality =
+      (request.quality ??
+      (process.env.CODEGEN_QUALITY as Quality) ??
+      'auto') as Quality;
 
-    const tier: 'free' | 'paid' =
-      request.tier ??
-      (process.env.CODEGEN_TIER as any) ??
-      'free';
+    let tier: Tier =
+      (request.tier ??
+      (process.env.CODEGEN_TIER as Tier) ??
+      'free') as Tier;
 
-    // Quality config: what gates/retries to use
-    const qualityConfig = {
-      fast: { sandbox: false, retries: 0, runTests: false, lint: false },
-      balanced: { sandbox: true, retries: 1, runTests: true, lint: true },
-      best: { sandbox: true, retries: 2, runTests: true, lint: true },
-    };
+    // Auto-routing: decide quality and tier based on task complexity
+    if (quality === 'auto') {
+      const { profile, tier: autoTier } = decideProfileAuto(request);
+      quality = profile;
+      // Respect explicit paid tier if provided, otherwise use auto-decided tier
+      tier = tier === 'free' ? autoTier : tier;
 
-    const qcfg = qualityConfig[quality];
+      if (process.env.CODEGEN_VERBOSE) {
+        console.log(
+          `[CodeGenerator] AUTO routing: complexity=${estimateComplexity(request)} → quality=${quality} tier=${tier}`
+        );
+      }
+    }
+
+    // Get quality config
+    const qcfg = QUALITY_PROFILES[quality as 'fast' | 'balanced' | 'best'];
+
     // Allow caller to force sandbox explicitly (never turn it off if quality wants it on)
     const sandbox = request.sandbox === true ? true : qcfg.sandbox;
+
+    // Pick model based on tier and profile
+    const model = pickModel({ tier, profile: quality as 'fast' | 'balanced' | 'best' });
 
     // Guard: fail loud if misconfigured
     if (quality !== 'fast' && sandbox === false) {
@@ -100,7 +191,7 @@ export class CodeGenerator {
     // Debug logging
     if (process.env.CODEGEN_VERBOSE) {
       console.log(
-        `[CodeGenerator] quality=${quality} tier=${tier} sandbox=${sandbox} retries=${qcfg.retries}`
+        `[CodeGenerator] quality=${quality} tier=${tier} model=${model} sandbox=${sandbox} retries=${qcfg.retries}`
       );
     }
 

@@ -10,7 +10,7 @@ export async function runFreeAgent(opts: {
   task: string;
   kind: "feature" | "bugfix" | "refactor" | "research";
   tier?: "free" | "paid";
-  quality?: "fast" | "balanced" | "best";
+  quality?: "fast" | "balanced" | "best" | "auto";
 }) {
   // 1) pick adapter: per-repo config > auto-discover > defaults
   const base = await discover(opts.repo);
@@ -40,7 +40,7 @@ export async function runFreeAgent(opts: {
   const pipe = buildPipeline({ adapter, repo: base, contract, exemplars });
   await pipe.run(opts.kind, opts.task, {
     tier: opts.tier || (process.env.FREE_AGENT_TIER as any) || "free",
-    quality: opts.quality || (process.env.FREE_AGENT_QUALITY as any) || "best",
+    quality: (opts.quality as any) || (process.env.FREE_AGENT_QUALITY as any) || "auto",
   });
 }
 

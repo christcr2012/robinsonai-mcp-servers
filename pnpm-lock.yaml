@@ -121,8 +121,8 @@ importers:
         specifier: ^1.0.4
         version: 1.21.1
       '@robinson_ai_systems/free-agent-core':
-        specifier: ^1.0.9
-        version: 1.0.9
+        specifier: ^1.0.10
+        version: 1.0.10
       '@types/diff':
         specifier: ^7.0.2
         version: 7.0.2
@@ -1078,8 +1078,8 @@ packages:
     peerDependencies:
       '@redis/client': ^1.0.0
 
-  '@robinson_ai_systems/free-agent-core@1.0.9':
-    resolution: {integrity: sha512-Gat0CvPSVpM0fXgw5kAd4BGQHdZqGr2ZNlSqrZxicHTFeSJ2/fJAxz2eA9v4iMgNnG1Z9LcVq21065cERuyaZQ==}
+  '@robinson_ai_systems/free-agent-core@1.0.10':
+    resolution: {integrity: sha512-z/UlVKA6xkOXbxm2Fw7xwxhdUj9XoxWkm07UsKU/6aiEasxdYUegm1ggfRiu0Eb6dVZ620/YjUgxLoLkx8f7wg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -4759,7 +4759,7 @@ snapshots:
     dependencies:
       '@redis/client': 1.6.1
 
-  '@robinson_ai_systems/free-agent-core@1.0.9':
+  '@robinson_ai_systems/free-agent-core@1.0.10':
     dependencies:
       zod: 4.1.12
 
