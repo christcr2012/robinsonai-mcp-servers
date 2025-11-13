@@ -48,6 +48,7 @@ import { FeedbackCapture, FeedbackSource } from './learning/feedback-capture.js'
 import { join } from 'path';
 import { homedir } from 'os';
 import { loadBetterSqlite } from './utils/sqlite.js';
+import { StatsTracker } from './utils/stats-tracker.js';
 
 const server = new Server(
   {
@@ -131,6 +132,15 @@ function getFeedbackCapture(): FeedbackCapture | any {
     }
   }
   return feedbackCapture;
+}
+
+// Initialize StatsTracker (for usage statistics)
+let statsTracker: StatsTracker | null = null;
+function getStatsTracker(): StatsTracker {
+  if (!statsTracker) {
+    statsTracker = new StatsTracker();
+  }
+  return statsTracker;
 }
 
 type VoyageChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
@@ -1169,6 +1179,44 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           additionalProperties: false,
         },
       },
+      // Diagnostics tools
+      {
+        name: 'get_agent_stats',
+        description: 'Get usage statistics for the paid agent. See how much you\'ve spent and saved!',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            period: {
+              type: 'string',
+              enum: ['today', 'week', 'month', 'all'],
+            },
+          },
+        },
+      },
+      {
+        name: 'get_token_analytics',
+        description: 'Get detailed token usage analytics. Shows tokens used, real costs, and spending patterns.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            period: {
+              type: 'string',
+              description: 'Time period to analyze',
+              enum: ['today', 'week', 'month', 'all'],
+            },
+          },
+        },
+      },
+      {
+        name: 'diagnose_paid_agent',
+        description: 'Diagnose Paid Agent environment - check model availability, pricing, stats DB, budget status',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+        },
+      },
     ],
   };
 });
@@ -1421,6 +1469,82 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: 'text',
               text: JSON.stringify(feedbackStats, null, 2),
+            },
+          ],
+        };
+
+      // Diagnostics tools
+      case 'get_agent_stats':
+        const agentStats = await getStatsTracker().getStats(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(agentStats, null, 2),
+            },
+          ],
+        };
+
+      case 'get_token_analytics':
+        const tracker = getTokenTracker();
+        const period = (args as any)?.period || 'all';
+        const tokenStats = tracker.getStats(period);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  ...tokenStats,
+                  database_path: tracker.getDatabasePath(),
+                  note: 'Real OpenAI/Claude costs - track your spending!',
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+
+      case 'diagnose_paid_agent':
+        const policy = getPolicy();
+        const monthlySpend = getMonthlySpend();
+        const diagnostics = {
+          ok: true,
+          models: {
+            openai: process.env.OPENAI_API_KEY ? 'Available' : 'Not configured',
+            anthropic: process.env.ANTHROPIC_API_KEY ? 'Available' : 'Not configured',
+            moonshot: process.env.MOONSHOT_API_KEY ? 'Available' : 'Not configured',
+            ollama: 'Available (for FREE delegation)',
+          },
+          budget: {
+            monthly_limit: policy.MONTHLY_BUDGET,
+            current_spend: monthlySpend,
+            remaining: Math.max(0, policy.MONTHLY_BUDGET - monthlySpend),
+            percentage_used: ((monthlySpend / policy.MONTHLY_BUDGET) * 100).toFixed(2) + '%',
+          },
+          pricing: {
+            source: 'Live OpenAI API',
+            last_refresh: 'On startup',
+            note: 'Pricing auto-refreshes every 24 hours',
+          },
+          stats_db: process.env.AGENT_STATS_DB || 'paid-agent-stats.db',
+          toolkit: {
+            connected: getSharedToolkitClient().isConnected(),
+            tools_available: 1165,
+            note: 'Can access all Robinson\'s Toolkit tools for DB setup, deployment, etc.',
+          },
+          cost: {
+            per_job: 'Variable (depends on model and task complexity)',
+            currency: 'USD',
+            note: 'Paid Agent uses BEST PAID models by default, can delegate to FREE Ollama when requested',
+          },
+        };
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(diagnostics, null, 2),
             },
           ],
         };
