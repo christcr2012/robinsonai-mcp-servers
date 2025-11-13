@@ -39,15 +39,45 @@ function getNeonClient(): AxiosInstance {
 
 export async function neonListProjects(args: any) {
   const neonClient = getNeonClient();
+  try {
     const params = new URLSearchParams();
     if (args.limit) params.append('limit', args.limit.toString());
     if (args.search) params.append('search', args.search);
     if (args.cursor) params.append('cursor', args.cursor);
-    if (args.org_id) params.append('org_id', args.org_id);
 
-    const response = await neonClient.get(`/projects?${params.toString()}`);
+    // If org_id not provided, fetch user's default organization
+    let orgId = args.org_id;
+    if (!orgId) {
+      console.error('[NEON] org_id not provided, fetching user organizations...');
+      const orgsResponse = await neonClient.get('/users/me/organizations');
+      const organizations = orgsResponse.data.organizations || [];
+
+      if (organizations.length === 0) {
+        throw new Error('No organizations found for this user. Please create an organization first.');
+      }
+
+      // Use the first organization
+      orgId = organizations[0].id;
+      console.error('[NEON] Using default organization:', orgId);
+    }
+
+    params.append('org_id', orgId);
+
+    const url = `/projects?${params.toString()}`;
+    console.error('[NEON] Fetching projects with URL:', url);
+
+    const response = await neonClient.get(url);
     return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
-  
+  } catch (error: any) {
+    // Log detailed error information for debugging
+    console.error('[NEON ERROR] Failed to list projects:');
+    console.error('[NEON ERROR] Status:', error.response?.status);
+    console.error('[NEON ERROR] Message:', error.response?.data?.message || error.message);
+
+    // Return user-friendly error message
+    const errorMessage = error.response?.data?.message || error.message;
+    throw new Error(`Failed to list Neon projects: ${errorMessage}`);
+  }
 }
 export async function neonListOrganizations(args: any) {
   const neonClient = getNeonClient();
