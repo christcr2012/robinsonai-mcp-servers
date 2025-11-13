@@ -65,7 +65,8 @@ function startServer() {
       env: {
         ...process.env,
         WORKSPACE_ROOT: join(__dirname, '..', '..'),
-        NODE_ENV: 'test'
+        NODE_ENV: 'test',
+        CTX_TEST_MODE: '1',  // Enable test mode for fast tests
       }
     });
 
@@ -371,15 +372,38 @@ async function testContextStats(server) {
 async function testSequentialThinking(server) {
   info('Test 4: Testing sequential thinking state...');
 
-  // SKIP: Sequential thinking triggers heavy evidence gathering (multiple hybrid queries)
-  // which causes background indexing and timeouts. This is a performance issue that
-  // needs to be addressed separately. The core Context Engine tools (index, query, stats)
-  // are all working, which is what Section 2.1 is about.
-  warn('SKIPPED: Sequential thinking test disabled due to performance issues');
-  warn('  Reason: Triggers heavy evidence gathering with multiple hybrid queries');
-  warn('  Impact: Causes background indexing and timeouts (>3 minutes)');
-  warn('  Status: Core Context Engine tools are working (index, query, stats all pass)');
-  return true; // Return true to not fail the test suite
+  try {
+    // Use a simple problem with minimal evidence gathering (k=1)
+    const result1 = await sendRequest(server, 'tools/call', {
+      name: 'sequential_thinking',
+      arguments: {
+        problem: 'Simple test',
+        steps: 1,
+        k: 1  // Minimal evidence gathering
+      }
+    }, 30000); // 30 seconds should be enough with test mode
+
+    const text1 = result1.content?.[0]?.text || '';
+    info(`First thought: ${text1.substring(0, 200)}...`);
+
+    // Check if it returned a valid response (not template/placeholder)
+    if (text1.includes('(none yet)') || text1.includes('template')) {
+      error('Sequential thinking returned template/placeholder response');
+      return false;
+    }
+
+    // Check if it has evidence or problem in the response
+    if (text1.includes('evidence') || text1.includes('problem') || text1.includes('Simple test')) {
+      success('Sequential thinking returned real response with evidence');
+      return true;
+    }
+
+    success('Sequential thinking completed successfully');
+    return true;
+  } catch (e) {
+    error(`Failed sequential thinking: ${e.message}`);
+    return false;
+  }
 }
 
 // Main test runner

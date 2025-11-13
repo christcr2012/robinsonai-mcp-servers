@@ -75,10 +75,12 @@ export class ContextEngine {
 
   /**
    * Ensure repository is indexed (embeddings + BM25 + symbols)
+   * NON-BLOCKING: Schedules background refresh if needed, returns immediately
    */
   async ensureIndexed(): Promise<void> {
     if (this.indexed) {
-      await this.maybeTriggerRefresh();
+      // Non-blocking: just schedule refresh if needed, don't wait
+      this.maybeTriggerRefresh(); // No await!
       return;
     }
 
@@ -92,7 +94,8 @@ export class ContextEngine {
       this.bootstrapPromise = null;
     }
 
-    await this.maybeTriggerRefresh();
+    // Non-blocking: schedule refresh if needed, don't wait
+    this.maybeTriggerRefresh(); // No await!
   }
 
   /**
@@ -540,10 +543,18 @@ export class ContextEngine {
   }
 
   private async maybeTriggerRefresh(): Promise<void> {
+    // Throttle: Don't check if already in flight or checked recently
     if (this.staleCheckInFlight) return;
 
     const now = Date.now();
-    if (now - this.lastStatsCheck < 15000) {
+    // Increased throttle from 15s to 60s to reduce refresh frequency
+    const THROTTLE_MS = 60000; // 1 minute minimum between checks
+    if (now - this.lastStatsCheck < THROTTLE_MS) {
+      return;
+    }
+
+    // Don't trigger if background indexing is already running
+    if (this.backgroundPromise) {
       return;
     }
 

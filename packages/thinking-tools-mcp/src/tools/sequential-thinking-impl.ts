@@ -51,22 +51,18 @@ export async function sequentialThinkingTool(args: any, ctx: ServerContext): Pro
     const problem = args.problem;
     const steps = args.steps || 5;
     const useWeb = args.useWeb ?? false;
-    const k = Math.max(4, Math.min(16, args.k ?? 8));
+    // PERFORMANCE FIX: Limit k to max 4 to reduce evidence gathering
+    const k = Math.max(1, Math.min(4, args.k ?? 2));
 
-    // Gather evidence using blendedSearch (repo + imported context)
-    const variants = Array.from(new Set([
-      problem,
-      problem.replace(/\b(impl|implementation|method)\b/gi, "function"),
-      problem.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
-      `${problem} risks`,
-      `${problem} options`,
-      `${problem} best practices`
-    ]));
+    // PERFORMANCE FIX: Limit variants to reduce hybrid queries
+    // Only use the original problem, not all variants
+    const variants = [problem]; // Reduced from 6 variants to 1
 
     const hits: any[] = [];
     for (const v of variants) {
       try {
-        const results = await ctx.blendedSearch(v, Math.ceil(k / variants.length));
+        // PERFORMANCE FIX: Use smaller k per variant
+        const results = await ctx.blendedSearch(v, k);
         hits.push(...results);
       } catch (e) {
         // Continue if search fails
