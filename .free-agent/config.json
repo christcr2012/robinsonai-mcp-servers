@@ -2,12 +2,47 @@
   "name": "robinsonai-mcp-servers",
   "cmd": {
     "install": "pnpm i",
+    "lint": "pnpm -w lint",
+    "test": "pnpm -w vitest run",
+    "build": "pnpm -w build",
     "eslint": "pnpm -w lint",
     "tsc": "pnpm -w tsc --noEmit",
-    "tests": "pnpm -w vitest run",
-    "build": "pnpm -w build"
+    "tests": "pnpm -w vitest run"
+  },
+  "spec": {
+    "registryPath": "packages/free-agent-mcp/spec/tools.registry.json",
+    "exemplarsGlob": "packages/**/examples/**/*.ts",
+    "generatorModule": "@robinson_ai_systems/free-agent-mcp/generators/ops"
   },
   "specRegistry": "packages/free-agent-mcp/spec/tools.registry.json",
-  "codegenOutDir": ".free-agent/.generated"
+  "codegenOutDir": ".free-agent/.generated",
+  "structure": {
+    "rootPatterns": [
+      "pnpm-workspace.yaml",
+      "package.json"
+    ],
+    "codeDirs": [
+      "packages",
+      "apps"
+    ],
+    "testDirs": [
+      "packages/*/tests",
+      "apps/*/tests",
+      "packages/*/__tests__"
+    ],
+    "languages": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "mjs"
+    ],
+    "frameworks": [
+      "nextjs",
+      "node",
+      "mcp",
+      "react"
+    ]
+  }
 }
 
