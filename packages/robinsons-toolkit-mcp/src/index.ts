@@ -350,6 +350,22 @@ class RobinsonsToolkitServer {
       };
     }
 
+    // Phase 3E: Safety check for dangerous operations
+    // Check if tool is dangerous and requires confirmation
+    if (tool.dangerLevel === 'dangerous') {
+      const confirmDangerous = toolArgs.confirmDangerous;
+
+      // If confirmDangerous is not explicitly set to true, warn but allow execution
+      // This is non-breaking: we log a warning but don't block
+      if (confirmDangerous !== true) {
+        console.warn(`[Robinson Toolkit] ⚠️  DANGER: Executing dangerous tool ${toolName} without confirmDangerous flag`);
+        console.warn(`[Robinson Toolkit] ⚠️  This tool can perform destructive operations (delete, remove, etc.)`);
+        console.warn(`[Robinson Toolkit] ⚠️  To suppress this warning, pass { confirmDangerous: true } in arguments`);
+      } else {
+        console.error(`[Robinson Toolkit] ✅ Dangerous tool ${toolName} confirmed with confirmDangerous flag`);
+      }
+    }
+
     // Dynamic import of handler module
     try {
       console.error(`[Robinson Toolkit] Lazy-loading handler for ${toolName} from ${tool.handler}`);
