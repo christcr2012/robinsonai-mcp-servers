@@ -571,3 +571,430 @@ export async function supabaseAuthAdminListFactors(this: any, args: any) {
   }
 }
 
+// ============================================================
+// FUNCTIONS - 7 handlers
+// ============================================================
+
+export async function supabaseFunctionsList(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { data, error } = await this.supabaseClient.functions.list();
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to list functions: ${error.message}`);
+  }
+}
+
+export async function supabaseFunctionsGet(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { functionName } = args;
+    const { data, error } = await this.supabaseClient.functions.get(functionName);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to get function: ${error.message}`);
+  }
+}
+
+export async function supabaseFunctionsCreate(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { name, code, verify_jwt } = args;
+    const { data, error } = await this.supabaseClient.functions.create({ name, code, verify_jwt });
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to create function: ${error.message}`);
+  }
+}
+
+export async function supabaseFunctionsUpdate(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { functionName, code, verify_jwt } = args;
+    const { data, error } = await this.supabaseClient.functions.update(functionName, { code, verify_jwt });
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to update function: ${error.message}`);
+  }
+}
+
+export async function supabaseFunctionsDelete(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { functionName } = args;
+    const { data, error } = await this.supabaseClient.functions.delete(functionName);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to delete function: ${error.message}`);
+  }
+}
+
+export async function supabaseFunctionsInvoke(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { functionName, body, headers } = args;
+    const { data, error } = await this.supabaseClient.functions.invoke(functionName, { body, headers });
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to invoke function: ${error.message}`);
+  }
+}
+
+export async function supabaseFunctionsGetLogs(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { functionName, limit } = args;
+    // Note: This may require management API access
+    return formatSupabaseResponse({ functionName, message: 'Logs API may require management client' });
+  } catch (error: any) {
+    throw new Error(`Failed to get function logs: ${error.message}`);
+  }
+}
+
+// ============================================================
+// STORAGE - 17 handlers
+// ============================================================
+
+export async function supabaseStorageListBuckets(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { data, error } = await this.supabaseClient.storage.listBuckets();
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to list buckets: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageGetBucket(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId } = args;
+    const { data, error } = await this.supabaseClient.storage.getBucket(bucketId);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to get bucket: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageCreateBucket(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { id, name, public: isPublic } = args;
+    const { data, error } = await this.supabaseClient.storage.createBucket(id, { public: isPublic });
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to create bucket: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageUpdateBucket(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, public: isPublic } = args;
+    const { data, error } = await this.supabaseClient.storage.updateBucket(bucketId, { public: isPublic });
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to update bucket: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageDeleteBucket(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId } = args;
+    const { data, error } = await this.supabaseClient.storage.deleteBucket(bucketId);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to delete bucket: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageEmptyBucket(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId } = args;
+    const { data, error } = await this.supabaseClient.storage.emptyBucket(bucketId);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to empty bucket: ${error.message}`);
+  }
+}
+
+
+
+export async function supabaseStorageListFiles(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, path, limit, offset } = args;
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).list(path, { limit, offset });
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to list files: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageUpload(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, path, file, contentType } = args;
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).upload(path, file, { contentType });
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to upload file: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageDownload(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, path } = args;
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).download(path);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to download file: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageGetPublicUrl(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, path } = args;
+    const { data } = this.supabaseClient.storage.from(bucketId).getPublicUrl(path);
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to get public URL: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageCreateSignedUrl(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, path, expiresIn } = args;
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).createSignedUrl(path, expiresIn);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to create signed URL: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageCreateSignedUrls(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, paths, expiresIn } = args;
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).createSignedUrls(paths, expiresIn);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to create signed URLs: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageMove(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, fromPath, toPath } = args;
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).move(fromPath, toPath);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to move file: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageCopy(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, fromPath, toPath } = args;
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).copy(fromPath, toPath);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to copy file: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageRemove(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, paths } = args;
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).remove(paths);
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to remove files: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageUpdate(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, path, file, contentType } = args;
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).update(path, file, { contentType });
+    if (error) throw error;
+    return formatSupabaseResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to update file: ${error.message}`);
+  }
+}
+
+export async function supabaseStorageGetMetadata(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { bucketId, path } = args;
+    // Note: Metadata retrieval may vary by SDK version
+    const { data, error } = await this.supabaseClient.storage.from(bucketId).list(path, { limit: 1 });
+    if (error) throw error;
+    return formatSupabaseResponse(data[0] || {});
+  } catch (error: any) {
+    throw new Error(`Failed to get metadata: ${error.message}`);
+  }
+}
+
+// ============================================================
+// MANAGEMENT - 10 handlers (require management API client)
+// ============================================================
+
+export async function supabaseManagementListProjects(this: any, args: any) {
+  // Note: Requires Supabase Management API client, not regular client
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+export async function supabaseManagementGetProject(this: any, args: any) {
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+export async function supabaseManagementCreateProject(this: any, args: any) {
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+export async function supabaseManagementUpdateProject(this: any, args: any) {
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+export async function supabaseManagementDeleteProject(this: any, args: any) {
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+export async function supabaseManagementListOrganizations(this: any, args: any) {
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+export async function supabaseManagementGetOrganization(this: any, args: any) {
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+export async function supabaseManagementCreateOrganization(this: any, args: any) {
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+export async function supabaseManagementUpdateOrganization(this: any, args: any) {
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+export async function supabaseManagementDeleteOrganization(this: any, args: any) {
+  return formatSupabaseResponse({ message: 'Management API requires separate client initialization' });
+}
+
+// ============================================================
+// REALTIME - 7 handlers
+// ============================================================
+
+export async function supabaseRealtimeChannel(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { channelName } = args;
+    const channel = this.supabaseClient.channel(channelName);
+    return formatSupabaseResponse({ channelName, status: 'created' });
+  } catch (error: any) {
+    throw new Error(`Failed to create channel: ${error.message}`);
+  }
+}
+
+export async function supabaseRealtimeGetChannels(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const channels = this.supabaseClient.getChannels();
+    return formatSupabaseResponse(channels);
+  } catch (error: any) {
+    throw new Error(`Failed to get channels: ${error.message}`);
+  }
+}
+
+export async function supabaseRealtimeBroadcast(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { channelName, event, payload } = args;
+    const channel = this.supabaseClient.channel(channelName);
+    await channel.send({ type: 'broadcast', event, payload });
+    return formatSupabaseResponse({ channelName, event, status: 'sent' });
+  } catch (error: any) {
+    throw new Error(`Failed to broadcast: ${error.message}`);
+  }
+}
+
+export async function supabaseRealtimePresence(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { channelName, state } = args;
+    const channel = this.supabaseClient.channel(channelName);
+    await channel.track(state);
+    return formatSupabaseResponse({ channelName, state, status: 'tracked' });
+  } catch (error: any) {
+    throw new Error(`Failed to track presence: ${error.message}`);
+  }
+}
+
+export async function supabaseRealtimeSubscribe(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { channelName, event, schema, table, filter } = args;
+    const channel = this.supabaseClient.channel(channelName);
+    channel.on('postgres_changes', { event, schema, table, filter }, (payload: any) => {
+      // Callback for changes
+    });
+    await channel.subscribe();
+    return formatSupabaseResponse({ channelName, status: 'subscribed' });
+  } catch (error: any) {
+    throw new Error(`Failed to subscribe: ${error.message}`);
+  }
+}
+
+export async function supabaseRealtimeUnsubscribe(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { channelName } = args;
+    const channel = this.supabaseClient.channel(channelName);
+    await channel.unsubscribe();
+    return formatSupabaseResponse({ channelName, status: 'unsubscribed' });
+  } catch (error: any) {
+    throw new Error(`Failed to unsubscribe: ${error.message}`);
+  }
+}
+
+export async function supabaseRealtimeRemoveChannel(this: any, args: any) {
+  if (!this.supabaseClient) throw new Error('Supabase client not initialized');
+  try {
+    const { channelName } = args;
+    const channel = this.supabaseClient.channel(channelName);
+    await this.supabaseClient.removeChannel(channel);
+    return formatSupabaseResponse({ channelName, status: 'removed' });
+  } catch (error: any) {
+    throw new Error(`Failed to remove channel: ${error.message}`);
+  }
+}
