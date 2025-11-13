@@ -75,15 +75,19 @@ export class ContextEngine {
 
   /**
    * Ensure repository is indexed (embeddings + BM25 + symbols)
-   * NON-BLOCKING: Schedules background refresh if needed, returns immediately
+   * NON-BLOCKING: Uses existing index immediately, schedules refresh in background
    */
   async ensureIndexed(): Promise<void> {
     if (this.indexed) {
-      // Non-blocking: just schedule refresh if needed, don't wait
-      this.maybeTriggerRefresh(); // No await!
+      // Fire-and-forget: schedule refresh check but don't wait
+      // This runs async in background and won't block queries
+      this.maybeTriggerRefresh().catch(err => {
+        console.warn('[ContextEngine] Background refresh check failed:', err?.message ?? err);
+      });
       return;
     }
 
+    // First-time indexing: must wait for bootstrap
     if (!this.bootstrapPromise) {
       this.bootstrapPromise = this.bootstrapIndex();
     }
@@ -93,9 +97,6 @@ export class ContextEngine {
     } finally {
       this.bootstrapPromise = null;
     }
-
-    // Non-blocking: schedule refresh if needed, don't wait
-    this.maybeTriggerRefresh(); // No await!
   }
 
   /**
@@ -543,48 +544,13 @@ export class ContextEngine {
   }
 
   private async maybeTriggerRefresh(): Promise<void> {
-    // Throttle: Don't check if already in flight or checked recently
-    if (this.staleCheckInFlight) return;
+    // ARCHITECTURAL FIX: Never trigger refresh during active use
+    // Background indexing should only run during idle periods
+    // For now, we disable automatic refresh entirely - it should be
+    // triggered explicitly by a scheduled job, not on every query
 
-    const now = Date.now();
-    // Increased throttle from 15s to 60s to reduce refresh frequency
-    const THROTTLE_MS = 60000; // 1 minute minimum between checks
-    if (now - this.lastStatsCheck < THROTTLE_MS) {
-      return;
-    }
-
-    // Don't trigger if background indexing is already running
-    if (this.backgroundPromise) {
-      return;
-    }
-
-    this.staleCheckInFlight = true;
-    try {
-      const config = await loadContextConfig();
-      if (!config.indexing.backgroundIndexing) {
-        return;
-      }
-
-      const stats = getStats();
-      if (!stats?.updatedAt) {
-        return;
-      }
-
-      const ttlMs = config.indexing.ttlMinutes * 60 * 1000;
-      if (ttlMs <= 0) {
-        return;
-      }
-
-      const age = now - new Date(stats.updatedAt).getTime();
-      if (age > ttlMs) {
-        console.log(`[ContextEngine] Index is stale (${Math.round(age / 1000)}s old). Scheduling background refresh.`);
-        this.enqueueBackgroundIndex({ force: false, reason: 'ttl refresh' });
-      }
-    } catch (error: any) {
-      console.warn('[ContextEngine] Failed to evaluate index freshness:', error?.message ?? error);
-    } finally {
-      this.lastStatsCheck = now;
-      this.staleCheckInFlight = false;
-    }
+    // TODO: Implement proper idle detection (e.g., no queries for 5+ minutes)
+    // For now, users can manually trigger refresh with context_index_full
+    return;
   }
 }

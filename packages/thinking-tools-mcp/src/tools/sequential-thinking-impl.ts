@@ -51,22 +51,18 @@ export async function sequentialThinkingTool(args: any, ctx: ServerContext): Pro
     const problem = args.problem;
     const steps = args.steps || 5;
     const useWeb = args.useWeb ?? false;
-    // PERFORMANCE FIX: Limit k to max 4 to reduce evidence gathering
-    const k = Math.max(1, Math.min(4, args.k ?? 2));
+    // Reasonable default: 4-8 results is enough for most thinking tasks
+    const k = Math.max(2, Math.min(12, args.k ?? 6));
 
-    // PERFORMANCE FIX: Limit variants to reduce hybrid queries
-    // Only use the original problem, not all variants
-    const variants = [problem]; // Reduced from 6 variants to 1
-
+    // ARCHITECTURAL FIX: Use focused queries, not exhaustive variants
+    // Most thinking tasks need 1-2 focused queries, not 6 variants
+    // If user needs more evidence, they can increase k parameter
     const hits: any[] = [];
-    for (const v of variants) {
-      try {
-        // PERFORMANCE FIX: Use smaller k per variant
-        const results = await ctx.blendedSearch(v, k);
-        hits.push(...results);
-      } catch (e) {
-        // Continue if search fails
-      }
+    try {
+      const results = await ctx.blendedSearch(problem, k);
+      hits.push(...results);
+    } catch (e) {
+      // Continue if search fails
     }
 
     // Optional web evidence

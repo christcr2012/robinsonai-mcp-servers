@@ -65,8 +65,7 @@ function startServer() {
       env: {
         ...process.env,
         WORKSPACE_ROOT: join(__dirname, '..', '..'),
-        NODE_ENV: 'test',
-        CTX_TEST_MODE: '1',  // Enable test mode for fast tests
+        NODE_ENV: 'test'
       }
     });
 
@@ -373,15 +372,16 @@ async function testSequentialThinking(server) {
   info('Test 4: Testing sequential thinking state...');
 
   try {
-    // Use a simple problem with minimal evidence gathering (k=1)
+    // Use a simple problem with reasonable evidence gathering
+    // Default k=6 should work fine with the architectural fixes
     const result1 = await sendRequest(server, 'tools/call', {
       name: 'sequential_thinking',
       arguments: {
-        problem: 'Simple test',
-        steps: 1,
-        k: 1  // Minimal evidence gathering
+        problem: 'How to implement user authentication',
+        steps: 2
+        // Using default k=6 to test real-world performance
       }
-    }, 30000); // 30 seconds should be enough with test mode
+    }, 30000); // 30 seconds should be enough with proper architecture
 
     const text1 = result1.content?.[0]?.text || '';
     info(`First thought: ${text1.substring(0, 200)}...`);
@@ -393,7 +393,7 @@ async function testSequentialThinking(server) {
     }
 
     // Check if it has evidence or problem in the response
-    if (text1.includes('evidence') || text1.includes('problem') || text1.includes('Simple test')) {
+    if (text1.includes('evidence') || text1.includes('problem') || text1.includes('authentication')) {
       success('Sequential thinking returned real response with evidence');
       return true;
     }

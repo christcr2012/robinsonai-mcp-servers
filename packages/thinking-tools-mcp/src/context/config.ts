@@ -128,9 +128,6 @@ export async function loadContextConfig(force = false): Promise<ContextConfig> {
     const provider = await resolveEmbeddingProvider();
     const fallbackDimensions = envInt('CTX_FALLBACK_EMBED_DIMS', 384);
 
-    // TEST MODE: Disable background indexing and use small limits
-    const isTestMode = envToggle('CTX_TEST_MODE', false);
-
     const config: ContextConfig = {
       workspaceRoot,
       contextRoot,
@@ -140,11 +137,11 @@ export async function loadContextConfig(force = false): Promise<ContextConfig> {
         fallbackDimensions,
       },
       indexing: {
-        ttlMinutes: isTestMode ? 999999 : envInt('RCE_INDEX_TTL_MINUTES', 20), // Never expire in test mode
-        maxChangedFiles: isTestMode ? 10 : envInt('RCE_MAX_CHANGED_PER_RUN', 1000), // Limit to 10 files in test mode
+        ttlMinutes: envInt('RCE_INDEX_TTL_MINUTES', 20),
+        maxChangedFiles: envInt('RCE_MAX_CHANGED_PER_RUN', 1000),
         lazyIndexing: envToggle('RCE_LAZY_INDEXING', true),
-        backgroundIndexing: isTestMode ? false : envToggle('RCE_BACKGROUND_INDEXING', true), // Disable in test mode
-        quickFileLimit: isTestMode ? 10 : envInt('RCE_QUICK_FILE_LIMIT', 240), // Limit to 10 files in test mode
+        backgroundIndexing: envToggle('RCE_BACKGROUND_INDEXING', true),
+        quickFileLimit: envInt('RCE_QUICK_FILE_LIMIT', 240),
       },
       storage: {
         compressionEnabled: envToggle('RCE_STORAGE_COMPRESS', true),
