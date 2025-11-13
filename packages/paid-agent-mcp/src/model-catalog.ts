@@ -24,7 +24,7 @@
 import { selectLLMForTask, type LLMTaskContext, type LLMRecommendation } from './llm-selector.js';
 
 export interface ModelConfig {
-  provider: 'ollama' | 'openai' | 'claude' | 'voyage';
+  provider: 'ollama' | 'openai' | 'claude' | 'moonshot' | 'voyage';
   model: string;
   baseURL?: string;
   costPerInputToken: number;
@@ -102,7 +102,47 @@ export const MODEL_CATALOG: Record<string, ModelConfig> = {
     contextWindow: 16384,
     description: 'Meta\'s CodeLlama, excellent for code generation',
   },
-  
+
+  // ========================================
+  // PAID MOONSHOT/KIMI MODELS (CHEAPEST!)
+  // ========================================
+
+  'moonshot/moonshot-v1-8k': {
+    provider: 'moonshot',
+    model: 'moonshot-v1-8k',
+    baseURL: process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1',
+    costPerInputToken: 0.0000002,   // $0.20 per 1M tokens
+    costPerOutputToken: 0.000002,   // $2.00 per 1M tokens
+    quality: 'standard',
+    maxTokens: 8192,
+    contextWindow: 8192,
+    description: 'Moonshot 8K - Cheapest paid option, great for code generation',
+  },
+
+  'moonshot/moonshot-v1-32k': {
+    provider: 'moonshot',
+    model: 'moonshot-v1-32k',
+    baseURL: process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1',
+    costPerInputToken: 0.0000002,   // $0.20 per 1M tokens (same as 8k)
+    costPerOutputToken: 0.000002,   // $2.00 per 1M tokens (same as 8k)
+    quality: 'premium',
+    maxTokens: 32768,
+    contextWindow: 32768,
+    description: 'Moonshot 32K - Cheapest paid option with longer context',
+  },
+
+  'moonshot/kimi-k2-code': {
+    provider: 'moonshot',
+    model: 'moonshot-v1-32k',  // Kimi K2 uses the moonshot-v1-32k model
+    baseURL: process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1',
+    costPerInputToken: 0.0000002,   // $0.20 per 1M tokens
+    costPerOutputToken: 0.000002,   // $2.00 per 1M tokens
+    quality: 'best',  // Kimi K2 is the best Moonshot model for coding
+    maxTokens: 32768,
+    contextWindow: 32768,
+    description: 'Kimi K2 code-capable model from Moonshot (cheap, high quality) - DEFAULT REMOTE CODING MODEL',
+  },
+
   // ========================================
   // PAID OPENAI MODELS
   // ========================================
@@ -343,7 +383,7 @@ export function selectBestModel(params: {
   maxCost?: number;
   taskComplexity?: 'simple' | 'medium' | 'complex' | 'expert';
   preferFree?: boolean;
-  preferredProvider?: 'ollama' | 'openai' | 'claude' | 'voyage' | 'any';
+  preferredProvider?: 'ollama' | 'openai' | 'claude' | 'moonshot' | 'voyage' | 'any';
   taskType?: 'code_generation' | 'code_analysis' | 'refactoring' | 'test_generation' | 'documentation' | 'debugging';
   language?: string;
   framework?: string;
@@ -414,6 +454,15 @@ export function selectBestModel(params: {
   if (preferredProvider === 'voyage') {
     console.error('[ModelCatalog] preferredProvider=voyage → Using Voyage AI');
     return resolveAvailableModel(selectVoyageModel(taskComplexity, maxCost, minQuality), {
+      minQuality,
+      taskComplexity,
+      maxCost,
+      preferFree,
+    });
+  }
+  if (preferredProvider === 'moonshot') {
+    console.error('[ModelCatalog] preferredProvider=moonshot → Using PAID Moonshot/Kimi');
+    return resolveAvailableModel(selectMoonshotModel(taskComplexity, maxCost), {
       minQuality,
       taskComplexity,
       maxCost,
@@ -594,6 +643,26 @@ function selectVoyageModel(
   return selectFreeModel(minQuality);
 }
 
+/**
+ * Select best Moonshot/Kimi model
+ *
+ * Moonshot is EXTREMELY cheap ($0.20/$2.00 per 1M tokens)
+ * Best bang for buck for code generation and analysis
+ * Kimi K2 is the default remote coding model
+ */
+function selectMoonshotModel(
+  taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
+  maxCost: number
+): string {
+  // For any task, prefer Kimi K2 (best quality, same price as 32K)
+  if (maxCost >= 0.01) {
+    return 'moonshot/kimi-k2-code';  // DEFAULT REMOTE CODING MODEL
+  }
+
+  // Fallback to 8K if budget is extremely tight
+  return 'moonshot/moonshot-v1-8k';
+}
+
 function selectProviderModel(
   provider: ModelConfig['provider'],
   taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
@@ -608,6 +677,8 @@ function selectProviderModel(
       return selectOpenAIModel(taskComplexity, maxCost);
     case 'claude':
       return selectClaudeModel(taskComplexity, maxCost);
+    case 'moonshot':
+      return selectMoonshotModel(taskComplexity, maxCost);
     case 'voyage':
       return selectVoyageModel(taskComplexity, maxCost, minQuality, taskType);
     default:
@@ -679,7 +750,7 @@ export function getModelConfig(modelId: string): ModelConfig {
  * List all available models
  */
 export function listModels(filter?: {
-  provider?: 'ollama' | 'openai' | 'claude' | 'voyage';
+  provider?: 'ollama' | 'openai' | 'claude' | 'moonshot' | 'voyage';
   quality?: 'basic' | 'standard' | 'premium' | 'best';
   maxCost?: number;
 }): Array<{ id: string; config: ModelConfig }> {
