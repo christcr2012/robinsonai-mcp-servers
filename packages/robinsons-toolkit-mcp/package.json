@@ -18,6 +18,7 @@
     "build:registry": "node scripts/generate-registry.mjs",
     "build:metadata": "node scripts/add-tool-metadata.mjs",
     "build:smoke": "node scripts/smoke.mjs",
+    "docs": "node scripts/generate-docs.mjs",
     "clean": "rm -rf dist",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
