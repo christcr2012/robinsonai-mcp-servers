@@ -30,6 +30,7 @@ import { contextSmartQueryTool, contextSmartQueryDescriptor } from './tools/cont
 import { contextStatsTool, contextStatsDescriptor } from './tools/context_stats.js';
 import { ensureFreshIndexTool, ensureFreshIndexDescriptor } from './tools/ensure_fresh_index.js';
 import { contextIndexFullTool, contextIndexFullDescriptor } from './tools/context_index_full.js';
+import { contextRefreshTool, contextRefreshDescriptor } from './tools/context_refresh.js';
 
 // Stateful framework implementations
 import { devilsAdvocateTool, devilsAdvocateDescriptor } from './tools/framework-devils-advocate.js';
@@ -145,6 +146,10 @@ const registry: Record<string, Entry> = {
   [contextStatsDescriptor.name]: {
     ...contextStatsDescriptor,
     handler: contextStatsTool,
+  },
+  [contextRefreshDescriptor.name]: {
+    ...contextRefreshDescriptor,
+    handler: contextRefreshTool,
   },
 
   // Context7 integration tools
@@ -673,10 +678,11 @@ server.setRequestHandler(InitializeRequestSchema, async (request) => ({
           name: "context_engine",
           display_name: "Context Engine",
           description: "Semantic search and indexing for codebase context",
-          tool_count: 9,
+          tool_count: 10,
           tools: [
             "context_index_repo",
             "context_index_full",
+            "context_refresh",
             "ensure_fresh_index",
             "context_query",
             "context_smart_query",

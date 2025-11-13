@@ -60,6 +60,8 @@ export class ContextEngine {
   private backgroundPromise: Promise<void> | null = null;
   private staleCheckInFlight = false;
   private lastStatsCheck = 0;
+  private lastQueryTime = 0; // Track last query time for idle detection
+  private idleCheckInterval: NodeJS.Timeout | null = null; // Interval for checking idle state
   private quickSearch: QuickSearch | null = null;
 
   private constructor(private root: string) {
@@ -71,6 +73,9 @@ export class ContextEngine {
     if (autoWatch) {
       this.startWatcher();
     }
+
+    // Start idle detection for background refresh
+    this.startIdleDetection();
   }
 
   /**
@@ -109,6 +114,9 @@ export class ContextEngine {
    * 4. Return top k results
    */
   async search(query: string, k: number = 12): Promise<any[]> {
+    // Track query time for idle detection
+    this.lastQueryTime = Date.now();
+
     await this.ensureIndexed();
 
     // Detect query intent
@@ -543,14 +551,96 @@ export class ContextEngine {
     this.backgroundPromise = null;
   }
 
-  private async maybeTriggerRefresh(): Promise<void> {
-    // ARCHITECTURAL FIX: Never trigger refresh during active use
-    // Background indexing should only run during idle periods
-    // For now, we disable automatic refresh entirely - it should be
-    // triggered explicitly by a scheduled job, not on every query
+  /**
+   * Start idle detection interval
+   * Checks every minute if system has been idle long enough to trigger refresh
+   */
+  private startIdleDetection(): void {
+    // Check every minute
+    this.idleCheckInterval = setInterval(async () => {
+      await this.checkIdleAndRefresh();
+    }, 60000); // 60 seconds
 
-    // TODO: Implement proper idle detection (e.g., no queries for 5+ minutes)
-    // For now, users can manually trigger refresh with context_index_full
+    // Don't keep process alive just for this interval
+    if (this.idleCheckInterval.unref) {
+      this.idleCheckInterval.unref();
+    }
+  }
+
+  /**
+   * Stop idle detection (cleanup)
+   */
+  private stopIdleDetection(): void {
+    if (this.idleCheckInterval) {
+      clearInterval(this.idleCheckInterval);
+      this.idleCheckInterval = null;
+    }
+  }
+
+  /**
+   * Check if system is idle and trigger refresh if needed
+   */
+  private async checkIdleAndRefresh(): Promise<void> {
+    try {
+      const config = await loadContextConfig();
+
+      // Skip if background indexing is disabled
+      if (!config.indexing.backgroundIndexing) {
+        return;
+      }
+
+      // Skip if already indexing
+      if (this.backgroundPromise) {
+        return;
+      }
+
+      const now = Date.now();
+      const idleMs = config.indexing.idleMinutes * 60 * 1000;
+
+      // Check if system has been idle long enough
+      const timeSinceLastQuery = now - this.lastQueryTime;
+      if (timeSinceLastQuery < idleMs) {
+        return; // Not idle long enough
+      }
+
+      // Check if index is stale
+      const stats = getStats();
+      if (!stats?.updatedAt) {
+        return;
+      }
+
+      const ttlMs = config.indexing.ttlMinutes * 60 * 1000;
+      if (ttlMs <= 0) {
+        return;
+      }
+
+      const age = now - new Date(stats.updatedAt).getTime();
+      if (age > ttlMs) {
+        console.log(`[ContextEngine] System idle for ${Math.round(timeSinceLastQuery / 1000 / 60)}m, index is stale (${Math.round(age / 1000 / 60)}m old). Triggering background refresh.`);
+        this.enqueueBackgroundIndex({ force: false, reason: 'idle refresh' });
+      }
+    } catch (error: any) {
+      console.warn('[ContextEngine] Idle detection check failed:', error?.message ?? error);
+    }
+  }
+
+  /**
+   * Manually trigger background refresh (for explicit refresh tool)
+   */
+  async triggerRefresh(force: boolean = false): Promise<void> {
+    console.log(`[ContextEngine] Manual refresh triggered (force: ${force})`);
+    this.enqueueBackgroundIndex({ force, reason: 'manual refresh' });
+
+    // Wait for background queue to complete
+    if (this.backgroundPromise) {
+      await this.backgroundPromise;
+    }
+  }
+
+  private async maybeTriggerRefresh(): Promise<void> {
+    // ARCHITECTURAL FIX: Never trigger refresh during active queries
+    // Background indexing only runs during idle periods (see checkIdleAndRefresh)
+    // This method is now a no-op - idle detection handles refresh automatically
     return;
   }
 }

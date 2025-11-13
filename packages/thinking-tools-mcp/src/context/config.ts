@@ -17,6 +17,7 @@ export interface ContextConfig {
     lazyIndexing: boolean;
     backgroundIndexing: boolean;
     quickFileLimit: number;
+    idleMinutes: number; // Minutes of no queries before triggering background refresh
   };
   storage: {
     compressionEnabled: boolean;
@@ -142,6 +143,7 @@ export async function loadContextConfig(force = false): Promise<ContextConfig> {
         lazyIndexing: envToggle('RCE_LAZY_INDEXING', true),
         backgroundIndexing: envToggle('RCE_BACKGROUND_INDEXING', true),
         quickFileLimit: envInt('RCE_QUICK_FILE_LIMIT', 240),
+        idleMinutes: envInt('RCE_IDLE_MINUTES', 5), // Default: 5 minutes of no queries
       },
       storage: {
         compressionEnabled: envToggle('RCE_STORAGE_COMPRESS', true),
