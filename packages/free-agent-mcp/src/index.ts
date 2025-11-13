@@ -2388,6 +2388,21 @@ Generate the modified section now:`;
       });
     }
 
+    // Phase FA-2 Step 3: Add external documentation from Context7
+    if (contextResult.external_docs && contextResult.external_docs.length > 0) {
+      parts.push(`### External Documentation (Context7):\n`);
+      contextResult.external_docs.slice(0, 3).forEach((doc: any, index: number) => {
+        parts.push(`${index + 1}. **${doc.title}**`);
+        if (doc.uri) {
+          parts.push(`   - URL: ${doc.uri}`);
+        }
+        if (doc.snippet) {
+          parts.push(`   - Summary: ${doc.snippet.substring(0, 200)}${doc.snippet.length > 200 ? '...' : ''}`);
+        }
+        parts.push('');
+      });
+    }
+
     // Add recommended next steps
     if (contextResult.recommended_next_steps && contextResult.recommended_next_steps.length > 0) {
       parts.push(`### Recommended Next Steps:\n`);

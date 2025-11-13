@@ -7,6 +7,8 @@ import type { ServerContext } from '../lib/context.js';
 import { contextQueryTool } from './context_query.js';
 import { contextFindSymbolTool } from './context_find_symbol.js';
 import { contextNeighborhoodTool } from './context_neighborhood.js';
+import { context7SearchLibraries } from './context7.js';
+import { ctxImportEvidenceTool } from './ctx_import_evidence.js';
 
 export const contextSmartQueryDescriptor = {
   name: 'context_smart_query',
@@ -57,8 +59,51 @@ export async function contextSmartQueryTool(args: any, ctx: ServerContext) {
 
   let result: any;
   let usedTool: string;
+  let externalDocs: any[] = [];
 
   try {
+    // Phase FA-2 Step 3: Check if question references a library/framework
+    const libraryMatch = detectLibraryQuery(question);
+    if (libraryMatch) {
+      console.log(`[context_smart_query] Detected library query: ${libraryMatch.library}`);
+      try {
+        // Call Context7 to get official documentation
+        const context7Result = await context7SearchLibraries({
+          query: `${libraryMatch.library} ${libraryMatch.topic || ''}`.trim(),
+          limit: 5,
+        });
+
+        if (context7Result && !context7Result.isError) {
+          const context7Data = JSON.parse(context7Result.content[0].text);
+
+          // Import Context7 results as evidence
+          if (context7Data.results && context7Data.results.length > 0) {
+            const evidenceItems = context7Data.results.map((item: any) => ({
+              source: 'context7',
+              title: item.title || item.name || '',
+              snippet: item.snippet || item.summary || '',
+              uri: item.url || item.link || '',
+              score: item.score || 0.9,
+              tags: ['external', 'context7', libraryMatch.library],
+              raw: item,
+            }));
+
+            await ctxImportEvidenceTool({
+              items: evidenceItems,
+              group: `external/context7/${libraryMatch.library}`,
+              upsert: true,
+            }, ctx);
+
+            externalDocs = evidenceItems;
+            console.log(`[context_smart_query] Imported ${evidenceItems.length} Context7 results as evidence`);
+          }
+        }
+      } catch (error: any) {
+        console.warn(`[context_smart_query] Context7 query failed:`, error.message);
+        // Continue without external docs - don't fail the whole query
+      }
+    }
+
     switch (route.type) {
       case 'symbol':
         usedTool = 'context_find_symbol';
@@ -88,7 +133,8 @@ export async function contextSmartQueryTool(args: any, ctx: ServerContext) {
         tool_used: usedTool,
       },
       ...result,
-      recommended_next_steps: generateNextSteps(result, route.type),
+      external_docs: externalDocs,
+      recommended_next_steps: generateNextSteps(result, route.type, externalDocs),
     };
   } catch (error: any) {
     return {
@@ -104,6 +150,54 @@ interface RouteDecision {
   reason: string;
   symbolName?: string;
   filePath?: string;
+}
+
+interface LibraryMatch {
+  library: string;
+  topic?: string;
+}
+
+/**
+ * Detect if a question references a library or framework
+ */
+function detectLibraryQuery(question: string): LibraryMatch | null {
+  const lowerQuestion = question.toLowerCase();
+
+  // Common libraries and frameworks
+  const libraries = [
+    'nextauth', 'next-auth', 'prisma', 'supabase', 'vercel', 'react', 'next.js', 'nextjs',
+    'express', 'fastify', 'nestjs', 'typescript', 'tailwind', 'shadcn', 'radix',
+    'trpc', 'graphql', 'apollo', 'redux', 'zustand', 'jotai', 'recoil',
+    'vitest', 'jest', 'playwright', 'cypress', 'testing-library',
+    'zod', 'yup', 'joi', 'valibot',
+    'drizzle', 'kysely', 'typeorm', 'sequelize',
+    'stripe', 'clerk', 'auth0', 'firebase',
+    'aws', 'azure', 'gcp', 'cloudflare',
+    'docker', 'kubernetes', 'terraform',
+  ];
+
+  for (const lib of libraries) {
+    const libPattern = new RegExp(`\\b${lib.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    if (libPattern.test(question)) {
+      // Extract topic if present
+      const topicPatterns = [
+        new RegExp(`${lib}\\s+(authentication|auth|setup|configuration|migration|deployment|testing|api|hooks|components)`, 'i'),
+        new RegExp(`how\\s+to\\s+use\\s+${lib}\\s+for\\s+(.+?)(?:\\?|$)`, 'i'),
+        new RegExp(`${lib}\\s+(.+?)\\s+example`, 'i'),
+      ];
+
+      for (const pattern of topicPatterns) {
+        const match = question.match(pattern);
+        if (match && match[1]) {
+          return { library: lib, topic: match[1] };
+        }
+      }
+
+      return { library: lib };
+    }
+  }
+
+  return null;
 }
 
 function determineRoute(question: string, fileHint: string, symbolHint: string, searchMode: string): RouteDecision {
@@ -222,7 +316,7 @@ function parseQueryResult(queryResult: any, question: string): any {
   };
 }
 
-function generateNextSteps(result: any, routeType: string): string[] {
+function generateNextSteps(result: any, routeType: string, externalDocs?: any[]): string[] {
   if (result.error) {
     return [
       'Try running context_index_repo to build/refresh the index',
@@ -232,6 +326,15 @@ function generateNextSteps(result: any, routeType: string): string[] {
   }
 
   const steps: string[] = [];
+
+  // Add external docs recommendations first
+  if (externalDocs && externalDocs.length > 0) {
+    steps.push(`Review official documentation from Context7 (${externalDocs.length} results)`);
+    const topDoc = externalDocs[0];
+    if (topDoc.uri) {
+      steps.push(`Check official docs: ${topDoc.title || topDoc.uri}`);
+    }
+  }
 
   if (routeType === 'symbol' && result.top_hits?.length) {
     const hit = result.top_hits[0];
