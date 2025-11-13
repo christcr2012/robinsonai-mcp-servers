@@ -1,0 +1,1874 @@
+Okay, I dug through your repo in detail: Free Agent core + Free Agent MCP + Thinking Tools MCP (Context Engine + Context7) + Paid Agent + shared-llm. You’ve actually built a legit multi-agent coding stack already — it just isn’t operationalized into a reliable “do the work for me” coding agent yet.
+
+Let me give you:
+
+What’s going wrong conceptually
+
+A concrete upgrade plan for Free Agent → Versatile Coding Agent
+
+A plan to fix Thinking Tools MCP + Context Engine + Context7
+
+How to evolve Paid Agent into the “premium” version
+
+How to plug in Moonshot / Kimi K2 cleanly
+
+I’ll phrase the main parts as instructions Augment can follow, just like your earlier phases.
+
+1. High-level diagnosis (what’s wrong right now)
+
+From the code and docs:
+
+free-agent-core is solid:
+adapters, pattern contracts, pipeline, evals, diff safety, etc.
+
+free-agent-mcp has:
+
+a smart model catalog & router (Ollama + OpenAI + Anthropic)
+
+a task classifier (code_generation, toolkit_call, thinking_tool_call, etc.)
+
+agents for:
+
+CodeGenerator, CodeAnalyzer, CodeRefactor
+
+context & memory, safety gates, PR-quality pack, sandbox, etc.
+
+a client for Thinking Tools MCP (thinking-client)
+
+a client for Robinson’s Toolkit (via shared-llm toolkit client)
+
+But in practice, you experience:
+
+“I still can’t use Free Agent to write code or do things for me.”
+
+From the architecture, the likely pain points are:
+
+Entrypoint is too complex
+You have a lot of knobs (task types, tiers, quality, tool categories, etc.), but not a single, obvious “Do this coding task in this repo” MCP tool that Just Works.
+
+Repo integration is brittle / implicit
+free-agent-core expects a repo adapter. If the repo adapter auto-discovery or config isn’t right, the agent has weak context and makes bad file/path decisions.
+
+Context engine + Thinking Tools are present but not cleanly “in the loop”
+There is a Thinking Tools client and heuristics (task type thinking_tool_call, context_query detection), but they aren’t systematically used as a first-class step in the coding loop.
+
+Model selection is smart, but you don’t have a reliable “cheap but good default”
+You want:
+
+local Ollama for cheap/free
+
+but still high-quality coding behavior
+
+and optionally paid models when necessary
+
+Paid Agent is separate but not clearly positioned as “Free Agent but more powerful”
+Right now it’s more like a sibling with similar logic, not a tiered upgrade.
+
+So: the ingredients are there — but they’re not wired into one clean, dependable, repo-aware coding pipeline.
+
+2. Plan: Free Agent → “Versatile Coding Agent v2”
+2.1 Design the One True Entry Tool
+
+You already have the notion of a “versatile” task type in free-agent-mcp:
+
+type VersatileTaskType =
+  | 'code_generation'
+  | 'code_analysis'
+  | 'refactoring'
+  | 'test_generation'
+  | 'documentation'
+  | 'toolkit_call'
+  | 'thinking_tool_call'
+  | 'file_editing';
+
+
+But what you need is a single MCP tool that:
+
+Takes:
+
+task (natural language)
+
+repo (path or identifier)
+
+optional config: tier, quality, max_cost, prefer_free, allow_paid, allow_toolkit, etc.
+
+Does:
+
+classify the task
+
+wire up the proper repo adapter
+
+use context engine / Thinking Tools when needed
+
+generate patches
+
+run tests / lint if available
+
+return a clear result: what changed, what passed, what failed
+
+👉 Augment task:
+
+Create/standardize a single MCP tool, e.g.:
+
+Name: free_agent_run_task
+
+Category: free_agent
+
+Args:
+
+{
+  "task": "string",
+  "repo_path": "string",
+  "kind": "feature | bugfix | refactor | research",
+  "tier": "optional 'free' | 'paid'",
+  "quality": "optional 'fast' | 'balanced' | 'best' | 'auto'",
+  "allowToolkit": "boolean (default true)",
+  "allowThinkingTools": "boolean (default true)",
+  "max_cost_usd": "optional number",
+  "dry_run": "optional boolean (just plan, don’t apply)"
+}
+
+
+Internally:
+
+This calls runFreeAgent from free-agent-core with:
+
+the repo adapter
+
+the task string
+
+kind / tier / quality mapped from args.
+
+Return:
+
+summary of:
+
+chosen models
+
+files changed
+
+tests run
+
+diffs (formatted nicely, e.g. unified diff)
+
+any context / evidence used
+
+This becomes your “Augment-killer” functionally.
+
+2.2 Make Repo Adapters Just Work
+
+free-agent-core uses discover(repo) + loadAdapter(). If the adapter is missing or generic, the agent has no idea how your monorepo is structured.
+
+👉 Augment task: for Robinson’s own repos (especially this MCP repo), build a first-class adapter.
+
+In packages/free-agent-core/src/repo:
+
+adapter.ts + discover.ts + prompts.ts already exist.
+
+Add an explicit adapter config for your monorepo, e.g.:
+
+// pseudo
+const ROBINSON_MONOREPO_ADAPTER: Adapter = {
+  // folder layout
+  rootPatterns: [...],
+  codeDirs: ['packages', 'apps'],
+  testDirs: ['tests', 'apps/*/tests'],
+  // commands
+  buildCommand: 'pnpm build',
+  testCommand: 'pnpm test',
+  lintCommand: 'pnpm lint',
+  // language / framework hints
+  languages: ['ts', 'tsx', 'js', 'py'],
+  frameworks: ['nextjs', 'node', 'mcp'],
+};
+
+
+Make discover(repo) load this adapter when it detects this repo (package.json names, monorepo structure, etc.)
+
+Result: Free Agent now knows where code lives, where tests live, and how to build the project instead of guessing.
+
+2.3 Tighten the Coding Loop
+
+In free-agent-mcp/src/agents you have:
+
+code-generator.ts
+
+code-analyzer.ts
+
+code-refactor.ts
+
+task-router.ts
+
+sandbox-runner.ts
+
+safety-gates.ts
+
+impacted-tests.ts, etc.
+
+You want these to actually run for each free_agent_run_task call:
+
+Pipeline for a “code task”:
+
+Understand task
+
+Run a short “analysis” pass (cheap model) to:
+
+extract goals
+
+identify target files / components
+
+identify potential APIs to call
+
+Optionally use Thinking Tools (see Section 3) for complex reasoning tasks.
+
+Plan edits
+
+Build a concrete plan: list of files to edit, operations to perform.
+
+Use repo utilities to confirm paths exist.
+
+Generate code
+
+Use CodeGenerator with a coding model (DeepSeek/Qwen/Codellama or Moonshot Kimi later).
+
+Produce patches, not random code blobs.
+
+Run gates & tests
+
+Run:
+
+TypeScript build / test where available
+
+Lint
+
+If failing, either:
+
+attempt automatic fix, or
+
+return error + suggestions explicitly in MCP reply.
+
+Return
+
+Summarize:
+
+what was changed
+
+whether tests passed
+
+what’s left for the human to do
+
+👉 Augment task:
+
+Ensure the above pipeline is the default path for kind = 'feature' | 'bugfix' | 'refactor'.
+
+Ensure there is no “just stream text and bail” path for those kinds; patches + tests must be the default.
+
+2.4 Hard “Free-first, Paid-when-needed” model policy
+
+You already have:
+
+model-catalog.ts with Ollama + OpenAI + Anthropic and cost metadata.
+
+shared-llm/llm-router.ts with ProviderName = 'ollama' | 'openai' | 'anthropic'.
+
+👉 Augment task:
+
+For Free Agent:
+
+default preferFree = true
+
+only use paid models when:
+
+tier === 'paid', or
+
+allowPaid === true AND model-catalog decides it’s needed and within max_cost_usd.
+
+Add a simple “cost guard”:
+
+Estimate total cost via estimateTaskCost before committing.
+
+If over budget:
+
+return a clear error:
+“This task is estimated at $X, which exceeds the configured budget $Y. Either simplify the task or raise the budget.”
+
+This makes Free Agent usable without surprise charges.
+
+3. Thinking Tools MCP + Context Engine + Context7
+
+You already have a really rich Thinking Tools MCP:
+
+64 tools: cognitive frameworks, context engine, evaluation tools, etc.
+
+A proper Context Engine under packages/thinking-tools-mcp/src/context
+
+A Context7 integration (context7.ts, context7_adapter.ts, context7_bridge.ts).
+
+But from your comment:
+
+“I need you to help me fix my thinking tools mcp and it's Robinson's Context Engine and it's custom Context7 integration…”
+
+3.1 Stabilize Thinking Tools MCP surface
+
+You have STANDARDIZATION-PLAN.md and performance docs. That suggests:
+
+Some tool names were mid-migration (framework_*, context_*, etc.)
+
+There may be partially-updated handlers.
+
+👉 Augment task (meta-level):
+
+Re-run test-tools.mjs and test-health.mjs in packages/thinking-tools-mcp.
+
+Ensure:
+
+Every tool listed in the registry has a working handler.
+
+Tool names follow the standardization plan (especially context_*).
+
+Fix any remaining mismatches (same method you used across other MCPs: use registry as source of truth, update handlers).
+
+3.2 Make Context Engine the one obvious context entrypoint
+
+Key Context Engine tools (from code & plan):
+
+context_index_repo / context_index_full
+
+context_query
+
+context_stats
+
+context_reset
+
+context_neighborhood
+
+context_retrieve_code
+
+context_find_symbol
+
+context_find_callers
+
+👉 Augment task:
+
+Ensure these tools:
+
+exist,
+
+are documented,
+
+are performant on your monorepo (test against this repo).
+
+Add one “front door” tool, e.g. context_smart_query, that:
+
+takes:
+
+question
+
+optional file_hint, symbol_hint, search_mode
+
+internally routes to:
+
+context_query, or
+
+context_find_symbol + context_neighborhood, etc.
+
+returns structured results:
+
+top hits
+
+snippets
+
+file paths
+
+recommended next steps.
+
+3.3 Wire Context Engine into Free Agent
+
+In free-agent-mcp:
+
+You already detect “context-like” tasks with regex and route to toolkit_call / thinking_tool_call.
+
+👉 Augment task:
+
+For any free_agent_run_task where:
+
+user asks about “where is X?”, “how does Y work?”, “what files handle Z?”
+
+Run an internal context step before code generation:
+
+Call context_smart_query (Thinking Tools MCP) with the task.
+
+Attach retrieved snippets + file paths to the code generation prompt.
+
+Log these in the result so the user can see what evidence was used.
+
+This is how you get path correctness and relevant edits instead of random code.
+
+3.4 Fix & use Context7 bridge
+
+You have:
+
+context7.ts – direct Context7 HTTP API tools
+
+context7_adapter.ts – pulls Context7 results & converts to “evidence”
+
+context7_bridge.ts – glue to Context Engine.
+
+👉 Augment task:
+
+Verify that:
+
+CONTEXT7_API_KEY env var is read correctly.
+
+Context7 tools handle:
+
+search
+
+fetch docs / examples
+
+migration guides.
+
+Extend Context Engine to:
+
+When a query references a library/framework (e.g. “NextAuth”, “Prisma”, “Supabase”), optionally:
+
+call Context7 tools,
+
+convert results into context “evidence” using ctxImportEvidenceTool,
+
+include them in context_smart_query results.
+
+Then, Free Agent can automatically pull official docs into its context, not just your code + local index.
+
+4. Paid Agent: “Premium Free Agent”
+
+Paid Agent already has:
+
+Its own model-catalog, pricing, policy, budgets.
+
+Multi-step task orchestration and SQLite DB.
+
+You want it to be:
+
+“a high-end, even more advanced version of my free agent”
+
+4.1 Align Paid Agent with Free Agent’s pipeline
+
+👉 Augment task:
+
+Make Paid Agent also expose a single entry MCP tool, e.g. paid_agent_run_task, with:
+
+same argument shape as free_agent_run_task, plus:
+
+requires_approval flag
+
+explicit budgets
+
+tags for security / risk.
+
+Under the hood:
+
+Reuse as much of the Free Agent pipeline as possible:
+
+repo adapters
+
+context engine integration
+
+Thinking Tools for advanced reasoning
+
+But switch defaults:
+
+preferFree = false
+
+minQuality = 'premium'
+
+max_cost_usd higher (and enforced)
+
+Enable more “expensive” behavior:
+
+multi-branch exploration
+
+deeper self-review (e.g. run code-analyzer and refactor passes)
+
+more tests and property testing.
+
+Paid Agent becomes:
+
+“Same brain, more compute, more caution, more checks.”
+
+5. Add Moonshot / Kimi K2 Models
+
+You want Free Agent and Paid Agent to be able to use Moonshot AI models like Kimi K2.
+
+Your stack already has a central LLM router:
+
+packages/shared-llm/src/llm-router.ts with
+
+export type ProviderName = 'ollama' | 'openai' | 'anthropic';
+
+
+…and Free/Paid Agent both use a shared model catalog.
+
+5.1 Extend shared-llm router
+
+👉 Augment task:
+
+In llm-router.ts:
+
+Extend ProviderName:
+
+export type ProviderName = 'ollama' | 'openai' | 'anthropic' | 'moonshot';
+
+
+Extend Providers:
+
+export type Providers = {
+  ollama?: { baseUrl: string };
+  openai?: { apiKey?: string };
+  anthropic?: { apiKey?: string };
+  moonshot?: { apiKey?: string; baseUrl?: string };
+};
+
+
+In createLlmRouterFromEnv(env), wire:
+
+moonshot: env.MOONSHOT_API_KEY ? { apiKey: env.MOONSHOT_API_KEY, baseUrl: env.MOONSHOT_BASE_URL } : undefined,
+
+
+Extend pick() and order logic to optionally include 'moonshot' when configured.
+
+(You’ll need the actual Moonshot/Kimi API URL & auth format, but structurally this is where it goes.)
+
+5.2 Register Kimi models in model-catalog
+
+In free-agent-mcp/src/model-catalog.ts and paid-agent-mcp/src/model-catalog.ts:
+
+Add entries like:
+
+'moonshot/kimi-k2-code': {
+  provider: 'moonshot',
+  model: 'kimi-k2-code',
+  baseURL: process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1',
+  costPerInputToken: 0.00X,
+  costPerOutputToken: 0.00Y,
+  quality: 'best',
+  maxTokens: 8192,
+  contextWindow: 32768,
+  description: 'High-end coding model from Moonshot (Kimi K2)',
+},
+
+
+Set routing rules:
+
+For Paid Agent:
+
+For complex coding tasks and high budgets, allow Moonshot to be top pick.
+
+For Free Agent:
+
+Only consider Moonshot when:
+
+tier === 'paid' or allowPaid === true, and
+
+preferredProvider === 'moonshot' OR model selection decides it’s the best fit under budget.
+
+Now both agents can use Kimi when you want them to.
+
+6. How to hand this to Augment concretely
+
+You already know the pattern:
+
+Create a new branch (phase-6-free-agent-v2 or similar).
+
+Give Augment a phased spec:
+
+Phase FA-1: add free_agent_run_task + stabilize repo adapter.
+
+Phase FA-2: wire Context Engine + Thinking Tools into the coding loop.
+
+Phase FA-3: enforce cost guards and free/paid behavior.
+
+Phase FA-4: align Paid Agent pipeline with Free Agent, add paid_agent_run_task.
+
+Phase FA-5: extend shared-llm with Moonshot and register Kimi models.
+
+Each phase:
+
+No renames of existing MCP tools unless you explicitly okay it.
+
+Additive changes only.
+
+Keep npm run build + existing audits green.
+
+At the end of each phase, validate with a real coding task on this repo.
+
+
+1. Updated Model Strategy: Where Kimi K2 Fits
+
+Given what you said, your cost/quality reality is something like:
+
+Local models (Ollama) – free but weaker / slower / context-limited.
+
+Moonshot Kimi K2 – remote but cheap and very strong for coding.
+
+OpenAI / Anthropic – more expensive, used only when really needed.
+
+So the right mental model is:
+
+Free Agent:
+“Use local if possible, but Kimi K2 is my default remote coding model. Only use OpenAI/Anthropic if explicitly asked or as a rare fallback.”
+
+Paid Agent:
+“Heavier reasoning & safety. Still use Kimi K2 as the primary model for most tasks; only pull in OpenAI/Anthropic when the user explicitly wants that vendor or for rare edge cases.”
+
+We’ll encode that in the model catalog & router instead of treating Moonshot as “premium”.
+
+2. Concrete Routing Policy (what you want the code to do)
+2.1 Free Agent (default behaviour)
+
+For normal coding tasks (feature, bugfix, refactor, tests, docs):
+
+Try local (Ollama) if:
+
+the repo/task is small,
+
+you’re okay with slower / slightly weaker results, and
+
+prefer_local === true (you can add this flag).
+
+Otherwise, default to Moonshot / Kimi K2:
+
+If MOONSHOT_API_KEY is set,
+
+and the estimated cost is under max_cost_usd (or a default like $0.50),
+
+use provider: 'moonshot', model: 'kimi-k2-code' (or whatever their code model id is).
+
+Only consider OpenAI/Anthropic when:
+
+tier === 'paid' and
+
+preferredProvider is 'openai' | 'anthropic', or
+
+the task is explicitly flagged as “use GPT-4/Claude”.
+
+So your effective priority stack becomes:
+
+Ollama → Kimi K2 → OpenAI/Anthropic (opt-in)
+
+2.2 Paid Agent
+
+Paid Agent is “Free Agent + more compute + more checks”, not “different brain”.
+
+For Paid Agent:
+
+Default coding model: Kimi K2, not GPT-4/Claude by default.
+
+Only upgrade to OpenAI/Anthropic if:
+
+user explicitly requests vendor/model, or
+
+a “high-risk” task type (e.g. financial-critical, security-critical) where you decide GPT-4/Claude’s alignment/safety is worth the extra cost.
+
+Paid Agent gets:
+
+higher max_cost_usd defaults (e.g. $2–$5 per task),
+
+deeper self-review / tests,
+
+more aggressive use of context & Thinking Tools.
+
+3. Augment-Ready Implementation Checklist (Moonshot + Kimi K2)
+
+Here’s something you can paste directly into Augment as a task block.
+
+Phase FA-M: Add Moonshot / Kimi K2 and Update Routing
+
+Global constraints:
+
+Do NOT remove existing providers (ollama, openai, anthropic).
+
+Do NOT rename any existing models or tools.
+
+All changes must be additive and must keep npm run build and existing tests/audits passing.
+
+Step 1 – Extend shared-llm router with Moonshot provider
+
+Open packages/shared-llm/src/llm-router.ts (or equivalent).
+
+Extend ProviderName:
+
+export type ProviderName = 'ollama' | 'openai' | 'anthropic' | 'moonshot';
+
+
+Extend the config type that tracks provider settings, e.g.:
+
+export interface Providers {
+  ollama?: { baseUrl: string };
+  openai?: { apiKey?: string };
+  anthropic?: { apiKey?: string };
+  moonshot?: { apiKey?: string; baseUrl?: string };
+}
+
+
+In the function that builds the provider config from env (often createLlmRouterFromEnv):
+
+Read:
+
+MOONSHOT_API_KEY
+
+MOONSHOT_BASE_URL (optional; use Moonshot’s default if missing)
+
+If MOONSHOT_API_KEY is present, add:
+
+moonshot: {
+  apiKey: env.MOONSHOT_API_KEY,
+  baseUrl: env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1'
+}
+
+
+Extend the internal router so that:
+
+It knows how to construct a client for provider 'moonshot' (using whatever HTTP client pattern you use for OpenAI/Anthropic).
+
+This client supports both chat-style and completion-style calls as needed.
+
+Step 2 – Register Kimi K2 in Free Agent model catalog
+
+Open packages/free-agent-mcp/src/model-catalog.ts (or the equivalent).
+
+Add an entry for Kimi K2 under an appropriate key, e.g.:
+
+export const MODELS: Record<string, ModelConfig> = {
+  // existing models...
+  'moonshot/kimi-k2-code': {
+    provider: 'moonshot',
+    model: 'kimi-k2-code',   // use the actual Moonshot model id
+    baseURL: process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1',
+    costPerInputToken: 0.0XX,  // fill with realistic cheap values
+    costPerOutputToken: 0.0YY,
+    quality: 'best',
+    contextWindow: 32768,
+    maxTokens: 8192,
+    description: 'Kimi K2 code-capable model from Moonshot (cheap, high quality).',
+    recommendedFor: ['code_generation', 'refactoring', 'analysis']
+  },
+};
+
+
+Add tags or fields used by your router to identify “cheap but strong” models (e.g. tier: 'standard', priceTier: 'low').
+
+Step 3 – Update Free Agent routing logic to prefer Kimi K2
+
+Open the Free Agent model selection logic (e.g. packages/free-agent-mcp/src/model-selection.ts or wherever you choose model per task).
+
+Implement this routing policy for normal coding tasks:
+
+If prefer_local === true and an Ollama model is available for the requested kind, pick the best Ollama candidate.
+
+Else, if Moonshot provider is configured (MOONSHOT_API_KEY present) and Kimi K2 is available:
+
+Estimate cost via your existing cost estimation helper (estimateTaskCost or similar).
+
+If estimatedCost <= max_cost_usd (or reasonable default like $0.50), choose the Kimi K2 model.
+
+Only consider OpenAI/Anthropic when:
+
+tier === 'paid' OR allowPaid === true, and
+
+user explicitly prefers that provider, or
+
+Kimi/Moonshot is not configured.
+
+Make sure the Free Agent config (via MCP args or env) exposes:
+
+prefer_local?: boolean
+
+allowPaid?: boolean
+
+max_cost_usd?: number
+
+preferredProvider?: ProviderName
+
+Ensure the new logic is the default path for kind in:
+
+'feature' | 'bugfix' | 'refactor' | 'tests' | 'docs'.
+
+Step 4 – Register Kimi K2 in Paid Agent model catalog
+
+Perform the same steps as in Step 2 in packages/paid-agent-mcp/src/model-catalog.ts:
+
+Add the moonshot/kimi-k2-code entry with the same fields.
+
+In Paid Agent’s routing logic:
+
+For coding tasks:
+
+Choose Kimi K2 by default if available.
+
+Allow OpenAI/Anthropic models when:
+
+user explicitly sets preferredProvider, or
+
+task type is marked “high risk” and you decide GPT-4/Claude is necessary.
+
+Step 5 – Sanity tests
+
+Set MOONSHOT_API_KEY (and MOONSHOT_BASE_URL if necessary) in your .env or Augment MCP config.
+
+Run:
+
+npm run build
+
+any existing LLM/router tests for shared-llm and free-agent/paid-agent.
+
+From your MCP client (e.g. through Augment):
+
+Call Free Agent’s main MCP entry tool (e.g. free_agent_run_task) with a small coding task:
+
+Expect it to select Kimi K2 as the model (log or return the chosen model name in the response).
+
+Call Paid Agent’s main MCP entry tool with a similar task:
+
+Again, ensure Kimi K2 is chosen by default.
+
+Confirm there are no regressions in how Ollama/OpenAI/Anthropic flows work when their env vars are present but Moonshot is not.
+
+Step 6 – Small docs update
+
+In the relevant docs file (e.g. docs/FREE_AGENT_MODELS.md or ARCHITECTURE.md for agents):
+
+Document Moonshot / Kimi K2 as:
+
+“Preferred cheap remote coding model.”
+
+Position: after local models, before OpenAI/Anthropic.
+
+Document the new env vars:
+
+MOONSHOT_API_KEY
+
+MOONSHOT_BASE_URL (optional)
+
+Briefly describe the new routing policy for Free Agent vs Paid Agent.
+
+4. How This Plays With the Rest of the Plan
+
+Putting it all together:
+
+Free Agent after these changes:
+
+Has a single, repo-aware entry point (free_agent_run_task).
+
+Uses Context Engine + Thinking Tools to understand your code.
+
+Uses Ollama when you want fully local.
+
+Uses Kimi K2 as its default remote coding workhorse.
+
+Only touches OpenAI/Anthropic when explicitly told to.
+
+Paid Agent:
+
+Same core pipeline.
+
+More compute, more checks, higher budgets.
+
+Still uses Kimi K2 heavily by default (cheaper than GPT-4/Claude) unless you explicitly choose otherwise.
+
+Thinking Tools MCP + Context Engine + Context7:
+
+Provide the deep context and reasoning layer for both agents, as in the previous plan.
+
+
+let’s turn Free Agent into a clean, single “do the coding task” tool with a solid schema that Augment / Cursor / custom GPTs / Paid Agent can all work with.
+
+I’ll give you:
+
+A concrete MCP tool name + placement
+
+Request schema (what you send in)
+
+Response schema (what it returns)
+
+A short example payload
+
+A pasteable instruction block for Augment to implement it
+
+1. Tool name & where it lives
+
+Tool name (MCP):
+free_agent_run_task (snake_case, consistent with your other tools)
+
+Category:
+free_agent (or whatever category you already use for Free Agent MCP)
+
+File locations (suggested):
+
+packages/free-agent-mcp/src/categories/free_agent/tools.ts
+
+packages/free-agent-mcp/src/categories/free_agent/handlers.ts
+
+Or, if you already have Free Agent wired as a category, just add this tool to that category’s tools.ts and implement it in that category’s handlers.ts.
+
+Internally, the handler will call whatever you use now like runFreeAgent(request) in free-agent-core.
+
+2. Request schema (what the tool takes)
+
+Think of this as:
+
+“Here’s the task, here’s the repo, here’s how aggressive you can be with models/money.”
+
+Required fields
+
+task: string
+Natural-language description of what you want done.
+
+repo_path: string
+Path (or identifier) of the repo you want Free Agent to work in.
+For now, simplest is: local filesystem path seen by the MCP server.
+
+Optional / control fields
+
+task_kind: "auto" | "feature" | "bugfix" | "refactor" | "tests" | "docs" | "research"
+
+"auto" = let Free Agent classify.
+
+tier: "free" | "paid"
+
+"free": prefer Ollama and Kimi K2 within a tight budget, avoid OpenAI/Anthropic.
+
+"paid": allow higher budgets and more powerful models (still prefer Kimi K2 unless you specify otherwise).
+
+quality: "fast" | "balanced" | "best" | "auto"
+Hint for the model/steps tradeoff.
+
+prefer_local: boolean (default false)
+If true and a local model can handle the task, use Ollama first.
+
+allow_paid: boolean (default depends on tier)
+
+If tier === 'free', default false.
+
+If tier === 'paid', default true.
+
+max_cost_usd: number (optional)
+Hard cap for estimated total spend on this task. If estimate exceeds this, Free Agent should stop and return an error instead of starting.
+
+preferred_provider: "auto" | "ollama" | "moonshot" | "openai" | "anthropic"
+
+"auto" → your router picks, based on cost & kind.
+
+"moonshot" → bias strongly to Kimi K2.
+
+allow_toolkit: boolean (default true)
+If true, Free Agent is allowed to call Robinson’s Toolkit MCP tools via your broker.
+
+allow_thinking_tools: boolean (default true)
+If true, Free Agent can call Thinking Tools MCP / Context Engine for analysis and retrieval before coding.
+
+run_tests: boolean (default true)
+If true, attempt to run repo tests after making changes (using adapter’s testCommand).
+
+run_lint: boolean (default false or adapter default)
+If true, run lint/format check.
+
+plan_only: boolean (default false)
+If true, analyze and plan only (no file writes) – useful for dry-run.
+
+notes: string (optional)
+Extra instructions / constraints (e.g., “don’t touch backend”, “do not modify package.json”, etc.).
+
+JSON Schema (MCP args)
+
+Here’s a Draft-7 style schema you can drop into tools.ts:
+
+const freeAgentRunTaskArgsSchema = {
+  type: "object",
+  required: ["task", "repo_path"],
+  properties: {
+    task: {
+      type: "string",
+      description: "Natural language description of the coding task to perform."
+    },
+    repo_path: {
+      type: "string",
+      description: "Filesystem path or repo identifier the agent should operate in."
+    },
+    task_kind: {
+      type: "string",
+      enum: ["auto", "feature", "bugfix", "refactor", "tests", "docs", "research"],
+      default: "auto",
+      description: "High-level type of task. 'auto' lets the agent classify it."
+    },
+    tier: {
+      type: "string",
+      enum: ["free", "paid"],
+      default: "free",
+      description: "Budget tier. 'free' prefers local + cheap models like Moonshot Kimi K2; 'paid' allows more expensive providers."
+    },
+    quality: {
+      type: "string",
+      enum: ["fast", "balanced", "best", "auto"],
+      default: "auto",
+      description: "Quality vs speed tradeoff hint."
+    },
+    prefer_local: {
+      type: "boolean",
+      default: false,
+      description: "If true, prefer local (Ollama) models when possible."
+    },
+    allow_paid: {
+      type: "boolean",
+      description: "If false, do not use any paid remote models (OpenAI/Anthropic/Moonshot). Overrides tier."
+    },
+    max_cost_usd: {
+      type: "number",
+      minimum: 0,
+      description: "Maximum estimated total cost in USD before refusing the task."
+    },
+    preferred_provider: {
+      type: "string",
+      enum: ["auto", "ollama", "moonshot", "openai", "anthropic"],
+      default: "auto",
+      description: "Preferred model provider. 'auto' lets the router pick based on cost and capabilities."
+    },
+    allow_toolkit: {
+      type: "boolean",
+      default: true,
+      description: "If true, Free Agent may call Robinson's Toolkit MCP tools via the broker."
+    },
+    allow_thinking_tools: {
+      type: "boolean",
+      default: true,
+      description: "If true, Free Agent may use Thinking Tools MCP / Context Engine for analysis and retrieval."
+    },
+    run_tests: {
+      type: "boolean",
+      default: true,
+      description: "If true, attempt to run tests after applying changes."
+    },
+    run_lint: {
+      type: "boolean",
+      default: false,
+      description: "If true, run lint/format checks after applying changes when supported by the repo adapter."
+    },
+    plan_only: {
+      type: "boolean",
+      default: false,
+      description: "If true, only analyze and produce a plan and proposed changes—do not write to disk."
+    },
+    notes: {
+      type: "string",
+      description: "Optional extra instructions or constraints for the agent."
+    }
+  },
+  additionalProperties: false
+} as const;
+
+3. Response schema (what you get back)
+
+You want the response to always tell you:
+
+Did it succeed?
+
+What did it change?
+
+What model did it use? (so you can see when Kimi K2 is used)
+
+What context did it rely on?
+
+Did tests/lint pass?
+
+Here’s a practical, not-too-crazy shape.
+
+Top-level fields
+
+status: "success" | "partial" | "failed"
+
+task_summary: brief text summary of what it did / attempted.
+
+task_kind: resolved kind ("feature" | "bugfix" | ...).
+
+repo:
+
+root: string (resolved repo path)
+
+adapter: string (name of adapter used, e.g. "robinson-monorepo")
+
+models:
+
+primary: { provider, model, estimated_cost_usd?, actual_cost_usd? }
+
+secondary: same shape, optional array for helper passes (e.g. analysis/refactor models).
+
+plan:
+
+steps: array of { id, description, status }
+
+changes:
+
+files: array of:
+
+path: string
+
+change_type: "created" | "modified" | "deleted" | "moved"
+
+summary: short description of what changed in this file
+
+diff: string (unified diff text, if not too huge; else truncated with a note)
+
+tests:
+
+run: boolean
+
+command: string | null
+
+passed: boolean | null
+
+details: optional array of:
+
+name: string
+
+status: "passed" | "failed" | "skipped"
+
+output: string (trimmed)
+
+lint:
+
+same shape as tests, but for lint/format.
+
+context_used:
+
+files: array of { path, reason }
+
+symbols: array of { name, file, reason }
+
+external_docs: array of { source: "context7" | "url" | "manual", title?, url?, snippet? }
+
+logs: array of { level: "info" | "warn" | "error", message: string }
+
+error: (optional, only if status !== 'success')
+
+type: "cost_limit" | "model_error" | "tool_error" | "repo_error" | "unknown"
+
+message: string
+
+details: any
+
+JSON-ish schema (conceptual)
+
+You don’t have to encode this whole thing as a strict JSON schema right away; you can start with a type in TypeScript and gradually tighten. A TS type might look like:
+
+export type FreeAgentRunTaskResult = {
+  status: "success" | "partial" | "failed";
+  task_summary: string;
+  task_kind: "feature" | "bugfix" | "refactor" | "tests" | "docs" | "research";
+  repo: {
+    root: string;
+    adapter: string;
+  };
+  models: {
+    primary: {
+      provider: "ollama" | "moonshot" | "openai" | "anthropic";
+      model: string;
+      estimated_cost_usd?: number;
+      actual_cost_usd?: number;
+    };
+    secondary?: {
+      provider: "ollama" | "moonshot" | "openai" | "anthropic";
+      model: string;
+      role: "analysis" | "refactor" | "tests" | "assistant";
+      estimated_cost_usd?: number;
+      actual_cost_usd?: number;
+    }[];
+  };
+  plan: {
+    steps: {
+      id: string;
+      description: string;
+      status: "pending" | "running" | "done" | "skipped" | "failed";
+    }[];
+  };
+  changes: {
+    files: {
+      path: string;
+      change_type: "created" | "modified" | "deleted" | "moved";
+      summary: string;
+      diff?: string;
+    }[];
+  };
+  tests: {
+    run: boolean;
+    command?: string;
+    passed?: boolean;
+    details?: {
+      name?: string;
+      status: "passed" | "failed" | "skipped";
+      output?: string;
+    }[];
+  };
+  lint: {
+    run: boolean;
+    command?: string;
+    passed?: boolean;
+    details?: {
+      name?: string;
+      status: "passed" | "failed" | "skipped";
+      output?: string;
+    }[];
+  };
+  context_used: {
+    files?: { path: string; reason?: string }[];
+    symbols?: { name: string; file: string; reason?: string }[];
+    external_docs?: {
+      source: "context7" | "url" | "manual";
+      title?: string;
+      url?: string;
+      snippet?: string;
+    }[];
+  };
+  logs?: {
+    level: "info" | "warn" | "error";
+    message: string;
+  }[];
+  error?: {
+    type:
+      | "cost_limit"
+      | "model_error"
+      | "tool_error"
+      | "repo_error"
+      | "unknown";
+    message: string;
+    details?: any;
+  };
+};
+
+
+The handler should return this object as the MCP tool’s result.
+
+4. Tiny example call & result (to make it real)
+Example request (args)
+{
+  "task": "Add an MCP tool to list all core tools from the registry in the robinsons-toolkit-mcp package, and write basic tests.",
+  "repo_path": "/workspace/robinsonai-mcp-servers",
+  "task_kind": "feature",
+  "tier": "free",
+  "quality": "balanced",
+  "prefer_local": false,
+  "preferred_provider": "moonshot",
+  "allow_toolkit": true,
+  "allow_thinking_tools": true,
+  "run_tests": true
+}
+
+Example response (simplified)
+{
+  "status": "success",
+  "task_summary": "Added toolkit_list_core_tools to the toolkit MCP and basic tests.",
+  "task_kind": "feature",
+  "repo": {
+    "root": "/workspace/robinsonai-mcp-servers",
+    "adapter": "robinson-monorepo"
+  },
+  "models": {
+    "primary": {
+      "provider": "moonshot",
+      "model": "kimi-k2-code",
+      "estimated_cost_usd": 0.04,
+      "actual_cost_usd": 0.03
+    }
+  },
+  "plan": {
+    "steps": [
+      { "id": "S1", "description": "Locate toolkit registry generator and types", "status": "done" },
+      { "id": "S2", "description": "Implement toolkit_list_core_tools handler", "status": "done" },
+      { "id": "S3", "description": "Add tests for toolkit_list_core_tools", "status": "done" },
+      { "id": "S4", "description": "Run tests", "status": "done" }
+    ]
+  },
+  "changes": {
+    "files": [
+      {
+        "path": "packages/robinsons-toolkit-mcp/src/categories/toolkit/tools.ts",
+        "change_type": "modified",
+        "summary": "Registered toolkit_list_core_tools tool."
+      },
+      {
+        "path": "packages/robinsons-toolkit-mcp/src/categories/toolkit/handlers.ts",
+        "change_type": "modified",
+        "summary": "Implemented toolkit_list_core_tools using registry.",
+        "diff": "diff --git a/... (trimmed)"
+      },
+      {
+        "path": "packages/robinsons-toolkit-mcp/tests/toolkit_list_core_tools.test.ts",
+        "change_type": "created",
+        "summary": "Added tests for toolkit_list_core_tools."
+      }
+    ]
+  },
+  "tests": {
+    "run": true,
+    "command": "pnpm test --filter robinsons-toolkit-mcp",
+    "passed": true,
+    "details": []
+  },
+  "lint": {
+    "run": false
+  },
+  "context_used": {
+    "files": [
+      { "path": "packages/robinsons-toolkit-mcp/src/registry.ts", "reason": "registry loading" }
+    ],
+    "external_docs": [
+      {
+        "source": "context7",
+        "title": "MCP server registry design",
+        "url": "https://...",
+        "snippet": "The registry exposes tools to MCP clients..."
+      }
+    ]
+  },
+  "logs": [
+    { "level": "info", "message": "Using Moonshot Kimi K2 model as primary coding model." }
+  ]
+}
+
+5. Short, pasteable instructions for Augment
+
+Here’s the minimal version you can drop into Augment to actually implement this:
+
+Task: Implement free_agent_run_task MCP tool for Free Agent
+
+Constraints:
+
+Do NOT rename any existing tools or handlers.
+
+Do NOT remove any existing MCP tools.
+
+All changes must be additive.
+
+Reuse free-agent-core pipeline (analysis → plan → generate → tests) instead of inventing new behavior.
+
+Step 1 – Add tool definition
+
+In the Free Agent MCP package (e.g. packages/free-agent-mcp/src/categories/free_agent/tools.ts), add a new tool:
+
+name: "free_agent_run_task"
+
+description: "Run a full Free Agent coding task in a repo (analyze, plan, edit, run tests)."
+
+inputSchema: use the JSON schema I’ve specified (task, repo_path, task_kind, tier, quality, etc.).
+
+outputSchema: you can initially leave this as a generic object if your tooling makes strict schemas annoying, but the handler must return the FreeAgentRunTaskResult shape described.
+
+Step 2 – Implement handler
+
+In packages/free-agent-mcp/src/categories/free_agent/handlers.ts, implement:
+
+export async function free_agent_run_task(args): Promise<FreeAgentRunTaskResult> { ... }
+
+Inside, do:
+
+Resolve repo_path to a repo object and adapter via free-agent-core (use the existing adapter/discovery system and ensure the robinson monorepo adapter is used when appropriate).
+
+Normalize task_kind, tier, quality, prefer_local, allow_paid, max_cost_usd, preferred_provider.
+
+Call the main Free Agent pipeline (runFreeAgent or equivalent) with:
+
+the repo adapter
+
+the normalized config
+
+the task string and notes.
+
+Ensure that for task_kind in ["feature","bugfix","refactor","tests","docs"], the pipeline:
+
+runs analysis / planning
+
+generates patches, not just text
+
+optionally runs tests/lint
+
+Capture:
+
+chosen models (primary/secondary)
+
+plan steps and statuses
+
+file changes (path, type, diff summary)
+
+test/lint results
+
+context evidence used (from Thinking Tools / Context Engine / Context7 if enabled)
+
+Return a FreeAgentRunTaskResult object matching the type specification.
+
+Step 3 – Make sure Kimi K2 is in the loop
+
+Ensure that the model selection logic used by free_agent_run_task:
+
+Treats Moonshot / Kimi K2 as the default remote coding model when MOONSHOT_API_KEY is present and estimate is under max_cost_usd.
+
+Only uses OpenAI/Anthropic when:
+
+preferred_provider is "openai" or "anthropic", or
+
+tier === 'paid' and Kimi is unavailable or unsuitable.
+
+Step 4 – Tests & sanity
+
+npm run build
+
+Existing Free Agent tests should still pass.
+
+From a local MCP client or test harness, call free_agent_run_task with a simple task and confirm:
+
+It returns structured status, task_summary, models, changes, and tests.
+
+models.primary.provider is "moonshot" and model is the Kimi K2 id when configured.
+
+
+let’s “clone” the Free Agent API shape for Paid Agent, but turn all the dials up: more checks, more budgets, more safety — same interface.
+
+I’ll keep this tight and actionable.
+
+1. Paid Agent: paid_agent_run_task (the premium twin)
+
+Goal:
+Make Paid Agent feel like the same API as Free Agent, so any client (you, Augment, Cursor, custom GPT) can swap between them just by changing the tool name.
+
+1.1 Tool name & placement
+
+Tool name (MCP): paid_agent_run_task
+
+Category: paid_agent (or whatever category you already use for Paid Agent MCP)
+
+Files (expected):
+
+packages/paid-agent-mcp/src/categories/paid_agent/tools.ts
+
+packages/paid-agent-mcp/src/categories/paid_agent/handlers.ts
+
+If the Paid Agent MCP is structured differently, Augment should adapt, but keep the naming consistent.
+
+2. Request schema (mirror Free Agent, add “premium” controls)
+
+We’ll reuse the Free Agent schema almost 1:1, with a couple of extra knobs for higher-end behavior.
+
+2.1 Same core fields as free_agent_run_task
+
+All of these stay the same:
+
+task: string
+
+repo_path: string
+
+task_kind: "auto" | "feature" | "bugfix" | "refactor" | "tests" | "docs" | "research"
+
+tier: "free" | "paid" (for Paid Agent, default "paid")
+
+quality: "fast" | "balanced" | "best" | "auto" (default "best" here)
+
+prefer_local: boolean
+
+allow_paid: boolean
+
+max_cost_usd: number
+
+preferred_provider: "auto" | "ollama" | "moonshot" | "openai" | "anthropic"
+
+allow_toolkit: boolean
+
+allow_thinking_tools: boolean
+
+run_tests: boolean
+
+run_lint: boolean
+
+plan_only: boolean
+
+notes: string
+
+2.2 Extra paid-only controls
+
+Add a couple of premium controls:
+
+risk_level: "low" | "medium" | "high"
+
+high = sensitive stuff (prod infra, financial logic, auth, security).
+
+require_human_approval: boolean
+If true, Paid Agent:
+
+Plans, analyzes, maybe drafts patches,
+
+But returns them in a “pending approval” state — it does not write to disk unless some external system applies the patch.
+
+max_iterations: number (optional)
+
+Upper bound for how many self-review / fix cycles it can do.
+
+extra_safety_checks: boolean
+
+If true, run extra safety passes (e.g. static analysis, security lint, extra reasoning passes) if available.
+
+2.3 Example JSON schema for args
+
+Augment can copy the Free Agent schema and extend it like this:
+
+const paidAgentRunTaskArgsSchema = {
+  type: "object",
+  required: ["task", "repo_path"],
+  properties: {
+    task: { type: "string", description: "Natural language description of the coding task to perform." },
+    repo_path: { type: "string", description: "Filesystem path or repo identifier the agent should operate in." },
+    task_kind: {
+      type: "string",
+      enum: ["auto", "feature", "bugfix", "refactor", "tests", "docs", "research"],
+      default: "auto"
+    },
+    tier: {
+      type: "string",
+      enum: ["free", "paid"],
+      default: "paid",
+      description: "Budget tier. Paid Agent defaults to 'paid' and allows more expensive behavior."
+    },
+    quality: {
+      type: "string",
+      enum: ["fast", "balanced", "best", "auto"],
+      default: "best",
+      description: "Quality vs speed tradeoff hint. Paid Agent defaults to 'best'."
+    },
+    prefer_local: {
+      type: "boolean",
+      default: false,
+      description: "If true, prefer local (Ollama) models when possible."
+    },
+    allow_paid: {
+      type: "boolean",
+      description: "If false, do not use any paid remote models."
+    },
+    max_cost_usd: {
+      type: "number",
+      minimum: 0,
+      description: "Maximum estimated total cost in USD before refusing the task."
+    },
+    preferred_provider: {
+      type: "string",
+      enum: ["auto", "ollama", "moonshot", "openai", "anthropic"],
+      default: "auto"
+    },
+    allow_toolkit: {
+      type: "boolean",
+      default: true
+    },
+    allow_thinking_tools: {
+      type: "boolean",
+      default: true
+    },
+    run_tests: {
+      type: "boolean",
+      default: true
+    },
+    run_lint: {
+      type: "boolean",
+      default: true,
+      description: "Paid Agent defaults to running lint/format checks when supported."
+    },
+    plan_only: {
+      type: "boolean",
+      default: false
+    },
+    notes: {
+      type: "string"
+    },
+    risk_level: {
+      type: "string",
+      enum: ["low", "medium", "high"],
+      default: "medium",
+      description: "How sensitive/risky the task is (affects model choice and safety checks)."
+    },
+    require_human_approval: {
+      type: "boolean",
+      default: false,
+      description: "If true, do not write changes to disk; return proposed changes for human approval."
+    },
+    max_iterations: {
+      type: "number",
+      minimum: 1,
+      description: "Maximum number of internal review/fix iterations Paid Agent may perform."
+    },
+    extra_safety_checks: {
+      type: "boolean",
+      default: true,
+      description: "If true, run extra safety/quality checks when available (e.g. security lint, deeper analysis)."
+    }
+  },
+  additionalProperties: false
+} as const;
+
+3. Response schema (same as Free Agent + a bit more)
+
+You can literally reuse the FreeAgentRunTaskResult type and extend it with a few Paid-only extras.
+
+Same fields as Free Agent
+
+status
+
+task_summary
+
+task_kind
+
+repo
+
+models (primary + secondary, show when Kimi K2 was used)
+
+plan (steps)
+
+changes (file list + diffs)
+
+tests
+
+lint
+
+context_used
+
+logs
+
+error
+
+Additional Paid Agent fields
+
+cost:
+
+estimated_total_usd?
+
+actual_total_usd?
+
+breakdown by provider/model if you want:
+
+{ provider, model, input_tokens, output_tokens, cost_usd }[]
+
+risk_assessment:
+
+risk_level: "low" | "medium" | "high"
+
+notes: string[]
+
+actions_taken: string[] (e.g. “Ran extra security lint on auth module”)
+
+approval (when require_human_approval === true):
+
+requires_approval: boolean
+
+approved: boolean | null
+
+instructions_for_reviewer: string
+
+(Optionally) patch_bundle_path: string (if you save diffs to disk somewhere a CI system can pick up)
+
+You can define:
+
+export type PaidAgentRunTaskResult = FreeAgentRunTaskResult & {
+  cost?: {
+    estimated_total_usd?: number;
+    actual_total_usd?: number;
+    breakdown?: {
+      provider: "ollama" | "moonshot" | "openai" | "anthropic";
+      model: string;
+      input_tokens?: number;
+      output_tokens?: number;
+      cost_usd?: number;
+    }[];
+  };
+  risk_assessment?: {
+    risk_level: "low" | "medium" | "high";
+    notes?: string[];
+    actions_taken?: string[];
+  };
+  approval?: {
+    requires_approval: boolean;
+    approved: boolean | null;
+    instructions_for_reviewer?: string;
+  };
+};
+
+4. Behavioral differences vs Free Agent
+
+Paid Agent should reuse the same pipeline as Free Agent (repo adapter, context, Thinking Tools, toolkit tools) but with different defaults:
+
+tier: default "paid"
+
+quality: default "best"
+
+allow_paid: default true (but still respect max_cost_usd)
+
+run_lint: default true
+
+extra_safety_checks: default true
+
+max_iterations: default higher (e.g. 3–5)
+
+If risk_level === "high":
+
+prefer more robust models (still Kimi K2 first, but maybe allow GPT-4/Claude if you want)
+
+run extra safety checks
+
+strongly recommend require_human_approval = true in the returned approval block.
+
+And model policy:
+
+Primary default remote coding model: Kimi K2 (Moonshot), just like Free Agent, but with higher budget by default.
+
+Only escalate to OpenAI/Anthropic:
+
+when explicitly requested (preferred_provider),
+
+or when your code decides you need it for some special high-risk tasks (if you want that).
+
+5. Pasteable instructions for Augment (Paid Agent)
+
+Here’s the block you can give Augment now:
+
+Task: Implement paid_agent_run_task MCP tool that mirrors free_agent_run_task but with premium defaults and extra controls.
+
+Constraints:
+
+Do NOT rename or remove any existing tools or handlers.
+
+Do NOT break compatibility for existing Paid Agent tools.
+
+All changes must be additive.
+
+Reuse the existing Free Agent pipeline patterns wherever possible (analysis → plan → generate → tests).
+
+Step 1 – Add MCP tool definition
+
+In the Paid Agent MCP package (e.g. packages/paid-agent-mcp/src/categories/paid_agent/tools.ts), add a new tool:
+
+name: "paid_agent_run_task"
+
+description: "Run a full Paid Agent coding task in a repo with deeper checks, risk controls, and cost tracking."
+
+inputSchema: copy the free_agent_run_task schema and extend it with:
+
+risk_level
+
+require_human_approval
+
+max_iterations
+
+extra_safety_checks
+
+outputSchema: initially you can keep this as a generic object, but the handler must return a PaidAgentRunTaskResult object as specified.
+
+Step 2 – Implement handler
+
+In packages/paid-agent-mcp/src/categories/paid_agent/handlers.ts, implement:
+
+export async function paid_agent_run_task(args): Promise<PaidAgentRunTaskResult> { ... }
+
+
+Inside:
+
+Resolve repo_path and load the appropriate repo adapter (reuse the same discovery logic as Free Agent).
+
+Normalize/resolve:
+
+task_kind, tier, quality, prefer_local, allow_paid, max_cost_usd, preferred_provider,
+
+plus risk_level, require_human_approval, max_iterations, extra_safety_checks.
+
+Use the Paid Agent pipeline (or orchestrator) to:
+
+run initial analysis / planning (possibly with Thinking Tools / Context Engine),
+
+generate patches using the chosen model(s),
+
+run tests and lint (Paid Agent should default run_lint = true),
+
+perform extra safety/quality checks when extra_safety_checks === true.
+
+If require_human_approval === true:
+
+treat the run as “plan + propose changes”:
+
+do not write changes to disk permanently, or
+
+write them to a temporary/branch location with clear indication in the result.
+
+populate the approval block with:
+
+requires_approval: true,
+
+approved: null,
+
+instructions_for_reviewer explaining what to review and how to apply the changes.
+
+Track cost:
+
+estimate and, where possible, actual usage (tokens × price) per model call,
+
+fill in cost.estimated_total_usd, cost.actual_total_usd, and a breakdown.
+
+Return a PaidAgentRunTaskResult object:
+
+same fields as FreeAgentRunTaskResult,
+
+plus cost, risk_assessment, and approval.
+
+Step 3 – Reuse Kimi K2 as default coding model
+
+Reuse the same model catalog entries for Moonshot / Kimi K2 added earlier.
+
+In Paid Agent’s model selection logic:
+
+For coding tasks (feature, bugfix, refactor, tests, docs):
+
+Default to Kimi K2 if MOONSHOT_API_KEY is set and cost is within max_cost_usd.
+
+Respect preferred_provider if explicitly set.
+
+Consider OpenAI/Anthropic only when:
+
+user explicitly prefers them, or
+
+Kimi is unavailable, or
+
+you later add a very specific rule for a very high-risk class of tasks.
+
+Step 4 – Tests & sanity
+
+npm run build
+
+Add or update a small Paid Agent test that:
+
+calls paid_agent_run_task with plan_only: true on a small repo-local task,
+
+asserts that:
+
+status is "success" or "partial",
+
+models.primary is set and includes the chosen provider/model,
+
+approval is filled correctly when require_human_approval is true.
+
+Confirm that existing Paid Agent functionality still works (no breaking changes).
+
+Step 5 – Doc update
+
+In the relevant docs (e.g. docs/AGENTS.md or ARCHITECTURE.md), add:
+
+A section describing free_agent_run_task vs paid_agent_run_task.
+
+Note that they share the same basic schema, but Paid Agent has extra fields and more checks.
+
+Document the default behavior for each (tier, quality, safety, Kimi K2 usage).
+
+Once Augment wires this in, you’ll have:
+
+Free Agent: cheaper, fast, Kimi-first coding agent for everyday work.
+
+Paid Agent: same API, but more budget, more checks, more safety, with Kimi as the default brain unless you ask otherwise.

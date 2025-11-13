@@ -2,13 +2,16 @@
 /**
  * Robinson's Toolkit - Unified MCP Server (Broker Pattern)
  *
- * Uses registry-based lazy loading for 631+ tools across 9 categories.
- * Only exposes 8 broker/meta tools to clients.
+ * Uses registry-based lazy loading for 1,717+ tools across 16 categories.
+ * Only exposes 11 broker/meta tools to clients.
+ *
+ * Phase 5: Added core tool discovery (toolkit_list_core_tools, toolkit_discover_core)
  */
 
 import { config } from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { readFileSync } from 'fs';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -30,6 +33,7 @@ class RobinsonsToolkitServer {
   private server: Server;
   private registry: ReturnType<typeof loadRegistry>;
   private brokerTools: ReturnType<typeof generateBrokerTools>;
+  private coreToolsConfig: Record<string, Array<{ name: string; tags: string[] }>>;
 
   constructor() {
     this.server = new Server(
@@ -48,6 +52,18 @@ class RobinsonsToolkitServer {
     console.error('[Robinson Toolkit] Loading registry...');
     this.registry = loadRegistry();
     console.error(`[Robinson Toolkit] Loaded ${this.registry.tools.length} tools across ${Object.keys(this.registry.categories).length} categories`);
+
+    // Load core tools config
+    try {
+      const configPath = join(__dirname, '..', 'scripts', 'core-tools-config.json');
+      const configContent = readFileSync(configPath, 'utf-8');
+      this.coreToolsConfig = JSON.parse(configContent);
+      const totalCoreTools = Object.values(this.coreToolsConfig).reduce((sum, tools) => sum + tools.length, 0);
+      console.error(`[Robinson Toolkit] Loaded ${totalCoreTools} core tools from config`);
+    } catch (error) {
+      console.error('[Robinson Toolkit] Warning: Could not load core tools config:', error);
+      this.coreToolsConfig = {};
+    }
 
     // Generate broker tools from registry categories
     const categoryNames = Object.keys(this.registry.categories);
@@ -124,6 +140,12 @@ class RobinsonsToolkitServer {
 
       case 'toolkit_search_tools':
         return this.searchTools(args);
+
+      case 'toolkit_list_core_tools':
+        return this.listCoreTools(args);
+
+      case 'toolkit_discover_core':
+        return this.discoverCoreTools(args);
 
       case 'toolkit_call':
         // Note: client sends { category, tool_name, arguments }
@@ -332,6 +354,154 @@ class RobinsonsToolkitServer {
         },
       ],
     };
+  }
+
+  private listCoreTools(args: any) {
+    const { category, includeNonCore = false } = args;
+
+    // Get core tool names from config
+    let coreToolNames: Set<string> = new Set();
+
+    if (category) {
+      // Get core tools for specific category
+      const categoryTools = this.coreToolsConfig[category] || [];
+      categoryTools.forEach(t => coreToolNames.add(t.name));
+    } else {
+      // Get all core tools
+      Object.values(this.coreToolsConfig).forEach(tools => {
+        tools.forEach(t => coreToolNames.add(t.name));
+      });
+    }
+
+    // Get full tool records from registry
+    const coreTools = this.registry.tools.filter(t => coreToolNames.has(t.name));
+
+    // If includeNonCore, add some related non-core tools
+    let results = coreTools;
+    if (includeNonCore && category) {
+      const categoryTools = this.registry.tools.filter(t => t.category === category);
+      const nonCore = categoryTools
+        .filter(t => !coreToolNames.has(t.name))
+        .slice(0, 5);
+      results = [...coreTools, ...nonCore];
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              category: category || 'all',
+              coreToolsCount: coreTools.length,
+              totalResults: results.length,
+              tools: results.map((t) => ({
+                name: t.name,
+                description: t.description,
+                category: t.category,
+                subcategory: t.subcategory,
+                tags: this.getToolTags(t.name),
+              })),
+            },
+            null,
+            2
+          ),
+        },
+      ],
+    };
+  }
+
+  private discoverCoreTools(args: any) {
+    const { query, category, max_results = 10 } = args;
+
+    // Get core tool names from config
+    let coreToolNames: Set<string> = new Set();
+
+    if (category) {
+      const categoryTools = this.coreToolsConfig[category] || [];
+      categoryTools.forEach(t => coreToolNames.add(t.name));
+    } else {
+      Object.values(this.coreToolsConfig).forEach(tools => {
+        tools.forEach(t => coreToolNames.add(t.name));
+      });
+    }
+
+    // Search all tools first
+    const allResults = searchTools(query, {
+      limit: 100, // Get more results to filter
+      categoryId: category,
+    });
+
+    // Filter to only core tools
+    const coreResults = allResults.filter((t) => coreToolNames.has(t.name));
+
+    // Limit results
+    const limitedResults = coreResults.slice(0, max_results);
+
+    // Generate "why this matches" explanations
+    const resultsWithReasons = limitedResults.map((t) => {
+      const reasons: string[] = [];
+
+      // Check if query matches name
+      if (t.name.toLowerCase().includes(query.toLowerCase())) {
+        reasons.push('Tool name matches query');
+      }
+
+      // Check if query matches description
+      if (t.description && t.description.toLowerCase().includes(query.toLowerCase())) {
+        reasons.push('Description matches query');
+      }
+
+      // Check if query matches tags
+      const tags = this.getToolTags(t.name);
+      if (tags && tags.some((tag) => query.toLowerCase().includes(tag.toLowerCase()))) {
+        reasons.push('Tags match query');
+      }
+
+      // Check if query matches category
+      if (t.category.toLowerCase().includes(query.toLowerCase())) {
+        reasons.push('Category matches query');
+      }
+
+      return {
+        name: t.name,
+        description: t.description,
+        category: t.category,
+        subcategory: t.subcategory,
+        tags: tags,
+        whyMatches: reasons.length > 0 ? reasons.join(', ') : 'Semantic similarity to query',
+      };
+    });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              query,
+              category: category || 'all',
+              totalCoreMatches: coreResults.length,
+              showing: resultsWithReasons.length,
+              results: resultsWithReasons,
+            },
+            null,
+            2
+          ),
+        },
+      ],
+    };
+  }
+
+  private getToolTags(toolName: string): string[] {
+    // Find the tool in the core tools config and return its tags
+    for (const [category, tools] of Object.entries(this.coreToolsConfig)) {
+      const tool = tools.find(t => t.name === toolName);
+      if (tool) {
+        return tool.tags;
+      }
+    }
+    return [];
   }
 
   private async executeToolLazy(toolName: string, toolArgs: any): Promise<any> {
