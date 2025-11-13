@@ -2340,6 +2340,67 @@ Generate the modified section now:`;
   }
 
   /**
+   * Detect if a task is asking context-related questions
+   */
+  private detectContextQuery(task: string): boolean {
+    const lowerTask = task.toLowerCase();
+
+    // Patterns that indicate context queries
+    const contextPatterns = [
+      /where\s+(is|are|does|do)/i,
+      /how\s+(does|do|is|are)/i,
+      /what\s+(is|are|does|do|files?|handles?|implements?)/i,
+      /which\s+(files?|functions?|classes?|modules?)/i,
+      /find\s+(the|a|all)/i,
+      /show\s+(me|the)/i,
+      /list\s+(all|the)/i,
+      /get\s+(the|all)/i,
+    ];
+
+    return contextPatterns.some(pattern => pattern.test(task));
+  }
+
+  /**
+   * Build a context summary from context_smart_query results
+   */
+  private buildContextSummary(contextResult: any): string {
+    if (!contextResult || contextResult.error) {
+      return '';
+    }
+
+    const parts: string[] = [];
+
+    // Add summary
+    if (contextResult.summary) {
+      parts.push(`## Context Evidence\n\n${contextResult.summary}\n`);
+    }
+
+    // Add top hits
+    if (contextResult.top_hits && contextResult.top_hits.length > 0) {
+      parts.push(`### Relevant Code Locations:\n`);
+      contextResult.top_hits.slice(0, 5).forEach((hit: any, index: number) => {
+        parts.push(`${index + 1}. **${hit.title || hit.path}** (score: ${hit.score?.toFixed(2) || 'N/A'})`);
+        parts.push(`   - Path: \`${hit.path}\``);
+        if (hit.snippet) {
+          parts.push(`   - Snippet: ${hit.snippet.substring(0, 200)}${hit.snippet.length > 200 ? '...' : ''}`);
+        }
+        parts.push('');
+      });
+    }
+
+    // Add recommended next steps
+    if (contextResult.recommended_next_steps && contextResult.recommended_next_steps.length > 0) {
+      parts.push(`### Recommended Next Steps:\n`);
+      contextResult.recommended_next_steps.forEach((step: string, index: number) => {
+        parts.push(`${index + 1}. ${step}`);
+      });
+      parts.push('');
+    }
+
+    return parts.join('\n');
+  }
+
+  /**
    * Run Free Agent Task with comprehensive control over models, budgets, and behavior
    * This is the main entry point for repo-aware coding with Free Agent
    */
@@ -2402,11 +2463,45 @@ Generate the modified section now:`;
         process.env.FREE_AGENT_MODEL = `moonshot:${modelConfig.model}`;
       }
 
-      // Context engine integration (if allowThinkingTools is true)
-      // This will be fully implemented in Phase FA-2
-      // For now, we just log that it's enabled
+      // Phase FA-2: Wire Context Engine + Thinking Tools into the coding loop
+      let contextEvidence: any = null;
+      let enhancedNotes = notes;
       if (allowThinkingTools) {
-        console.log(`[runFreeAgentTask] Context engine integration enabled (will be implemented in Phase FA-2)`);
+        console.log(`[runFreeAgentTask] Context engine integration enabled`);
+
+        // Detect if the task is asking context-related questions
+        const isContextQuery = this.detectContextQuery(task);
+
+        if (isContextQuery) {
+          console.log(`[runFreeAgentTask] Detected context query - running context_smart_query before code generation`);
+          try {
+            const thinkingClient = getSharedThinkingClient();
+            const contextResult = await thinkingClient.call({
+              tool: 'context_smart_query',
+              args: {
+                question: task,
+                top_k: 12,
+              },
+            });
+
+            if (contextResult && !contextResult.error) {
+              contextEvidence = contextResult;
+              console.log(`[runFreeAgentTask] Context query returned ${contextResult.total_results || 0} results`);
+
+              // Attach context evidence to the task notes for the code generation prompt
+              const contextSummary = this.buildContextSummary(contextResult);
+              enhancedNotes = notes ? `${notes}\n\n${contextSummary}` : contextSummary;
+
+              // Update the task with enhanced context
+              console.log(`[runFreeAgentTask] Enhanced task with context evidence (${contextSummary.length} chars)`);
+            } else {
+              console.warn(`[runFreeAgentTask] Context query returned error:`, contextResult?.error);
+            }
+          } catch (error: any) {
+            console.error(`[runFreeAgentTask] Context query failed:`, error.message);
+            // Continue without context - don't fail the whole task
+          }
+        }
       }
 
       // Track file changes before running the pipeline
@@ -2419,12 +2514,12 @@ Generate the modified section now:`;
       });
       const filesBeforeSet = new Set(filesBefore);
 
-      // Run the full pipeline with PCE
+      // Run the full pipeline with PCE (with enhanced context if available)
       const pipelineStartTime = Date.now();
       try {
         await coreRunFreeAgent({
           repo: repoRoot,
-          task: notes ? `${task}\n\nAdditional notes: ${notes}` : task,
+          task: enhancedNotes ? `${task}\n\nAdditional notes: ${enhancedNotes}` : task,
           kind: taskKind as any,
           tier: tier as any,
           quality: quality === 'auto' ? 'balanced' : (quality as any),
@@ -2623,11 +2718,21 @@ Generate the modified section now:`;
           output: lintResults?.output || null,
           exitCode: lintResults?.exitCode || null,
         },
-        context_used: {
+        context_used: contextEvidence ? {
+          files: contextEvidence.top_hits?.map((hit: any) => ({
+            path: hit.path,
+            reason: `Context match (score: ${hit.score?.toFixed(2) || 'N/A'})`,
+          })) || [],
+          symbols: [],
+          external_docs: [],
+          summary: contextEvidence.summary || '',
+          total_results: contextEvidence.total_results || 0,
+          route: contextEvidence.route || null,
+        } : {
           files: [],
           symbols: [],
           external_docs: [],
-          note: 'Context engine integration will be implemented in Phase FA-2',
+          note: 'No context query detected for this task',
         },
         logs: [
           { level: 'info', message: `Using ${adapter.name} adapter for ${repoRoot}` },
