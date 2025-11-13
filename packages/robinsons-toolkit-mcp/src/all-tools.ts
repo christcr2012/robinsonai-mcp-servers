@@ -20,4 +20,5 @@ export { langchainTools } from './categories/langchain/tools.js';
 export { gatewayTools } from './categories/gateway/tools.js';
 export { healthTools } from './categories/health/tools.js';
 export { NEON_TOOLS } from './categories/neon/tools.js';
+export { UPSTASH_TOOLS } from './categories/upstash/tools.js';
 
