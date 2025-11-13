@@ -154,3 +154,19 @@ export async function handleN8nConnectionTest(args: any) {
   }
 }
 
+// ============================================================================
+// Normalized exports for audit compatibility
+// ============================================================================
+
+export const n8nworkflowtrigger = handleN8nWorkflowTrigger;
+export const n8nworkflowlist = handleN8nWorkflowList;
+export const n8nworkflowget = handleN8nWorkflowGet;
+export const n8nworkflowcreate = handleN8nWorkflowCreate;
+export const n8nworkflowupdate = handleN8nWorkflowUpdate;
+export const n8nworkflowdelete = handleN8nWorkflowDelete;
+export const n8nexecutiongetstatus = handleN8nExecutionGetStatus;
+export const n8nexecutionlist = handleN8nExecutionList;
+export const n8nexecutiondelete = handleN8nExecutionDelete;
+export const n8ncredentiallist = handleN8nCredentialList;
+export const n8ncredentialcreate = handleN8nCredentialCreate;
+export const n8nconnectiontest = handleN8nConnectionTest;

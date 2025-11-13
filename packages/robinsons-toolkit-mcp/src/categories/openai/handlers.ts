@@ -6511,3 +6511,19 @@ class CostManager {
 }
 
 const costManager = new CostManager();
+
+// ============================================================================
+// Normalized exports for audit compatibility
+// ============================================================================
+
+// Realtime API
+export const openaicreaterealtimeSession = openairealtimeSessionCreate;
+export const openaiupdaterealtimeSession = openairealtimeSessionUpdate;
+export const openaisendrealtimeMessage = openairealtimeTextSend;
+export const openaigetrealtimeResponse = openairealtimeTextReceive;
+export const openaiinterruptrealtimeResponse = openairealtimeInterrupt;
+export const openaicloserealtimeSession = openairealtimeSessionClose;
+
+
+// Model comparison
+export const openaicomparemodelsDetailed = openaicompareModels;

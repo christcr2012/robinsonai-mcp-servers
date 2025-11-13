@@ -1194,7 +1194,7 @@ ${args.body}`;
   // Docs
   export const docsgetdocument = docsGet;
   export const docscreatedocument = docsCreate;
-  export const docsinsertext = docsInsert;
+  export const docsinserttext = docsInsert;
   export const docsdeletetext = docsDelete;
   export const docsreplacetext = docsReplace;
 
