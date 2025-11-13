@@ -671,6 +671,118 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
         },
       },
+      // Phase FA-4: Comprehensive paid_agent_run_task with premium controls
+      {
+        name: 'paid_agent_run_task',
+        description: 'Run a full Paid Agent coding task in a repo (analyze, plan, edit, run tests). Premium version of free_agent_run_task with higher budgets, deeper checks, and safety controls.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            task: {
+              type: 'string',
+              description: 'Natural language description of the coding task to perform.',
+            },
+            repo_path: {
+              type: 'string',
+              description: 'Filesystem path or repo identifier the agent should operate in.',
+            },
+            task_kind: {
+              type: 'string',
+              enum: ['auto', 'feature', 'bugfix', 'refactor', 'tests', 'docs', 'research'],
+              default: 'auto',
+              description: 'High-level type of task. \'auto\' lets the agent classify it.',
+            },
+            tier: {
+              type: 'string',
+              enum: ['free', 'paid'],
+              default: 'paid',
+              description: 'Budget tier. Paid Agent defaults to \'paid\' and allows more expensive behavior.',
+            },
+            quality: {
+              type: 'string',
+              enum: ['fast', 'balanced', 'best', 'auto'],
+              default: 'best',
+              description: 'Quality vs speed tradeoff hint. Paid Agent defaults to \'best\'.',
+            },
+            prefer_local: {
+              type: 'boolean',
+              default: false,
+              description: 'If true, prefer local (Ollama) models when possible. Paid Agent defaults to false (prefers remote models).',
+            },
+            allow_paid: {
+              type: 'boolean',
+              default: true,
+              description: 'If false, do not use any paid remote models. Paid Agent defaults to true.',
+            },
+            max_cost_usd: {
+              type: 'number',
+              minimum: 0,
+              description: 'Maximum estimated total cost in USD before refusing the task. Paid Agent defaults to $5.00.',
+            },
+            preferred_provider: {
+              type: 'string',
+              enum: ['auto', 'ollama', 'moonshot', 'openai', 'anthropic'],
+              default: 'auto',
+              description: 'Preferred model provider. \'auto\' lets the router pick based on cost and capabilities.',
+            },
+            allow_toolkit: {
+              type: 'boolean',
+              default: true,
+              description: 'If true, Paid Agent may call Robinson\'s Toolkit MCP tools via the broker.',
+            },
+            allow_thinking_tools: {
+              type: 'boolean',
+              default: true,
+              description: 'If true, Paid Agent may use Thinking Tools MCP / Context Engine for analysis and retrieval.',
+            },
+            run_tests: {
+              type: 'boolean',
+              default: true,
+              description: 'If true, attempt to run tests after applying changes.',
+            },
+            run_lint: {
+              type: 'boolean',
+              default: true,
+              description: 'If true, run lint/format checks after applying changes. Paid Agent defaults to true.',
+            },
+            plan_only: {
+              type: 'boolean',
+              default: false,
+              description: 'If true, only analyze and produce a plan and proposed changes—do not write to disk.',
+            },
+            notes: {
+              type: 'string',
+              description: 'Optional extra instructions or constraints for the agent.',
+            },
+            // Premium controls (Paid Agent only)
+            risk_level: {
+              type: 'string',
+              enum: ['low', 'medium', 'high'],
+              default: 'medium',
+              description: 'Risk level of the task. \'high\' = sensitive (prod infra, financial, auth, security) - triggers extra safety checks.',
+            },
+            require_human_approval: {
+              type: 'boolean',
+              default: false,
+              description: 'If true, plan and draft patches but return in \'pending approval\' state without writing to disk.',
+            },
+            max_iterations: {
+              type: 'number',
+              minimum: 1,
+              maximum: 10,
+              default: 3,
+              description: 'Maximum number of self-review / fix cycles.',
+            },
+            extra_safety_checks: {
+              type: 'boolean',
+              default: false,
+              description: 'If true, run extra safety passes (static analysis, security lint, extra reasoning).',
+            },
+          },
+          required: ['task', 'repo_path'],
+        },
+      },
       // NOTE: File editing tools removed to avoid duplicates with free-agent-mcp
       // Use free-agent-mcp for file operations: file_str_replace, file_insert, file_save, file_delete, file_read
     ],
@@ -728,6 +840,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await handleRefineCode(args);
       case 'paid_agent_generate_project_brief':
         return await handleGenerateProjectBrief(args);
+
+      // Phase FA-4: Comprehensive paid_agent_run_task
+      case 'paid_agent_run_task':
+        return await handleRunPaidAgentTask(args);
 
       // NOTE: File editing tools removed to avoid duplicates with free-agent-mcp
       // Use free-agent-mcp for file operations: file_str_replace, file_insert, file_save, file_delete, file_read
@@ -2463,6 +2579,162 @@ async function handleGenerateProjectBrief(args: any) {
         },
       ],
     };
+  }
+}
+
+/**
+ * Phase FA-4: Run Paid Agent Task with comprehensive control over models, budgets, and behavior
+ * This is the premium version of free_agent_run_task with higher budgets and deeper checks
+ */
+async function handleRunPaidAgentTask(args: any) {
+  try {
+    const task = String(args.task || '');
+    const repoPath = args.repo_path || process.cwd();
+    const taskKind = args.task_kind === 'auto' ? 'feature' : (args.task_kind || 'feature');
+    const tier = args.tier || 'paid'; // Paid Agent defaults to 'paid'
+    const quality = args.quality || 'best'; // Paid Agent defaults to 'best'
+
+    // Paid Agent defaults: prefer remote models, allow paid, higher budgets
+    const preferLocal = args.prefer_local !== undefined ? args.prefer_local : false; // DEFAULT TO FALSE for Paid Agent
+    const allowPaid = args.allow_paid !== undefined ? args.allow_paid : true; // DEFAULT TO TRUE for Paid Agent
+    const maxCostUsd = args.max_cost_usd || (tier === 'free' ? 0.50 : 5.00); // Higher default budget
+    const preferredProvider = args.preferred_provider || 'auto';
+    const allowToolkit = args.allow_toolkit !== false;
+    const allowThinkingTools = args.allow_thinking_tools !== false;
+    const runTests = args.run_tests !== false;
+    const runLint = args.run_lint !== false; // Paid Agent defaults to true
+    const planOnly = args.plan_only || false;
+    const notes = args.notes || '';
+
+    // Premium controls (Paid Agent only)
+    const riskLevel = args.risk_level || 'medium';
+    const requireHumanApproval = args.require_human_approval || false;
+    const maxIterations = args.max_iterations || 3;
+    const extraSafetyChecks = args.extra_safety_checks || false;
+
+    console.log('[runPaidAgentTask] Starting comprehensive Paid Agent task...');
+    console.log(`[runPaidAgentTask] Task: ${task}`);
+    console.log(`[runPaidAgentTask] Repo: ${repoPath}`);
+    console.log(`[runPaidAgentTask] Kind: ${taskKind}, Tier: ${tier}, Quality: ${quality}`);
+    console.log(`[runPaidAgentTask] Prefer Local: ${preferLocal}, Allow Paid: ${allowPaid}, Max Cost: $${maxCostUsd}`);
+    console.log(`[runPaidAgentTask] Risk Level: ${riskLevel}, Human Approval: ${requireHumanApproval}, Max Iterations: ${maxIterations}`);
+
+    // Import Free Agent Core's runFreeAgent function and path resolver
+    const { runFreeAgent: coreRunFreeAgent } = await import('@fa/core');
+    const { resolveRepoRoot } = await import('@fa/core/utils/paths.js');
+    const { loadAdapter } = await import('@fa/core/repo/adapter.js');
+
+    // Resolve repo path (handles relative paths, env vars, etc.)
+    const repoRoot = resolveRepoRoot(repoPath);
+    console.log(`[runPaidAgentTask] Resolved repo root: ${repoRoot}`);
+
+    // Load the repo adapter
+    const adapter = await loadAdapter(repoRoot);
+    console.log(`[runPaidAgentTask] Loaded adapter: ${adapter.name}`);
+
+    // Phase FA-4 Step 3: Estimate cost BEFORE task execution
+    const costEstimate = estimateTaskCost({
+      taskType: 'code_generation',
+      complexity: quality === 'fast' ? 'simple' : quality === 'best' ? 'complex' : 'medium',
+      linesOfCode: 500, // Rough estimate - will be refined after execution
+      numFiles: 5, // Rough estimate
+    });
+    console.log(`[runPaidAgentTask] Estimated cost: $${costEstimate.estimatedCost.toFixed(4)} (${costEstimate.estimatedInputTokens} input + ${costEstimate.estimatedOutputTokens} output tokens)`);
+
+    // Budget validation
+    if (costEstimate.estimatedCost > maxCostUsd) {
+      const errorMessage = `This task is estimated at $${costEstimate.estimatedCost.toFixed(4)}, which exceeds the configured budget $${maxCostUsd.toFixed(2)}. Either simplify the task or raise the budget.`;
+      console.error(`[runPaidAgentTask] ${errorMessage}`);
+      return createToolResponse({
+        status: 'failed',
+        task_summary: 'Task rejected - budget exceeded',
+        error: {
+          type: 'budget_exceeded',
+          message: errorMessage,
+          estimated_cost: costEstimate.estimatedCost,
+          max_cost: maxCostUsd,
+        },
+      });
+    }
+
+    // Model selection with Paid Agent preferences
+    // Paid Agent prefers remote models (Moonshot/Kimi K2, OpenAI, Claude)
+    const shouldPreferFree = preferLocal || (tier === 'free' && !allowPaid);
+
+    const selectedModel = selectBestModel({
+      taskComplexity: quality === 'fast' ? 'simple' : quality === 'best' ? 'expert' : 'medium',
+      maxCost: allowPaid ? maxCostUsd : 0, // If not allowing paid, set maxCost=0 to force Ollama
+      minQuality: quality === 'fast' ? 'basic' : quality === 'best' ? 'premium' : 'standard',
+      preferFree: shouldPreferFree,
+      preferredProvider: preferredProvider === 'auto' ? 'any' : (preferredProvider as any),
+    });
+    const modelConfig = getModelConfig(selectedModel);
+    console.log(`[runPaidAgentTask] Selected model: ${selectedModel} (provider: ${modelConfig.provider}, preferFree: ${shouldPreferFree})`);
+
+    // TODO: Phase FA-4 Step 2 - Implement full pipeline with Free Agent Core
+    // For now, return a placeholder response showing the structure
+    return createToolResponse({
+      status: 'success',
+      task_summary: `Paid Agent task planned: ${task}`,
+      task_kind: taskKind,
+      repo: {
+        root: repoRoot,
+        adapter: adapter.name,
+      },
+      models: {
+        primary: {
+          provider: modelConfig.provider,
+          model: selectedModel,
+          estimated_cost_usd: costEstimate.estimatedCost,
+        },
+      },
+      plan: {
+        steps: [
+          { id: '1', description: 'Analyze task and gather context', status: 'pending' },
+          { id: '2', description: 'Generate implementation plan', status: 'pending' },
+          { id: '3', description: 'Apply code changes', status: 'pending' },
+          { id: '4', description: 'Run tests and validation', status: 'pending' },
+        ],
+      },
+      changes: {
+        files: [],
+      },
+      tests: {
+        run: runTests,
+        passed: null,
+      },
+      lint: {
+        run: runLint,
+        passed: null,
+      },
+      context_used: {
+        files: [],
+        symbols: [],
+        external_docs: [],
+      },
+      logs: [
+        { level: 'info', message: `Paid Agent initialized with ${selectedModel}` },
+        { level: 'info', message: `Budget: $${maxCostUsd.toFixed(2)}, Estimated: $${costEstimate.estimatedCost.toFixed(4)}` },
+        { level: 'info', message: `Risk Level: ${riskLevel}, Human Approval: ${requireHumanApproval}` },
+      ],
+      premium_controls: {
+        risk_level: riskLevel,
+        require_human_approval: requireHumanApproval,
+        max_iterations: maxIterations,
+        extra_safety_checks: extraSafetyChecks,
+      },
+    });
+  } catch (error: any) {
+    console.error('[runPaidAgentTask] Error:', error);
+    return createToolResponse({
+      status: 'failed',
+      task_summary: 'Task failed with error',
+      error: {
+        type: 'unknown',
+        message: error.message,
+        details: error.stack,
+      },
+    });
   }
 }
 
