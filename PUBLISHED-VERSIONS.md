@@ -5,16 +5,18 @@ Last updated: 2025-01-13
 ## 🎉 Latest Published Versions
 
 ### Free Agent MCP
-- **Version:** 0.8.0
-- **Published:** 2025-01-13
-- **npm:** `@robinson_ai_systems/free-agent-mcp@0.8.0`
+- **Version:** 0.9.0 ⭐ NEW!
+- **Published:** 2025-01-13 (second publish today)
+- **npm:** `@robinson_ai_systems/free-agent-mcp@0.9.0`
 - **Changes:**
-  - ✅ Section 2.1: Design the One True Entry Tool (free_agent_run_task)
-  - ✅ Section 2.2: Make Repo Adapters Just Work (PCE, auto-discovery)
-  - ✅ Section 2.3: Tighten the Coding Loop (quality gates pipeline)
-  - ✅ Section 2.4: Hard 'Free-first, Paid-when-needed' Policy (cost guards)
-  - ✅ Context Engine integration with detectContextQuery
-  - ✅ Moonshot/Kimi K2 model support
+  - ❌ **REMOVED:** `delegate_code_generation` (deprecated tool - use `free_agent_run` instead)
+  - ✅ **ADDED:** `discover_thinking_tools_free-agent-mcp` (search thinking tools by keyword)
+  - ✅ **ADDED:** `list_thinking_tools_free-agent-mcp` (list all 64 thinking tools)
+  - 📊 **Tool Count:** 29 → 30 tools (removed 1, added 2)
+  - 🎯 **Better Parity:** Both Free and Paid agents now have thinking tools discovery
+- **Previous (0.8.0):**
+  - Section 2.1-2.4 complete (free_agent_run_task, PCE, quality gates, cost guards)
+  - Context Engine integration, Moonshot/Kimi K2 support
 
 ### Paid Agent MCP
 - **Version:** 0.7.0
@@ -82,4 +84,37 @@ Then reload MCP servers in Augment.
 - **Both agents can:** delegate, edit files, generate code, run tests, learn from feedback
 - **Moonshot/Kimi K2:** Integrated as DEFAULT REMOTE CODING MODEL (10-100x cheaper!)
 - **Multi-agent coding stack:** PRODUCTION READY! 🚀
+
+## 📊 Tool Count Summary
+
+| MCP Server | Tool Count | Notes |
+|------------|-----------|-------|
+| **Free Agent MCP** | 30 | Removed 1 deprecated, added 2 thinking tools discovery |
+| **Paid Agent MCP** | 39 | 10 extra tools (8 OpenAI-specific, 2 thinking tools discovery) |
+| **Thinking Tools MCP** | 64+ | Cognitive frameworks + Context Engine |
+| **Robinson's Toolkit MCP** | 1165+ | Unified broker for all integrations |
+| **Credit Optimizer MCP** | 50+ | Cost optimization and workflow automation |
+
+### Tools ONLY in Paid Agent (10 tools)
+
+**OpenAI Worker Tools (8 tools - EXPECTED):**
+1. `openai_worker_run_job`
+2. `openai_worker_queue_batch`
+3. `openai_worker_get_job_status`
+4. `openai_worker_get_spend_stats`
+5. `openai_worker_estimate_cost`
+6. `openai_worker_get_capacity`
+7. `openai_worker_refresh_pricing`
+8. `openai_worker_get_token_analytics`
+
+**Thinking Tools Discovery (2 tools - NOW IN BOTH):**
+9. `discover_thinking_tools_paid-agent-mcp` ✅ (Free Agent now has `discover_thinking_tools_free-agent-mcp`)
+10. `list_thinking_tools_paid-agent-mcp` ✅ (Free Agent now has `list_thinking_tools_free-agent-mcp`)
+
+### Shared Tools (Both Agents Have These)
+
+**Batch Execution & Debugging (3 tools):**
+1. `run_parallel` - Run many free_agent_run jobs concurrently (NOT a debugging tool - it's for batch operations!)
+2. `paths_probe` - Resolve repo + registry paths for debugging
+3. `generator_probe` - Show which generator module resolves
 
