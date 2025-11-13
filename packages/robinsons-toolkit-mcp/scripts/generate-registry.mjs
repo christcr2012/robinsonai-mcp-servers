@@ -70,6 +70,7 @@ const CATEGORY_METADATA = {
 // Map tool file names to categories and handler modules
 // Now using organized category folder structure
 const TOOL_FILE_MAPPING = {
+  'categories/vercel/tools.ts': { category: 'vercel', handlerModule: './categories/vercel/handlers.js', exportName: 'VERCEL_TOOLS' },
   'categories/stripe/tools.ts': { category: 'stripe', handlerModule: './categories/stripe/handlers.js', exportName: 'STRIPE_TOOLS' },
   'categories/supabase/tools.ts': { category: 'supabase', handlerModule: './categories/supabase/handlers.js', exportName: 'SUPABASE_TOOLS' },
   'categories/playwright/tools.ts': { category: 'playwright', handlerModule: './categories/playwright/handlers.js', exportName: 'PLAYWRIGHT_TOOLS' },
