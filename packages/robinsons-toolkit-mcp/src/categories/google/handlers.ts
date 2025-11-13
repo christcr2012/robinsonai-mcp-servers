@@ -1157,3 +1157,61 @@ ${args.body}`;
     return { content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }] };
   }
 
+  // ============================================================================
+  // Normalized exports for audit compatibility
+  // ============================================================================
+
+  // Admin (camelCase convention)
+  export const adminAddUserAlias = adminAddAlias;
+  export const adminDeleteUserAlias = adminDeleteAlias;
+  export const adminListUserAliases = adminListAliases;
+  export const adminSuspendUser = adminSuspend;
+  export const adminUnsuspendUser = adminUnsuspend;
+
+  // Forms
+  export const formsgetform = formsGet;
+  export const formscreateform = formsCreate;
+  export const formsbatchupdate = formsBatch;
+
+  // Slides
+  export const slidesgetpresentation = slidesGet;
+  export const slidescreatepresentation = slidesCreate;
+  export const slidesbatchupdate = slidesBatch;
+
+  // Gmail
+  export const gmaillistmessages = gmailList;
+  export const gmailgetmessage = gmailGet;
+  export const gmailsendmessage = gmailSend;
+  export const gmaildeletemessage = gmailDelete;
+
+  // Calendar
+  export const calendarlistevents = calList;
+  export const calendargetevent = calGet;
+  export const calendarcreateevent = calCreate;
+  export const calendarupdateevent = calUpdate;
+  export const calendardeleteevent = calDelete;
+
+  // Docs
+  export const docsgetdocument = docsGet;
+  export const docscreatedocument = docsCreate;
+  export const docsinsertext = docsInsert;
+  export const docsdeletetext = docsDelete;
+  export const docsreplacetext = docsReplace;
+
+  // Drive
+  export const drivelistfiles = driveList;
+  export const drivegetfile = driveGet;
+  export const drivegetfilecontent = driveGetContent;
+  export const drivecopyfile = driveCopy;
+  export const drivedeletefile = driveDelete;
+  export const drivesharefile = driveShare;
+  export const drivesearchfiles = driveSearch;
+  export const drivelistpermissions = driveListPerms;
+
+  // Sheets
+  export const sheetsgetspreadsheet = sheetsGetMeta;
+  export const sheetscreatespreadsheet = sheetsCreate;
+  export const sheetsgetvalues = sheetsGet;
+  export const sheetsupdatevalues = sheetsUpdate;
+  export const sheetsclearvalues = sheetsClear;
+
