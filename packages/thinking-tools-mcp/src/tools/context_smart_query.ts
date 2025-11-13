@@ -7,8 +7,7 @@ import type { ServerContext } from '../lib/context.js';
 import { contextQueryTool } from './context_query.js';
 import { contextFindSymbolTool } from './context_find_symbol.js';
 import { contextNeighborhoodTool } from './context_neighborhood.js';
-import { context7SearchLibraries } from './context7.js';
-import { ctxImportEvidenceTool } from './ctx_import_evidence.js';
+import { bridgedContext7SearchLibraries } from './context7_bridge.js';
 
 export const contextSmartQueryDescriptor = {
   name: 'context_smart_query',
@@ -67,18 +66,18 @@ export async function contextSmartQueryTool(args: any, ctx: ServerContext) {
     if (libraryMatch) {
       console.log(`[context_smart_query] Detected library query: ${libraryMatch.library}`);
       try {
-        // Call Context7 to get official documentation
-        const context7Result = await context7SearchLibraries({
+        // Call bridged Context7 to get official documentation (with caching + auto evidence import)
+        const context7Result = await bridgedContext7SearchLibraries({
           query: `${libraryMatch.library} ${libraryMatch.topic || ''}`.trim(),
           limit: 5,
-        });
+        }, ctx);
 
         if (context7Result && !context7Result.isError) {
           const context7Data = JSON.parse(context7Result.content[0].text);
 
-          // Import Context7 results as evidence
+          // Bridged version already imported to evidence, just extract for display
           if (context7Data.results && context7Data.results.length > 0) {
-            const evidenceItems = context7Data.results.map((item: any) => ({
+            externalDocs = context7Data.results.map((item: any) => ({
               source: 'context7',
               title: item.title || item.name || '',
               snippet: item.snippet || item.summary || '',
@@ -88,14 +87,7 @@ export async function contextSmartQueryTool(args: any, ctx: ServerContext) {
               raw: item,
             }));
 
-            await ctxImportEvidenceTool({
-              items: evidenceItems,
-              group: `external/context7/${libraryMatch.library}`,
-              upsert: true,
-            }, ctx);
-
-            externalDocs = evidenceItems;
-            console.log(`[context_smart_query] Imported ${evidenceItems.length} Context7 results as evidence`);
+            console.log(`[context_smart_query] Retrieved ${externalDocs.length} Context7 results (cached + imported to evidence)`);
           }
         }
       } catch (error: any) {
