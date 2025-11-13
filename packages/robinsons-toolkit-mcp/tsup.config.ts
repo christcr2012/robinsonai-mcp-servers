@@ -1,7 +1,11 @@
 import { defineConfig } from 'tsup';
+import fg from 'fast-glob';
+
+// Find all handler files in categories
+const handlerFiles = fg.sync('src/categories/**/handlers.ts');
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/all-tools.ts'],
+  entry: ['src/index.ts', 'src/all-tools.ts', ...handlerFiles],
   format: ['esm'],
   target: 'node22',
   splitting: false,

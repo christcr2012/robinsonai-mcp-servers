@@ -84,6 +84,7 @@ const TOOL_FILE_MAPPING = {
   'categories/langchain/tools.ts': { category: 'langchain', handlerModule: './categories/langchain/handlers.js', exportName: 'langchainTools' },
   'categories/gateway/tools.ts': { category: 'gateway', handlerModule: './categories/gateway/handlers.js', exportName: 'gatewayTools' },
   'categories/health/tools.ts': { category: 'health', handlerModule: './categories/health/handlers.js', exportName: 'healthTools' },
+  'categories/neon/tools.ts': { category: 'neon', handlerModule: './categories/neon/handlers.js', exportName: 'NEON_TOOLS' },
 };
 
 // Skip these files - they're parts that get combined into the main files

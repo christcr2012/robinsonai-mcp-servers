@@ -19,4 +19,5 @@ export { n8nTools } from './categories/n8n/tools.js';
 export { langchainTools } from './categories/langchain/tools.js';
 export { gatewayTools } from './categories/gateway/tools.js';
 export { healthTools } from './categories/health/tools.js';
+export { NEON_TOOLS } from './categories/neon/tools.js';
 
