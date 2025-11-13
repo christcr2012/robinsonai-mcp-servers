@@ -70,6 +70,7 @@ const CATEGORY_METADATA = {
 // Map tool file names to categories and handler modules
 // Now using organized category folder structure
 const TOOL_FILE_MAPPING = {
+  'categories/openai/tools.ts': { category: 'openai', handlerModule: './categories/openai/handlers.js', exportName: 'OPENAI_TOOLS' },
   'categories/google/tools.ts': { category: 'google', handlerModule: './categories/google/handlers.js', exportName: 'GOOGLE_TOOLS' },
   'categories/github/tools.ts': { category: 'github', handlerModule: './categories/github/handlers.js', exportName: 'GITHUB_TOOLS' },
   'categories/vercel/tools.ts': { category: 'vercel', handlerModule: './categories/vercel/handlers.js', exportName: 'VERCEL_TOOLS' },
