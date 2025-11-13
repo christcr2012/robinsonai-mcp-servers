@@ -17,6 +17,8 @@ const __dirname = dirname(__filename);
 // So DIST_DIR should just be __dirname
 const DIST_DIR = __dirname;
 
+export type DangerLevel = 'safe' | 'caution' | 'dangerous';
+
 export interface ToolRecord {
   name: string;
   description?: string;
@@ -24,6 +26,10 @@ export interface ToolRecord {
   category: string;
   subcategory?: string;
   handler: string; // Path to handler module (e.g., './stripe-handlers.js')
+
+  // Phase 3B: Enhanced metadata
+  tags?: string[]; // e.g., ["read", "write", "github", "repo"]
+  dangerLevel?: DangerLevel; // Safety classification
 }
 
 export interface CategoryInfo {
@@ -126,48 +132,89 @@ export function getAllTools(): ToolRecord[] {
 }
 
 /**
- * Search tools by query (fuzzy search across name and description)
+ * Search tools by query (fuzzy search across name, description, and tags)
  */
-export function searchTools(query: string, limit: number = 10): ToolRecord[] {
+export function searchTools(
+  query: string,
+  options?: {
+    limit?: number;
+    categoryId?: string;
+    tags?: string[];
+    dangerLevel?: DangerLevel;
+  }
+): ToolRecord[] {
   const registry = loadRegistry();
   const lowerQuery = query.toLowerCase();
-  
+  const limit = options?.limit ?? 10;
+
   const results: Array<{ tool: ToolRecord; score: number }> = [];
-  
+
   for (const tool of registry.tools) {
+    // Filter by category if specified
+    if (options?.categoryId && tool.category !== options.categoryId) {
+      continue;
+    }
+
+    // Filter by danger level if specified
+    if (options?.dangerLevel && tool.dangerLevel !== options.dangerLevel) {
+      continue;
+    }
+
+    // Filter by tags if specified (tool must have ALL specified tags)
+    if (options?.tags && options.tags.length > 0) {
+      const toolTags = tool.tags || [];
+      const hasAllTags = options.tags.every(tag =>
+        toolTags.some(t => t.toLowerCase() === tag.toLowerCase())
+      );
+      if (!hasAllTags) {
+        continue;
+      }
+    }
+
     let score = 0;
-    
+
     // Exact name match
     if (tool.name === query) {
       score += 100;
-    }
-    // Name contains query
-    else if (tool.name.toLowerCase().includes(lowerQuery)) {
-      score += 50;
     }
     // Name starts with query
     else if (tool.name.toLowerCase().startsWith(lowerQuery)) {
       score += 75;
     }
-    
+    // Name contains query
+    else if (tool.name.toLowerCase().includes(lowerQuery)) {
+      score += 50;
+    }
+
     // Description contains query
     if (tool.description?.toLowerCase().includes(lowerQuery)) {
       score += 25;
     }
-    
+
+    // Tags contain query
+    if (tool.tags) {
+      for (const tag of tool.tags) {
+        if (tag.toLowerCase() === lowerQuery) {
+          score += 40; // Exact tag match
+        } else if (tag.toLowerCase().includes(lowerQuery)) {
+          score += 20; // Partial tag match
+        }
+      }
+    }
+
     // Category match
     if (tool.category.toLowerCase().includes(lowerQuery)) {
       score += 10;
     }
-    
+
     if (score > 0) {
       results.push({ tool, score });
     }
   }
-  
+
   // Sort by score descending
   results.sort((a, b) => b.score - a.score);
-  
+
   return results.slice(0, limit).map(r => r.tool);
 }
 

@@ -13,9 +13,10 @@
     "bin/"
   ],
   "scripts": {
-    "build": "tsup && node scripts/generate-registry.mjs && node scripts/smoke.mjs",
+    "build": "tsup && node scripts/generate-registry.mjs && node scripts/add-tool-metadata.mjs && node scripts/smoke.mjs",
     "build:code": "tsup",
     "build:registry": "node scripts/generate-registry.mjs",
+    "build:metadata": "node scripts/add-tool-metadata.mjs",
     "build:smoke": "node scripts/smoke.mjs",
     "clean": "rm -rf dist",
     "dev": "tsup --watch",
