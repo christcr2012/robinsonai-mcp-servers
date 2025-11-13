@@ -37,10 +37,28 @@
 
 ## 🔧 How to Use
 
-1. **Discover**: Use `toolkit_discover` or `toolkit_search_tools` to search for tools
-2. **List**: Use `toolkit_list_categories` and `toolkit_list_tools` to browse
-3. **Inspect**: Use `toolkit_get_tool_schema` to see parameters
-4. **Execute**: Use `toolkit_call` to run any tool
+1. **Start with Core Tools**: Use `toolkit_list_core_tools` to see the 75+ most essential tools (5-12 per category)
+2. **Discover**: Use `toolkit_discover_core` for natural language search of core tools, or `toolkit_discover` for all tools
+3. **List**: Use `toolkit_list_categories` and `toolkit_list_tools` to browse all tools
+4. **Inspect**: Use `toolkit_get_tool_schema` to see parameters
+5. **Execute**: Use `toolkit_call` to run any tool
+
+### Core Tools (Phase 5)
+
+**Core tools** are a curated subset of 75+ essential tools (5-12 per category) that cover the most common use cases. Perfect for getting started or quick reference.
+
+```javascript
+// List all core tools
+toolkit_list_core_tools({})
+
+// List GitHub core tools only
+toolkit_list_core_tools({ category: "github" })
+
+// Find core tools for a task
+toolkit_discover_core({ query: "create stripe checkout session" })
+```
+
+See [PHASE_5_CORE_TOOLS.md](PHASE_5_CORE_TOOLS.md) for complete documentation.
 
 ## 📖 Category Documentation
 

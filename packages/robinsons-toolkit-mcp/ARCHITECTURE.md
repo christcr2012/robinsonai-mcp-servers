@@ -1,8 +1,56 @@
 # Robinson's Toolkit MCP Server - Architecture & Integration Guide
 
-**Version:** 0.1.1
-**Current Status:** ✅ 556 tools working perfectly (GitHub 240 + Vercel 150 + Neon 166)
-**Note:** Original documentation incorrectly stated 563 tools. See [TOOL_COUNT_INVESTIGATION.md](./TOOL_COUNT_INVESTIGATION.md) for details.
+**Version:** 2.0.0
+**Current Status:** ✅ 1,717 tools across 28 categories (16 integrations)
+**Architecture:** Broker pattern with lazy-loading registry
+
+> **⚠️ NOTE:** This document is outdated and describes the old unified pattern (v0.1.1).
+> The current architecture (v2.0.0+) uses a **broker pattern** with 11 meta-tools and lazy-loading.
+> See [docs/README.md](docs/README.md) and [docs/PHASE_5_CORE_TOOLS.md](docs/PHASE_5_CORE_TOOLS.md) for current documentation.
+
+---
+
+## Current Architecture (v2.0.0+)
+
+### Broker Pattern with Lazy Loading
+
+Robinson's Toolkit now uses a **broker pattern** where only 11 meta-tools are exposed to MCP clients:
+
+1. `toolkit_list_categories` - List all integration categories
+2. `toolkit_list_tools` - List tools in a category
+3. `toolkit_list_subcategories` - List subcategories within a category
+4. `toolkit_get_tool_schema` - Get tool parameter schema
+5. `toolkit_discover` - Natural language search across all tools
+6. `toolkit_search_tools` - Advanced search with filters
+7. `toolkit_list_core_tools` - List curated core tools (Phase 5)
+8. `toolkit_discover_core` - Search core tools only (Phase 5)
+9. `toolkit_call` - Execute any tool by name
+10. `toolkit_health_check` - Server health and diagnostics
+11. `toolkit_validate` - Validate tool registry
+
+### Core Tools (Phase 5)
+
+**Core tools** are a curated subset of 75+ essential tools (5-12 per category) that cover the most common use cases:
+
+- Defined in `scripts/core-tools-config.json`
+- Loaded at server startup
+- Accessible via `toolkit_list_core_tools` and `toolkit_discover_core`
+- Perfect for getting started or quick reference
+
+See [docs/PHASE_5_CORE_TOOLS.md](docs/PHASE_5_CORE_TOOLS.md) for complete documentation.
+
+### Registry System
+
+- **`dist/registry.json`** - Generated from tool definitions (1,717 tools)
+- **`dist/categories.json`** - Category metadata (28 categories)
+- **Lazy Loading** - Handler modules are dynamically imported only when tools are called
+- **No Context Pollution** - Only 11 broker tools are exposed to Augment
+
+---
+
+## Legacy Documentation (v0.1.1)
+
+The sections below describe the old unified pattern architecture and are kept for historical reference only.
 
 ---
 
