@@ -26,6 +26,7 @@ process.on('uncaughtException', e => console.error('[uncaughtException]', e));
 // Import context tools
 import { contextIndexRepoTool, contextIndexRepoDescriptor } from './tools/context_index_repo.js';
 import { contextQueryTool, contextQueryDescriptor } from './tools/context_query.js';
+import { contextSmartQueryTool, contextSmartQueryDescriptor } from './tools/context_smart_query.js';
 import { contextStatsTool, contextStatsDescriptor } from './tools/context_stats.js';
 import { ensureFreshIndexTool, ensureFreshIndexDescriptor } from './tools/ensure_fresh_index.js';
 import { contextIndexFullTool, contextIndexFullDescriptor } from './tools/context_index_full.js';
@@ -136,6 +137,10 @@ const registry: Record<string, Entry> = {
   [contextQueryDescriptor.name]: {
     ...contextQueryDescriptor,
     handler: contextQueryTool,
+  },
+  [contextSmartQueryDescriptor.name]: {
+    ...contextSmartQueryDescriptor,
+    handler: contextSmartQueryTool,
   },
   [contextStatsDescriptor.name]: {
     ...contextStatsDescriptor,
@@ -668,12 +673,13 @@ server.setRequestHandler(InitializeRequestSchema, async (request) => ({
           name: "context_engine",
           display_name: "Context Engine",
           description: "Semantic search and indexing for codebase context",
-          tool_count: 8,
+          tool_count: 9,
           tools: [
             "context_index_repo",
             "context_index_full",
             "ensure_fresh_index",
             "context_query",
+            "context_smart_query",
             "context_stats",
             "context_retrieve_code",
             "context_find_symbol",
