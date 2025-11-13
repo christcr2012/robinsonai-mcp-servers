@@ -20,6 +20,7 @@
     "build:smoke": "node scripts/smoke.mjs",
     "docs": "node scripts/generate-docs.mjs",
     "audit:placeholders": "node scripts/audit-placeholders.mjs",
+    "rebuild:missing": "node scripts/rebuild-missing-handlers.mjs",
     "clean": "rm -rf dist",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
