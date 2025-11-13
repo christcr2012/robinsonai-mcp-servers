@@ -970,3 +970,172 @@ export async function twilioDeleteVideoComposition(this: any, args: any) {
   }
 }
 
+// ============================================================
+// RECORDINGS & TRANSCRIPTIONS - 4 handlers
+// ============================================================
+
+export async function twilioListRecordings(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const recordings = await this.twilioClient.recordings.list(args);
+    return formatTwilioResponse(recordings);
+  } catch (error: any) {
+    throw new Error(`Failed to list recordings: ${error.message}`);
+  }
+}
+
+export async function twilioGetRecording(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const { recordingSid } = args;
+    const recording = await this.twilioClient.recordings(recordingSid).fetch();
+    return formatTwilioResponse(recording);
+  } catch (error: any) {
+    throw new Error(`Failed to get recording: ${error.message}`);
+  }
+}
+
+export async function twilioListTranscriptions(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const transcriptions = await this.twilioClient.transcriptions.list(args);
+    return formatTwilioResponse(transcriptions);
+  } catch (error: any) {
+    throw new Error(`Failed to list transcriptions: ${error.message}`);
+  }
+}
+
+export async function twilioGetTranscription(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const { transcriptionSid } = args;
+    const transcription = await this.twilioClient.transcriptions(transcriptionSid).fetch();
+    return formatTwilioResponse(transcription);
+  } catch (error: any) {
+    throw new Error(`Failed to get transcription: ${error.message}`);
+  }
+}
+
+// ============================================================
+// CONFERENCE PARTICIPANTS - 3 handlers
+// ============================================================
+
+export async function twilioListConferenceParticipants(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const { conferenceSid } = args;
+    const participants = await this.twilioClient.conferences(conferenceSid).participants.list();
+    return formatTwilioResponse(participants);
+  } catch (error: any) {
+    throw new Error(`Failed to list conference participants: ${error.message}`);
+  }
+}
+
+export async function twilioUpdateConferenceParticipant(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const { conferenceSid, callSid, ...updates } = args;
+    const participant = await this.twilioClient.conferences(conferenceSid).participants(callSid).update(updates);
+    return formatTwilioResponse(participant);
+  } catch (error: any) {
+    throw new Error(`Failed to update conference participant: ${error.message}`);
+  }
+}
+
+export async function twilioRemoveConferenceParticipant(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const { conferenceSid, callSid } = args;
+    await this.twilioClient.conferences(conferenceSid).participants(callSid).remove();
+    return formatTwilioResponse({ conferenceSid, callSid, status: 'removed' });
+  } catch (error: any) {
+    throw new Error(`Failed to remove conference participant: ${error.message}`);
+  }
+}
+
+// ============================================================
+// CONFERENCE - 1 handler
+// ============================================================
+
+export async function twilioUpdateConference(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const { conferenceSid, ...updates } = args;
+    const conference = await this.twilioClient.conferences(conferenceSid).update(updates);
+    return formatTwilioResponse(conference);
+  } catch (error: any) {
+    throw new Error(`Failed to update conference: ${error.message}`);
+  }
+}
+
+// ============================================================
+// PHONE NUMBERS - 5 handlers
+// ============================================================
+
+export async function twilioListLocalNumbers(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const numbers = await this.twilioClient.availablePhoneNumbers('US').local.list(args);
+    return formatTwilioResponse(numbers);
+  } catch (error: any) {
+    throw new Error(`Failed to list local numbers: ${error.message}`);
+  }
+}
+
+export async function twilioListTollFreeNumbers(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const numbers = await this.twilioClient.availablePhoneNumbers('US').tollFree.list(args);
+    return formatTwilioResponse(numbers);
+  } catch (error: any) {
+    throw new Error(`Failed to list toll-free numbers: ${error.message}`);
+  }
+}
+
+export async function twilioListMobileNumbers(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const numbers = await this.twilioClient.availablePhoneNumbers('US').mobile.list(args);
+    return formatTwilioResponse(numbers);
+  } catch (error: any) {
+    throw new Error(`Failed to list mobile numbers: ${error.message}`);
+  }
+}
+
+export async function twilioSearchAvailableNumbers(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const { countryCode, type, ...searchParams } = args;
+    const numbers = await this.twilioClient.availablePhoneNumbers(countryCode)[type].list(searchParams);
+    return formatTwilioResponse(numbers);
+  } catch (error: any) {
+    throw new Error(`Failed to search available numbers: ${error.message}`);
+  }
+}
+
+export async function twilioPortPhoneNumber(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const portRequest = await this.twilioClient.porting.portRequests.create(args);
+    return formatTwilioResponse(portRequest);
+  } catch (error: any) {
+    throw new Error(`Failed to port phone number: ${error.message}`);
+  }
+}
+
+// ============================================================
+// LOOKUP - 1 handler
+// ============================================================
+
+export async function twilioLookupPhoneNumber(this: any, args: any) {
+  if (!this.twilioClient) throw new Error('Twilio client not initialized');
+  try {
+    const { phoneNumber, ...options } = args;
+    const lookup = await this.twilioClient.lookups.v1.phoneNumbers(phoneNumber).fetch(options);
+    return formatTwilioResponse(lookup);
+  } catch (error: any) {
+    throw new Error(`Failed to lookup phone number: ${error.message}`);
+  }
+}
+
+

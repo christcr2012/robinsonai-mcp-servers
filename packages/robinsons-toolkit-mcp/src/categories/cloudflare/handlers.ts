@@ -1748,6 +1748,478 @@ export async function cloudflareDeleteRateLimit(this: any, args: any) {
   }
 }
 
+// ============================================================
+// WORKERS - Additional handlers (10 handlers)
+// ============================================================
+
+export async function cloudflareGetWorker(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, scriptName } = args;
+    const worker = await this.cloudflareClient.workers.scripts.get(accountId, scriptName);
+    return formatCloudflareResponse(worker);
+  } catch (error: any) {
+    throw new Error(`Failed to get worker: ${error.message}`);
+  }
+}
+
+export async function cloudflareDeleteWorker(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, scriptName } = args;
+    await this.cloudflareClient.workers.scripts.delete(accountId, scriptName);
+    return formatCloudflareResponse({ accountId, scriptName, status: 'deleted' });
+  } catch (error: any) {
+    throw new Error(`Failed to delete worker: ${error.message}`);
+  }
+}
+
+export async function cloudflareUploadWorker(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, scriptName, script, bindings } = args;
+    const worker = await this.cloudflareClient.workers.scripts.upload(accountId, scriptName, script, { bindings });
+    return formatCloudflareResponse(worker);
+  } catch (error: any) {
+    throw new Error(`Failed to upload worker: ${error.message}`);
+  }
+}
+
+export async function cloudflareListWorkers(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId } = args;
+    const workers = await this.cloudflareClient.workers.scripts.list(accountId);
+    return formatCloudflareResponse(workers);
+  } catch (error: any) {
+    throw new Error(`Failed to list workers: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetWorkerSettings(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, scriptName } = args;
+    const settings = await this.cloudflareClient.workers.scripts.getSettings(accountId, scriptName);
+    return formatCloudflareResponse(settings);
+  } catch (error: any) {
+    throw new Error(`Failed to get worker settings: ${error.message}`);
+  }
+}
+
+export async function cloudflareUpdateWorkerSettings(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, scriptName, settings } = args;
+    const updated = await this.cloudflareClient.workers.scripts.updateSettings(accountId, scriptName, settings);
+    return formatCloudflareResponse(updated);
+  } catch (error: any) {
+    throw new Error(`Failed to update worker settings: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetWorkerUsage(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId } = args;
+    const usage = await this.cloudflareClient.workers.usage(accountId);
+    return formatCloudflareResponse(usage);
+  } catch (error: any) {
+    throw new Error(`Failed to get worker usage: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetWorkerAnalytics(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, scriptName } = args;
+    const analytics = await this.cloudflareClient.workers.scripts.getAnalytics(accountId, scriptName);
+    return formatCloudflareResponse(analytics);
+  } catch (error: any) {
+    throw new Error(`Failed to get worker analytics: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetWorkerTail(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, scriptName } = args;
+    const tail = await this.cloudflareClient.workers.scripts.getTail(accountId, scriptName);
+    return formatCloudflareResponse(tail);
+  } catch (error: any) {
+    throw new Error(`Failed to get worker tail: ${error.message}`);
+  }
+}
+
+export async function cloudflareListWorkerDeployments(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, scriptName } = args;
+    const deployments = await this.cloudflareClient.workers.scripts.listDeployments(accountId, scriptName);
+    return formatCloudflareResponse(deployments);
+  } catch (error: any) {
+    throw new Error(`Failed to list worker deployments: ${error.message}`);
+  }
+}
+
+// ============================================================
+// WORKER NAMESPACES - 2 handlers
+// ============================================================
+
+export async function cloudflareRenameWorkerNamespace(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, namespaceId, newName } = args;
+    const namespace = await this.cloudflareClient.workers.namespaces.rename(accountId, namespaceId, { title: newName });
+    return formatCloudflareResponse(namespace);
+  } catch (error: any) {
+    throw new Error(`Failed to rename worker namespace: ${error.message}`);
+  }
+}
+
+export async function cloudflareListWorkerSubdomain(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId } = args;
+    const subdomain = await this.cloudflareClient.workers.subdomain.get(accountId);
+    return formatCloudflareResponse(subdomain);
+  } catch (error: any) {
+    throw new Error(`Failed to list worker subdomain: ${error.message}`);
+  }
+}
+
+// ============================================================
+// PAGES - Additional handlers (5 handlers)
+// ============================================================
+
+export async function cloudflareGetPagesBuildConfig(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, projectName } = args;
+    const config = await this.cloudflareClient.pages.projects.getBuildConfig(accountId, projectName);
+    return formatCloudflareResponse(config);
+  } catch (error: any) {
+    throw new Error(`Failed to get Pages build config: ${error.message}`);
+  }
+}
+
+export async function cloudflareUpdatePagesBuildConfig(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, projectName, buildConfig } = args;
+    const updated = await this.cloudflareClient.pages.projects.updateBuildConfig(accountId, projectName, buildConfig);
+    return formatCloudflareResponse(updated);
+  } catch (error: any) {
+    throw new Error(`Failed to update Pages build config: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetPagesEnvVars(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, projectName } = args;
+    const envVars = await this.cloudflareClient.pages.projects.getEnvVars(accountId, projectName);
+    return formatCloudflareResponse(envVars);
+  } catch (error: any) {
+    throw new Error(`Failed to get Pages env vars: ${error.message}`);
+  }
+}
+
+export async function cloudflareSetPagesEnvVar(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, projectName, key, value, environment } = args;
+    const envVar = await this.cloudflareClient.pages.projects.setEnvVar(accountId, projectName, { key, value, environment });
+    return formatCloudflareResponse(envVar);
+  } catch (error: any) {
+    throw new Error(`Failed to set Pages env var: ${error.message}`);
+  }
+}
+
+export async function cloudflareDeletePagesEnvVar(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, projectName, key } = args;
+    await this.cloudflareClient.pages.projects.deleteEnvVar(accountId, projectName, key);
+    return formatCloudflareResponse({ accountId, projectName, key, status: 'deleted' });
+  } catch (error: any) {
+    throw new Error(`Failed to delete Pages env var: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetPagesDeploymentLogs(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, projectName, deploymentId } = args;
+    const logs = await this.cloudflareClient.pages.projects.getDeploymentLogs(accountId, projectName, deploymentId);
+    return formatCloudflareResponse(logs);
+  } catch (error: any) {
+    throw new Error(`Failed to get Pages deployment logs: ${error.message}`);
+  }
+}
+
+export async function cloudflarePurgePagesCache(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, projectName } = args;
+    await this.cloudflareClient.pages.projects.purgeCache(accountId, projectName);
+    return formatCloudflareResponse({ accountId, projectName, status: 'cache purged' });
+  } catch (error: any) {
+    throw new Error(`Failed to purge Pages cache: ${error.message}`);
+  }
+}
+
+// ============================================================
+// R2 - Additional handlers (3 handlers)
+// ============================================================
+
+export async function cloudflarePutR2Object(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, bucketName, key, body, metadata } = args;
+    const object = await this.cloudflareClient.r2.objects.put(accountId, bucketName, key, body, metadata);
+    return formatCloudflareResponse(object);
+  } catch (error: any) {
+    throw new Error(`Failed to put R2 object: ${error.message}`);
+  }
+}
+
+export async function cloudflareUpdateR2ObjectMetadata(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, bucketName, key, metadata } = args;
+    const object = await this.cloudflareClient.r2.objects.updateMetadata(accountId, bucketName, key, metadata);
+    return formatCloudflareResponse(object);
+  } catch (error: any) {
+    throw new Error(`Failed to update R2 object metadata: ${error.message}`);
+  }
+}
+
+export async function cloudflareGenerateR2PresignedUrl(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, bucketName, key, expiresIn } = args;
+    const url = await this.cloudflareClient.r2.objects.generatePresignedUrl(accountId, bucketName, key, expiresIn);
+    return formatCloudflareResponse({ url });
+  } catch (error: any) {
+    throw new Error(`Failed to generate R2 presigned URL: ${error.message}`);
+  }
+}
+
+// ============================================================
+// KV - Additional handlers (3 handlers)
+// ============================================================
+
+export async function cloudflareListKvValues(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, namespaceId, prefix, limit } = args;
+    const values = await this.cloudflareClient.kv.namespaces.listKeys(accountId, namespaceId, { prefix, limit });
+    return formatCloudflareResponse(values);
+  } catch (error: any) {
+    throw new Error(`Failed to list KV values: ${error.message}`);
+  }
+}
+
+export async function cloudflareExportKvNamespace(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, namespaceId } = args;
+    const data = await this.cloudflareClient.kv.namespaces.export(accountId, namespaceId);
+    return formatCloudflareResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to export KV namespace: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetKvUsage(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, namespaceId } = args;
+    const usage = await this.cloudflareClient.kv.namespaces.getUsage(accountId, namespaceId);
+    return formatCloudflareResponse(usage);
+  } catch (error: any) {
+    throw new Error(`Failed to get KV usage: ${error.message}`);
+  }
+}
+
+// ============================================================
+// D1 - Additional handlers (6 handlers)
+// ============================================================
+
+export async function cloudflareListD1Tables(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, databaseId } = args;
+    const tables = await this.cloudflareClient.d1.databases.listTables(accountId, databaseId);
+    return formatCloudflareResponse(tables);
+  } catch (error: any) {
+    throw new Error(`Failed to list D1 tables: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetD1TableSchema(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, databaseId, tableName } = args;
+    const schema = await this.cloudflareClient.d1.databases.getTableSchema(accountId, databaseId, tableName);
+    return formatCloudflareResponse(schema);
+  } catch (error: any) {
+    throw new Error(`Failed to get D1 table schema: ${error.message}`);
+  }
+}
+
+export async function cloudflareExportD1Database(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, databaseId } = args;
+    const data = await this.cloudflareClient.d1.databases.export(accountId, databaseId);
+    return formatCloudflareResponse(data);
+  } catch (error: any) {
+    throw new Error(`Failed to export D1 database: ${error.message}`);
+  }
+}
+
+export async function cloudflareImportD1Database(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, databaseId, data } = args;
+    const result = await this.cloudflareClient.d1.databases.import(accountId, databaseId, data);
+    return formatCloudflareResponse(result);
+  } catch (error: any) {
+    throw new Error(`Failed to import D1 database: ${error.message}`);
+  }
+}
+
+export async function cloudflareRestoreD1Database(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, databaseId, backupId } = args;
+    const result = await this.cloudflareClient.d1.databases.restore(accountId, databaseId, backupId);
+    return formatCloudflareResponse(result);
+  } catch (error: any) {
+    throw new Error(`Failed to restore D1 database: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetD1Usage(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, databaseId } = args;
+    const usage = await this.cloudflareClient.d1.databases.getUsage(accountId, databaseId);
+    return formatCloudflareResponse(usage);
+  } catch (error: any) {
+    throw new Error(`Failed to get D1 usage: ${error.message}`);
+  }
+}
+
+// ============================================================
+// QUEUES - Additional handlers (2 handlers)
+// ============================================================
+
+export async function cloudflareGetQueueStats(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, queueId } = args;
+    const stats = await this.cloudflareClient.queues.getStats(accountId, queueId);
+    return formatCloudflareResponse(stats);
+  } catch (error: any) {
+    throw new Error(`Failed to get queue stats: ${error.message}`);
+  }
+}
+
+export async function cloudflareUpdateQueueSettings(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, queueId, settings } = args;
+    const updated = await this.cloudflareClient.queues.updateSettings(accountId, queueId, settings);
+    return formatCloudflareResponse(updated);
+  } catch (error: any) {
+    throw new Error(`Failed to update queue settings: ${error.message}`);
+  }
+}
+
+// ============================================================
+// STREAM - Additional handlers (2 handlers)
+// ============================================================
+
+export async function cloudflareDownloadStreamVideo(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, videoId } = args;
+    const download = await this.cloudflareClient.stream.videos.download(accountId, videoId);
+    return formatCloudflareResponse(download);
+  } catch (error: any) {
+    throw new Error(`Failed to download Stream video: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetStreamVideoEmbed(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, videoId } = args;
+    const embed = await this.cloudflareClient.stream.videos.getEmbed(accountId, videoId);
+    return formatCloudflareResponse(embed);
+  } catch (error: any) {
+    throw new Error(`Failed to get Stream video embed: ${error.message}`);
+  }
+}
+
+// ============================================================
+// DURABLE OBJECTS - Additional handlers (2 handlers)
+// ============================================================
+
+export async function cloudflareGetDurableObjectsUsage(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId } = args;
+    const usage = await this.cloudflareClient.durableObjects.getUsage(accountId);
+    return formatCloudflareResponse(usage);
+  } catch (error: any) {
+    throw new Error(`Failed to get Durable Objects usage: ${error.message}`);
+  }
+}
+
+export async function cloudflareMigrateDurableObjects(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { accountId, namespaceId, migration } = args;
+    const result = await this.cloudflareClient.durableObjects.migrate(accountId, namespaceId, migration);
+    return formatCloudflareResponse(result);
+  } catch (error: any) {
+    throw new Error(`Failed to migrate Durable Objects: ${error.message}`);
+  }
+}
+
+// ============================================================
+// ANALYTICS & ZONE - 2 handlers
+// ============================================================
+
+export async function cloudflareGetAnalytics(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { zoneId, since, until } = args;
+    const analytics = await this.cloudflareClient.zones.analytics.dashboard(zoneId, { since, until });
+    return formatCloudflareResponse(analytics);
+  } catch (error: any) {
+    throw new Error(`Failed to get analytics: ${error.message}`);
+  }
+}
+
+export async function cloudflareGetZonePlan(this: any, args: any) {
+  if (!this.cloudflareClient) throw new Error('Cloudflare client not initialized');
+  try {
+    const { zoneId } = args;
+    const plan = await this.cloudflareClient.zones.settings.getPlan(zoneId);
+    return formatCloudflareResponse(plan);
+  } catch (error: any) {
+    throw new Error(`Failed to get zone plan: ${error.message}`);
+  }
+}
+
+
+
+
 
 
 

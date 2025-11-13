@@ -1624,6 +1624,178 @@ export async function stripeWebhookEndpointList(this: any, args: any) {
   }
 }
 
+// ============================================================
+// EXTERNAL ACCOUNTS - 2 handlers
+// ============================================================
+
+export async function stripeExternalAccountCreate(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { accountId, externalAccount } = args;
+    const account = await this.stripeClient.accounts.createExternalAccount(accountId, { external_account: externalAccount });
+    return formatStripeResponse(account);
+  } catch (error: any) {
+    throw new Error(`Failed to create external account: ${error.message}`);
+  }
+}
+
+export async function stripeExternalAccountDelete(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { accountId, externalAccountId } = args;
+    await this.stripeClient.accounts.deleteExternalAccount(accountId, externalAccountId);
+    return formatStripeResponse({ accountId, externalAccountId, status: 'deleted' });
+  } catch (error: any) {
+    throw new Error(`Failed to delete external account: ${error.message}`);
+  }
+}
+
+// ============================================================
+// SOURCES - 4 handlers
+// ============================================================
+
+export async function stripeSourceCreate(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const source = await this.stripeClient.sources.create(args);
+    return formatStripeResponse(source);
+  } catch (error: any) {
+    throw new Error(`Failed to create source: ${error.message}`);
+  }
+}
+
+export async function stripeSourceRetrieve(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { sourceId } = args;
+    const source = await this.stripeClient.sources.retrieve(sourceId);
+    return formatStripeResponse(source);
+  } catch (error: any) {
+    throw new Error(`Failed to retrieve source: ${error.message}`);
+  }
+}
+
+export async function stripeSourceUpdate(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { sourceId, ...updates } = args;
+    const source = await this.stripeClient.sources.update(sourceId, updates);
+    return formatStripeResponse(source);
+  } catch (error: any) {
+    throw new Error(`Failed to update source: ${error.message}`);
+  }
+}
+
+export async function stripeSourceDetach(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { customerId, sourceId } = args;
+    const source = await this.stripeClient.customers.deleteSource(customerId, sourceId);
+    return formatStripeResponse(source);
+  } catch (error: any) {
+    throw new Error(`Failed to detach source: ${error.message}`);
+  }
+}
+
+// ============================================================
+// TAX RATES - 1 handler (delete was missing)
+// ============================================================
+
+export async function stripeTaxRateDelete(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { taxRateId } = args;
+    await this.stripeClient.taxRates.del(taxRateId);
+    return formatStripeResponse({ taxRateId, status: 'deleted' });
+  } catch (error: any) {
+    throw new Error(`Failed to delete tax rate: ${error.message}`);
+  }
+}
+
+// ============================================================
+// TRANSFERS - 5 handlers
+// ============================================================
+
+export async function stripeTransferCreate(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const transfer = await this.stripeClient.transfers.create(args);
+    return formatStripeResponse(transfer);
+  } catch (error: any) {
+    throw new Error(`Failed to create transfer: ${error.message}`);
+  }
+}
+
+export async function stripeTransferRetrieve(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { transferId } = args;
+    const transfer = await this.stripeClient.transfers.retrieve(transferId);
+    return formatStripeResponse(transfer);
+  } catch (error: any) {
+    throw new Error(`Failed to retrieve transfer: ${error.message}`);
+  }
+}
+
+export async function stripeTransferUpdate(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { transferId, ...updates } = args;
+    const transfer = await this.stripeClient.transfers.update(transferId, updates);
+    return formatStripeResponse(transfer);
+  } catch (error: any) {
+    throw new Error(`Failed to update transfer: ${error.message}`);
+  }
+}
+
+export async function stripeTransferList(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const transfers = await this.stripeClient.transfers.list(args);
+    return formatStripeResponse(transfers);
+  } catch (error: any) {
+    throw new Error(`Failed to list transfers: ${error.message}`);
+  }
+}
+
+export async function stripeTransferReverse(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { transferId } = args;
+    const reversal = await this.stripeClient.transfers.createReversal(transferId);
+    return formatStripeResponse(reversal);
+  } catch (error: any) {
+    throw new Error(`Failed to reverse transfer: ${error.message}`);
+  }
+}
+
+// ============================================================
+// WEBHOOK UTILITIES - 2 handlers
+// ============================================================
+
+export async function stripeWebhookConstructEvent(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { payload, signature, secret } = args;
+    const event = this.stripeClient.webhooks.constructEvent(payload, signature, secret);
+    return formatStripeResponse(event);
+  } catch (error: any) {
+    throw new Error(`Failed to construct webhook event: ${error.message}`);
+  }
+}
+
+export async function stripeWebhookVerifySignature(this: any, args: any) {
+  if (!this.stripeClient) throw new Error('Stripe client not initialized');
+  try {
+    const { payload, signature, secret } = args;
+    const isValid = this.stripeClient.webhooks.signature.verifyHeader(payload, signature, secret);
+    return formatStripeResponse({ isValid });
+  } catch (error: any) {
+    throw new Error(`Failed to verify webhook signature: ${error.message}`);
+  }
+}
+
+
 
 
 
