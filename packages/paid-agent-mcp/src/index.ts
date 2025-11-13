@@ -2583,6 +2583,82 @@ async function handleGenerateProjectBrief(args: any) {
 }
 
 /**
+ * Detect if a task is asking context-related questions
+ */
+function detectContextQuery(task: string): boolean {
+  const lowerTask = task.toLowerCase();
+
+  // Patterns that indicate context queries
+  const contextPatterns = [
+    /where\s+(is|are|does|do)/i,
+    /how\s+(does|do|is|are)/i,
+    /what\s+(is|are|does|do|files?|handles?|implements?)/i,
+    /which\s+(files?|functions?|classes?|modules?)/i,
+    /find\s+(the|a|all)/i,
+    /show\s+(me|the)/i,
+    /list\s+(all|the)/i,
+    /get\s+(the|all)/i,
+  ];
+
+  return contextPatterns.some(pattern => pattern.test(task));
+}
+
+/**
+ * Build a context summary from context_smart_query results
+ */
+function buildContextSummary(contextResult: any): string {
+  if (!contextResult || contextResult.error) {
+    return '';
+  }
+
+  const parts: string[] = [];
+
+  // Add summary
+  if (contextResult.summary) {
+    parts.push(`## Context Evidence\n\n${contextResult.summary}\n`);
+  }
+
+  // Add top hits
+  if (contextResult.top_hits && contextResult.top_hits.length > 0) {
+    parts.push(`### Relevant Code Locations:\n`);
+    contextResult.top_hits.slice(0, 5).forEach((hit: any, index: number) => {
+      parts.push(`${index + 1}. **${hit.title || hit.path}** (score: ${hit.score?.toFixed(2) || 'N/A'})`);
+      parts.push(`   - Path: \`${hit.path}\``);
+      if (hit.snippet) {
+        parts.push(`   - Snippet: ${hit.snippet.substring(0, 200)}${hit.snippet.length > 200 ? '...' : ''}`);
+      }
+      parts.push('');
+    });
+  }
+
+  // Add external documentation from Context7
+  if (contextResult.external_docs && contextResult.external_docs.length > 0) {
+    parts.push(`### External Documentation (Context7):\n`);
+    contextResult.external_docs.slice(0, 3).forEach((doc: any, index: number) => {
+      parts.push(`${index + 1}. **${doc.title}**`);
+      if (doc.uri) {
+        parts.push(`   - URL: ${doc.uri}`);
+      }
+      if (doc.snippet) {
+        parts.push(`   - Summary: ${doc.snippet.substring(0, 200)}${doc.snippet.length > 200 ? '...' : ''}`);
+      }
+      parts.push('');
+    });
+  }
+
+  // Add recommended next steps
+  if (contextResult.recommended_next_steps && contextResult.recommended_next_steps.length > 0) {
+    parts.push(`### Recommended Next Steps:\n`);
+    contextResult.recommended_next_steps.forEach((step: string, index: number) => {
+      parts.push(`${index + 1}. ${step}`);
+    });
+    parts.push('');
+  }
+
+  return parts.join('\n');
+}
+
+/**
  * Phase FA-4: Run Paid Agent Task with comprehensive control over models, budgets, and behavior
  * This is the premium version of free_agent_run_task with higher budgets and deeper checks
  */
