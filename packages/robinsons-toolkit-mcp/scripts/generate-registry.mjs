@@ -45,26 +45,45 @@ const IMPORT_DIR = DIST;
 
 // Category metadata (matches tool-registry.ts)
 const CATEGORY_METADATA = {
-  github: { displayName: 'GitHub', description: 'GitHub repository, issue, PR, workflow, and collaboration tools' },
-  vercel: { displayName: 'Vercel', description: 'Vercel deployment, project, domain, and serverless platform tools' },
-  neon: { displayName: 'Neon', description: 'Neon serverless Postgres database management tools' },
-  upstash: { displayName: 'Upstash Redis', description: 'Upstash Redis database operations and management tools' },
-  google: { displayName: 'Google Workspace', description: 'Gmail, Drive, Calendar, Sheets, Docs, and other Google Workspace tools' },
-  openai: { displayName: 'OpenAI', description: 'OpenAI API tools for chat, embeddings, images, audio, assistants, fine-tuning, and more' },
-  stripe: { displayName: 'Stripe', description: 'Stripe payment processing, subscriptions, invoices, and billing tools' },
-  supabase: { displayName: 'Supabase', description: 'Supabase database, authentication, storage, and edge functions tools' },
-  playwright: { displayName: 'Playwright', description: 'Playwright browser automation and web scraping tools' },
-  twilio: { displayName: 'Twilio', description: 'Twilio SMS, voice, video, and messaging tools' },
-  resend: { displayName: 'Resend', description: 'Resend email delivery and management tools' },
-  cloudflare: { displayName: 'Cloudflare', description: 'Cloudflare DNS, CDN, Workers, and security tools' },
-  context7: { displayName: 'Context7', description: 'Context7 documentation and API reference tools' },
-  postgres: { displayName: 'PostgreSQL', description: 'PostgreSQL database with pgvector for semantic search and embeddings' },
-  neo4j: { displayName: 'Neo4j', description: 'Neo4j graph database for knowledge graphs and relationships' },
-  qdrant: { displayName: 'Qdrant', description: 'Qdrant vector database for semantic search and similarity' },
-  n8n: { displayName: 'N8N', description: 'N8N workflow automation and integration tools' },
-  langchain: { displayName: 'LangChain', description: 'LangChain AI orchestration and RAG tools' },
-  gateway: { displayName: 'Gateway', description: 'API gateway and proxy tools' },
-  health: { displayName: 'Health', description: 'Health check and monitoring tools' },
+  // Main integrations
+  github: { id: 'github', displayName: 'GitHub', description: 'GitHub repository, issue, PR, workflow, and collaboration tools' },
+  vercel: { id: 'vercel', displayName: 'Vercel', description: 'Vercel deployment, project, domain, and serverless platform tools' },
+  neon: { id: 'neon', displayName: 'Neon', description: 'Neon serverless Postgres database management tools' },
+  upstash: { id: 'upstash', displayName: 'Upstash Redis', description: 'Upstash Redis database operations and management tools' },
+  redis: { id: 'redis', displayName: 'Redis', description: 'Redis database operations via Upstash (alias for upstash category)' },
+  google: { id: 'google', displayName: 'Google Workspace', description: 'Gmail, Drive, Calendar, Sheets, Docs, and other Google Workspace tools' },
+  openai: { id: 'openai', displayName: 'OpenAI', description: 'OpenAI API tools for chat, embeddings, images, audio, assistants, fine-tuning, and more' },
+  stripe: { id: 'stripe', displayName: 'Stripe', description: 'Stripe payment processing, subscriptions, invoices, and billing tools' },
+  supabase: { id: 'supabase', displayName: 'Supabase', description: 'Supabase database, authentication, storage, and edge functions tools' },
+  playwright: { id: 'playwright', displayName: 'Playwright', description: 'Playwright browser automation and web scraping tools' },
+  twilio: { id: 'twilio', displayName: 'Twilio', description: 'Twilio SMS, voice, video, and messaging tools' },
+  resend: { id: 'resend', displayName: 'Resend', description: 'Resend email delivery and management tools' },
+  cloudflare: { id: 'cloudflare', displayName: 'Cloudflare', description: 'Cloudflare DNS, CDN, Workers, and security tools' },
+  context7: { id: 'context7', displayName: 'Context7', description: 'Context7 documentation and API reference tools' },
+  postgres: { id: 'postgres', displayName: 'PostgreSQL', description: 'PostgreSQL database with pgvector for semantic search and embeddings' },
+  neo4j: { id: 'neo4j', displayName: 'Neo4j', description: 'Neo4j graph database for knowledge graphs and relationships' },
+  qdrant: { id: 'qdrant', displayName: 'Qdrant', description: 'Qdrant vector database for semantic search and similarity' },
+  n8n: { id: 'n8n', displayName: 'N8N', description: 'N8N workflow automation and integration tools' },
+  langchain: { id: 'langchain', displayName: 'LangChain', description: 'LangChain AI orchestration and RAG tools' },
+  gateway: { id: 'gateway', displayName: 'Gateway', description: 'API gateway and proxy tools for N8N, Crawl4AI, SearXNG, and other services' },
+  fastapi: { id: 'fastapi', displayName: 'FastAPI', description: 'FastAPI gateway tools (alias for gateway category)' },
+  health: { id: 'health', displayName: 'Health', description: 'Health check and monitoring tools' },
+
+  // Google Workspace subcategories
+  admin: { id: 'admin', displayName: 'Google Admin', description: 'Google Workspace admin console tools for user, group, device, and organization management' },
+  calendar: { id: 'calendar', displayName: 'Google Calendar', description: 'Google Calendar tools for event creation, scheduling, and calendar management' },
+  chat: { id: 'chat', displayName: 'Google Chat', description: 'Google Chat tools for messaging, spaces, and team collaboration' },
+  classroom: { id: 'classroom', displayName: 'Google Classroom', description: 'Google Classroom tools for course, assignment, and student management' },
+  docs: { id: 'docs', displayName: 'Google Docs', description: 'Google Docs tools for document creation, editing, and collaboration' },
+  drive: { id: 'drive', displayName: 'Google Drive', description: 'Google Drive tools for file storage, sharing, and management' },
+  forms: { id: 'forms', displayName: 'Google Forms', description: 'Google Forms tools for survey and form creation and response management' },
+  gmail: { id: 'gmail', displayName: 'Gmail', description: 'Gmail tools for email sending, reading, searching, and management' },
+  licensing: { id: 'licensing', displayName: 'Google Licensing', description: 'Google Workspace licensing tools for subscription and license management' },
+  people: { id: 'people', displayName: 'Google People', description: 'Google People API tools for contact and profile management' },
+  reports: { id: 'reports', displayName: 'Google Reports', description: 'Google Workspace reports and analytics tools for usage and activity tracking' },
+  sheets: { id: 'sheets', displayName: 'Google Sheets', description: 'Google Sheets tools for spreadsheet creation, editing, and data management' },
+  slides: { id: 'slides', displayName: 'Google Slides', description: 'Google Slides tools for presentation creation and editing' },
+  tasks: { id: 'tasks', displayName: 'Google Tasks', description: 'Google Tasks tools for task and to-do list management' },
 };
 
 // Map tool file names to categories and handler modules
@@ -149,6 +168,12 @@ function extractSubcategory(toolName) {
   if (toolName.startsWith('slides_')) return 'slides';
   if (toolName.startsWith('forms_')) return 'forms';
   if (toolName.startsWith('admin_')) return 'admin';
+  if (toolName.startsWith('chat_')) return 'chat';
+  if (toolName.startsWith('classroom_')) return 'classroom';
+  if (toolName.startsWith('licensing_')) return 'licensing';
+  if (toolName.startsWith('people_')) return 'people';
+  if (toolName.startsWith('reports_')) return 'reports';
+  if (toolName.startsWith('tasks_')) return 'tasks';
   return null;
 }
 
