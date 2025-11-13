@@ -41,6 +41,9 @@ import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, ge
 import { buildStrictSystemPrompt } from './prompt-builder.js';
 import { getWorkspaceRoot } from './lib/workspace.js';
 import { SimpleDelegates } from './agents/simple-delegates.js';
+import { run_parallel } from './tools/run_parallel.js';
+import { paths_probe } from './tools/paths_probe.js';
+import { generator_probe } from './tools/generator_probe.js';
 
 const server = new Server(
   {
@@ -1040,6 +1043,52 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['code'],
         },
       },
+      // Free Agent Core tools (portable code generation)
+      {
+        name: 'free_agent_run',
+        description: 'Run Free Agent against a repo to implement a task. Uses spec-first codegen + quality gates. Portable across any repository.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            task: {
+              type: 'string',
+              description: 'What to build/fix (e.g., "Implement user authentication", "Fix race condition")',
+            },
+            kind: {
+              type: 'string',
+              enum: ['feature', 'bugfix', 'refactor', 'research'],
+              description: 'Type of task (default: feature)',
+              default: 'feature',
+            },
+            repo: {
+              type: 'string',
+              description: 'Path to target repo (defaults to current working directory)',
+            },
+          },
+          required: ['task'],
+        },
+      },
+      {
+        name: 'free_agent_smoke',
+        description: 'Run a fast smoke test (codegen + policy checks) without changing files. Validates spec registry and handlers.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            repo: {
+              type: 'string',
+              description: 'Path to target repo (defaults to current working directory)',
+            },
+          },
+        },
+      },
+      // Parallel execution tool
+      run_parallel,
+      // Path debugging tool
+      paths_probe,
+      // Generator debugging tool
+      generator_probe,
     ],
   };
 });
@@ -1211,6 +1260,46 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: 'text',
               text: JSON.stringify(docsResult, null, 2),
+            },
+          ],
+        };
+
+      // Free Agent Core tools
+      case 'free_agent_run':
+        return await handleFreeAgentRun(args);
+
+      case 'free_agent_smoke':
+        return await handleFreeAgentSmoke(args);
+
+      case 'run_parallel':
+        const parallelResult = await run_parallel.handler({ args, server });
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(parallelResult, null, 2),
+            },
+          ],
+        };
+
+      case 'paths_probe':
+        const pathsResult = await paths_probe.handler(args);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(pathsResult, null, 2),
+            },
+          ],
+        };
+
+      case 'generator_probe':
+        const generatorResult = await generator_probe.handler(args);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(generatorResult, null, 2),
             },
           ],
         };
@@ -3302,6 +3391,150 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error('OpenAI Worker MCP server running on stdio');
+}
+
+/**
+ * Handle free_agent_run tool call
+ * Uses Free Agent Core library for portable code generation
+ */
+async function handleFreeAgentRun(args: any) {
+  try {
+    const task = String(args.task || '');
+    const kind = (args.kind as any) || 'feature';
+
+    console.log('[handleFreeAgentRun] Using Free Agent Core with PCE and pluggable generator...');
+
+    // Import Free Agent Core's runFreeAgent function and path resolver
+    const { runFreeAgent: coreRunFreeAgent } = await import('@fa/core');
+    const { resolveRepoRoot } = await import('@fa/core/utils/paths.js');
+
+    // Resolve repo path (handles relative paths, env vars, etc.)
+    const repoRoot = resolveRepoRoot(args.repo);
+
+    // Run the full pipeline with PCE
+    await coreRunFreeAgent({
+      repo: repoRoot,
+      task,
+      kind,
+    });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              success: true,
+              message: 'Free Agent: task completed with PCE and quality gates',
+              repo: repoRoot,
+              task,
+              kind,
+              cost: {
+                total: 0,
+                currency: 'USD',
+                note: 'FREE - Free Agent Core with PCE + pluggable generator',
+              },
+            },
+            null,
+            2
+          ),
+        },
+      ],
+    };
+  } catch (error: any) {
+    console.error('[handleFreeAgentRun] Error:', error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              success: false,
+              error: error.message,
+            },
+            null,
+            2
+          ),
+        },
+      ],
+      isError: true,
+    };
+  }
+}
+
+/**
+ * Handle free_agent_smoke tool call
+ * Runs smoke test without changing files
+ */
+async function handleFreeAgentSmoke(args: any) {
+  try {
+    const { ensureCodegen } = await import('@fa/core/spec');
+
+    const repo = args.repo || process.cwd();
+    const specRegistry = process.env.FREE_AGENT_SPEC;
+
+    if (!specRegistry) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                success: false,
+                error: 'FREE_AGENT_SPEC environment variable not set',
+              },
+              null,
+              2
+            ),
+          },
+        ],
+        isError: true,
+      };
+    }
+
+    // Run codegen smoke test
+    await ensureCodegen({ registry: specRegistry, outDir: undefined });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              success: true,
+              message: 'Spec/codegen OK for repo: ' + repo,
+              repo,
+              cost: {
+                total: 0,
+                currency: 'USD',
+                note: 'FREE - Smoke test only',
+              },
+            },
+            null,
+            2
+          ),
+        },
+      ],
+    };
+  } catch (error: any) {
+    console.error('[handleFreeAgentSmoke] Error:', error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              success: false,
+              error: error.message,
+            },
+            null,
+            2
+          ),
+        },
+      ],
+      isError: true,
+    };
+  }
 }
 
 main().catch(console.error);
