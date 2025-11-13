@@ -122,6 +122,9 @@ class RobinsonsToolkitServer {
       case 'toolkit_discover':
         return this.discoverTools(args);
 
+      case 'toolkit_search_tools':
+        return this.searchTools(args);
+
       case 'toolkit_call':
         // Note: client sends { category, tool_name, arguments }
         return this.executeToolLazy(args.tool_name, args.arguments);
@@ -267,7 +270,7 @@ class RobinsonsToolkitServer {
 
   private discoverTools(args: any) {
     const { query, limit = 10 } = args;
-    const results = searchTools(query, limit);
+    const results = searchTools(query, { limit });
 
     return {
       content: [
@@ -281,6 +284,45 @@ class RobinsonsToolkitServer {
                 description: t.description,
                 category: t.category,
                 subcategory: t.subcategory,
+              })),
+              total: results.length,
+            },
+            null,
+            2
+          ),
+        },
+      ],
+    };
+  }
+
+  private searchTools(args: any) {
+    const { query, categoryId, tags, dangerLevel, limit = 10 } = args;
+    const results = searchTools(query, {
+      limit,
+      categoryId,
+      tags,
+      dangerLevel,
+    });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              query,
+              filters: {
+                categoryId: categoryId || 'none',
+                tags: tags || [],
+                dangerLevel: dangerLevel || 'none',
+              },
+              results: results.map((t) => ({
+                name: t.name,
+                description: t.description,
+                category: t.category,
+                subcategory: t.subcategory,
+                tags: t.tags || [],
+                dangerLevel: t.dangerLevel || 'unknown',
               })),
               total: results.length,
             },

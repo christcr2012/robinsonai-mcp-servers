@@ -1,7 +1,7 @@
 /**
  * Broker Tool Definitions
  *
- * The 8 meta-tools that provide access to all integration tools
+ * The 9 meta-tools that provide access to all integration tools
  * without loading them into Augment's context window.
  *
  * DYNAMIC: Category enums are generated at runtime from the registry
@@ -95,6 +95,39 @@ export function generateBrokerTools(categories: string[]): Tool[] {
           query: {
             type: 'string',
             description: 'Search query (e.g., "create repo", "deploy", "database")',
+          },
+          limit: {
+            type: 'number',
+            description: 'Maximum number of results (default: 10)',
+          },
+        },
+        required: ['query'],
+      },
+    },
+    {
+      name: 'toolkit_search_tools',
+      description: 'Advanced tool search with filtering by category, tags, and danger level. Use this when you need more precise control over search results (e.g., "find all safe read-only GitHub tools" or "find all dangerous delete operations").',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'Search query (searches tool names, descriptions, and tags)',
+          },
+          categoryId: {
+            type: 'string',
+            description: `Optional category filter. Available: ${categoryList}`,
+            enum: categoryEnum.length > 0 ? categoryEnum : undefined,
+          },
+          tags: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Optional tag filters (tool must have ALL specified tags). Common tags: read, write, delete, repo, issue, pr, deployment, database, email, file',
+          },
+          dangerLevel: {
+            type: 'string',
+            enum: ['safe', 'caution', 'dangerous'],
+            description: 'Optional danger level filter. safe=read-only, caution=modifying, dangerous=destructive',
           },
           limit: {
             type: 'number',
