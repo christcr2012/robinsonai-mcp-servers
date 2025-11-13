@@ -30,6 +30,9 @@ export interface ToolRecord {
   // Phase 3B: Enhanced metadata
   tags?: string[]; // e.g., ["read", "write", "github", "repo"]
   dangerLevel?: DangerLevel; // Safety classification
+
+  // Phase 5: Core tool metadata
+  isCore?: boolean; // true = part of curated core set for this integration
 }
 
 export interface CategoryInfo {
