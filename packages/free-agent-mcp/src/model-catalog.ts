@@ -16,7 +16,7 @@
  */
 
 export interface ModelConfig {
-  provider: 'ollama' | 'openai' | 'claude' | 'kimi' | 'voyage';
+  provider: 'ollama' | 'openai' | 'claude' | 'moonshot' | 'voyage';
   model: string;
   baseURL?: string;
   costPerInputToken: number;
@@ -96,29 +96,43 @@ export const MODEL_CATALOG: Record<string, ModelConfig> = {
   },
   
   // ========================================
-  // PAID KIMI/MOONSHOT MODELS (CHEAPEST!)
+  // PAID MOONSHOT/KIMI MODELS (CHEAPEST!)
   // ========================================
 
-  'kimi/moonshot-v1-8k': {
-    provider: 'kimi',
+  'moonshot/moonshot-v1-8k': {
+    provider: 'moonshot',
     model: 'moonshot-v1-8k',
+    baseURL: process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1',
     costPerInputToken: 0.0000002,   // $0.20 per 1M tokens
     costPerOutputToken: 0.000002,   // $2.00 per 1M tokens
     quality: 'standard',
     maxTokens: 8192,
     contextWindow: 8192,
-    description: 'Kimi 8K - Cheapest paid option, great for code generation',
+    description: 'Moonshot 8K - Cheapest paid option, great for code generation',
   },
 
-  'kimi/moonshot-v1-32k': {
-    provider: 'kimi',
+  'moonshot/moonshot-v1-32k': {
+    provider: 'moonshot',
     model: 'moonshot-v1-32k',
+    baseURL: process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1',
     costPerInputToken: 0.0000002,   // $0.20 per 1M tokens (same as 8k)
     costPerOutputToken: 0.000002,   // $2.00 per 1M tokens (same as 8k)
     quality: 'premium',
     maxTokens: 32768,
     contextWindow: 32768,
-    description: 'Kimi 32K - Cheapest paid option with longer context',
+    description: 'Moonshot 32K - Cheapest paid option with longer context',
+  },
+
+  'moonshot/kimi-k2-code': {
+    provider: 'moonshot',
+    model: 'moonshot-v1-32k',  // Kimi K2 uses the moonshot-v1-32k model
+    baseURL: process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1',
+    costPerInputToken: 0.0000002,   // $0.20 per 1M tokens
+    costPerOutputToken: 0.000002,   // $2.00 per 1M tokens
+    quality: 'best',  // Kimi K2 is the best Moonshot model for coding
+    maxTokens: 32768,
+    contextWindow: 32768,
+    description: 'Kimi K2 code-capable model from Moonshot (cheap, high quality) - DEFAULT REMOTE CODING MODEL',
   },
 
   // ========================================
@@ -320,7 +334,7 @@ export function selectBestModel(params: {
   maxCost?: number;
   taskComplexity?: 'simple' | 'medium' | 'complex' | 'expert';
   preferFree?: boolean;
-  preferredProvider?: 'ollama' | 'openai' | 'claude' | 'kimi' | 'voyage' | 'any';
+  preferredProvider?: 'ollama' | 'openai' | 'claude' | 'moonshot' | 'voyage' | 'any';
 }): string {
   const {
     minQuality = 'standard',
@@ -355,9 +369,9 @@ export function selectBestModel(params: {
     console.error('[ModelCatalog] preferredProvider=openai → Using PAID OpenAI');
     return selectOpenAIModel(taskComplexity, maxCost);
   }
-  if (preferredProvider === 'kimi') {
-    console.error('[ModelCatalog] preferredProvider=kimi → Using PAID Kimi');
-    return selectKimiModel(taskComplexity, maxCost);
+  if (preferredProvider === 'moonshot') {
+    console.error('[ModelCatalog] preferredProvider=moonshot → Using PAID Moonshot/Kimi');
+    return selectMoonshotModel(taskComplexity, maxCost);
   }
 
   // Otherwise, select best PAID model based on budget and complexity
@@ -382,9 +396,10 @@ function selectFreeModel(minQuality: 'basic' | 'standard' | 'premium' | 'best'):
 }
 
 /**
- * Select best PAID model (Kimi, OpenAI, or Claude)
+ * Select best PAID model (Moonshot/Kimi K2, OpenAI, or Claude)
  *
- * STRATEGY: Prefer Kimi for cheap tasks (best bang for buck!)
+ * STRATEGY: Prefer Moonshot/Kimi K2 for coding tasks (best bang for buck!)
+ * Kimi K2 is the DEFAULT REMOTE CODING MODEL
  */
 function selectPaidModel(
   taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
@@ -407,19 +422,19 @@ function selectPaidModel(
     return 'openai/gpt-4o';  // Good for complex tasks
   }
 
-  // For medium tasks, prefer Kimi (cheapest!) or OpenAI
+  // For medium tasks, prefer Moonshot/Kimi K2 (cheapest!) or OpenAI
   if (taskComplexity === 'medium' && maxCost >= 0.5) {
-    // Kimi is MUCH cheaper - use it if available
-    if (process.env.KIMI_API_KEY) {
-      return 'kimi/moonshot-v1-32k';  // Cheapest with longer context
+    // Moonshot is MUCH cheaper - use it if available
+    if (process.env.MOONSHOT_API_KEY) {
+      return 'moonshot/kimi-k2-code';  // DEFAULT REMOTE CODING MODEL
     }
     return 'openai/gpt-4o-mini';  // Fallback to OpenAI
   }
 
-  // For simple tasks, use CHEAPEST paid model (Kimi!)
-  if (maxCost >= 0.01) {  // Kimi is SO cheap, even $0.01 budget works
-    if (process.env.KIMI_API_KEY) {
-      return 'kimi/moonshot-v1-8k';  // Cheapest option
+  // For simple tasks, use CHEAPEST paid model (Moonshot!)
+  if (maxCost >= 0.01) {  // Moonshot is SO cheap, even $0.01 budget works
+    if (process.env.MOONSHOT_API_KEY) {
+      return 'moonshot/moonshot-v1-8k';  // Cheapest option
     }
     return 'claude/claude-3-haiku-20240307';  // Fallback to Claude Haiku
   }
@@ -464,22 +479,23 @@ function selectOpenAIModel(
 }
 
 /**
- * Select best Kimi model
+ * Select best Moonshot/Kimi model
  *
- * Kimi is EXTREMELY cheap ($0.20/$2.00 per 1M tokens)
+ * Moonshot is EXTREMELY cheap ($0.20/$2.00 per 1M tokens)
  * Best bang for buck for code generation and analysis
+ * Kimi K2 is the default remote coding model
  */
-function selectKimiModel(
+function selectMoonshotModel(
   taskComplexity: 'simple' | 'medium' | 'complex' | 'expert',
   maxCost: number
 ): string {
-  // For any task, prefer 32K context (same price as 8K)
+  // For any task, prefer Kimi K2 (best quality, same price as 32K)
   if (maxCost >= 0.01) {
-    return 'kimi/moonshot-v1-32k';  // 32K context, same price as 8K
+    return 'moonshot/kimi-k2-code';  // DEFAULT REMOTE CODING MODEL
   }
 
   // Fallback to 8K if budget is extremely tight
-  return 'kimi/moonshot-v1-8k';
+  return 'moonshot/moonshot-v1-8k';
 }
 
 /**

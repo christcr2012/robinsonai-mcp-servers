@@ -1,12 +1,13 @@
 // LLM Router with Ollama health check and provider selection
 import http from 'node:http';
 
-export type ProviderName = 'ollama' | 'openai' | 'anthropic';
+export type ProviderName = 'ollama' | 'openai' | 'anthropic' | 'moonshot';
 
 export type Providers = {
   ollama?: { baseUrl: string };
   openai?: { apiKey?: string };
   anthropic?: { apiKey?: string };
+  moonshot?: { apiKey?: string; baseUrl?: string };
 };
 
 export type LlmRouter = {
@@ -44,6 +45,10 @@ export async function createLlmRouter(env = process.env): Promise<LlmRouter> {
     ollama: env.OLLAMA_BASE_URL ? { baseUrl: env.OLLAMA_BASE_URL } : undefined,
     openai: env.OPENAI_API_KEY ? { apiKey: env.OPENAI_API_KEY } : undefined,
     anthropic: env.ANTHROPIC_API_KEY ? { apiKey: env.ANTHROPIC_API_KEY } : undefined,
+    moonshot: env.MOONSHOT_API_KEY ? {
+      apiKey: env.MOONSHOT_API_KEY,
+      baseUrl: env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1'
+    } : undefined,
   };
 
   const strictOllama = env.FREE_AGENT_STRICT_OLLAMA === '1';
@@ -65,20 +70,22 @@ export async function createLlmRouter(env = process.env): Promise<LlmRouter> {
   // Select provider order by agent
   const order: ProviderName[] = [];
   if (env.AGENT_NAME === 'free-agent') {
-    // Free Agent: Ollama-first
+    // Free Agent: Ollama-first, then Moonshot (cheap remote), then OpenAI/Anthropic
     if (ollamaReady) order.push('ollama');
+    if (providers.moonshot) order.push('moonshot'); // Kimi K2 is cheap and good for coding
     if (providers.openai) order.push('openai');
     if (providers.anthropic) order.push('anthropic');
   } else {
-    // Paid Agent or others: cloud-first
+    // Paid Agent or others: cloud-first (quality over cost)
     if (providers.openai) order.push('openai');
     if (providers.anthropic) order.push('anthropic');
+    if (providers.moonshot) order.push('moonshot'); // Moonshot as fallback for paid
     if (ollamaReady) order.push('ollama');
   }
 
   if (order.length === 0) {
     throw new Error(
-      'No LLM providers available. Supply OPENAI_API_KEY / ANTHROPIC_API_KEY, or run Ollama.'
+      'No LLM providers available. Supply OPENAI_API_KEY / ANTHROPIC_API_KEY / MOONSHOT_API_KEY, or run Ollama.'
     );
   }
 
