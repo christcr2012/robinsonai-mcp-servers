@@ -19,6 +19,7 @@
     "build:metadata": "node scripts/add-tool-metadata.mjs",
     "build:smoke": "node scripts/smoke.mjs",
     "docs": "node scripts/generate-docs.mjs",
+    "audit:placeholders": "node scripts/audit-placeholders.mjs",
     "clean": "rm -rf dist",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
