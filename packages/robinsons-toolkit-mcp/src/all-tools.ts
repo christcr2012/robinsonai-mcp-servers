@@ -24,3 +24,4 @@ export { UPSTASH_TOOLS } from './categories/upstash/tools.js';
 
 export { VERCEL_TOOLS } from './categories/vercel/tools.js';
 export { GITHUB_TOOLS } from './categories/github/tools.js';
+export { GOOGLE_TOOLS } from './categories/google/tools.js';
