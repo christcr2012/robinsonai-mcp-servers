@@ -264,20 +264,6 @@ class AutonomousAgentServer {
 
         try {
           switch (name) {
-            case 'delegate_code_generation':
-              // DEPRECATED: Forward to free_agent_run for repo-aware code generation
-              console.warn('[DEPRECATED] delegate_code_generation -> free_agent_run');
-              if (process.env.FA_DISABLE_DELEGATE === '1') {
-                throw new Error('Use free_agent_run instead of delegate_code_generation.');
-              }
-              // Forward to free_agent_run with sensible defaults
-              result = await this.runFreeAgent({
-                repo: args.repo || process.cwd(),
-                task: args.task,
-                kind: 'feature',
-              });
-              break;
-
             case 'delegate_code_analysis':
               result = await this.codeAnalyzer.analyze(args as any);
               break;
@@ -365,6 +351,40 @@ class AutonomousAgentServer {
               throw new Error(`Failed to list tools: ${toolsResult.error}`);
             }
             result = toolsResult.result;
+            break;
+
+          // Thinking Tools Discovery
+          case 'discover_thinking_tools_free-agent-mcp':
+            const thinkingClient = getSharedThinkingClient();
+            const thinkingListResult = await thinkingClient.listTools();
+            if (!thinkingListResult.success) {
+              throw new Error(`Failed to list thinking tools: ${thinkingListResult.error}`);
+            }
+            const query = (args as any)?.query?.toLowerCase() || '';
+            const limit = (args as any)?.limit || 10;
+            const allTools = thinkingListResult.result || [];
+            const filteredTools = query
+              ? allTools.filter((tool: any) =>
+                  tool.name?.toLowerCase().includes(query) ||
+                  tool.description?.toLowerCase().includes(query)
+                )
+              : allTools;
+            result = {
+              tools: filteredTools.slice(0, limit),
+              total: filteredTools.length,
+              query,
+            };
+            break;
+
+          case 'list_thinking_tools_free-agent-mcp':
+            const thinkingListAll = await getSharedThinkingClient().listTools();
+            if (!thinkingListAll.success) {
+              throw new Error(`Failed to list thinking tools: ${thinkingListAll.error}`);
+            }
+            result = {
+              tools: thinkingListAll.result || [],
+              total: (thinkingListAll.result || []).length,
+            };
             break;
 
           // Universal file editing tools (work in ANY MCP client!)
@@ -1456,44 +1476,6 @@ Generate the modified section now:`;
   private getTools(): Tool[] {
     return [
       {
-        name: 'delegate_code_generation',
-        description: 'DEPRECATED: Use free_agent_run instead. This tool forwards to free_agent_run for repo-aware code generation with PCE.',
-        inputSchema: {
-          type: 'object', additionalProperties: false,
-          properties: {
-            task: {
-              type: 'string',
-              description: 'What to build (e.g., "notifications feature", "user authentication")',
-            },
-            context: {
-              type: 'string',
-              description: 'Project context (e.g., "Next.js, TypeScript, Supabase")',
-            },
-            template: {
-              type: 'string',
-              description: 'Optional template to use',
-              enum: ['react-component', 'api-endpoint', 'database-schema', 'test-suite', 'none'],
-            },
-            model: {
-              type: 'string',
-              description: 'Which model to use (auto selects based on complexity)',
-              enum: ['deepseek-coder', 'qwen-coder', 'codellama', 'auto'],
-            },
-            complexity: {
-              type: 'string',
-              description: 'Task complexity (affects model selection)',
-              enum: ['simple', 'medium', 'complex'],
-            },
-            quality: {
-              type: 'string',
-              description: 'Quality vs speed tradeoff: fast (no sandbox, <5s), balanced (sandbox, ~30s), best (full validation, ~60s)',
-              enum: ['fast', 'balanced', 'best'],
-            },
-          },
-          required: ['task', 'context'],
-        },
-      },
-      {
         name: 'delegate_code_analysis',
         description: 'Analyze code using local LLM (0 Augment credits!). Find issues, performance problems, security vulnerabilities.',
         inputSchema: {
@@ -1694,6 +1676,33 @@ Generate the modified section now:`;
             },
           },
           required: ['category'],
+        },
+      },
+      // Thinking Tools Discovery (64 cognitive frameworks + Context Engine)
+      {
+        name: 'discover_thinking_tools_free-agent-mcp',
+        description: 'Search for thinking tools by keyword. Find cognitive frameworks (devils_advocate, swot_analysis, etc.) and context engine tools (context_query, docs_find, etc.).',
+        inputSchema: {
+          type: 'object', additionalProperties: false,
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Search query (e.g., "analyze", "context", "documentation")',
+            },
+            limit: {
+              type: 'number',
+              description: 'Maximum number of results (default: 10)',
+            },
+          },
+          required: ['query'],
+        },
+      },
+      {
+        name: 'list_thinking_tools_free-agent-mcp',
+        description: 'List all available thinking tools (64 total: 24 cognitive frameworks + 8 Context Engine tools + 32 others).',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false
         },
       },
       // Universal file editing tools (work in ANY MCP client: Augment, Cline, Cursor, etc.)
