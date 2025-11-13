@@ -170,13 +170,13 @@ async function testListTools(server) {
     
     success(`Found ${tools.length} tools`);
     
-    // Check for key tools
+    // Check for key tools (using standardized names from STANDARDIZATION-PLAN.md)
     const keyTools = [
       'context_index_repo',
       'context_query',
       'sequential_thinking',
-      'ctx_import_evidence',
-      'ctx_merge_config'
+      'evidence_import',  // Standardized from ctx_import_evidence
+      'evidence_merge_config'  // Standardized from ctx_merge_config
     ];
     
     for (const toolName of keyTools) {
