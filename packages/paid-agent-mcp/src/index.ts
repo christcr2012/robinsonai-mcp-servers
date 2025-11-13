@@ -40,6 +40,7 @@ import { getSharedOllamaClient } from './ollama-client.js';
 import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams, createLlmRouter, type LlmRouter } from '@robinson_ai_systems/shared-llm';
 import { buildStrictSystemPrompt } from './prompt-builder.js';
 import { getWorkspaceRoot } from './lib/workspace.js';
+import { SimpleDelegates } from './agents/simple-delegates.js';
 
 const server = new Server(
   {
@@ -79,6 +80,15 @@ function getAnthropic(): Anthropic {
     });
   }
   return anthropic;
+}
+
+// Lazy-initialize SimpleDelegates (for delegate tools that use FREE Ollama)
+let simpleDelegates: SimpleDelegates | null = null;
+function getSimpleDelegates(): SimpleDelegates {
+  if (!simpleDelegates) {
+    simpleDelegates = new SimpleDelegates();
+  }
+  return simpleDelegates;
 }
 
 type VoyageChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
@@ -886,6 +896,150 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['path'],
         },
       },
+      // Delegate tools (use FREE Ollama for cost optimization)
+      {
+        name: 'delegate_code_generation',
+        description: 'Generate code using FREE Ollama (cost optimization). Delegates simple code generation tasks to local LLM.',
+        inputSchema: {
+          type: 'object', additionalProperties: false,
+          properties: {
+            task: {
+              type: 'string',
+              description: 'What to build (e.g., "notifications feature", "user authentication")',
+            },
+            context: {
+              type: 'string',
+              description: 'Project context (e.g., "Next.js, TypeScript, Supabase")',
+            },
+            template: {
+              type: 'string',
+              description: 'Optional template to use',
+              enum: ['react-component', 'api-endpoint', 'database-schema', 'test-suite', 'none'],
+            },
+            model: {
+              type: 'string',
+              description: 'Which model to use (auto selects based on complexity)',
+              enum: ['deepseek-coder', 'qwen-coder', 'codellama', 'auto'],
+            },
+            complexity: {
+              type: 'string',
+              description: 'Task complexity (affects model selection)',
+              enum: ['simple', 'medium', 'complex'],
+            },
+            quality: {
+              type: 'string',
+              description: 'Quality vs speed tradeoff',
+              enum: ['fast', 'balanced', 'best'],
+            },
+          },
+          required: ['task', 'context'],
+        },
+      },
+      {
+        name: 'delegate_code_analysis',
+        description: 'Analyze code using FREE Ollama (cost optimization). Find issues, performance problems, security vulnerabilities.',
+        inputSchema: {
+          type: 'object', additionalProperties: false,
+          properties: {
+            code: {
+              type: 'string',
+              description: 'Code to analyze',
+            },
+            files: {
+              type: 'array',
+              description: 'Multiple files to analyze',
+              items: { type: 'string' },
+            },
+            question: {
+              type: 'string',
+              description: 'What to analyze (e.g., "find performance issues", "check security")',
+            },
+            model: {
+              type: 'string',
+              enum: ['deepseek-coder', 'qwen-coder', 'codellama', 'auto'],
+            },
+          },
+          required: ['question'],
+        },
+      },
+      {
+        name: 'delegate_code_refactoring',
+        description: 'Refactor code using FREE Ollama (cost optimization). Extract components, improve structure, apply patterns.',
+        inputSchema: {
+          type: 'object', additionalProperties: false,
+          properties: {
+            code: {
+              type: 'string',
+              description: 'Code to refactor',
+            },
+            instructions: {
+              type: 'string',
+              description: 'How to refactor (e.g., "extract into components", "apply SOLID principles")',
+            },
+            style: {
+              type: 'string',
+              description: 'Code style to follow',
+              enum: ['functional', 'oop', 'minimal', 'verbose'],
+            },
+            model: {
+              type: 'string',
+              enum: ['deepseek-coder', 'qwen-coder', 'codellama', 'auto'],
+            },
+          },
+          required: ['code', 'instructions'],
+        },
+      },
+      {
+        name: 'delegate_test_generation',
+        description: 'Generate tests using FREE Ollama (cost optimization). Create comprehensive test suites.',
+        inputSchema: {
+          type: 'object', additionalProperties: false,
+          properties: {
+            code: {
+              type: 'string',
+              description: 'Code to test',
+            },
+            framework: {
+              type: 'string',
+              description: 'Test framework',
+              enum: ['jest', 'vitest', 'mocha', 'pytest', 'go-test'],
+            },
+            coverage: {
+              type: 'string',
+              description: 'Coverage level',
+              enum: ['basic', 'comprehensive', 'edge-cases'],
+            },
+            model: {
+              type: 'string',
+              enum: ['deepseek-coder', 'qwen-coder', 'codellama', 'auto'],
+            },
+          },
+          required: ['code', 'framework'],
+        },
+      },
+      {
+        name: 'delegate_documentation',
+        description: 'Generate documentation using FREE Ollama (cost optimization). Create JSDoc, TSDoc, or README files.',
+        inputSchema: {
+          type: 'object', additionalProperties: false,
+          properties: {
+            code: {
+              type: 'string',
+              description: 'Code to document',
+            },
+            style: {
+              type: 'string',
+              description: 'Documentation style',
+              enum: ['jsdoc', 'tsdoc', 'markdown', 'readme'],
+            },
+            detail: {
+              type: 'string',
+              enum: ['brief', 'detailed', 'comprehensive'],
+            },
+          },
+          required: ['code'],
+        },
+      },
     ],
   };
 });
@@ -1000,6 +1154,63 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: 'text',
               text: JSON.stringify(readResult, null, 2),
+            },
+          ],
+        };
+
+      // Delegate tools (use FREE Ollama for cost optimization)
+      case 'delegate_code_generation':
+        const delegates = getSimpleDelegates();
+        const codeGenResult = await delegates.delegateCodeGeneration(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(codeGenResult, null, 2),
+            },
+          ],
+        };
+
+      case 'delegate_code_analysis':
+        const analysisResult = await getSimpleDelegates().delegateCodeAnalysis(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(analysisResult, null, 2),
+            },
+          ],
+        };
+
+      case 'delegate_code_refactoring':
+        const refactorResult = await getSimpleDelegates().delegateCodeRefactoring(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(refactorResult, null, 2),
+            },
+          ],
+        };
+
+      case 'delegate_test_generation':
+        const testGenResult = await getSimpleDelegates().delegateTestGeneration(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(testGenResult, null, 2),
+            },
+          ],
+        };
+
+      case 'delegate_documentation':
+        const docsResult = await getSimpleDelegates().delegateDocumentation(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(docsResult, null, 2),
             },
           ],
         };
