@@ -79,3 +79,43 @@ export async function handleQdrantGetPoint(args: any) {
   });
 }
 
+// ============================================================================
+// Normalized exports for audit compatibility
+// ============================================================================
+
+/**
+ * List all collections in Qdrant
+ * @see https://api.srv823383.hstgr.cloud/docs#/Qdrant/list_collections_qdrant_collections_get
+ */
+export const fastapiqdrantcollections = handleQdrantCollections;
+
+/**
+ * Get detailed information about a Qdrant collection
+ * @see https://api.srv823383.hstgr.cloud/docs#/Qdrant/get_collection_qdrant_collections__collection_name__get
+ */
+export const fastapiqdrantcollectioninfo = handleQdrantCollectionInfo;
+
+/**
+ * Perform vector similarity search in Qdrant
+ * @see https://api.srv823383.hstgr.cloud/docs#/Qdrant/search_qdrant_search_post
+ */
+export const fastapiqdrantvectorsearch = handleQdrantVectorSearch;
+
+/**
+ * Upsert points into a Qdrant collection
+ * @see https://api.srv823383.hstgr.cloud/docs#/Qdrant/upsert_points_qdrant_points_upsert_post
+ */
+export const fastapiqdrantupsertpoints = handleQdrantUpsertPoints;
+
+/**
+ * Delete points from a Qdrant collection
+ * @see https://api.srv823383.hstgr.cloud/docs#/Qdrant/delete_points_qdrant_points_delete_delete
+ */
+export const fastapiqdrantdeletepoints = handleQdrantDeletePoints;
+
+/**
+ * Get a specific point from a Qdrant collection
+ * @see https://api.srv823383.hstgr.cloud/docs#/Qdrant/get_point_qdrant_points__point_id__get
+ */
+export const fastapiqdrantgetpoint = handleQdrantGetPoint;
+

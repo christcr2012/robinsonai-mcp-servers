@@ -43,3 +43,25 @@ export async function handleGatewayProxy(args: any) {
   return await fastAPIClient.request(url, options);
 }
 
+// ============================================================================
+// Normalized exports for audit compatibility
+// ============================================================================
+
+/**
+ * List all available services through the unified API gateway
+ * @see https://api.srv823383.hstgr.cloud/docs#/Gateway/list_services_gateway_services_get
+ */
+export const fastapigatewayservices = handleGatewayServices;
+
+/**
+ * Check health status of a specific service through the gateway
+ * @see https://api.srv823383.hstgr.cloud/docs#/Gateway/service_health_gateway__service__health_get
+ */
+export const fastapigatewayservicehealth = handleGatewayServiceHealth;
+
+/**
+ * Proxy requests to any service through the unified gateway
+ * @see https://api.srv823383.hstgr.cloud/docs#/Gateway/proxy_request_gateway__service__proxy_post
+ */
+export const fastapigatewayproxy = handleGatewayProxy;
+

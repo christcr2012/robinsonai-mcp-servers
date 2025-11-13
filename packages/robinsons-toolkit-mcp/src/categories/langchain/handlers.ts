@@ -45,7 +45,7 @@ export async function handleLangchainRagQuery(args: any) {
 
 export async function handleLangchainIngestDocument(args: any) {
   const { content, metadata, collection_name, table_name } = args;
-  
+
   return await fastAPIClient.request('/langchain/documents/ingest', {
     method: 'POST',
     body: JSON.stringify({
@@ -56,4 +56,32 @@ export async function handleLangchainIngestDocument(args: any) {
     }),
   });
 }
+
+// ============================================================================
+// Normalized exports for audit compatibility
+// ============================================================================
+
+/**
+ * Get LangChain configuration and available features
+ * @see https://api.srv823383.hstgr.cloud/docs#/LangChain/get_langchain_info_langchain_info_get
+ */
+export const fastapilangchaininfo = handleLangchainInfo;
+
+/**
+ * Chat with LLM using LangChain with optional RAG
+ * @see https://api.srv823383.hstgr.cloud/docs#/LangChain/chat_langchain_chat_post
+ */
+export const fastapilangchainchat = handleLangchainChat;
+
+/**
+ * Perform RAG query to search user databases
+ * @see https://api.srv823383.hstgr.cloud/docs#/LangChain/rag_query_langchain_rag_query_post
+ */
+export const fastapilangchainragquery = handleLangchainRagQuery;
+
+/**
+ * Ingest document into vector database with automatic embedding generation
+ * @see https://api.srv823383.hstgr.cloud/docs#/LangChain/ingest_document_langchain_documents_ingest_post
+ */
+export const fastapilangchainingestdocument = handleLangchainIngestDocument;
 

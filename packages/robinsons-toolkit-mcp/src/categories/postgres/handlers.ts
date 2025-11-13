@@ -104,4 +104,56 @@ export async function handlePostgresVectorSearch(args: any) {
   });
 }
 
+// ============================================================================
+// Normalized exports for audit compatibility
+// ============================================================================
+
+/**
+ * Get PostgreSQL database information
+ * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_postgres_info_postgres_info_get
+ */
+export const fastapipostgresinfo = handlePostgresInfo;
+
+/**
+ * List all schemas in PostgreSQL database
+ * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_postgres_schemas_postgres_schemas_get
+ */
+export const fastapipostgresschemas = handlePostgresSchemas;
+
+/**
+ * List all tables in PostgreSQL database
+ * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_postgres_tables_postgres_tables_get
+ */
+export const fastapipostgrestables = handlePostgresTables;
+
+/**
+ * Get column information for a specific table
+ * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_table_columns_postgres_tables__table_name__columns_get
+ */
+export const fastapipostgrestablecolumns = handlePostgresTableColumns;
+
+/**
+ * Get index information for a specific table
+ * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_table_indexes_postgres_tables__table_name__indexes_get
+ */
+export const fastapipostgrestableindexes = handlePostgresTableIndexes;
+
+/**
+ * Execute read-only SQL query on PostgreSQL
+ * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/query_postgres_query_get
+ */
+export const fastapipostgresquery = handlePostgresQuery;
+
+/**
+ * Execute write SQL query on PostgreSQL (INSERT, UPDATE, DELETE)
+ * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/execute_postgres_execute_post
+ */
+export const fastapipostgresexecute = handlePostgresExecute;
+
+/**
+ * Perform vector similarity search using pgvector
+ * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/vector_search_postgres_vector_search_get
+ */
+export const fastapipostgresvectorsearch = handlePostgresVectorSearch;
+
 
