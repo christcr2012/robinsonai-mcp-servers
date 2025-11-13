@@ -2426,7 +2426,11 @@ Generate the modified section now:`;
       const taskKind = args.task_kind === 'auto' ? 'feature' : (args.task_kind || 'feature');
       const tier = args.tier || 'free';
       const quality = args.quality || 'auto';
-      const preferLocal = args.prefer_local || false;
+
+      // Phase FA-3 Step 2: Enforce preferFree=true default for Free Agent
+      // Free Agent should prefer FREE models (Ollama) by default
+      // Only use paid models when tier='paid' OR allowPaid=true AND within budget
+      const preferLocal = args.prefer_local !== undefined ? args.prefer_local : true; // DEFAULT TO TRUE!
       const allowPaid = args.allow_paid !== undefined ? args.allow_paid : (tier === 'paid');
       const maxCostUsd = args.max_cost_usd || (tier === 'free' ? 0.50 : 5.00);
       const preferredProvider = args.preferred_provider || 'auto';
@@ -2456,16 +2460,47 @@ Generate the modified section now:`;
       const adapter = await loadAdapter(repoRoot);
       console.log(`[runFreeAgentTask] Loaded adapter: ${adapter.name}`);
 
-      // Implement model selection based on tier, preferLocal, allowPaid, preferredProvider
-      const selectedModel = selectBestModel({
+      // Phase FA-3 Step 1: Estimate cost BEFORE task execution
+      const costEstimate = estimateTaskCost({
         taskType: 'code_generation',
+        complexity: quality === 'fast' ? 'simple' : quality === 'best' ? 'complex' : 'medium',
+        linesOfCode: 500, // Rough estimate - will be refined after execution
+        numFiles: 5, // Rough estimate
+      });
+      console.log(`[runFreeAgentTask] Estimated cost: $${costEstimate.estimatedCost.toFixed(4)} (${costEstimate.estimatedInputTokens} input + ${costEstimate.estimatedOutputTokens} output tokens)`);
+
+      // Phase FA-3 Step 3: Budget validation
+      if (costEstimate.estimatedCost > maxCostUsd) {
+        const errorMessage = `This task is estimated at $${costEstimate.estimatedCost.toFixed(4)}, which exceeds the configured budget $${maxCostUsd.toFixed(2)}. Either simplify the task or raise the budget.`;
+        console.error(`[runFreeAgentTask] ${errorMessage}`);
+        return {
+          status: 'failed',
+          task_summary: 'Task rejected - budget exceeded',
+          error: {
+            type: 'budget_exceeded',
+            message: errorMessage,
+            estimated_cost: costEstimate.estimatedCost,
+            max_cost: maxCostUsd,
+          },
+        };
+      }
+
+      // Phase FA-3 Step 2: Model selection with preferFree enforcement
+      // Free Agent defaults to preferFree=true (use Ollama)
+      // Only use paid models when:
+      // - tier === 'paid', OR
+      // - allowPaid === true AND within max_cost_usd
+      const shouldPreferFree = preferLocal || (tier === 'free' && !allowPaid);
+
+      const selectedModel = selectBestModel({
         taskComplexity: quality === 'fast' ? 'simple' : quality === 'best' ? 'expert' : 'medium',
-        maxCost: maxCostUsd,
+        maxCost: allowPaid ? maxCostUsd : 0, // If not allowing paid, set maxCost=0 to force Ollama
         minQuality: quality === 'fast' ? 'basic' : quality === 'best' ? 'premium' : 'standard',
-        preferredProvider: preferLocal ? 'ollama' : (preferredProvider === 'auto' ? undefined : preferredProvider as any),
+        preferFree: shouldPreferFree,
+        preferredProvider: preferredProvider === 'auto' ? 'any' : (preferredProvider as any),
       });
       const modelConfig = getModelConfig(selectedModel);
-      console.log(`[runFreeAgentTask] Selected model: ${selectedModel} (provider: ${modelConfig.provider})`);
+      console.log(`[runFreeAgentTask] Selected model: ${selectedModel} (provider: ${modelConfig.provider}, preferFree: ${shouldPreferFree})`);
 
       // Set environment variables for Free Agent Core to use the selected model
       if (modelConfig.provider === 'ollama') {

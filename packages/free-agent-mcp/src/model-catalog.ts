@@ -499,9 +499,65 @@ function selectMoonshotModel(
 }
 
 /**
- * Estimate cost for a task
+ * Estimate cost for a task based on high-level parameters
+ * This is used BEFORE task execution to check budget
  */
 export function estimateTaskCost(params: {
+  taskType: string;
+  complexity: 'simple' | 'medium' | 'complex';
+  linesOfCode?: number;
+  numFiles?: number;
+}): { estimatedCost: number; estimatedInputTokens: number; estimatedOutputTokens: number } {
+  const { taskType, complexity, linesOfCode = 0, numFiles = 0 } = params;
+
+  // Complexity multipliers
+  const complexityMultiplier = {
+    simple: 0.5,
+    medium: 1.0,
+    complex: 2.0,
+  };
+
+  // Base token estimates
+  let estimatedInputTokens = 2000; // Base context
+  let estimatedOutputTokens = 500; // Base output
+
+  // Add tokens based on lines of code
+  if (linesOfCode > 0) {
+    estimatedInputTokens += linesOfCode * 0.3; // ~0.3 tokens per char (rough)
+    estimatedOutputTokens += linesOfCode * 0.2; // Generate ~20% of input
+  }
+
+  // Add tokens based on number of files
+  if (numFiles > 0) {
+    estimatedInputTokens += numFiles * 100; // ~100 tokens per file for context
+    estimatedOutputTokens += numFiles * 50; // ~50 tokens per file for output
+  }
+
+  // Apply complexity multiplier
+  estimatedInputTokens *= complexityMultiplier[complexity];
+  estimatedOutputTokens *= complexityMultiplier[complexity];
+
+  // For now, assume average cost across models (will be refined with actual model selection)
+  // Using Moonshot/Kimi K2 pricing as baseline: $0.20/$2.00 per 1M tokens
+  const avgInputCostPer1M = 0.20;
+  const avgOutputCostPer1M = 2.00;
+
+  const estimatedCost =
+    (estimatedInputTokens / 1_000_000) * avgInputCostPer1M +
+    (estimatedOutputTokens / 1_000_000) * avgOutputCostPer1M;
+
+  return {
+    estimatedCost,
+    estimatedInputTokens: Math.ceil(estimatedInputTokens),
+    estimatedOutputTokens: Math.ceil(estimatedOutputTokens),
+  };
+}
+
+/**
+ * Estimate cost for a specific model with known token counts
+ * This is used AFTER task execution to calculate actual cost
+ */
+export function estimateModelCost(params: {
   modelId: string;
   estimatedInputTokens: number;
   estimatedOutputTokens: number;
