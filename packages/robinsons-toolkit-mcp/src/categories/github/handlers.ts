@@ -65,7 +65,7 @@ function formatResponse(data: any) {
   };
 }
 
-  export async function githublistRepos(args: any) {
+  export async function githubListRepos(args: any) {
     const params: any = {};
     if (args.type) params.type = args.type;
     if (args.sort) params.sort = args.sort;
@@ -76,12 +76,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRepo(args: any) {
+  export async function githubGetRepo(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateRepo(args: any) {
+  export async function githubCreateRepo(args: any) {
     const body: any = { name: args.name };
     if (args.description) body.description = args.description;
     if (args.private !== undefined) body.private = args.private;
@@ -93,7 +93,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateRepo(args: any) {
+  export async function githubUpdateRepo(args: any) {
     const body: any = {};
     if (args.name) body.name = args.name;
     if (args.description !== undefined) body.description = args.description;
@@ -105,27 +105,27 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteRepo(args: any) {
+  export async function githubDeleteRepo(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}`);
     return { content: [{ type: 'text', text: 'Repository deleted successfully' }] };
   }
 
-  export async function githublistRepoTopics(args: any) {
+  export async function githubListRepoTopics(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/topics`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubreplaceRepoTopics(args: any) {
+  export async function githubReplaceRepoTopics(args: any) {
     const response = await client.put(`/repos/${args.owner}/${args.repo}/topics`, { names: args.names });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistRepoLanguages(args: any) {
+  export async function githubListRepoLanguages(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/languages`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistRepoTags(args: any) {
+  export async function githubListRepoTags(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -133,66 +133,66 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistRepoTeams(args: any) {
+  export async function githubListRepoTeams(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/teams`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubtransferRepo(args: any) {
+  export async function githubTransferRepo(args: any) {
     const response = await client.post(`/repos/${args.owner}/${args.repo}/transfer`, { new_owner: args.new_owner });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubenableAutomatedSecurityFixes(args: any) {
+  export async function githubEnableAutomatedSecurityFixes(args: any) {
     await client.put(`/repos/${args.owner}/${args.repo}/automated-security-fixes`);
     return { content: [{ type: 'text', text: 'Automated security fixes enabled' }] };
   }
 
-  export async function githubdisableAutomatedSecurityFixes(args: any) {
+  export async function githubDisableAutomatedSecurityFixes(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/automated-security-fixes`);
     return { content: [{ type: 'text', text: 'Automated security fixes disabled' }] };
   }
 
-  export async function githubenableVulnerabilityAlerts(args: any) {
+  export async function githubEnableVulnerabilityAlerts(args: any) {
     await client.put(`/repos/${args.owner}/${args.repo}/vulnerability-alerts`);
     return { content: [{ type: 'text', text: 'Vulnerability alerts enabled' }] };
   }
 
-  export async function githubdisableVulnerabilityAlerts(args: any) {
+  export async function githubDisableVulnerabilityAlerts(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/vulnerability-alerts`);
     return { content: [{ type: 'text', text: 'Vulnerability alerts disabled' }] };
   }
 
-  export async function githubgetRepoReadme(args: any) {
+  export async function githubGetRepoReadme(args: any) {
     const params: any = {};
     if (args.ref) params.ref = args.ref;
     const response = await client.get(`/repos/${args.owner}/${args.repo}/readme`, params);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRepoLicense(args: any) {
+  export async function githubGetRepoLicense(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/license`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRepoCommunityProfile(args: any) {
+  export async function githubGetRepoCommunityProfile(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/community/profile`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRepoStatsContributors(args: any) {
+  export async function githubGetRepoStatsContributors(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/stats/contributors`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRepoStatsCommitActivity(args: any) {
+  export async function githubGetRepoStatsCommitActivity(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/stats/commit_activity`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
 
   // BRANCH MANAGEMENT METHODS
-  export async function githublistBranches(args: any) {
+  export async function githubListBranches(args: any) {
     const params: any = {};
     if (args.protected !== undefined) params.protected = args.protected;
     if (args.per_page) params.per_page = args.per_page;
@@ -201,12 +201,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetBranch(args: any) {
+  export async function githubGetBranch(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/branches/${args.branch}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateBranch(args: any) {
+  export async function githubCreateBranch(args: any) {
     const fromBranch = args.from_branch || 'main';
     const refResponse = await client.get(`/repos/${args.owner}/${args.repo}/git/ref/heads/${fromBranch}`);
     const sha = refResponse.object.sha;
@@ -217,24 +217,24 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteBranch(args: any) {
+  export async function githubDeleteBranch(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/git/refs/heads/${args.branch}`);
     return { content: [{ type: 'text', text: 'Branch deleted successfully' }] };
   }
 
-  export async function githubmergeBranch(args: any) {
+  export async function githubMergeBranch(args: any) {
     const body: any = { base: args.base, head: args.head };
     if (args.commit_message) body.commit_message = args.commit_message;
     const response = await client.post(`/repos/${args.owner}/${args.repo}/merges`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetBranchProtection(args: any) {
+  export async function githubGetBranchProtection(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/branches/${args.branch}/protection`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateBranchProtection(args: any) {
+  export async function githubUpdateBranchProtection(args: any) {
     const body: any = {};
     if (args.required_status_checks) body.required_status_checks = args.required_status_checks;
     if (args.enforce_admins !== undefined) body.enforce_admins = args.enforce_admins;
@@ -244,17 +244,17 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteBranchProtection(args: any) {
+  export async function githubDeleteBranchProtection(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/branches/${args.branch}/protection`);
     return { content: [{ type: 'text', text: 'Branch protection removed' }] };
   }
 
-  export async function githubgetRequiredStatusChecks(args: any) {
+  export async function githubGetRequiredStatusChecks(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/branches/${args.branch}/protection/required_status_checks`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateRequiredStatusChecks(args: any) {
+  export async function githubUpdateRequiredStatusChecks(args: any) {
     const body: any = {};
     if (args.strict !== undefined) body.strict = args.strict;
     if (args.contexts) body.contexts = args.contexts;
@@ -262,22 +262,22 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetAdminEnforcement(args: any) {
+  export async function githubGetAdminEnforcement(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/branches/${args.branch}/protection/enforce_admins`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubsetAdminEnforcement(args: any) {
+  export async function githubSetAdminEnforcement(args: any) {
     const response = await client.post(`/repos/${args.owner}/${args.repo}/branches/${args.branch}/protection/enforce_admins`, {});
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetPullRequestReviewEnforcement(args: any) {
+  export async function githubGetPullRequestReviewEnforcement(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/branches/${args.branch}/protection/required_pull_request_reviews`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdatePullRequestReviewEnforcement(args: any) {
+  export async function githubUpdatePullRequestReviewEnforcement(args: any) {
     const body: any = {};
     if (args.dismissal_restrictions) body.dismissal_restrictions = args.dismissal_restrictions;
     if (args.dismiss_stale_reviews !== undefined) body.dismiss_stale_reviews = args.dismiss_stale_reviews;
@@ -287,13 +287,13 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubrenameBranch(args: any) {
+  export async function githubRenameBranch(args: any) {
     const response = await client.post(`/repos/${args.owner}/${args.repo}/branches/${args.branch}/rename`, { new_name: args.new_name });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
   // COMMITS METHODS
-  export async function githublistCommits(args: any) {
+  export async function githubListCommits(args: any) {
     const params: any = {};
     if (args.sha) params.sha = args.sha;
     if (args.path) params.path = args.path;
@@ -306,17 +306,17 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetCommit(args: any) {
+  export async function githubGetCommit(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/commits/${args.ref}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcompareCommits(args: any) {
+  export async function githubCompareCommits(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/compare/${args.base}...${args.head}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistCommitComments(args: any) {
+  export async function githubListCommitComments(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -324,7 +324,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateCommitComment(args: any) {
+  export async function githubCreateCommitComment(args: any) {
     const body: any = { body: args.body };
     if (args.path) body.path = args.path;
     if (args.position) body.position = args.position;
@@ -332,12 +332,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetCommitStatus(args: any) {
+  export async function githubGetCommitStatus(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/commits/${args.ref}/status`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistCommitStatuses(args: any) {
+  export async function githubListCommitStatuses(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -345,7 +345,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateCommitStatus(args: any) {
+  export async function githubCreateCommitStatus(args: any) {
     const body: any = { state: args.state };
     if (args.target_url) body.target_url = args.target_url;
     if (args.description) body.description = args.description;
@@ -354,18 +354,18 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistPullRequestsAssociatedWithCommit(args: any) {
+  export async function githubListPullRequestsAssociatedWithCommit(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/commits/${args.commit_sha}/pulls`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetCommitSignatureVerification(args: any) {
+  export async function githubGetCommitSignatureVerification(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/commits/${args.ref}`);
     return { content: [{ type: 'text', text: JSON.stringify(response.commit.verification, null, 2) }] };
   }
 
   // ISSUES METHODS
-  export async function githublistIssues(args: any) {
+  export async function githubListIssues(args: any) {
     const params: any = {};
     if (args.state) params.state = args.state;
     if (args.labels) params.labels = args.labels.join(',');
@@ -378,12 +378,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetIssue(args: any) {
+  export async function githubGetIssue(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/issues/${args.issue_number}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateIssue(args: any) {
+  export async function githubCreateIssue(args: any) {
     const body: any = { title: args.title };
     if (args.body) body.body = args.body;
     if (args.assignees) body.assignees = args.assignees;
@@ -393,7 +393,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateIssue(args: any) {
+  export async function githubUpdateIssue(args: any) {
     const body: any = {};
     if (args.title) body.title = args.title;
     if (args.body) body.body = args.body;
@@ -404,44 +404,44 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublockIssue(args: any) {
+  export async function githubLockIssue(args: any) {
     const body: any = {};
     if (args.lock_reason) body.lock_reason = args.lock_reason;
     await client.put(`/repos/${args.owner}/${args.repo}/issues/${args.issue_number}/lock`, body);
     return { content: [{ type: 'text', text: 'Issue locked successfully' }] };
   }
 
-  export async function githubunlockIssue(args: any) {
+  export async function githubUnlockIssue(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/issues/${args.issue_number}/lock`);
     return { content: [{ type: 'text', text: 'Issue unlocked successfully' }] };
   }
 
-  export async function githubaddAssignees(args: any) {
+  export async function githubAddAssignees(args: any) {
     const response = await client.post(`/repos/${args.owner}/${args.repo}/issues/${args.issue_number}/assignees`, { assignees: args.assignees });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubremoveAssignees(args: any) {
+  export async function githubRemoveAssignees(args: any) {
     const response = await client.delete(`/repos/${args.owner}/${args.repo}/issues/${args.issue_number}/assignees`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubaddLabels(args: any) {
+  export async function githubAddLabels(args: any) {
     const response = await client.post(`/repos/${args.owner}/${args.repo}/issues/${args.issue_number}/labels`, { labels: args.labels });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubremoveLabel(args: any) {
+  export async function githubRemoveLabel(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/issues/${args.issue_number}/labels/${args.name}`);
     return { content: [{ type: 'text', text: 'Label removed successfully' }] };
   }
 
-  export async function githubreplaceLabels(args: any) {
+  export async function githubReplaceLabels(args: any) {
     const response = await client.put(`/repos/${args.owner}/${args.repo}/issues/${args.issue_number}/labels`, { labels: args.labels || [] });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistIssueComments(args: any) {
+  export async function githubListIssueComments(args: any) {
     const params: any = {};
     if (args.since) params.since = args.since;
     if (args.per_page) params.per_page = args.per_page;
@@ -450,22 +450,22 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateIssueComment(args: any) {
+  export async function githubCreateIssueComment(args: any) {
     const response = await client.post(`/repos/${args.owner}/${args.repo}/issues/${args.issue_number}/comments`, { body: args.body });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateIssueComment(args: any) {
+  export async function githubUpdateIssueComment(args: any) {
     const response = await client.patch(`/repos/${args.owner}/${args.repo}/issues/comments/${args.comment_id}`, { body: args.body });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteIssueComment(args: any) {
+  export async function githubDeleteIssueComment(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/issues/comments/${args.comment_id}`);
     return { content: [{ type: 'text', text: 'Comment deleted successfully' }] };
   }
 
-  export async function githublistIssueEvents(args: any) {
+  export async function githubListIssueEvents(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -473,7 +473,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistIssueTimeline(args: any) {
+  export async function githubListIssueTimeline(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -481,7 +481,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistLabels(args: any) {
+  export async function githubListLabels(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -489,20 +489,20 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateLabel(args: any) {
+  export async function githubCreateLabel(args: any) {
     const body: any = { name: args.name, color: args.color };
     if (args.description) body.description = args.description;
     const response = await client.post(`/repos/${args.owner}/${args.repo}/labels`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteLabel(args: any) {
+  export async function githubDeleteLabel(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/labels/${args.name}`);
     return { content: [{ type: 'text', text: 'Label deleted successfully' }] };
   }
 
   // PULL REQUESTS METHODS
-  export async function githublistPullRequests(args: any) {
+  export async function githubListPullRequests(args: any) {
     const params: any = {};
     if (args.state) params.state = args.state;
     if (args.head) params.head = args.head;
@@ -515,12 +515,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetPullRequest(args: any) {
+  export async function githubGetPullRequest(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreatePullRequest(args: any) {
+  export async function githubCreatePullRequest(args: any) {
     const body: any = { title: args.title, head: args.head, base: args.base };
     if (args.body) body.body = args.body;
     if (args.draft !== undefined) body.draft = args.draft;
@@ -529,7 +529,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdatePullRequest(args: any) {
+  export async function githubUpdatePullRequest(args: any) {
     const body: any = {};
     if (args.title) body.title = args.title;
     if (args.body) body.body = args.body;
@@ -539,7 +539,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubmergePullRequest(args: any) {
+  export async function githubMergePullRequest(args: any) {
     const body: any = {};
     if (args.commit_title) body.commit_title = args.commit_title;
     if (args.commit_message) body.commit_message = args.commit_message;
@@ -548,12 +548,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetPullRequestMergeStatus(args: any) {
+  export async function githubGetPullRequestMergeStatus(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}/merge`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistPullRequestCommits(args: any) {
+  export async function githubListPullRequestCommits(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -561,7 +561,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistPullRequestFiles(args: any) {
+  export async function githubListPullRequestFiles(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -569,7 +569,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistPullRequestReviews(args: any) {
+  export async function githubListPullRequestReviews(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -577,12 +577,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetPullRequestReview(args: any) {
+  export async function githubGetPullRequestReview(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}/reviews/${args.review_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreatePullRequestReview(args: any) {
+  export async function githubCreatePullRequestReview(args: any) {
     const body: any = { event: args.event };
     if (args.body) body.body = args.body;
     if (args.comments) body.comments = args.comments;
@@ -590,19 +590,19 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubsubmitPullRequestReview(args: any) {
+  export async function githubSubmitPullRequestReview(args: any) {
     const body: any = { event: args.event };
     if (args.body) body.body = args.body;
     const response = await client.post(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}/reviews/${args.review_id}/events`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdismissPullRequestReview(args: any) {
+  export async function githubDismissPullRequestReview(args: any) {
     const response = await client.put(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}/reviews/${args.review_id}/dismissals`, { message: args.message });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistPullRequestReviewComments(args: any) {
+  export async function githubListPullRequestReviewComments(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -610,24 +610,24 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreatePullRequestReviewComment(args: any) {
+  export async function githubCreatePullRequestReviewComment(args: any) {
     const body: any = { body: args.body, commit_id: args.commit_id, path: args.path };
     if (args.line) body.line = args.line;
     const response = await client.post(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}/comments`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdatePullRequestReviewComment(args: any) {
+  export async function githubUpdatePullRequestReviewComment(args: any) {
     const response = await client.patch(`/repos/${args.owner}/${args.repo}/pulls/comments/${args.comment_id}`, { body: args.body });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeletePullRequestReviewComment(args: any) {
+  export async function githubDeletePullRequestReviewComment(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/pulls/comments/${args.comment_id}`);
     return { content: [{ type: 'text', text: 'Comment deleted successfully' }] };
   }
 
-  export async function githubrequestPullRequestReviewers(args: any) {
+  export async function githubRequestPullRequestReviewers(args: any) {
     const body: any = {};
     if (args.reviewers) body.reviewers = args.reviewers;
     if (args.team_reviewers) body.team_reviewers = args.team_reviewers;
@@ -635,7 +635,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubremovePullRequestReviewers(args: any) {
+  export async function githubRemovePullRequestReviewers(args: any) {
     const body: any = {};
     if (args.reviewers) body.reviewers = args.reviewers;
     if (args.team_reviewers) body.team_reviewers = args.team_reviewers;
@@ -643,40 +643,40 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdatePullRequestBranch(args: any) {
+  export async function githubUpdatePullRequestBranch(args: any) {
     const body: any = {};
     if (args.expected_head_sha) body.expected_head_sha = args.expected_head_sha;
     const response = await client.put(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}/update-branch`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistRequestedReviewers(args: any) {
+  export async function githubListRequestedReviewers(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}/requested_reviewers`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcheckPullRequestReviewability(args: any) {
+  export async function githubCheckPullRequestReviewability(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}`);
     return { content: [{ type: 'text', text: JSON.stringify({ mergeable: response.mergeable, mergeable_state: response.mergeable_state }, null, 2) }] };
   }
 
-  export async function githubgetPullRequestDiff(args: any) {
+  export async function githubGetPullRequestDiff(args: any) {
     const response = await this.fetch(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}`, { headers: { 'Accept': 'application/vnd.github.v3.diff' } });
     return { content: [{ type: 'text', text: response }] };
   }
 
-  export async function githubgetPullRequestPatch(args: any) {
+  export async function githubGetPullRequestPatch(args: any) {
     const response = await this.fetch(`/repos/${args.owner}/${args.repo}/pulls/${args.pull_number}`, { headers: { 'Accept': 'application/vnd.github.v3.patch' } });
     return { content: [{ type: 'text', text: response }] };
   }
 
-  export async function githubconvertIssueToPullRequest(args: any) {
+  export async function githubConvertIssueToPullRequest(args: any) {
     const response = await client.post(`/repos/${args.owner}/${args.repo}/pulls`, { issue: args.issue_number, head: args.head, base: args.base });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
   // GITHUB ACTIONS METHODS
-  export async function githublistWorkflows(args: any) {
+  export async function githubListWorkflows(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -684,29 +684,29 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetWorkflow(args: any) {
+  export async function githubGetWorkflow(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/actions/workflows/${args.workflow_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdisableWorkflow(args: any) {
+  export async function githubDisableWorkflow(args: any) {
     await client.put(`/repos/${args.owner}/${args.repo}/actions/workflows/${args.workflow_id}/disable`, {});
     return { content: [{ type: 'text', text: 'Workflow disabled successfully' }] };
   }
 
-  export async function githubenableWorkflow(args: any) {
+  export async function githubEnableWorkflow(args: any) {
     await client.put(`/repos/${args.owner}/${args.repo}/actions/workflows/${args.workflow_id}/enable`, {});
     return { content: [{ type: 'text', text: 'Workflow enabled successfully' }] };
   }
 
-  export async function githubcreateWorkflowDispatch(args: any) {
+  export async function githubCreateWorkflowDispatch(args: any) {
     const body: any = { ref: args.ref };
     if (args.inputs) body.inputs = args.inputs;
     await client.post(`/repos/${args.owner}/${args.repo}/actions/workflows/${args.workflow_id}/dispatches`, body);
     return { content: [{ type: 'text', text: 'Workflow dispatch triggered successfully' }] };
   }
 
-  export async function githublistWorkflowRuns(args: any) {
+  export async function githubListWorkflowRuns(args: any) {
     const params: any = {};
     if (args.workflow_id) params.workflow_id = args.workflow_id;
     if (args.actor) params.actor = args.actor;
@@ -719,32 +719,32 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetWorkflowRun(args: any) {
+  export async function githubGetWorkflowRun(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/actions/runs/${args.run_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcancelWorkflowRun(args: any) {
+  export async function githubCancelWorkflowRun(args: any) {
     await client.post(`/repos/${args.owner}/${args.repo}/actions/runs/${args.run_id}/cancel`, {});
     return { content: [{ type: 'text', text: 'Workflow run cancelled successfully' }] };
   }
 
-  export async function githubrerunWorkflow(args: any) {
+  export async function githubRerunWorkflow(args: any) {
     await client.post(`/repos/${args.owner}/${args.repo}/actions/runs/${args.run_id}/rerun`, {});
     return { content: [{ type: 'text', text: 'Workflow rerun triggered successfully' }] };
   }
 
-  export async function githubrerunFailedJobs(args: any) {
+  export async function githubRerunFailedJobs(args: any) {
     await client.post(`/repos/${args.owner}/${args.repo}/actions/runs/${args.run_id}/rerun-failed-jobs`, {});
     return { content: [{ type: 'text', text: 'Failed jobs rerun triggered successfully' }] };
   }
 
-  export async function githubdeleteWorkflowRun(args: any) {
+  export async function githubDeleteWorkflowRun(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/actions/runs/${args.run_id}`);
     return { content: [{ type: 'text', text: 'Workflow run deleted successfully' }] };
   }
 
-  export async function githublistWorkflowRunArtifacts(args: any) {
+  export async function githubListWorkflowRunArtifacts(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -752,17 +752,17 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdownloadWorkflowRunLogs(args: any) {
+  export async function githubDownloadWorkflowRunLogs(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/actions/runs/${args.run_id}/logs`);
     return { content: [{ type: 'text', text: 'Logs download URL: ' + JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteWorkflowRunLogs(args: any) {
+  export async function githubDeleteWorkflowRunLogs(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/actions/runs/${args.run_id}/logs`);
     return { content: [{ type: 'text', text: 'Workflow run logs deleted successfully' }] };
   }
 
-  export async function githublistWorkflowRunJobs(args: any) {
+  export async function githubListWorkflowRunJobs(args: any) {
     const params: any = {};
     if (args.filter) params.filter = args.filter;
     if (args.per_page) params.per_page = args.per_page;
@@ -771,17 +771,17 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetWorkflowRunJob(args: any) {
+  export async function githubGetWorkflowRunJob(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/actions/jobs/${args.job_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdownloadJobLogs(args: any) {
+  export async function githubDownloadJobLogs(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/actions/jobs/${args.job_id}/logs`);
     return { content: [{ type: 'text', text: 'Job logs download URL: ' + JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistRepoSecrets(args: any) {
+  export async function githubListRepoSecrets(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -789,18 +789,18 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateOrUpdateRepoSecret(args: any) {
+  export async function githubCreateOrUpdateRepoSecret(args: any) {
     await client.put(`/repos/${args.owner}/${args.repo}/actions/secrets/${args.secret_name}`, { encrypted_value: args.encrypted_value });
     return { content: [{ type: 'text', text: 'Secret created/updated successfully' }] };
   }
 
-  export async function githubdeleteRepoSecret(args: any) {
+  export async function githubDeleteRepoSecret(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/actions/secrets/${args.secret_name}`);
     return { content: [{ type: 'text', text: 'Secret deleted successfully' }] };
   }
 
   // RELEASES METHODS
-  export async function githublistReleases(args: any) {
+  export async function githubListReleases(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -808,22 +808,22 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRelease(args: any) {
+  export async function githubGetRelease(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/releases/${args.release_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetLatestRelease(args: any) {
+  export async function githubGetLatestRelease(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/releases/latest`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetReleaseByTag(args: any) {
+  export async function githubGetReleaseByTag(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/releases/tags/${args.tag}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateRelease(args: any) {
+  export async function githubCreateRelease(args: any) {
     const body: any = { tag_name: args.tag_name };
     if (args.target_commitish) body.target_commitish = args.target_commitish;
     if (args.name) body.name = args.name;
@@ -834,7 +834,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateRelease(args: any) {
+  export async function githubUpdateRelease(args: any) {
     const body: any = {};
     if (args.tag_name) body.tag_name = args.tag_name;
     if (args.name) body.name = args.name;
@@ -845,12 +845,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteRelease(args: any) {
+  export async function githubDeleteRelease(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/releases/${args.release_id}`);
     return { content: [{ type: 'text', text: 'Release deleted successfully' }] };
   }
 
-  export async function githublistReleaseAssets(args: any) {
+  export async function githubListReleaseAssets(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -858,12 +858,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetReleaseAsset(args: any) {
+  export async function githubGetReleaseAsset(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/releases/assets/${args.asset_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateReleaseAsset(args: any) {
+  export async function githubUpdateReleaseAsset(args: any) {
     const body: any = {};
     if (args.name) body.name = args.name;
     if (args.label) body.label = args.label;
@@ -871,12 +871,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteReleaseAsset(args: any) {
+  export async function githubDeleteReleaseAsset(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/releases/assets/${args.asset_id}`);
     return { content: [{ type: 'text', text: 'Release asset deleted successfully' }] };
   }
 
-  export async function githubgenerateReleaseNotes(args: any) {
+  export async function githubGenerateReleaseNotes(args: any) {
     const body: any = { tag_name: args.tag_name };
     if (args.target_commitish) body.target_commitish = args.target_commitish;
     if (args.previous_tag_name) body.previous_tag_name = args.previous_tag_name;
@@ -885,14 +885,14 @@ function formatResponse(data: any) {
   }
 
   // FILES & CONTENT METHODS
-  export async function githubgetContent(args: any) {
+  export async function githubGetContent(args: any) {
     const params: any = {};
     if (args.ref) params.ref = args.ref;
     const response = await client.get(`/repos/${args.owner}/${args.repo}/contents/${args.path}`, params);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateOrUpdateFile(args: any) {
+  export async function githubCreateOrUpdateFile(args: any) {
     const body: any = { message: args.message, content: args.content };
     if (args.sha) body.sha = args.sha;
     if (args.branch) body.branch = args.branch;
@@ -900,21 +900,21 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteFile(args: any) {
+  export async function githubDeleteFile(args: any) {
     const body: any = { message: args.message, sha: args.sha };
     if (args.branch) body.branch = args.branch;
     const response = await client.delete(`/repos/${args.owner}/${args.repo}/contents/${args.path}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetArchive(args: any) {
+  export async function githubGetArchive(args: any) {
     const params: any = {};
     if (args.ref) params.ref = args.ref;
     const response = await client.get(`/repos/${args.owner}/${args.repo}/${args.archive_format}/${args.ref || 'main'}`);
     return { content: [{ type: 'text', text: 'Archive URL: ' + JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistRepoContributors(args: any) {
+  export async function githubListRepoContributors(args: any) {
     const params: any = {};
     if (args.anon) params.anon = args.anon;
     if (args.per_page) params.per_page = args.per_page;
@@ -923,70 +923,70 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRepoClones(args: any) {
+  export async function githubGetRepoClones(args: any) {
     const params: any = {};
     if (args.per) params.per = args.per;
     const response = await client.get(`/repos/${args.owner}/${args.repo}/traffic/clones`, params);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRepoViews(args: any) {
+  export async function githubGetRepoViews(args: any) {
     const params: any = {};
     if (args.per) params.per = args.per;
     const response = await client.get(`/repos/${args.owner}/${args.repo}/traffic/views`, params);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRepoTopPaths(args: any) {
+  export async function githubGetRepoTopPaths(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/traffic/popular/paths`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRepoTopReferrers(args: any) {
+  export async function githubGetRepoTopReferrers(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/traffic/popular/referrers`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateTree(args: any) {
+  export async function githubCreateTree(args: any) {
     const body: any = { tree: args.tree };
     if (args.base_tree) body.base_tree = args.base_tree;
     const response = await client.post(`/repos/${args.owner}/${args.repo}/git/trees`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetTree(args: any) {
+  export async function githubGetTree(args: any) {
     const params: any = {};
     if (args.recursive) params.recursive = '1';
     const response = await client.get(`/repos/${args.owner}/${args.repo}/git/trees/${args.tree_sha}`, params);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetBlob(args: any) {
+  export async function githubGetBlob(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/git/blobs/${args.file_sha}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateBlob(args: any) {
+  export async function githubCreateBlob(args: any) {
     const body: any = { content: args.content };
     if (args.encoding) body.encoding = args.encoding;
     const response = await client.post(`/repos/${args.owner}/${args.repo}/git/blobs`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateCommit(args: any) {
+  export async function githubCreateCommit(args: any) {
     const body: any = { message: args.message, tree: args.tree };
     if (args.parents) body.parents = args.parents;
     const response = await client.post(`/repos/${args.owner}/${args.repo}/git/commits`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetRef(args: any) {
+  export async function githubGetRef(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/git/ref/${args.ref}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
   // COLLABORATORS & PERMISSIONS METHODS
-  export async function githublistCollaborators(args: any) {
+  export async function githubListCollaborators(args: any) {
     const params: any = {};
     if (args.affiliation) params.affiliation = args.affiliation;
     if (args.per_page) params.per_page = args.per_page;
@@ -995,7 +995,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcheckCollaborator(args: any) {
+  export async function githubCheckCollaborator(args: any) {
     try {
       await client.get(`/repos/${args.owner}/${args.repo}/collaborators/${args.username}`);
       return { content: [{ type: 'text', text: 'User is a collaborator' }] };
@@ -1004,24 +1004,24 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function githubaddCollaborator(args: any) {
+  export async function githubAddCollaborator(args: any) {
     const body: any = {};
     if (args.permission) body.permission = args.permission;
     await client.put(`/repos/${args.owner}/${args.repo}/collaborators/${args.username}`, body);
     return { content: [{ type: 'text', text: 'Collaborator added successfully' }] };
   }
 
-  export async function githubremoveCollaborator(args: any) {
+  export async function githubRemoveCollaborator(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/collaborators/${args.username}`);
     return { content: [{ type: 'text', text: 'Collaborator removed successfully' }] };
   }
 
-  export async function githubgetCollaboratorPermission(args: any) {
+  export async function githubGetCollaboratorPermission(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/collaborators/${args.username}/permission`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistInvitations(args: any) {
+  export async function githubListInvitations(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -1029,19 +1029,19 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateInvitation(args: any) {
+  export async function githubUpdateInvitation(args: any) {
     const body: any = {};
     if (args.permissions) body.permissions = args.permissions;
     const response = await client.patch(`/repos/${args.owner}/${args.repo}/invitations/${args.invitation_id}`, body);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteInvitation(args: any) {
+  export async function githubDeleteInvitation(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/invitations/${args.invitation_id}`);
     return { content: [{ type: 'text', text: 'Invitation deleted successfully' }] };
   }
 
-  export async function githublistDeployKeys(args: any) {
+  export async function githubListDeployKeys(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -1049,7 +1049,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateDeployKey(args: any) {
+  export async function githubCreateDeployKey(args: any) {
     const body: any = { title: args.title, key: args.key };
     if (args.read_only !== undefined) body.read_only = args.read_only;
     const response = await client.post(`/repos/${args.owner}/${args.repo}/keys`, body);
@@ -1057,7 +1057,7 @@ function formatResponse(data: any) {
   }
 
   // WEBHOOKS METHODS
-  export async function githublistWebhooks(args: any) {
+  export async function githubListWebhooks(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -1065,12 +1065,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetWebhook(args: any) {
+  export async function githubGetWebhook(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/hooks/${args.hook_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateWebhook(args: any) {
+  export async function githubCreateWebhook(args: any) {
     const body: any = { config: args.config };
     if (args.name) body.name = args.name;
     if (args.events) body.events = args.events;
@@ -1079,7 +1079,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateWebhook(args: any) {
+  export async function githubUpdateWebhook(args: any) {
     const body: any = {};
     if (args.config) body.config = args.config;
     if (args.events) body.events = args.events;
@@ -1088,22 +1088,22 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteWebhook(args: any) {
+  export async function githubDeleteWebhook(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/hooks/${args.hook_id}`);
     return { content: [{ type: 'text', text: 'Webhook deleted successfully' }] };
   }
 
-  export async function githubpingWebhook(args: any) {
+  export async function githubPingWebhook(args: any) {
     await client.post(`/repos/${args.owner}/${args.repo}/hooks/${args.hook_id}/pings`, {});
     return { content: [{ type: 'text', text: 'Webhook ping sent successfully' }] };
   }
 
-  export async function githubtestWebhook(args: any) {
+  export async function githubTestWebhook(args: any) {
     await client.post(`/repos/${args.owner}/${args.repo}/hooks/${args.hook_id}/tests`, {});
     return { content: [{ type: 'text', text: 'Webhook test triggered successfully' }] };
   }
 
-  export async function githublistWebhookDeliveries(args: any) {
+  export async function githubListWebhookDeliveries(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     const response = await client.get(`/repos/${args.owner}/${args.repo}/hooks/${args.hook_id}/deliveries`, params);
@@ -1111,7 +1111,7 @@ function formatResponse(data: any) {
   }
 
   // ORGANIZATIONS & TEAMS METHODS
-  export async function githublistUserOrgs(args: any) {
+  export async function githubListUserOrgs(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -1120,12 +1120,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetOrg(args: any) {
+  export async function githubGetOrg(args: any) {
     const response = await client.get(`/orgs/${args.org}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateOrg(args: any) {
+  export async function githubUpdateOrg(args: any) {
     const body: any = {};
     if (args.name) body.name = args.name;
     if (args.description) body.description = args.description;
@@ -1135,7 +1135,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistOrgMembers(args: any) {
+  export async function githubListOrgMembers(args: any) {
     const params: any = {};
     if (args.filter) params.filter = args.filter;
     if (args.role) params.role = args.role;
@@ -1145,7 +1145,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcheckOrgMembership(args: any) {
+  export async function githubCheckOrgMembership(args: any) {
     try {
       await client.get(`/orgs/${args.org}/members/${args.username}`);
       return { content: [{ type: 'text', text: 'User is a member' }] };
@@ -1154,12 +1154,12 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function githubremoveOrgMember(args: any) {
+  export async function githubRemoveOrgMember(args: any) {
     await client.delete(`/orgs/${args.org}/members/${args.username}`);
     return { content: [{ type: 'text', text: 'Member removed successfully' }] };
   }
 
-  export async function githublistOrgTeams(args: any) {
+  export async function githubListOrgTeams(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -1167,12 +1167,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetTeam(args: any) {
+  export async function githubGetTeam(args: any) {
     const response = await client.get(`/orgs/${args.org}/teams/${args.team_slug}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateTeam(args: any) {
+  export async function githubCreateTeam(args: any) {
     const body: any = { name: args.name };
     if (args.description) body.description = args.description;
     if (args.privacy) body.privacy = args.privacy;
@@ -1180,7 +1180,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateTeam(args: any) {
+  export async function githubUpdateTeam(args: any) {
     const body: any = {};
     if (args.name) body.name = args.name;
     if (args.description) body.description = args.description;
@@ -1189,12 +1189,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteTeam(args: any) {
+  export async function githubDeleteTeam(args: any) {
     await client.delete(`/orgs/${args.org}/teams/${args.team_slug}`);
     return { content: [{ type: 'text', text: 'Team deleted successfully' }] };
   }
 
-  export async function githublistTeamMembers(args: any) {
+  export async function githubListTeamMembers(args: any) {
     const params: any = {};
     if (args.role) params.role = args.role;
     if (args.per_page) params.per_page = args.per_page;
@@ -1204,7 +1204,7 @@ function formatResponse(data: any) {
   }
 
   // SEARCH METHODS
-  export async function githubsearchRepositories(args: any) {
+  export async function githubSearchRepositories(args: any) {
     const params: any = { q: args.q };
     if (args.sort) params.sort = args.sort;
     if (args.order) params.order = args.order;
@@ -1214,7 +1214,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubsearchCode(args: any) {
+  export async function githubSearchCode(args: any) {
     const params: any = { q: args.q };
     if (args.sort) params.sort = args.sort;
     if (args.order) params.order = args.order;
@@ -1224,7 +1224,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubsearchIssues(args: any) {
+  export async function githubSearchIssues(args: any) {
     const params: any = { q: args.q };
     if (args.sort) params.sort = args.sort;
     if (args.order) params.order = args.order;
@@ -1234,7 +1234,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubsearchUsers(args: any) {
+  export async function githubSearchUsers(args: any) {
     const params: any = { q: args.q };
     if (args.sort) params.sort = args.sort;
     if (args.order) params.order = args.order;
@@ -1244,7 +1244,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubsearchCommits(args: any) {
+  export async function githubSearchCommits(args: any) {
     const params: any = { q: args.q };
     if (args.sort) params.sort = args.sort;
     if (args.order) params.order = args.order;
@@ -1254,7 +1254,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubsearchTopics(args: any) {
+  export async function githubSearchTopics(args: any) {
     const params: any = { q: args.q };
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -1263,17 +1263,17 @@ function formatResponse(data: any) {
   }
 
   // USERS METHODS
-  export async function githubgetAuthenticatedUser(args: any) {
+  export async function githubGetAuthenticatedUser(args: any) {
     const response = await client.get('/user');
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetUser(args: any) {
+  export async function githubGetUser(args: any) {
     const response = await client.get(`/users/${args.username}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateAuthenticatedUser(args: any) {
+  export async function githubUpdateAuthenticatedUser(args: any) {
     const body: any = {};
     if (args.name) body.name = args.name;
     if (args.email) body.email = args.email;
@@ -1285,7 +1285,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistUserRepos(args: any) {
+  export async function githubListUserRepos(args: any) {
     const params: any = {};
     if (args.type) params.type = args.type;
     if (args.sort) params.sort = args.sort;
@@ -1296,7 +1296,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistUserFollowers(args: any) {
+  export async function githubListUserFollowers(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -1304,7 +1304,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistUserFollowing(args: any) {
+  export async function githubListUserFollowing(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -1312,7 +1312,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcheckFollowing(args: any) {
+  export async function githubCheckFollowing(args: any) {
     try {
       await client.get(`/users/${args.username}/following/${args.target_user}`);
       return { content: [{ type: 'text', text: 'User is following target user' }] };
@@ -1321,7 +1321,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function githublistUserGists(args: any) {
+  export async function githubListUserGists(args: any) {
     const params: any = {};
     if (args.since) params.since = args.since;
     if (args.per_page) params.per_page = args.per_page;
@@ -1331,7 +1331,7 @@ function formatResponse(data: any) {
   }
 
   // GISTS METHODS
-  export async function githublistGists(args: any) {
+  export async function githubListGists(args: any) {
     const params: any = {};
     if (args.since) params.since = args.since;
     if (args.per_page) params.per_page = args.per_page;
@@ -1340,12 +1340,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetGist(args: any) {
+  export async function githubGetGist(args: any) {
     const response = await client.get(`/gists/${args.gist_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateGist(args: any) {
+  export async function githubCreateGist(args: any) {
     const body: any = { files: args.files };
     if (args.description) body.description = args.description;
     if (args.public !== undefined) body.public = args.public;
@@ -1353,7 +1353,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateGist(args: any) {
+  export async function githubUpdateGist(args: any) {
     const body: any = {};
     if (args.description) body.description = args.description;
     if (args.files) body.files = args.files;
@@ -1361,22 +1361,22 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteGist(args: any) {
+  export async function githubDeleteGist(args: any) {
     await client.delete(`/gists/${args.gist_id}`);
     return { content: [{ type: 'text', text: 'Gist deleted successfully' }] };
   }
 
-  export async function githubstarGist(args: any) {
+  export async function githubStarGist(args: any) {
     await client.put(`/gists/${args.gist_id}/star`, {});
     return { content: [{ type: 'text', text: 'Gist starred successfully' }] };
   }
 
-  export async function githubunstarGist(args: any) {
+  export async function githubUnstarGist(args: any) {
     await client.delete(`/gists/${args.gist_id}/star`);
     return { content: [{ type: 'text', text: 'Gist unstarred successfully' }] };
   }
 
-  export async function githubcheckGistStar(args: any) {
+  export async function githubCheckGistStar(args: any) {
     try {
       await client.get(`/gists/${args.gist_id}/star`);
       return { content: [{ type: 'text', text: 'Gist is starred' }] };
@@ -1385,12 +1385,12 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function githubforkGist(args: any) {
+  export async function githubForkGist(args: any) {
     const response = await client.post(`/gists/${args.gist_id}/forks`, {});
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistGistCommits(args: any) {
+  export async function githubListGistCommits(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     if (args.page) params.page = args.page;
@@ -1399,7 +1399,7 @@ function formatResponse(data: any) {
   }
 
   // MILESTONES & PROJECTS METHODS
-  export async function githublistMilestones(args: any) {
+  export async function githubListMilestones(args: any) {
     const params: any = {};
     if (args.state) params.state = args.state;
     if (args.sort) params.sort = args.sort;
@@ -1410,12 +1410,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetMilestone(args: any) {
+  export async function githubGetMilestone(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/milestones/${args.milestone_number}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateMilestone(args: any) {
+  export async function githubCreateMilestone(args: any) {
     const body: any = { title: args.title };
     if (args.state) body.state = args.state;
     if (args.description) body.description = args.description;
@@ -1424,7 +1424,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateMilestone(args: any) {
+  export async function githubUpdateMilestone(args: any) {
     const body: any = {};
     if (args.title) body.title = args.title;
     if (args.state) body.state = args.state;
@@ -1434,12 +1434,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteMilestone(args: any) {
+  export async function githubDeleteMilestone(args: any) {
     await client.delete(`/repos/${args.owner}/${args.repo}/milestones/${args.milestone_number}`);
     return { content: [{ type: 'text', text: 'Milestone deleted successfully' }] };
   }
 
-  export async function githublistProjects(args: any) {
+  export async function githubListProjects(args: any) {
     const params: any = {};
     if (args.state) params.state = args.state;
     if (args.per_page) params.per_page = args.per_page;
@@ -1448,12 +1448,12 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetProject(args: any) {
+  export async function githubGetProject(args: any) {
     const response = await client.get(`/projects/${args.project_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateProject(args: any) {
+  export async function githubCreateProject(args: any) {
     const body: any = { name: args.name };
     if (args.body) body.body = args.body;
     const response = await client.post(`/repos/${args.owner}/${args.repo}/projects`, body);
@@ -1468,109 +1468,109 @@ function formatResponse(data: any) {
   }
 
   // PACKAGES
-  export async function githublistPackages(args: any) {
+  export async function githubListPackages(args: any) {
     const response = await client.get(`/orgs/${args.org}/packages`, { package_type: args.package_type });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetPackage(args: any) {
+  export async function githubGetPackage(args: any) {
     const response = await client.get(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeletePackage(args: any) {
+  export async function githubDeletePackage(args: any) {
     const response = await client.delete(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}`);
     return { content: [{ type: 'text', text: 'Package deleted' }] };
   }
 
-  export async function githubrestorePackage(args: any) {
+  export async function githubRestorePackage(args: any) {
     const response = await client.post(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/restore`, {});
     return { content: [{ type: 'text', text: 'Package restored' }] };
   }
 
-  export async function githublistPackageVersions(args: any) {
+  export async function githubListPackageVersions(args: any) {
     const response = await client.get(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/versions`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetPackageVersion(args: any) {
+  export async function githubGetPackageVersion(args: any) {
     const response = await client.get(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/versions/${args.version_id}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeletePackageVersion(args: any) {
+  export async function githubDeletePackageVersion(args: any) {
     const response = await client.delete(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/versions/${args.version_id}`);
     return { content: [{ type: 'text', text: 'Package version deleted' }] };
   }
 
-  export async function githubrestorePackageVersion(args: any) {
+  export async function githubRestorePackageVersion(args: any) {
     const response = await client.post(`/orgs/${args.org}/packages/${args.package_type}/${args.package_name}/versions/${args.version_id}/restore`, {});
     return { content: [{ type: 'text', text: 'Package version restored' }] };
   }
 
   // PROJECTS V2 (GraphQL)
-  export async function githublistOrgProjectsV2(args: any) {
+  export async function githubListOrgProjectsV2(args: any) {
     const query = `query { organization(login: "${args.org}") { projectsV2(first: 20) { nodes { id title } } } }`;
     const response = await client.post('/graphql', { query });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetProjectV2(args: any) {
+  export async function githubGetProjectV2(args: any) {
     const query = `query { node(id: "${args.project_id}") { ... on ProjectV2 { id title description } } }`;
     const response = await client.post('/graphql', { query });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateProjectV2(args: any) {
+  export async function githubCreateProjectV2(args: any) {
     const mutation = `mutation { createProjectV2(input: { ownerId: "${args.org}", title: "${args.title}" }) { projectV2 { id title } } }`;
     const response = await client.post('/graphql', { query: mutation });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateProjectV2(args: any) {
+  export async function githubUpdateProjectV2(args: any) {
     const mutation = `mutation { updateProjectV2(input: { projectId: "${args.project_id}", title: "${args.title || ''}" }) { projectV2 { id title } } }`;
     const response = await client.post('/graphql', { query: mutation });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteProjectV2(args: any) {
+  export async function githubDeleteProjectV2(args: any) {
     const mutation = `mutation { deleteProjectV2(input: { projectId: "${args.project_id}" }) { projectV2 { id } } }`;
     const response = await client.post('/graphql', { query: mutation });
     return { content: [{ type: 'text', text: 'Project deleted' }] };
   }
 
-  export async function githublistProjectItems(args: any) {
+  export async function githubListProjectItems(args: any) {
     const query = `query { node(id: "${args.project_id}") { ... on ProjectV2 { items(first: 20) { nodes { id } } } } }`;
     const response = await client.post('/graphql', { query });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubaddProjectItem(args: any) {
+  export async function githubAddProjectItem(args: any) {
     const mutation = `mutation { addProjectV2ItemById(input: { projectId: "${args.project_id}", contentId: "${args.content_id}" }) { item { id } } }`;
     const response = await client.post('/graphql', { query: mutation });
     return { content: [{ type: 'text', text: 'Item added to project' }] };
   }
 
-  export async function githubremoveProjectItem(args: any) {
+  export async function githubRemoveProjectItem(args: any) {
     const mutation = `mutation { deleteProjectV2Item(input: { projectId: "${args.project_id}", itemId: "${args.item_id}" }) { deletedItemId } }`;
     const response = await client.post('/graphql', { query: mutation });
     return { content: [{ type: 'text', text: 'Item removed from project' }] };
   }
 
   // DISCUSSIONS
-  export async function githublistDiscussions(args: any) {
+  export async function githubListDiscussions(args: any) {
     const params: any = {};
     if (args.category) params.category = args.category;
     const response = await client.get(`/repos/${args.owner}/${args.repo}/discussions`, params);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetDiscussion(args: any) {
+  export async function githubGetDiscussion(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/discussions/${args.discussion_number}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateDiscussion(args: any) {
+  export async function githubCreateDiscussion(args: any) {
     const response = await client.post(`/repos/${args.owner}/${args.repo}/discussions`, {
       title: args.title,
       body: args.body,
@@ -1579,7 +1579,7 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateDiscussion(args: any) {
+  export async function githubUpdateDiscussion(args: any) {
     const body: any = {};
     if (args.title) body.title = args.title;
     if (args.body) body.body = args.body;
@@ -1587,42 +1587,42 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubdeleteDiscussion(args: any) {
+  export async function githubDeleteDiscussion(args: any) {
     const response = await client.delete(`/repos/${args.owner}/${args.repo}/discussions/${args.discussion_number}`);
     return { content: [{ type: 'text', text: 'Discussion deleted' }] };
   }
 
-  export async function githublistDiscussionComments(args: any) {
+  export async function githubListDiscussionComments(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/discussions/${args.discussion_number}/comments`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateDiscussionComment(args: any) {
+  export async function githubCreateDiscussionComment(args: any) {
     const response = await client.post(`/repos/${args.owner}/${args.repo}/discussions/${args.discussion_number}/comments`, {
       body: args.body
     });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistDiscussionCategories(args: any) {
+  export async function githubListDiscussionCategories(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/discussions/categories`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
   // CODESPACES
-  export async function githublistCodespaces(args: any) {
+  export async function githubListCodespaces(args: any) {
     const params: any = {};
     if (args.per_page) params.per_page = args.per_page;
     const response = await client.get('/user/codespaces', params);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetCodespace(args: any) {
+  export async function githubGetCodespace(args: any) {
     const response = await client.get(`/user/codespaces/${args.codespace_name}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubcreateCodespace(args: any) {
+  export async function githubCreateCodespace(args: any) {
     const body: any = {};
     if (args.ref) body.ref = args.ref;
     if (args.machine) body.machine = args.machine;
@@ -1630,82 +1630,82 @@ function formatResponse(data: any) {
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubstartCodespace(args: any) {
+  export async function githubStartCodespace(args: any) {
     const response = await client.post(`/user/codespaces/${args.codespace_name}/start`, {});
     return { content: [{ type: 'text', text: 'Codespace started' }] };
   }
 
-  export async function githubstopCodespace(args: any) {
+  export async function githubStopCodespace(args: any) {
     const response = await client.post(`/user/codespaces/${args.codespace_name}/stop`, {});
     return { content: [{ type: 'text', text: 'Codespace stopped' }] };
   }
 
-  export async function githubdeleteCodespace(args: any) {
+  export async function githubDeleteCodespace(args: any) {
     const response = await client.delete(`/user/codespaces/${args.codespace_name}`);
     return { content: [{ type: 'text', text: 'Codespace deleted' }] };
   }
 
-  export async function githublistRepoCodespaces(args: any) {
+  export async function githubListRepoCodespaces(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/codespaces`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
   // COPILOT
-  export async function githubgetCopilotOrgSettings(args: any) {
+  export async function githubGetCopilotOrgSettings(args: any) {
     const response = await client.get(`/orgs/${args.org}/copilot/billing`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistCopilotSeats(args: any) {
+  export async function githubListCopilotSeats(args: any) {
     const response = await client.get(`/orgs/${args.org}/copilot/billing/seats`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubaddCopilotSeats(args: any) {
+  export async function githubAddCopilotSeats(args: any) {
     const response = await client.post(`/orgs/${args.org}/copilot/billing/selected_users`, {
       selected_usernames: args.selected_usernames
     });
     return { content: [{ type: 'text', text: 'Copilot seats added' }] };
   }
 
-  export async function githubremoveCopilotSeats(args: any) {
+  export async function githubRemoveCopilotSeats(args: any) {
     const response = await client.delete(`/orgs/${args.org}/copilot/billing/selected_users`);
     return { content: [{ type: 'text', text: 'Copilot seats removed' }] };
   }
 
-  export async function githubgetCopilotUsage(args: any) {
+  export async function githubGetCopilotUsage(args: any) {
     const response = await client.get(`/orgs/${args.org}/copilot/usage`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
   // ADVANCED SECURITY
-  export async function githublistCodeScanningAlerts(args: any) {
+  export async function githubListCodeScanningAlerts(args: any) {
     const params: any = {};
     if (args.state) params.state = args.state;
     const response = await client.get(`/repos/${args.owner}/${args.repo}/code-scanning/alerts`, params);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubgetCodeScanningAlert(args: any) {
+  export async function githubGetCodeScanningAlert(args: any) {
     const response = await client.get(`/repos/${args.owner}/${args.repo}/code-scanning/alerts/${args.alert_number}`);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateCodeScanningAlert(args: any) {
+  export async function githubUpdateCodeScanningAlert(args: any) {
     const response = await client.patch(`/repos/${args.owner}/${args.repo}/code-scanning/alerts/${args.alert_number}`, {
       state: args.state
     });
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githublistSecretScanningAlerts(args: any) {
+  export async function githubListSecretScanningAlerts(args: any) {
     const params: any = {};
     if (args.state) params.state = args.state;
     const response = await client.get(`/repos/${args.owner}/${args.repo}/secret-scanning/alerts`, params);
     return { content: [{ type: 'text', text: JSON.stringify(response, null, 2) }] };
   }
 
-  export async function githubupdateSecretScanningAlert(args: any) {
+  export async function githubUpdateSecretScanningAlert(args: any) {
     const response = await client.patch(`/repos/${args.owner}/${args.repo}/secret-scanning/alerts/${args.alert_number}`, {
       state: args.state
     });

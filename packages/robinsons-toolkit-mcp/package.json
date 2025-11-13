@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/robinsons-toolkit-mcp",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "description": "Unified MCP server with 1237+ tools across GitHub, Vercel, Neon, Upstash Redis, Google Workspace, OpenAI, Stripe, Supabase, Playwright, Twilio, Resend, Context7, Cloudflare, PostgreSQL, Neo4j, Qdrant, and N8N. More integrations coming soon!",
   "type": "module",
   "main": "./dist/index.js",
@@ -21,6 +21,7 @@
     "docs": "node scripts/generate-docs.mjs",
     "audit:placeholders": "node scripts/audit-placeholders.mjs",
     "rebuild:missing": "node scripts/rebuild-missing-handlers.mjs",
+    "fix:names": "node scripts/fix-handler-names.mjs",
     "clean": "rm -rf dist",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
