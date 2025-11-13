@@ -68,35 +68,41 @@ const CATEGORY_METADATA = {
 };
 
 // Map tool file names to categories and handler modules
-// Only include the main combined files, skip the -2, -3, etc. parts
+// Now using organized category folder structure
 const TOOL_FILE_MAPPING = {
-  'stripe-tools.ts': { category: 'stripe', handlerModule: './stripe-handlers.js', exportName: 'STRIPE_TOOLS' },
-  'supabase-tools.ts': { category: 'supabase', handlerModule: './supabase-handlers.js', exportName: 'SUPABASE_TOOLS' },
-  'playwright-tools.ts': { category: 'playwright', handlerModule: './playwright-handlers.js', exportName: 'PLAYWRIGHT_TOOLS' },
-  'twilio-tools.ts': { category: 'twilio', handlerModule: './twilio-handlers.js', exportName: 'TWILIO_TOOLS' },
-  'resend-tools.ts': { category: 'resend', handlerModule: './resend-handlers.js', exportName: 'RESEND_TOOLS' },
-  'context7-tools.ts': { category: 'context7', handlerModule: './context7-handlers.js', exportName: 'CONTEXT7_TOOLS' },
-  'cloudflare-tools.ts': { category: 'cloudflare', handlerModule: './cloudflare-handlers.js', exportName: 'CLOUDFLARE_TOOLS' },
-  'postgres-tools.ts': { category: 'postgres', handlerModule: './chris-infrastructure/postgres-handlers.js', exportName: 'postgresTools' },
-  'neo4j-tools.ts': { category: 'neo4j', handlerModule: './chris-infrastructure/neo4j-handlers.js', exportName: 'neo4jTools' },
-  'qdrant-tools.ts': { category: 'qdrant', handlerModule: './chris-infrastructure/qdrant-handlers.js', exportName: 'qdrantTools' },
-  'n8n-tools.ts': { category: 'n8n', handlerModule: './chris-infrastructure/n8n-handlers.js', exportName: 'n8nTools' },
-  'langchain-tools.ts': { category: 'langchain', handlerModule: './chris-infrastructure/langchain-handlers.js', exportName: 'langchainTools' },
-  'gateway-tools.ts': { category: 'gateway', handlerModule: './chris-infrastructure/gateway-handlers.js', exportName: 'gatewayTools' },
-  'health-tools.ts': { category: 'health', handlerModule: './chris-infrastructure/health-handlers.js', exportName: 'healthTools' },
+  'categories/stripe/tools.ts': { category: 'stripe', handlerModule: './categories/stripe/handlers.js', exportName: 'STRIPE_TOOLS' },
+  'categories/supabase/tools.ts': { category: 'supabase', handlerModule: './categories/supabase/handlers.js', exportName: 'SUPABASE_TOOLS' },
+  'categories/playwright/tools.ts': { category: 'playwright', handlerModule: './categories/playwright/handlers.js', exportName: 'PLAYWRIGHT_TOOLS' },
+  'categories/twilio/tools.ts': { category: 'twilio', handlerModule: './categories/twilio/handlers.js', exportName: 'TWILIO_TOOLS' },
+  'categories/resend/tools.ts': { category: 'resend', handlerModule: './categories/resend/handlers.js', exportName: 'RESEND_TOOLS' },
+  'categories/context7/tools.ts': { category: 'context7', handlerModule: './categories/context7/handlers.js', exportName: 'CONTEXT7_TOOLS' },
+  'categories/cloudflare/tools.ts': { category: 'cloudflare', handlerModule: './categories/cloudflare/handlers.js', exportName: 'CLOUDFLARE_TOOLS' },
+  'categories/postgres/tools.ts': { category: 'postgres', handlerModule: './categories/postgres/handlers.js', exportName: 'postgresTools' },
+  'categories/neo4j/tools.ts': { category: 'neo4j', handlerModule: './categories/neo4j/handlers.js', exportName: 'neo4jTools' },
+  'categories/qdrant/tools.ts': { category: 'qdrant', handlerModule: './categories/qdrant/handlers.js', exportName: 'qdrantTools' },
+  'categories/n8n/tools.ts': { category: 'n8n', handlerModule: './categories/n8n/handlers.js', exportName: 'n8nTools' },
+  'categories/langchain/tools.ts': { category: 'langchain', handlerModule: './categories/langchain/handlers.js', exportName: 'langchainTools' },
+  'categories/gateway/tools.ts': { category: 'gateway', handlerModule: './categories/gateway/handlers.js', exportName: 'gatewayTools' },
+  'categories/health/tools.ts': { category: 'health', handlerModule: './categories/health/handlers.js', exportName: 'healthTools' },
 };
 
 // Skip these files - they're parts that get combined into the main files
 const SKIP_FILES = new Set([
-  'supabase-tools-2.ts',
-  'cloudflare-tools-2.ts',
-  'cloudflare-tools-3.ts',
-  'cloudflare-tools-4.ts',
-  'cloudflare-tools-5.ts',
-  'twilio-tools-2.ts',
-  'resend-tools-2.ts',
-  'stripe-handlers-2.ts',
-  'stripe-handlers-3.ts',
+  'categories/supabase/tools-2.ts',
+  'categories/cloudflare/tools-2.ts',
+  'categories/cloudflare/tools-3.ts',
+  'categories/cloudflare/tools-4.ts',
+  'categories/cloudflare/tools-5.ts',
+  'categories/twilio/tools-2.ts',
+  'categories/stripe/handlers-2.ts',
+  'categories/stripe/handlers-3.ts',
+  'categories/supabase/handlers-2.ts',
+  'categories/resend/handlers-2.ts',
+  'categories/twilio/handlers-2.ts',
+  'categories/twilio/handlers-3.ts',
+  'categories/cloudflare/handlers-2.ts',
+  'categories/cloudflare/handlers-3.ts',
+  'categories/cloudflare/handlers-4.ts',
 ]);
 
 /**

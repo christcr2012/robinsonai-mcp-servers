@@ -4,7 +4,7 @@
  * Handler functions for all 6 Neo4j tools
  */
 
-import { fastAPIClient } from './fastapi-client.js';
+import { fastAPIClient } from '../../util/fastapi-client.js';
 
 // ============================================================================
 // Database Info

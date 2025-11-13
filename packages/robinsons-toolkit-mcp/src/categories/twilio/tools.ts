@@ -10,7 +10,7 @@
  * - Conversations: 10 tools (conversations, messages, participants)
  */
 
-import { TWILIO_TOOLS_2 } from './twilio-tools-2.js';
+import { TWILIO_TOOLS_2 } from './tools-2.js';
 
 const TWILIO_TOOLS_1 = [
   // ============================================================

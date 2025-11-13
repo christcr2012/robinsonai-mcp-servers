@@ -4,7 +4,7 @@
  * Handler functions for health checks and user information
  */
 
-import { fastAPIClient } from './fastapi-client.js';
+import { fastAPIClient } from '../../util/fastapi-client.js';
 
 export async function handleHealthCheck(args: any) {
   return await fastAPIClient.request('/health', {

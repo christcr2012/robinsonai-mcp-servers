@@ -16,10 +16,10 @@
  * Total: 160 tools
  */
 
-import { CLOUDFLARE_TOOLS_2 } from './cloudflare-tools-2.js';
-import { CLOUDFLARE_TOOLS_3 } from './cloudflare-tools-3.js';
-import { CLOUDFLARE_TOOLS_4 } from './cloudflare-tools-4.js';
-import { CLOUDFLARE_TOOLS_5 } from './cloudflare-tools-5.js';
+import { CLOUDFLARE_TOOLS_2 } from './tools-2.js';
+import { CLOUDFLARE_TOOLS_3 } from './tools-3.js';
+import { CLOUDFLARE_TOOLS_4 } from './tools-4.js';
+import { CLOUDFLARE_TOOLS_5 } from './tools-5.js';
 
 const CLOUDFLARE_TOOLS_1 = [
   // ============================================================

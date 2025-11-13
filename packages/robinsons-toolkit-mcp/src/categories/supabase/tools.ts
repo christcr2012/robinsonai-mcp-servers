@@ -10,7 +10,7 @@
  * - Management API: 10 tools
  */
 
-import { SUPABASE_TOOLS_2 } from './supabase-tools-2.js';
+import { SUPABASE_TOOLS_2 } from './tools-2.js';
 
 const SUPABASE_TOOLS_1 = [
   // ============================================================

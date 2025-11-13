@@ -4,7 +4,7 @@
  * Handler functions for all 4 LangChain tools
  */
 
-import { fastAPIClient } from './fastapi-client.js';
+import { fastAPIClient } from '../../util/fastapi-client.js';
 
 export async function handleLangchainInfo(args: any) {
   return await fastAPIClient.request('/langchain/info', {

@@ -4,7 +4,7 @@
  * Handler functions for all 8 PostgreSQL tools
  */
 
-import { fastAPIClient } from './fastapi-client.js';
+import { fastAPIClient } from '../../util/fastapi-client.js';
 
 // ============================================================================
 // Database Info

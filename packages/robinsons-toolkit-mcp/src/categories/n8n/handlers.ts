@@ -4,7 +4,7 @@
  * Handler functions for all 12 N8N tools
  */
 
-import { fastAPIClient } from './fastapi-client.js';
+import { fastAPIClient } from '../../util/fastapi-client.js';
 
 // ============================================================================
 // Workflow Operations

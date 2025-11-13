@@ -4,7 +4,7 @@
  * Handler functions for all 7 Qdrant tools
  */
 
-import { fastAPIClient } from './fastapi-client.js';
+import { fastAPIClient } from '../../util/fastapi-client.js';
 
 // ============================================================================
 // Collection Management

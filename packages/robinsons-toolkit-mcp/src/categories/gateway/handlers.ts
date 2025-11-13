@@ -4,7 +4,7 @@
  * Handler functions for unified API gateway access
  */
 
-import { fastAPIClient } from './fastapi-client.js';
+import { fastAPIClient } from '../../util/fastapi-client.js';
 
 export async function handleGatewayServices(args: any) {
   return await fastAPIClient.request('/gateway/services', {
