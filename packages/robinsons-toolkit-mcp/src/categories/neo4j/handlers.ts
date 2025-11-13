@@ -82,28 +82,28 @@ export async function handleNeo4jRelationships(args: any) {
  * Get Neo4j database information
  * @see https://api.srv823383.hstgr.cloud/docs#/Neo4j/get_neo4j_info_neo4j_info_get
  */
-export const fastapineo4jinfo = handleNeo4jInfo;
+export const fastapiNeo4jInfo = handleNeo4jInfo;
 
 /**
  * Execute read-only Cypher query on Neo4j
  * @see https://api.srv823383.hstgr.cloud/docs#/Neo4j/query_neo4j_query_get
  */
-export const fastapineo4jquery = handleNeo4jQuery;
+export const fastapiNeo4jQuery = handleNeo4jQuery;
 
 /**
  * Execute Cypher query (read or write) on Neo4j
  * @see https://api.srv823383.hstgr.cloud/docs#/Neo4j/execute_neo4j_execute_post
  */
-export const fastapineo4jexecute = handleNeo4jExecute;
+export const fastapiNeo4jExecute = handleNeo4jExecute;
 
 /**
  * List nodes in Neo4j with optional label filtering
  * @see https://api.srv823383.hstgr.cloud/docs#/Neo4j/get_nodes_neo4j_nodes_get
  */
-export const fastapineo4jnodes = handleNeo4jNodes;
+export const fastapiNeo4jNodes = handleNeo4jNodes;
 
 /**
  * List relationships in Neo4j with optional type filtering
  * @see https://api.srv823383.hstgr.cloud/docs#/Neo4j/get_relationships_neo4j_relationships_get
  */
-export const fastapineo4jrelationships = handleNeo4jRelationships;
+export const fastapiNeo4jRelationships = handleNeo4jRelationships;

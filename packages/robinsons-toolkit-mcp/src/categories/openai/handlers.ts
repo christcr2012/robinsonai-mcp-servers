@@ -38,7 +38,7 @@ function formatResponse(data: any) {
   }
 
   // Chat Completions
-  export async function openaichatCompletion(args: any) {
+  export async function openaiChatCompletion(args: any) {
     const { model = "gpt-4-turbo", messages, temperature, max_tokens, top_p, frequency_penalty, presence_penalty } = args;
 
     try {
@@ -100,13 +100,13 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaichatCompletionStream(args: any) {
+  export async function openaiChatCompletionStream(args: any) {
     return formatResponse({
       error: "Streaming not yet supported in MCP. Use standard chat_completion instead.",
     });
   }
 
-  export async function openaichatWithFunctions(args: any) {
+  export async function openaiChatWithFunctions(args: any) {
     const { model = "gpt-4-turbo", messages, functions, function_call, temperature, max_tokens } = args;
 
     try {
@@ -159,7 +159,7 @@ function formatResponse(data: any) {
   }
 
   // Embeddings
-  export async function openaicreateEmbedding(args: any) {
+  export async function openaiCreateEmbedding(args: any) {
     const { model = "text-embedding-3-small", input, encoding_format, dimensions } = args;
 
     try {
@@ -208,7 +208,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaibatchEmbeddings(args: any) {
+  export async function openaiBatchEmbeddings(args: any) {
     const { model = "text-embedding-3-small", inputs } = args;
 
     try {
@@ -257,7 +257,7 @@ function formatResponse(data: any) {
   }
 
   // Images
-  export async function openaigenerateImage(args: any) {
+  export async function openaiGenerateImage(args: any) {
     const { model = "dall-e-3", prompt, n = 1, size = "1024x1024", quality = "standard", response_format } = args;
 
     try {
@@ -306,14 +306,14 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaieditImage(args: any) {
+  export async function openaiEditImage(args: any) {
     return formatResponse({
       message: "Image editing requires file upload which is not yet supported in this MCP implementation",
       note: "Use the OpenAI API directly for image editing"
     });
   }
 
-  export async function openaicreateImageVariation(args: any) {
+  export async function openaiCreateImageVariation(args: any) {
     return formatResponse({
       message: "Image variations require file upload which is not yet supported in this MCP implementation",
       note: "Use the OpenAI API directly for image variations"
@@ -321,7 +321,7 @@ function formatResponse(data: any) {
   }
 
   // Audio
-  export async function openaitextToSpeech(args: any) {
+  export async function openaiTextToSpeech(args: any) {
     const { model = "tts-1", input, voice = "alloy", response_format = "mp3", speed = 1.0 } = args;
 
     try {
@@ -372,14 +372,14 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaispeechToText(args: any) {
+  export async function openaiSpeechToText(args: any) {
     return formatResponse({
       message: "Speech-to-text requires audio file upload which is not yet supported in this MCP implementation",
       note: "Use the OpenAI API directly for Whisper transcription"
     });
   }
 
-  export async function openaitranslateAudio(args: any) {
+  export async function openaiTranslateAudio(args: any) {
     return formatResponse({
       message: "Audio translation requires audio file upload which is not yet supported in this MCP implementation",
       note: "Use the OpenAI API directly for Whisper translation"
@@ -387,7 +387,7 @@ function formatResponse(data: any) {
   }
 
   // Moderation
-  export async function openaimoderateContent(args: any) {
+  export async function openaiModerateContent(args: any) {
     const { input } = args;
 
     try {
@@ -409,7 +409,7 @@ function formatResponse(data: any) {
   }
 
   // Models
-  export async function openailistModels(args: any) {
+  export async function openaiListModels(args: any) {
     try {
       const response = await openai.models.list();
       return formatResponse({
@@ -421,7 +421,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaigetModel(args: any) {
+  export async function openaiGetModel(args: any) {
     const { model } = args;
 
     try {
@@ -432,7 +432,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaideleteModel(args: any) {
+  export async function openaiDeleteModel(args: any) {
     const { model } = args;
 
     try {
@@ -447,14 +447,14 @@ function formatResponse(data: any) {
   }
 
   // Files
-  export async function openaiuploadFile(args: any) {
+  export async function openaiUploadFile(args: any) {
     return formatResponse({
       message: "File upload requires file system access which is not yet supported in this MCP implementation",
       note: "Use the OpenAI API directly or upload files through the OpenAI dashboard"
     });
   }
 
-  export async function openailistFiles(args: any) {
+  export async function openaiListFiles(args: any) {
     const { purpose } = args;
 
     try {
@@ -468,7 +468,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openairetrieveFile(args: any) {
+  export async function openaiRetrieveFile(args: any) {
     const { file_id } = args;
 
     try {
@@ -479,7 +479,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaideleteFile(args: any) {
+  export async function openaiDeleteFile(args: any) {
     const { file_id } = args;
 
     try {
@@ -493,7 +493,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openairetrieveFileContent(args: any) {
+  export async function openaiRetrieveFileContent(args: any) {
     const { file_id } = args;
 
     try {
@@ -510,7 +510,7 @@ function formatResponse(data: any) {
   }
 
   // Fine-tuning
-  export async function openaicreateFineTune(args: any) {
+  export async function openaiCreateFineTune(args: any) {
     const { training_file, model = "gpt-3.5-turbo", validation_file, hyperparameters, suffix } = args;
 
     try {
@@ -528,7 +528,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openailistFineTunes(args: any) {
+  export async function openaiListFineTunes(args: any) {
     const { limit } = args;
 
     try {
@@ -542,7 +542,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openairetrieveFineTune(args: any) {
+  export async function openaiRetrieveFineTune(args: any) {
     const { fine_tune_id } = args;
 
     try {
@@ -553,7 +553,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaicancelFineTune(args: any) {
+  export async function openaiCancelFineTune(args: any) {
     const { fine_tune_id } = args;
 
     try {
@@ -564,7 +564,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openailistFineTuneEvents(args: any) {
+  export async function openaiListFineTuneEvents(args: any) {
     const { fine_tune_id } = args;
 
     try {
@@ -578,7 +578,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openailistFineTuneCheckpoints(args: any) {
+  export async function openaiListFineTuneCheckpoints(args: any) {
     const { fine_tune_id } = args;
 
     try {
@@ -593,7 +593,7 @@ function formatResponse(data: any) {
   }
 
   // Batch API
-  export async function openaicreateBatch(args: any) {
+  export async function openaiCreateBatch(args: any) {
     const { input_file_id, endpoint, completion_window = "24h", metadata } = args;
 
     try {
@@ -613,7 +613,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openairetrieveBatch(args: any) {
+  export async function openaiRetrieveBatch(args: any) {
     const { batch_id } = args;
 
     try {
@@ -624,7 +624,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaicancelBatch(args: any) {
+  export async function openaiCancelBatch(args: any) {
     const { batch_id } = args;
 
     try {
@@ -635,7 +635,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openailistBatches(args: any) {
+  export async function openaiListBatches(args: any) {
     const { limit } = args;
 
     try {
@@ -650,7 +650,7 @@ function formatResponse(data: any) {
   }
 
   // Assistants
-  export async function openaicreateAssistant(args: any) {
+  export async function openaiCreateAssistant(args: any) {
     const { name, model = "gpt-4-turbo", instructions, tools, tool_resources, metadata } = args;
 
     try {
@@ -669,7 +669,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openailistAssistants(args: any) {
+  export async function openaiListAssistants(args: any) {
     try {
       const response = await openai.beta.assistants.list(args);
       return formatResponse(response);
@@ -678,7 +678,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openairetrieveAssistant(args: any) {
+  export async function openaiRetrieveAssistant(args: any) {
     try {
       const response = await openai.beta.assistants.retrieve(args.assistant_id);
       return formatResponse(response);
@@ -687,7 +687,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaimodifyAssistant(args: any) {
+  export async function openaiModifyAssistant(args: any) {
     const { assistant_id, ...updates } = args;
     try {
       const response = await openai.beta.assistants.update(assistant_id, updates);
@@ -697,7 +697,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaideleteAssistant(args: any) {
+  export async function openaiDeleteAssistant(args: any) {
     try {
       const response = await openai.beta.assistants.del(args.assistant_id);
       return formatResponse(response);
@@ -707,7 +707,7 @@ function formatResponse(data: any) {
   }
 
   // Threads
-  export async function openaicreateThread(args: any) {
+  export async function openaiCreateThread(args: any) {
     try {
       const response = await openai.beta.threads.create(args);
       return formatResponse(response);
@@ -716,7 +716,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openairetrieveThread(args: any) {
+  export async function openaiRetrieveThread(args: any) {
     try {
       const response = await openai.beta.threads.retrieve(args.thread_id);
       return formatResponse(response);
@@ -725,7 +725,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaimodifyThread(args: any) {
+  export async function openaiModifyThread(args: any) {
     const { thread_id, ...updates } = args;
     try {
       const response = await openai.beta.threads.update(thread_id, updates);
@@ -735,7 +735,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaideleteThread(args: any) {
+  export async function openaiDeleteThread(args: any) {
     try {
       const response = await openai.beta.threads.del(args.thread_id);
       return formatResponse(response);
@@ -745,7 +745,7 @@ function formatResponse(data: any) {
   }
 
   // Messages
-  export async function openaicreateMessage(args: any) {
+  export async function openaiCreateMessage(args: any) {
     const { thread_id, ...messageData } = args;
     try {
       const response = await openai.beta.threads.messages.create(thread_id, messageData);
@@ -755,7 +755,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openailistMessages(args: any) {
+  export async function openaiListMessages(args: any) {
     const { thread_id, ...params } = args;
     try {
       const response = await openai.beta.threads.messages.list(thread_id, params);
@@ -765,7 +765,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openairetrieveMessage(args: any) {
+  export async function openaiRetrieveMessage(args: any) {
     try {
       const response = await openai.beta.threads.messages.retrieve(args.thread_id, args.message_id);
       return formatResponse(response);
@@ -774,7 +774,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaimodifyMessage(args: any) {
+  export async function openaiModifyMessage(args: any) {
     const { thread_id, message_id, ...updates } = args;
     try {
       const response = await openai.beta.threads.messages.update(thread_id, message_id, updates);
@@ -784,12 +784,12 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaideleteMessage(args: any) {
+  export async function openaiDeleteMessage(args: any) {
     return formatResponse({ message: "Not yet implemented" });
   }
 
   // Runs
-  export async function openaicreateRun(args: any) {
+  export async function openaiCreateRun(args: any) {
     const { thread_id, ...runData } = args;
     try {
       const response = await openai.beta.threads.runs.create(thread_id, runData);
@@ -799,7 +799,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaicreateThreadAndRun(args: any) {
+  export async function openaiCreateThreadAndRun(args: any) {
     try {
       const response = await openai.beta.threads.createAndRun(args);
       return formatResponse(response);
@@ -808,7 +808,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openailistRuns(args: any) {
+  export async function openaiListRuns(args: any) {
     const { thread_id, ...params } = args;
     try {
       const response = await openai.beta.threads.runs.list(thread_id, params);
@@ -818,7 +818,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openairetrieveRun(args: any) {
+  export async function openaiRetrieveRun(args: any) {
     try {
       const response = await openai.beta.threads.runs.retrieve(args.thread_id, args.run_id);
       return formatResponse(response);
@@ -827,7 +827,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaimodifyRun(args: any) {
+  export async function openaiModifyRun(args: any) {
     const { thread_id, run_id, ...updates } = args;
     try {
       const response = await openai.beta.threads.runs.update(thread_id, run_id, updates);
@@ -837,7 +837,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaicancelRun(args: any) {
+  export async function openaiCancelRun(args: any) {
     try {
       const response = await openai.beta.threads.runs.cancel(args.thread_id, args.run_id);
       return formatResponse(response);
@@ -846,7 +846,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaisubmitToolOutputs(args: any) {
+  export async function openaiSubmitToolOutputs(args: any) {
     const { thread_id, run_id, tool_outputs } = args;
     try {
       const response = await openai.beta.threads.runs.submitToolOutputs(thread_id, run_id, { tool_outputs });
@@ -856,7 +856,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openailistRunSteps(args: any) {
+  export async function openaiListRunSteps(args: any) {
     const { thread_id, run_id, ...params } = args;
     try {
       const response = await openai.beta.threads.runs.steps.list(thread_id, run_id, params);
@@ -866,7 +866,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openairetrieveRunStep(args: any) {
+  export async function openaiRetrieveRunStep(args: any) {
     try {
       const response = await openai.beta.threads.runs.steps.retrieve(args.thread_id, args.run_id, args.step_id);
       return formatResponse(response);
@@ -876,59 +876,59 @@ function formatResponse(data: any) {
   }
 
   // Vector Stores (RAG) - Stub implementations for now
-  export async function openaicreateVectorStore(args: any) {
+  export async function openaiCreateVectorStore(args: any) {
     return formatResponse({
       message: "Vector Stores API not yet available in OpenAI SDK v4.73.0",
       note: "This feature will be implemented when the SDK is updated"
     });
   }
 
-  export async function openailistVectorStores(args: any) {
+  export async function openaiListVectorStores(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openairetrieveVectorStore(args: any) {
+  export async function openaiRetrieveVectorStore(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openaimodifyVectorStore(args: any) {
+  export async function openaiModifyVectorStore(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openaideleteVectorStore(args: any) {
+  export async function openaiDeleteVectorStore(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openaicreateVectorStoreFile(args: any) {
+  export async function openaiCreateVectorStoreFile(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openailistVectorStoreFiles(args: any) {
+  export async function openaiListVectorStoreFiles(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openairetrieveVectorStoreFile(args: any) {
+  export async function openaiRetrieveVectorStoreFile(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openaideleteVectorStoreFile(args: any) {
+  export async function openaiDeleteVectorStoreFile(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openaicreateVectorStoreFileBatch(args: any) {
+  export async function openaiCreateVectorStoreFileBatch(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openairetrieveVectorStoreFileBatch(args: any) {
+  export async function openaiRetrieveVectorStoreFileBatch(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
-  export async function openaicancelVectorStoreFileBatch(args: any) {
+  export async function openaiCancelVectorStoreFileBatch(args: any) {
     return formatResponse({ message: "Not yet implemented - awaiting SDK update" });
   }
 
   // Cost Management
-  export async function openaiestimateCost(args: any) {
+  export async function openaiEstimateCost(args: any) {
     const { operation, model, input_text, max_tokens, image_count, image_size, image_quality } = args;
 
     try {
@@ -959,13 +959,13 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaigetBudgetStatus(args: any) {
+  export async function openaiGetBudgetStatus(args: any) {
     const status = costManager.getBudgetStatus();
     return formatResponse(status);
   }
 
   // Advanced Cost Analytics
-  export async function openaigetCostBreakdown(args: any) {
+  export async function openaiGetCostBreakdown(args: any) {
     const { group_by = "model", start_date, end_date } = args;
 
     try {
@@ -1034,7 +1034,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaioptimizePrompt(args: any) {
+  export async function openaiOptimizePrompt(args: any) {
     const { prompt, model = "gpt-4" } = args;
 
     try {
@@ -1082,7 +1082,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaiexportCostReport(args: any) {
+  export async function openaiExportCostReport(args: any) {
     const { format, start_date, end_date } = args;
 
     try {
@@ -1132,7 +1132,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaigetTokenAnalytics(args: any) {
+  export async function openaiGetTokenAnalytics(args: any) {
     const { period = "all" } = args;
 
     try {
@@ -1177,7 +1177,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaisuggestCheaperAlternative(args: any) {
+  export async function openaiSuggestCheaperAlternative(args: any) {
     const { current_model, task_type, quality_requirement = "high" } = args;
 
     try {
@@ -1239,7 +1239,7 @@ function formatResponse(data: any) {
   }
 
   // Usage & Billing API (NEW Dec 2024)
-  export async function openaigetUsage(args: any) {
+  export async function openaiGetUsage(args: any) {
     if (!OPENAI_ADMIN_KEY) {
       return formatResponse({
         error: "Usage API requires an Organization Admin Key",
@@ -1282,7 +1282,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaigetCosts(args: any) {
+  export async function openaiGetCosts(args: any) {
     if (!OPENAI_ADMIN_KEY) {
       return formatResponse({
         error: "Costs API requires an Organization Admin Key",
@@ -1320,42 +1320,42 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaigetUsageCompletions(args: any) {
+  export async function openaiGetUsageCompletions(args: any) {
     return formatResponse({
       message: "Usage API requires Organization Admin Key",
       endpoint: "GET https://api.openai.com/v1/organization/usage/completions",
     });
   }
 
-  export async function openaigetUsageEmbeddings(args: any) {
+  export async function openaiGetUsageEmbeddings(args: any) {
     return formatResponse({
       message: "Usage API requires Organization Admin Key",
       endpoint: "GET https://api.openai.com/v1/organization/usage/embeddings",
     });
   }
 
-  export async function openaigetUsageModerations(args: any) {
+  export async function openaiGetUsageModerations(args: any) {
     return formatResponse({
       message: "Usage API requires Organization Admin Key",
       endpoint: "GET https://api.openai.com/v1/organization/usage/moderations",
     });
   }
 
-  export async function openaigetUsageImages(args: any) {
+  export async function openaiGetUsageImages(args: any) {
     return formatResponse({
       message: "Usage API requires Organization Admin Key",
       endpoint: "GET https://api.openai.com/v1/organization/usage/images",
     });
   }
 
-  export async function openaigetUsageAudioSpeeches(args: any) {
+  export async function openaiGetUsageAudioSpeeches(args: any) {
     return formatResponse({
       message: "Usage API requires Organization Admin Key",
       endpoint: "GET https://api.openai.com/v1/organization/usage/audio_speeches",
     });
   }
 
-  export async function openaigetUsageAudioTranscriptions(args: any) {
+  export async function openaiGetUsageAudioTranscriptions(args: any) {
     return formatResponse({
       message: "Usage API requires Organization Admin Key",
       endpoint: "GET https://api.openai.com/v1/organization/usage/audio_transcriptions",
@@ -1363,7 +1363,7 @@ function formatResponse(data: any) {
   }
 
   // Projects & Organization Management
-  export async function openailistProjects(args: any) {
+  export async function openaiListProjects(args: any) {
     return formatResponse({
       message: "Projects API requires Organization Admin Key",
       endpoint: "GET https://api.openai.com/v1/organization/projects",
@@ -1371,7 +1371,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaigetProject(args: any) {
+  export async function openaiGetProject(args: any) {
     const { project_id } = args;
     return formatResponse({
       message: "Projects API requires Organization Admin Key",
@@ -1379,7 +1379,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaicreateProject(args: any) {
+  export async function openaiCreateProject(args: any) {
     return formatResponse({
       message: "Projects API requires Organization Admin Key",
       endpoint: "POST https://api.openai.com/v1/organization/projects",
@@ -1387,7 +1387,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaiupdateProject(args: any) {
+  export async function openaiUpdateProject(args: any) {
     const { project_id } = args;
     return formatResponse({
       message: "Projects API requires Organization Admin Key",
@@ -1395,7 +1395,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaiarchiveProject(args: any) {
+  export async function openaiArchiveProject(args: any) {
     const { project_id } = args;
     return formatResponse({
       message: "Projects API requires Organization Admin Key",
@@ -1404,14 +1404,14 @@ function formatResponse(data: any) {
   }
 
   // Users & Invites
-  export async function openailistUsers(args: any) {
+  export async function openaiListUsers(args: any) {
     return formatResponse({
       message: "Users API requires Organization Admin Key",
       endpoint: "GET https://api.openai.com/v1/organization/users",
     });
   }
 
-  export async function openaigetUser(args: any) {
+  export async function openaiGetUser(args: any) {
     const { user_id } = args;
     return formatResponse({
       message: "Users API requires Organization Admin Key",
@@ -1419,7 +1419,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaiupdateUser(args: any) {
+  export async function openaiUpdateUser(args: any) {
     const { user_id } = args;
     return formatResponse({
       message: "Users API requires Organization Admin Key",
@@ -1427,7 +1427,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaideleteUser(args: any) {
+  export async function openaiDeleteUser(args: any) {
     const { user_id } = args;
     return formatResponse({
       message: "Users API requires Organization Admin Key",
@@ -1435,21 +1435,21 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openailistInvites(args: any) {
+  export async function openaiListInvites(args: any) {
     return formatResponse({
       message: "Invites API requires Organization Admin Key",
       endpoint: "GET https://api.openai.com/v1/organization/invites",
     });
   }
 
-  export async function openaicreateInvite(args: any) {
+  export async function openaiCreateInvite(args: any) {
     return formatResponse({
       message: "Invites API requires Organization Admin Key",
       endpoint: "POST https://api.openai.com/v1/organization/invites",
     });
   }
 
-  export async function openaideleteInvite(args: any) {
+  export async function openaiDeleteInvite(args: any) {
     const { invite_id } = args;
     return formatResponse({
       message: "Invites API requires Organization Admin Key",
@@ -1457,7 +1457,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaigetRateLimits(args: any) {
+  export async function openaiGetRateLimits(args: any) {
     const { model } = args;
     return formatResponse({
       message: "Rate limits information",
@@ -1469,7 +1469,7 @@ function formatResponse(data: any) {
 
   // Advanced Cost Tracking Features
 
-  export async function openaitrackUserCost(args: any) {
+  export async function openaiTrackUserCost(args: any) {
     const { user_id, operation, cost, metadata = {} } = args;
 
     try {
@@ -1500,7 +1500,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaigetUserCosts(args: any) {
+  export async function openaiGetUserCosts(args: any) {
     const { user_id, start_date, end_date } = args;
 
     try {
@@ -1530,7 +1530,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaisetCostAlert(args: any) {
+  export async function openaiSetCostAlert(args: any) {
     const { alert_name, threshold, period, webhook_url, email } = args;
 
     try {
@@ -1563,7 +1563,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openailistCostAlerts(args: any) {
+  export async function openaiListCostAlerts(args: any) {
     try {
       const alerts = Array.from(costAlerts.values());
       return formatResponse({
@@ -1575,7 +1575,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaideleteCostAlert(args: any) {
+  export async function openaiDeleteCostAlert(args: any) {
     const { alert_id } = args;
 
     try {
@@ -1593,7 +1593,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaiforecastCosts(args: any) {
+  export async function openaiForecastCosts(args: any) {
     const { days_ahead = 30, confidence_level = 0.95 } = args;
 
     try {
@@ -1649,7 +1649,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaidetectCostAnomalies(args: any) {
+  export async function openaiDetectCostAnomalies(args: any) {
     const { sensitivity = "medium", lookback_days = 30 } = args;
 
     try {
@@ -1711,7 +1711,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaigetBudgetRecommendations(args: any) {
+  export async function openaiGetBudgetRecommendations(args: any) {
     const { current_budget } = args;
 
     try {
@@ -1779,7 +1779,7 @@ function formatResponse(data: any) {
   }
 
   // MODEL CAPABILITIES
-  export async function openaigetModelCapabilities(args: any) {
+  export async function openaiGetModelCapabilities(args: any) {
     const capabilities: any = {
       'gpt-4o': { context_window: 128000, max_output: 16384, vision: true, function_calling: true, json_mode: true },
       'gpt-4o-mini': { context_window: 128000, max_output: 16384, vision: true, function_calling: true, json_mode: true },
@@ -1793,7 +1793,7 @@ function formatResponse(data: any) {
     return formatResponse({ model: args.model, ...modelCaps });
   }
 
-  export async function openaicompareModelCapabilities(args: any) {
+  export async function openaiCompareModelCapabilities(args: any) {
     const comparisons = await Promise.all(
       args.models.map(async (model: string) => {
         const result = await this.getModelCapabilities({ model });
@@ -1803,7 +1803,7 @@ function formatResponse(data: any) {
     return formatResponse({ comparisons });
   }
 
-  export async function openaigetModelPricing(args: any) {
+  export async function openaiGetModelPricing(args: any) {
     const pricing: any = {
       'gpt-4o': { input: 0.0025, output: 0.01, unit: 'per 1K tokens' },
       'gpt-4o-mini': { input: 0.00015, output: 0.0006, unit: 'per 1K tokens' },
@@ -1818,7 +1818,7 @@ function formatResponse(data: any) {
   }
 
   // ADVANCED BATCH OPERATIONS
-  export async function openaigetBatchResults(args: any) {
+  export async function openaiGetBatchResults(args: any) {
     const batch = await openai.batches.retrieve(args.batch_id);
     if (batch.status !== 'completed') {
       return formatResponse({ status: batch.status, message: 'Batch not yet completed' });
@@ -1831,7 +1831,7 @@ function formatResponse(data: any) {
     return formatResponse({ batch_id: args.batch_id, results: fileContent });
   }
 
-  export async function openaiestimateBatchCost(args: any) {
+  export async function openaiEstimateBatchCost(args: any) {
     const file = await openai.files.retrieve(args.input_file_id);
     // Estimate based on file size (rough approximation)
     const estimatedRequests = Math.ceil((file.bytes || 0) / 1000);
@@ -1846,7 +1846,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaigetBatchProgress(args: any) {
+  export async function openaiGetBatchProgress(args: any) {
     const batch = await openai.batches.retrieve(args.batch_id);
     const progress = {
       batch_id: args.batch_id,
@@ -1862,7 +1862,7 @@ function formatResponse(data: any) {
   }
 
   // ORGANIZATION SETTINGS
-  export async function openaigetOrganizationSettings(args: any) {
+  export async function openaiGetOrganizationSettings(args: any) {
     // Note: This requires organization admin API key
     return formatResponse({
       message: 'Organization settings (requires admin API key)',
@@ -1870,7 +1870,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaiupdateOrganizationSettings(args: any) {
+  export async function openaiUpdateOrganizationSettings(args: any) {
     return formatResponse({
       message: 'Organization settings update (requires admin API key)',
       settings: args.settings,
@@ -1878,7 +1878,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaigetOrganizationUsageLimits(args: any) {
+  export async function openaiGetOrganizationUsageLimits(args: any) {
     return formatResponse({
       message: 'Usage limits and quotas',
       note: 'Check OpenAI dashboard for current limits and quotas'
@@ -1886,7 +1886,7 @@ function formatResponse(data: any) {
   }
 
   // ADVANCED USAGE ANALYTICS
-  export async function openaigetUsageByModel(args: any) {
+  export async function openaiGetUsageByModel(args: any) {
     // Note: Usage API requires direct API calls, not available in SDK
     const response = await fetch('https://api.openai.com/v1/usage', {
       method: 'GET',
@@ -1904,7 +1904,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaigetUsageByUser(args: any) {
+  export async function openaiGetUsageByUser(args: any) {
     // Note: This requires organization-level API access
     return formatResponse({
       message: 'Usage by user/API key',
@@ -1914,7 +1914,7 @@ function formatResponse(data: any) {
     });
   }
 
-  export async function openaiexportUsageData(args: any) {
+  export async function openaiExportUsageData(args: any) {
     const response = await fetch('https://api.openai.com/v1/usage', {
       method: 'GET',
       headers: {
@@ -1936,7 +1936,7 @@ function formatResponse(data: any) {
 
   // ==================== TOKEN MANAGEMENT & OPTIMIZATION ====================
 
-  export async function openaicountTokens(args: any) {
+  export async function openaiCountTokens(args: any) {
     const { text, model = "gpt-4" } = args;
     try {
       const tokenCount = costManager.estimateTokens(text, model);
@@ -1953,7 +1953,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaicountTokensBatch(args: any) {
+  export async function openaiCountTokensBatch(args: any) {
     const { texts, model = "gpt-4" } = args;
     try {
       const results = texts.map((text: string) => {
@@ -1981,7 +1981,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaicountMessageTokens(args: any) {
+  export async function openaiCountMessageTokens(args: any) {
     const { messages, model = "gpt-4" } = args;
     try {
       // OpenAI message formatting adds ~4 tokens per message
@@ -2019,7 +2019,7 @@ function formatResponse(data: any) {
     }
   }
 
-  export async function openaioptimizePromptTokens(args: any) {
+  export async function openaiOptimizePromptTokens(args: any) {
     const { text, target_reduction = 20, model = "gpt-4" } = args;
     try {
       const originalTokens = costManager.estimateTokens(text, model);
@@ -2065,7 +2065,7 @@ Optimized version:`;
     }
   }
 
-  export async function openaiestimateCostFromTokens(args: any) {
+  export async function openaiEstimateCostFromTokens(args: any) {
     const { input_tokens, output_tokens, model = "gpt-4" } = args;
     try {
       const pricing = (costManager as any).PRICING[model];
@@ -2105,7 +2105,7 @@ Optimized version:`;
     }
   }
 
-  export async function openaicompareModelCosts(args: any) {
+  export async function openaiCompareModelCosts(args: any) {
     const { text, models = ["gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"], expected_output_tokens = 500 } = args;
     try {
       const comparisons = models.map((model: string) => {
@@ -2160,7 +2160,7 @@ Optimized version:`;
     }
   }
 
-  export async function openaifindCheapestModel(args: any) {
+  export async function openaiFindCheapestModel(args: any) {
     const { text, min_quality_tier = "standard", expected_output_tokens = 500 } = args;
     try {
       // Define quality tiers
@@ -2195,7 +2195,7 @@ Optimized version:`;
     }
   }
 
-  export async function openaitokenBudgetCheck(args: any) {
+  export async function openaiTokenBudgetCheck(args: any) {
     const { text, max_tokens, model = "gpt-4" } = args;
     try {
       const actualTokens = costManager.estimateTokens(text, model);
@@ -2220,7 +2220,7 @@ Optimized version:`;
 
   // ==================== MODEL COMPARISON & SELECTION ====================
 
-  export async function openaicompareModels(args: any) {
+  export async function openaiCompareModels(args: any) {
     const { models = ["gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"], criteria = ["cost", "speed", "quality", "context_window"] } = args;
     try {
       const modelData: any = {
@@ -2293,7 +2293,7 @@ Optimized version:`;
     };
   }
 
-  export async function openairecommendModel(args: any) {
+  export async function openaiRecommendModel(args: any) {
     const { use_case, constraints = {}, sample_input = "" } = args;
     try {
       // Use AI to recommend model
@@ -2339,7 +2339,7 @@ Respond with JSON:
     }
   }
 
-  export async function openaimodelBenchmark(args: any) {
+  export async function openaiModelBenchmark(args: any) {
     const { models, test_cases, evaluation_criteria = ["accuracy", "coherence", "instruction_following"] } = args;
     try {
       const results = [];
@@ -2442,7 +2442,7 @@ Respond with JSON:
     return Math.min(score, 100);
   }
 
-  export async function openaimodelQualityScore(args: any) {
+  export async function openaiModelQualityScore(args: any) {
     const { model, prompt, expected_output = "", criteria = ["accuracy", "coherence", "relevance", "completeness"] } = args;
     try {
       const response = await openai.chat.completions.create({
@@ -2488,7 +2488,7 @@ Respond with JSON:
     return (overlap / Math.max(words1.length, words2.length)) * 100;
   }
 
-  export async function openaimodelLatencyTest(args: any) {
+  export async function openaiModelLatencyTest(args: any) {
     const { model, prompt, iterations = 5 } = args;
     try {
       const latencies = [];
@@ -2540,7 +2540,7 @@ Respond with JSON:
     }
   }
 
-  export async function openaimodelCostQualityTradeoff(args: any) {
+  export async function openaiModelCostQualityTradeoff(args: any) {
     const { models, test_prompt, budget = 1.0 } = args;
     try {
       const results = [];
@@ -2584,7 +2584,7 @@ Respond with JSON:
     }
   }
 
-  export async function openaimodelFallbackChain(args: any) {
+  export async function openaiModelFallbackChain(args: any) {
     const { primary_model, fallback_models, fallback_conditions = ["error", "timeout", "rate_limit"] } = args;
     try {
       return formatResponse({
@@ -2606,7 +2606,7 @@ Respond with JSON:
     }
   }
 
-  export async function openaimodelABTest(args: any) {
+  export async function openaiModelAbTest(args: any) {
     const { model_a, model_b, test_cases, evaluation_method = "ai" } = args;
     try {
       const results = {
@@ -2688,7 +2688,7 @@ Respond with JSON:
 
   // ==================== SAFETY & COMPLIANCE ====================
 
-  export async function openaicontentSafetyCheck(args: any) {
+  export async function openaiContentSafetyCheck(args: any) {
     const { content, categories = [] } = args;
     try {
       // Use OpenAI Moderation API
@@ -2715,7 +2715,7 @@ Respond with JSON:
     }
   }
 
-  export async function openaipiiDetection(args: any) {
+  export async function openaiPiiDetection(args: any) {
     const { text, pii_types = ["email", "phone", "ssn", "credit_card", "address"] } = args;
     try {
       const detected: any[] = [];
@@ -2790,7 +2790,7 @@ Return format:
     }
   }
 
-  export async function openaipiiRedaction(args: any) {
+  export async function openaiPiiRedaction(args: any) {
     const { text, redaction_method = "mask", pii_types = ["email", "phone", "ssn", "credit_card"] } = args;
     try {
       let redactedText = text;
@@ -2855,7 +2855,7 @@ Return format:
     return Math.abs(hash).toString(36).substring(0, 8);
   }
 
-  export async function openaitoxicityScore(args: any) {
+  export async function openaiToxicityScore(args: any) {
     const { text, dimensions = ["hate", "harassment", "violence", "sexual", "self-harm"] } = args;
     try {
       const moderation = await openai.moderations.create({ input: text });
@@ -2881,7 +2881,7 @@ Return format:
     }
   }
 
-  export async function openaibiasDetection(args: any) {
+  export async function openaiBiasDetection(args: any) {
     const { text, bias_types = ["gender", "race", "age", "religion", "political"] } = args;
     try {
       const prompt = `Analyze the following text for potential bias. Check for: ${bias_types.join(", ")} bias.
@@ -2915,7 +2915,7 @@ Return JSON:
     }
   }
 
-  export async function openaicomplianceCheck(args: any) {
+  export async function openaiComplianceCheck(args: any) {
     const { content, compliance_standards = ["GDPR", "HIPAA", "SOC2"] } = args;
     try {
       const checks: any = {};
@@ -2959,7 +2959,7 @@ Return JSON:
   }
 
 
-  export async function openaicontentFilterCreate(args: any) {
+  export async function openaiContentFilterCreate(args: any) {
     const { filter_name, rules, action = "warn" } = args;
     try {
       contentFilters.set(filter_name, { rules, action, created: new Date().toISOString() });
@@ -2976,7 +2976,7 @@ Return JSON:
     }
   }
 
-  export async function openaicontentFilterTest(args: any) {
+  export async function openaiContentFilterTest(args: any) {
     const { filter_name, content } = args;
     try {
       const filter = contentFilters.get(filter_name);
@@ -3013,7 +3013,7 @@ Return JSON:
     }
   }
 
-  export async function openaisafetyReport(args: any) {
+  export async function openaiSafetyReport(args: any) {
     const { content, report_type = "detailed" } = args;
     try {
       // Run all safety checks
@@ -3053,7 +3053,7 @@ Return JSON:
     }
   }
 
-  export async function openaiauditLogExport(args: any) {
+  export async function openaiAuditLogExport(args: any) {
     const { start_date, end_date, format = "json", include_pii = false } = args;
     try {
       // Get cost history (which includes audit trail)
@@ -3099,7 +3099,7 @@ Return JSON:
 
   // ==================== MONITORING & OBSERVABILITY ====================
 
-  export async function openaimonitorGetMetrics(args: any) {
+  export async function openaiMonitorGetMetrics(args: any) {
     const { time_range = "24h", metrics = [] } = args;
     try {
       const history = costManager.getCostHistory();
@@ -3145,7 +3145,7 @@ Return JSON:
     return map[range] || 86400000;
   }
 
-  export async function openaimonitorGetErrors(args: any) {
+  export async function openaiMonitorGetErrors(args: any) {
     const { time_range = "24h", error_types = [], limit = 100 } = args;
     try {
       // In a real implementation, this would query error logs
@@ -3186,7 +3186,7 @@ Return JSON:
     }
   }
 
-  export async function openaimonitorGetLatency(args: any) {
+  export async function openaiMonitorGetLatency(args: any) {
     const { time_range = "24h", model = "" } = args;
     try {
       const history = costManager.getCostHistory();
@@ -3230,7 +3230,7 @@ Return JSON:
     }
   }
 
-  export async function openaimonitorGetThroughput(args: any) {
+  export async function openaiMonitorGetThroughput(args: any) {
     const { time_range = "24h", granularity = "hour" } = args;
     try {
       const history = costManager.getCostHistory();
@@ -3268,7 +3268,7 @@ Return JSON:
     }
   }
 
-  export async function openaimonitorGetSuccessRate(args: any) {
+  export async function openaiMonitorGetSuccessRate(args: any) {
     const { time_range = "24h", model = "" } = args;
     try {
       const history = costManager.getCostHistory();
@@ -3299,7 +3299,7 @@ Return JSON:
   }
 
 
-  export async function openaimonitorSetAlert(args: any) {
+  export async function openaiMonitorSetAlert(args: any) {
     const { alert_name, metric, threshold, condition = "above", notification_method = "log" } = args;
     try {
       monitoringAlerts.set(alert_name, {
@@ -3325,7 +3325,7 @@ Return JSON:
     }
   }
 
-  export async function openaimonitorGetAlerts(args: any) {
+  export async function openaiMonitorGetAlerts(args: any) {
     const { status = "active", limit = 50 } = args;
     try {
       const alerts = Array.from(monitoringAlerts.entries())
@@ -3343,7 +3343,7 @@ Return JSON:
     }
   }
 
-  export async function openaimonitorExportLogs(args: any) {
+  export async function openaiMonitorExportLogs(args: any) {
     const { start_date, end_date, format = "json", log_level = "info" } = args;
     try {
       const history = costManager.getCostHistory();
@@ -3375,7 +3375,7 @@ Return JSON:
     }
   }
 
-  export async function openaimonitorGetTrace(args: any) {
+  export async function openaiMonitorGetTrace(args: any) {
     const { trace_id, include_spans = true } = args;
     try {
       // In a real implementation, this would query distributed tracing system
@@ -3393,7 +3393,7 @@ Return JSON:
     }
   }
 
-  export async function openaimonitorGetDashboard(args: any) {
+  export async function openaiMonitorGetDashboard(args: any) {
     const { dashboard_type = "overview", time_range = "24h" } = args;
     try {
       const metrics = await this.monitorGetMetrics({ time_range });
@@ -3427,7 +3427,7 @@ Return JSON:
     }
   }
 
-  export async function openaimonitorGetAnomalies(args: any) {
+  export async function openaiMonitorGetAnomalies(args: any) {
     const { metric, time_range = "24h", sensitivity = "medium" } = args;
     try {
       const history = costManager.getCostHistory();
@@ -3483,7 +3483,7 @@ Return JSON:
     }
   }
 
-  export async function openaimonitorGetHealth(args: any) {
+  export async function openaiMonitorGetHealth(args: any) {
     const { include_details = true } = args;
     try {
       const budget = costManager.getBudgetStatus();
@@ -3533,7 +3533,7 @@ Return JSON:
 
   // ==================== PROMPT ENGINEERING ====================
 
-  export async function openaipromptOptimize(args: any) {
+  export async function openaiPromptOptimize(args: any) {
     const { prompt, goal = "all", model = "gpt-4o-mini" } = args;
     try {
       const optimizationPrompt = `You are a prompt engineering expert. Optimize the following prompt for ${goal === "all" ? "clarity, conciseness, specificity, and effectiveness" : goal}.
@@ -3578,7 +3578,7 @@ Return JSON:
     }
   }
 
-  export async function openaipromptShorten(args: any) {
+  export async function openaiPromptShorten(args: any) {
     const { prompt, target_reduction = 30 } = args;
     try {
       const shortenPrompt = `Shorten the following prompt by approximately ${target_reduction}% while preserving its core meaning and intent.
@@ -3620,7 +3620,7 @@ Return JSON:
     }
   }
 
-  export async function openaipromptExpand(args: any) {
+  export async function openaiPromptExpand(args: any) {
     const { prompt, expansion_type = "all" } = args;
     try {
       const expandPrompt = `Expand the following prompt with ${expansion_type === "all" ? "examples, context, and constraints" : expansion_type}.
@@ -3657,7 +3657,7 @@ Return JSON:
     }
   }
 
-  export async function openaipromptTest(args: any) {
+  export async function openaiPromptTest(args: any) {
     const { prompt, models = ["gpt-4o-mini", "gpt-4o", "gpt-4-turbo"], test_cases = [] } = args;
     try {
       const results: any[] = [];
@@ -3691,7 +3691,7 @@ Return JSON:
     }
   }
 
-  export async function openaipromptCompare(args: any) {
+  export async function openaiPromptCompare(args: any) {
     const { prompts, evaluation_criteria = ["clarity", "effectiveness", "token_efficiency"] } = args;
     try {
       const comparePrompt = `Compare the following prompts based on: ${evaluation_criteria.join(", ")}
@@ -3725,7 +3725,7 @@ Return JSON:
     }
   }
 
-  export async function openaipromptSuggestImprovements(args: any) {
+  export async function openaiPromptSuggestImprovements(args: any) {
     const { prompt, focus_areas = ["structure", "clarity", "specificity", "examples"] } = args;
     try {
       const suggestPrompt = `Analyze this prompt and suggest improvements focusing on: ${focus_areas.join(", ")}
@@ -3762,7 +3762,7 @@ Return JSON:
     }
   }
 
-  export async function openaipromptExtractVariables(args: any) {
+  export async function openaiPromptExtractVariables(args: any) {
     const { prompt_template, variable_format = "auto" } = args;
     try {
       const extractPrompt = `Extract all variables from this prompt template. Variables may be in formats like {{var}}, {var}, $var, or other patterns.
@@ -3798,7 +3798,7 @@ Return JSON:
     }
   }
 
-  export async function openaipromptGenerateExamples(args: any) {
+  export async function openaiPromptGenerateExamples(args: any) {
     const { prompt, num_examples = 3, example_type = "both" } = args;
     try {
       const genPrompt = `Generate ${num_examples} ${example_type} examples for this prompt:
@@ -3834,7 +3834,7 @@ Return JSON:
     }
   }
 
-  export async function openaipromptValidate(args: any) {
+  export async function openaiPromptValidate(args: any) {
     const { prompt, validation_level = "comprehensive" } = args;
     try {
       const validatePrompt = `Validate this prompt for common issues and best practices. Validation level: ${validation_level}
@@ -3878,7 +3878,7 @@ Return JSON:
     }
   }
 
-  export async function openaipromptTranslate(args: any) {
+  export async function openaiPromptTranslate(args: any) {
     const { prompt, target_language, preserve_formatting = true } = args;
     try {
       const translatePrompt = `Translate this prompt to ${target_language} while preserving its intent and effectiveness. ${preserve_formatting ? "Preserve all formatting, variables, and special markers." : ""}
@@ -3915,7 +3915,7 @@ Return JSON:
 
   // ==================== ADVANCED EMBEDDINGS ====================
 
-  export async function openaiembeddingSimilarity(args: any) {
+  export async function openaiEmbeddingSimilarity(args: any) {
     const { text1, text2, model = "text-embedding-3-small", similarity_metric = "cosine" } = args;
     try {
       const [embedding1, embedding2] = await Promise.all([
@@ -3963,7 +3963,7 @@ Return JSON:
     return Math.sqrt(vec1.reduce((sum, val, i) => sum + Math.pow(val - vec2[i], 2), 0));
   }
 
-  export async function openaiembeddingCluster(args: any) {
+  export async function openaiEmbeddingCluster(args: any) {
     const { texts, num_clusters = 3, method = "kmeans", model = "text-embedding-3-small" } = args;
     try {
       const embeddings = await openai.embeddings.create({ model, input: texts });
@@ -4053,7 +4053,7 @@ Return JSON:
     return assignments;
   }
 
-  export async function openaiembeddingSearch(args: any) {
+  export async function openaiEmbeddingSearch(args: any) {
     const { query, documents, top_k = 5, model = "text-embedding-3-small" } = args;
     try {
       const [queryEmbedding, docEmbeddings] = await Promise.all([
@@ -4088,7 +4088,7 @@ Return JSON:
     }
   }
 
-  export async function openaiembeddingOutlierDetection(args: any) {
+  export async function openaiEmbeddingOutlierDetection(args: any) {
     const { texts, threshold = 2.5, model = "text-embedding-3-small" } = args;
     try {
       const embeddings = await openai.embeddings.create({ model, input: texts });
@@ -4137,7 +4137,7 @@ Return JSON:
     }
   }
 
-  export async function openaiembeddingDimensionalityReduction(args: any) {
+  export async function openaiEmbeddingDimensionalityReduction(args: any) {
     const { texts, target_dimensions = 2, method = "pca", model = "text-embedding-3-small" } = args;
     try {
       const embeddings = await openai.embeddings.create({ model, input: texts });
@@ -4166,7 +4166,7 @@ Return JSON:
     return vectors.map(vec => vec.slice(0, targetDim));
   }
 
-  export async function openaiembeddingVisualization(args: any) {
+  export async function openaiEmbeddingVisualization(args: any) {
     const { texts, labels = [], model = "text-embedding-3-small" } = args;
     try {
       const embeddings = await openai.embeddings.create({ model, input: texts });
@@ -4190,7 +4190,7 @@ Return JSON:
     }
   }
 
-  export async function openaiembeddingBatchSimilarity(args: any) {
+  export async function openaiEmbeddingBatchSimilarity(args: any) {
     const { texts, model = "text-embedding-3-small" } = args;
     try {
       const embeddings = await openai.embeddings.create({ model, input: texts });
@@ -4233,7 +4233,7 @@ Return JSON:
   }
 
 
-  export async function openaiembeddingIndexCreate(args: any) {
+  export async function openaiEmbeddingIndexCreate(args: any) {
     const { index_name, documents, model = "text-embedding-3-small", metadata = [] } = args;
     try {
       const embeddings = await openai.embeddings.create({ model, input: documents });
@@ -4264,7 +4264,7 @@ Return JSON:
   // structure and guidance. Full implementation would require WebSocket client.
 
 
-  export async function openairealtimeSessionCreate(args: any) {
+  export async function openaiRealtimeSessionCreate(args: any) {
     const { model = "gpt-4o-realtime-preview", voice = "alloy", instructions = "", modalities = ["text", "audio"] } = args;
     try {
       const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
@@ -4295,7 +4295,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeSessionUpdate(args: any) {
+  export async function openaiRealtimeSessionUpdate(args: any) {
     const { session_id, voice, instructions, temperature } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4321,7 +4321,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeAudioSend(args: any) {
+  export async function openaiRealtimeAudioSend(args: any) {
     const { session_id, audio_data, format = "pcm16" } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4347,7 +4347,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeAudioReceive(args: any) {
+  export async function openaiRealtimeAudioReceive(args: any) {
     const { session_id, timeout_ms = 5000 } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4368,7 +4368,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeTextSend(args: any) {
+  export async function openaiRealtimeTextSend(args: any) {
     const { session_id, text } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4398,7 +4398,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeTextReceive(args: any) {
+  export async function openaiRealtimeTextReceive(args: any) {
     const { session_id, timeout_ms = 5000 } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4431,7 +4431,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeFunctionCall(args: any) {
+  export async function openaiRealtimeFunctionCall(args: any) {
     const { session_id, functions } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4452,7 +4452,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeInterrupt(args: any) {
+  export async function openaiRealtimeInterrupt(args: any) {
     const { session_id } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4470,7 +4470,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeSessionClose(args: any) {
+  export async function openaiRealtimeSessionClose(args: any) {
     const { session_id } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4496,7 +4496,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeGetTranscript(args: any) {
+  export async function openaiRealtimeGetTranscript(args: any) {
     const { session_id, format = "text" } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4535,7 +4535,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeConfigureVoice(args: any) {
+  export async function openaiRealtimeConfigureVoice(args: any) {
     const { session_id, voice, speed = 1.0 } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4557,7 +4557,7 @@ Return JSON:
     }
   }
 
-  export async function openairealtimeGetMetrics(args: any) {
+  export async function openaiRealtimeGetMetrics(args: any) {
     const { session_id } = args;
     try {
       const session = realtimeSessions.get(session_id);
@@ -4586,7 +4586,7 @@ Return JSON:
 
   // ==================== VISION API ====================
 
-  export async function openaivisionAnalyzeImage(args: any) {
+  export async function openaiVisionAnalyzeImage(args: any) {
     const { image_url, prompt = "Analyze this image in detail", model = "gpt-4o", detail = "auto" } = args;
     try {
       const response = await openai.chat.completions.create({
@@ -4614,7 +4614,7 @@ Return JSON:
     }
   }
 
-  export async function openaivisionDescribeImage(args: any) {
+  export async function openaiVisionDescribeImage(args: any) {
     const { image_url, style = "detailed", model = "gpt-4o" } = args;
     try {
       const prompts: any = {
@@ -4647,7 +4647,7 @@ Return JSON:
     }
   }
 
-  export async function openaivisionExtractText(args: any) {
+  export async function openaiVisionExtractText(args: any) {
     const { image_url, language = "", model = "gpt-4o" } = args;
     try {
       const prompt = language
@@ -4678,7 +4678,7 @@ Return JSON:
     }
   }
 
-  export async function openaivisionDetectObjects(args: any) {
+  export async function openaiVisionDetectObjects(args: any) {
     const { image_url, categories = [], model = "gpt-4o" } = args;
     try {
       const prompt = categories.length > 0
@@ -4712,7 +4712,7 @@ Return JSON:
     }
   }
 
-  export async function openaivisionCompareImages(args: any) {
+  export async function openaiVisionCompareImages(args: any) {
     const { image_url_1, image_url_2, focus = "both", model = "gpt-4o" } = args;
     try {
       const prompts: any = {
@@ -4746,7 +4746,7 @@ Return JSON:
     }
   }
 
-  export async function openaivisionGenerateCaption(args: any) {
+  export async function openaiVisionGenerateCaption(args: any) {
     const { image_url, style = "medium", tone = "casual", model = "gpt-4o" } = args;
     try {
       const prompts: any = {
@@ -4792,7 +4792,7 @@ Return JSON:
     }
   }
 
-  export async function openaivisionAnswerQuestion(args: any) {
+  export async function openaiVisionAnswerQuestion(args: any) {
     const { image_url, question, model = "gpt-4o" } = args;
     try {
       const response = await openai.chat.completions.create({
@@ -4819,7 +4819,7 @@ Return JSON:
     }
   }
 
-  export async function openaivisionBatchAnalyze(args: any) {
+  export async function openaiVisionBatchAnalyze(args: any) {
     const { image_urls, prompt, model = "gpt-4o" } = args;
     try {
       const results = await Promise.all(
@@ -4870,7 +4870,7 @@ Return JSON:
 
   // ==================== ADVANCED FINE-TUNING ====================
 
-  export async function openaifineTuningValidateData(args: any) {
+  export async function openaiFineTuningValidateData(args: any) {
     const { training_data, model = "gpt-4o-mini-2024-07-18" } = args;
     try {
       const errors: any[] = [];
@@ -4906,7 +4906,7 @@ Return JSON:
     }
   }
 
-  export async function openaifineTuningEstimateCost(args: any) {
+  export async function openaiFineTuningEstimateCost(args: any) {
     const { training_file_id, model = "gpt-4o-mini-2024-07-18", n_epochs = 3 } = args;
     try {
       const file = await openai.files.retrieve(training_file_id);
@@ -4934,7 +4934,7 @@ Return JSON:
     }
   }
 
-  export async function openaifineTuningGetMetrics(args: any) {
+  export async function openaiFineTuningGetMetrics(args: any) {
     const { fine_tuning_job_id } = args;
     try {
       const job = await openai.fineTuning.jobs.retrieve(fine_tuning_job_id);
@@ -4957,7 +4957,7 @@ Return JSON:
     }
   }
 
-  export async function openaifineTuningCompareModels(args: any) {
+  export async function openaiFineTuningCompareModels(args: any) {
     const { base_model, fine_tuned_model, test_prompts } = args;
     try {
       const comparisons = await Promise.all(
@@ -4994,7 +4994,7 @@ Return JSON:
     }
   }
 
-  export async function openaifineTuningAnalyzeResults(args: any) {
+  export async function openaiFineTuningAnalyzeResults(args: any) {
     const { fine_tuning_job_id } = args;
     try {
       const job = await openai.fineTuning.jobs.retrieve(fine_tuning_job_id);
@@ -5024,7 +5024,7 @@ Return JSON:
     }
   }
 
-  export async function openaifineTuningExportModel(args: any) {
+  export async function openaiFineTuningExportModel(args: any) {
     const { fine_tuned_model, include_metrics = true } = args;
     try {
       const jobs = await openai.fineTuning.jobs.list({ limit: 100 });
@@ -5051,7 +5051,7 @@ Return JSON:
     }
   }
 
-  export async function openaifineTuningListCheckpoints(args: any) {
+  export async function openaiFineTuningListCheckpoints(args: any) {
     const { fine_tuning_job_id } = args;
     try {
       const checkpoints = await openai.fineTuning.jobs.checkpoints.list(fine_tuning_job_id);
@@ -5071,7 +5071,7 @@ Return JSON:
     }
   }
 
-  export async function openaifineTuningGetBestCheckpoint(args: any) {
+  export async function openaiFineTuningGetBestCheckpoint(args: any) {
     const { fine_tuning_job_id, metric = "loss" } = args;
     try {
       const checkpoints = await openai.fineTuning.jobs.checkpoints.list(fine_tuning_job_id);
@@ -5101,7 +5101,7 @@ Return JSON:
     }
   }
 
-  export async function openaifineTuningPrepareDataset(args: any) {
+  export async function openaiFineTuningPrepareDataset(args: any) {
     const { data, format = "chat", system_message = "" } = args;
     try {
       const prepared = data.map((item: any) => {
@@ -5133,7 +5133,7 @@ Return JSON:
     }
   }
 
-  export async function openaifineTuningHyperparameterSearch(args: any) {
+  export async function openaiFineTuningHyperparameterSearch(args: any) {
     const { training_file_id, model = "gpt-4o-mini-2024-07-18", dataset_size } = args;
     try {
       // Provide intelligent hyperparameter recommendations based on dataset size
@@ -5175,7 +5175,7 @@ Return JSON:
 
   // ==================== ADVANCED BATCH ====================
 
-  export async function openaibatchEstimateCost(args: any) {
+  export async function openaiBatchEstimateCost(args: any) {
     const { requests, model = "gpt-4o-mini" } = args;
     try {
       let totalTokens = 0;
@@ -5203,7 +5203,7 @@ Return JSON:
     }
   }
 
-  export async function openaibatchMonitor(args: any) {
+  export async function openaiBatchMonitor(args: any) {
     const { batch_id, include_errors = true } = args;
     try {
       const batch = await openai.batches.retrieve(batch_id);
@@ -5230,7 +5230,7 @@ Return JSON:
     }
   }
 
-  export async function openaibatchRetryFailed(args: any) {
+  export async function openaiBatchRetryFailed(args: any) {
     const { batch_id, max_retries = 3 } = args;
     try {
       const batch = await openai.batches.retrieve(batch_id);
@@ -5251,7 +5251,7 @@ Return JSON:
     }
   }
 
-  export async function openaibatchSplitLarge(args: any) {
+  export async function openaiBatchSplitLarge(args: any) {
     const { requests, chunk_size = 50000 } = args;
     try {
       const chunks: any[] = [];
@@ -5274,7 +5274,7 @@ Return JSON:
     }
   }
 
-  export async function openaibatchMergeResults(args: any) {
+  export async function openaiBatchMergeResults(args: any) {
     const { batch_ids, output_format = "jsonl" } = args;
     try {
       const results: any[] = [];
@@ -5301,7 +5301,7 @@ Return JSON:
     }
   }
 
-  export async function openaibatchSchedule(args: any) {
+  export async function openaiBatchSchedule(args: any) {
     const { input_file_id, endpoint, schedule_time } = args;
     try {
       const scheduledTime = new Date(schedule_time);
@@ -5323,7 +5323,7 @@ Return JSON:
     }
   }
 
-  export async function openaibatchOptimize(args: any) {
+  export async function openaiBatchOptimize(args: any) {
     const { requests, optimization_goal = "balanced" } = args;
     try {
       const recommendations: string[] = [];
@@ -5352,7 +5352,7 @@ Return JSON:
     }
   }
 
-  export async function openaibatchAnalytics(args: any) {
+  export async function openaiBatchAnalytics(args: any) {
     const { time_range = "7d", include_costs = true } = args;
     try {
       const batches = await openai.batches.list({ limit: 100 });
@@ -5382,7 +5382,7 @@ Return JSON:
   // Note: Agents SDK is built on top of Assistants API
 
 
-  export async function openaiagentCreate(args: any) {
+  export async function openaiAgentCreate(args: any) {
     const { name, instructions, tools = [], model = "gpt-4o" } = args;
     try {
       const assistant = await openai.beta.assistants.create({
@@ -5409,7 +5409,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentRun(args: any) {
+  export async function openaiAgentRun(args: any) {
     const { agent_id, task, context = {} } = args;
     try {
       const thread = await openai.beta.threads.create();
@@ -5448,7 +5448,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentStream(args: any) {
+  export async function openaiAgentStream(args: any) {
     const { agent_id, task } = args;
     try {
       return formatResponse({
@@ -5462,7 +5462,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentWithTools(args: any) {
+  export async function openaiAgentWithTools(args: any) {
     const { agent_id, task, tools } = args;
     try {
       // Update assistant with specific tools
@@ -5482,7 +5482,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentHandoff(args: any) {
+  export async function openaiAgentHandoff(args: any) {
     const { from_agent_id, to_agent_id, task, context = {} } = args;
     try {
       // Get context from first agent
@@ -5507,7 +5507,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentParallel(args: any) {
+  export async function openaiAgentParallel(args: any) {
     const { agents, merge_strategy = "concat" } = args;
     try {
       const results = await Promise.all(
@@ -5536,7 +5536,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentSequential(args: any) {
+  export async function openaiAgentSequential(args: any) {
     const { agents, pass_output = true } = args;
     try {
       let previousOutput = "";
@@ -5563,7 +5563,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentConditional(args: any) {
+  export async function openaiAgentConditional(args: any) {
     const { condition, if_agent_id, else_agent_id, task } = args;
     try {
       // Simplified condition evaluation - in production would use proper evaluation
@@ -5587,7 +5587,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentLoop(args: any) {
+  export async function openaiAgentLoop(args: any) {
     const { agent_id, task, max_iterations = 10, stop_condition = "" } = args;
     try {
       const results: any[] = [];
@@ -5618,7 +5618,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentMemory(args: any) {
+  export async function openaiAgentMemory(args: any) {
     const { agent_id, operation, key, value } = args;
     try {
       const memory = agentMemoryStore.get(agent_id) || {};
@@ -5653,7 +5653,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentState(args: any) {
+  export async function openaiAgentState(args: any) {
     const { agent_id, state } = args;
     try {
       if (state) {
@@ -5669,7 +5669,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentMonitor(args: any) {
+  export async function openaiAgentMonitor(args: any) {
     const { agent_id, time_range = "24h" } = args;
     try {
       const state = agentStateStore.get(agent_id) || {};
@@ -5688,7 +5688,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentOptimize(args: any) {
+  export async function openaiAgentOptimize(args: any) {
     const { agent_id, optimization_goal = "balanced" } = args;
     try {
       const assistant = await openai.beta.assistants.retrieve(agent_id);
@@ -5716,7 +5716,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentExport(args: any) {
+  export async function openaiAgentExport(args: any) {
     const { agent_id, include_history = false } = args;
     try {
       const assistant = await openai.beta.assistants.retrieve(agent_id);
@@ -5740,7 +5740,7 @@ Return JSON:
     }
   }
 
-  export async function openaiagentImport(args: any) {
+  export async function openaiAgentImport(args: any) {
     const { config, name } = args;
     try {
       const assistant = await openai.beta.assistants.create({
@@ -5771,7 +5771,7 @@ Return JSON:
   // ==================== ADVANCED ASSISTANTS ====================
 
 
-  export async function openaiassistantClone(args: any) {
+  export async function openaiAssistantClone(args: any) {
     const { assistant_id, name } = args;
     try {
       const original = await openai.beta.assistants.retrieve(assistant_id);
@@ -5794,7 +5794,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantExport(args: any) {
+  export async function openaiAssistantExport(args: any) {
     const { assistant_id, include_files = false } = args;
     try {
       const assistant = await openai.beta.assistants.retrieve(assistant_id);
@@ -5821,7 +5821,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantImport(args: any) {
+  export async function openaiAssistantImport(args: any) {
     const { config } = args;
     try {
       const assistant = await openai.beta.assistants.create({
@@ -5843,7 +5843,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantTest(args: any) {
+  export async function openaiAssistantTest(args: any) {
     const { assistant_id, test_cases } = args;
     try {
       const results: any[] = [];
@@ -5890,7 +5890,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantOptimize(args: any) {
+  export async function openaiAssistantOptimize(args: any) {
     const { assistant_id, optimization_goal = "balanced" } = args;
     try {
       const assistant = await openai.beta.assistants.retrieve(assistant_id);
@@ -5921,7 +5921,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantAnalytics(args: any) {
+  export async function openaiAssistantAnalytics(args: any) {
     const { assistant_id, time_range = "7d" } = args;
     try {
       return formatResponse({
@@ -5935,7 +5935,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantVersion(args: any) {
+  export async function openaiAssistantVersion(args: any) {
     const { assistant_id, version_name, changes = {} } = args;
     try {
       const current = await openai.beta.assistants.retrieve(assistant_id);
@@ -5970,7 +5970,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantRollback(args: any) {
+  export async function openaiAssistantRollback(args: any) {
     const { assistant_id, version_name } = args;
     try {
       const versions = assistantVersionStore.get(assistant_id) || [];
@@ -5993,7 +5993,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantCompare(args: any) {
+  export async function openaiAssistantCompare(args: any) {
     const { assistant_id_1, assistant_id_2, test_cases = [] } = args;
     try {
       const [assistant1, assistant2] = await Promise.all([
@@ -6026,7 +6026,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantBenchmark(args: any) {
+  export async function openaiAssistantBenchmark(args: any) {
     const { assistant_id, benchmark_suite = "comprehensive" } = args;
     try {
       const assistant = await openai.beta.assistants.retrieve(assistant_id);
@@ -6066,7 +6066,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantMonitor(args: any) {
+  export async function openaiAssistantMonitor(args: any) {
     const { assistant_id, metrics = [] } = args;
     try {
       const assistant = await openai.beta.assistants.retrieve(assistant_id);
@@ -6084,7 +6084,7 @@ Return JSON:
     }
   }
 
-  export async function openaiassistantAudit(args: any) {
+  export async function openaiAssistantAudit(args: any) {
     const { assistant_id, time_range = "7d" } = args;
     try {
       const versions = assistantVersionStore.get(assistant_id) || [];
@@ -6103,7 +6103,7 @@ Return JSON:
 
   // ==================== ADVANCED VECTOR STORES ====================
 
-  export async function openaivectorSearch(args: any) {
+  export async function openaiVectorSearch(args: any) {
     const { vector_store_id, query, limit = 10 } = args;
     try {
       // Note: OpenAI Vector Stores API doesn't have direct search endpoint
@@ -6120,7 +6120,7 @@ Return JSON:
     }
   }
 
-  export async function openaivectorSimilarity(args: any) {
+  export async function openaiVectorSimilarity(args: any) {
     const { vector_store_id, vector, limit = 10 } = args;
     try {
       return formatResponse({
@@ -6134,7 +6134,7 @@ Return JSON:
     }
   }
 
-  export async function openaivectorCluster(args: any) {
+  export async function openaiVectorCluster(args: any) {
     const { vector_store_id, num_clusters = 5 } = args;
     try {
       return formatResponse({
@@ -6148,7 +6148,7 @@ Return JSON:
     }
   }
 
-  export async function openaivectorDeduplicate(args: any) {
+  export async function openaiVectorDeduplicate(args: any) {
     const { vector_store_id, similarity_threshold = 0.95 } = args;
     try {
       return formatResponse({
@@ -6162,7 +6162,7 @@ Return JSON:
     }
   }
 
-  export async function openaivectorMerge(args: any) {
+  export async function openaiVectorMerge(args: any) {
     const { source_store_ids, target_store_name } = args;
     try {
       return formatResponse({
@@ -6176,7 +6176,7 @@ Return JSON:
     }
   }
 
-  export async function openaivectorExport(args: any) {
+  export async function openaiVectorExport(args: any) {
     const { vector_store_id, format = "json" } = args;
     try {
       return formatResponse({
@@ -6190,7 +6190,7 @@ Return JSON:
     }
   }
 
-  export async function openaivectorImport(args: any) {
+  export async function openaiVectorImport(args: any) {
     const { vector_store_id, data, format = "json" } = args;
     try {
       return formatResponse({
@@ -6205,7 +6205,7 @@ Return JSON:
     }
   }
 
-  export async function openaivectorOptimize(args: any) {
+  export async function openaiVectorOptimize(args: any) {
     const { vector_store_id, optimization_type = "balanced" } = args;
     try {
       const recommendations: string[] = [];
@@ -6231,7 +6231,7 @@ Return JSON:
     }
   }
 
-  export async function openaivectorAnalytics(args: any) {
+  export async function openaiVectorAnalytics(args: any) {
     const { vector_store_id } = args;
     try {
       return formatResponse({
@@ -6244,7 +6244,7 @@ Return JSON:
     }
   }
 
-  export async function openaivectorBackup(args: any) {
+  export async function openaiVectorBackup(args: any) {
     const { vector_store_id, backup_name } = args;
     try {
       return formatResponse({
@@ -6260,7 +6260,7 @@ Return JSON:
 
   // ==================== ADVANCED RUNS ====================
 
-  export async function openairunRetry(args: any) {
+  export async function openaiRunRetry(args: any) {
     const { thread_id, run_id } = args;
     try {
       const originalRun = await openai.beta.threads.runs.retrieve(thread_id, run_id);
@@ -6284,7 +6284,7 @@ Return JSON:
     }
   }
 
-  export async function openairunResume(args: any) {
+  export async function openaiRunResume(args: any) {
     const { thread_id, run_id } = args;
     try {
       const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
@@ -6300,7 +6300,7 @@ Return JSON:
     }
   }
 
-  export async function openairunClone(args: any) {
+  export async function openaiRunClone(args: any) {
     const { thread_id, run_id } = args;
     try {
       const originalRun = await openai.beta.threads.runs.retrieve(thread_id, run_id);
@@ -6339,7 +6339,7 @@ Return JSON:
     }
   }
 
-  export async function openairunAnalyze(args: any) {
+  export async function openaiRunAnalyze(args: any) {
     const { thread_id, run_id } = args;
     try {
       const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
@@ -6363,7 +6363,7 @@ Return JSON:
     }
   }
 
-  export async function openairunOptimize(args: any) {
+  export async function openaiRunOptimize(args: any) {
     const { thread_id, run_id } = args;
     try {
       const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
@@ -6391,7 +6391,7 @@ Return JSON:
     }
   }
 
-  export async function openairunMonitor(args: any) {
+  export async function openaiRunMonitor(args: any) {
     const { thread_id, run_id } = args;
     try {
       const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
@@ -6413,7 +6413,7 @@ Return JSON:
     }
   }
 
-  export async function openairunExport(args: any) {
+  export async function openaiRunExport(args: any) {
     const { thread_id, run_id, format = "json" } = args;
     try {
       const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
@@ -6443,7 +6443,7 @@ Return JSON:
     }
   }
 
-  export async function openairunCompare(args: any) {
+  export async function openaiRunCompare(args: any) {
     const { thread_id, run_id_1, run_id_2 } = args;
     try {
       const [run1, run2] = await Promise.all([
@@ -6517,13 +6517,13 @@ const costManager = new CostManager();
 // ============================================================================
 
 // Realtime API
-export const openaicreaterealtimeSession = openairealtimeSessionCreate;
-export const openaiupdaterealtimeSession = openairealtimeSessionUpdate;
-export const openaisendrealtimeMessage = openairealtimeTextSend;
-export const openaigetrealtimeResponse = openairealtimeTextReceive;
-export const openaiinterruptrealtimeResponse = openairealtimeInterrupt;
-export const openaicloserealtimeSession = openairealtimeSessionClose;
+export const openaicreaterealtimeSession = openaiRealtimeSessionCreate;
+export const openaiupdaterealtimeSession = openaiRealtimeSessionUpdate;
+export const openaisendrealtimeMessage = openaiRealtimeTextSend;
+export const openaigetrealtimeResponse = openaiRealtimeTextReceive;
+export const openaiinterruptrealtimeResponse = openaiRealtimeInterrupt;
+export const openaicloserealtimeSession = openaiRealtimeSessionClose;
 
 
 // Model comparison
-export const openaicomparemodelsDetailed = openaicompareModels;
+export const openaicomparemodelsDetailed = openaiCompareModels;

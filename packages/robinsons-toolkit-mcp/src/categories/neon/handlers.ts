@@ -920,7 +920,7 @@ export async function neonCheckApiKey(args: any) {
     }
   
 }
-export async function neonCreateProjectForRAD(args: any) {
+export async function neonCreateProjectForRad(args: any) {
   const neonClient = getNeonClient();
     if (!(process.env.NEON_API_KEY || '')) {
       return {
@@ -1047,7 +1047,7 @@ export async function neonVerifySchema(args: any) {
     };
   
 }
-export async function neonSetupRADDatabase(args: any) {
+export async function neonSetupRadDatabase(args: any) {
   const neonClient = getNeonClient();
     if (!(process.env.NEON_API_KEY || '')) {
       return {

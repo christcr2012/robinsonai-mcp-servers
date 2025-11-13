@@ -26,11 +26,11 @@ export async function handleUserInfo(args: any) {
  * Check health status of the FastAPI gateway and all connected services
  * @see https://api.srv823383.hstgr.cloud/docs#/Health/health_check_health_get
  */
-export const fastapihealthcheck = handleHealthCheck;
+export const fastapiHealthCheck = handleHealthCheck;
 
 /**
  * Get current user information and database status
  * @see https://api.srv823383.hstgr.cloud/docs#/User/user_info_user_info_get
  */
-export const fastapiuserinfo = handleUserInfo;
+export const fastapiUserInfo = handleUserInfo;
 

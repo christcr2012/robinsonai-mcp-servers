@@ -29,19 +29,19 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
   return response.json();
 }
 
-  export async function vercellistProjects(args: any) {
+  export async function vercelListProjects(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v9/projects?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelgetProject(args: any) {
+  export async function vercelGetProject(args: any) {
     const data = await vercelFetch(`/v9/projects/${args.projectId}`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateProject(args: any) {
+  export async function vercelCreateProject(args: any) {
     const data = await vercelFetch(`/v9/projects`, {
       method: "POST",
       body: JSON.stringify(args),
@@ -49,7 +49,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelupdateProject(args: any) {
+  export async function vercelUpdateProject(args: any) {
     const { projectId, ...updates } = args;
     const data = await vercelFetch(`/v9/projects/${projectId}`, {
       method: "PATCH",
@@ -58,7 +58,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteProject(args: any) {
+  export async function vercelDeleteProject(args: any) {
     const data = await vercelFetch(`/v9/projects/${args.projectId}`, {
       method: "DELETE",
     });
@@ -67,7 +67,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== DEPLOYMENT METHODS ====================
 
-  export async function vercellistDeployments(args: any) {
+  export async function vercelListDeployments(args: any) {
     const params = new URLSearchParams();
     if (args.limit) params.append("limit", args.limit.toString());
     if (args.state) params.append("state", args.state);
@@ -77,12 +77,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetDeployment(args: any) {
+  export async function vercelGetDeployment(args: any) {
     const data = await vercelFetch(`/v13/deployments/${args.deploymentId}`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateDeployment(args: any) {
+  export async function vercelCreateDeployment(args: any) {
     const data = await vercelFetch(`/v13/deployments`, {
       method: "POST",
       body: JSON.stringify(args),
@@ -90,7 +90,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelcancelDeployment(args: any) {
+  export async function vercelCancelDeployment(args: any) {
     const data = await vercelFetch(
       `/v12/deployments/${args.deploymentId}/cancel`,
       { method: "PATCH" }
@@ -98,21 +98,21 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteDeployment(args: any) {
+  export async function vercelDeleteDeployment(args: any) {
     const data = await vercelFetch(`/v13/deployments/${args.deploymentId}`, {
       method: "DELETE",
     });
     return formatResponse(data);
   }
 
-  export async function vercelgetDeploymentEvents(args: any) {
+  export async function vercelGetDeploymentEvents(args: any) {
     const data = await vercelFetch(
       `/v3/deployments/${args.deploymentId}/events`
     );
     return formatResponse(data);
   }
 
-  export async function vercelredeploy(args: any) {
+  export async function vercelRedeploy(args: any) {
     const data = await vercelFetch(
       `/v13/deployments/${args.deploymentId}/redeploy`,
       {
@@ -125,12 +125,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== ENV VAR METHODS ====================
 
-  export async function vercellistEnvVars(args: any) {
+  export async function vercelListEnvVars(args: any) {
     const data = await vercelFetch(`/v9/projects/${args.projectId}/env`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateEnvVar(args: any) {
+  export async function vercelCreateEnvVar(args: any) {
     const { projectId, ...envVar } = args;
     const data = await vercelFetch(`/v10/projects/${projectId}/env`, {
       method: "POST",
@@ -139,7 +139,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelupdateEnvVar(args: any) {
+  export async function vercelUpdateEnvVar(args: any) {
     const { projectId, envId, ...updates } = args;
     const data = await vercelFetch(`/v9/projects/${projectId}/env/${envId}`, {
       method: "PATCH",
@@ -148,7 +148,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteEnvVar(args: any) {
+  export async function vercelDeleteEnvVar(args: any) {
     const data = await vercelFetch(
       `/v9/projects/${args.projectId}/env/${args.envId}`,
       { method: "DELETE" }
@@ -156,7 +156,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelbulkCreateEnvVars(args: any) {
+  export async function vercelBulkCreateEnvVars(args: any) {
     const { projectId, variables } = args;
     const results = [];
     for (const envVar of variables) {
@@ -175,19 +175,19 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== DOMAIN METHODS ====================
 
-  export async function vercellistDomains(args: any) {
+  export async function vercelListDomains(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v5/domains?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelgetDomain(args: any) {
+  export async function vercelGetDomain(args: any) {
     const data = await vercelFetch(`/v5/domains/${args.domain}`);
     return formatResponse(data);
   }
 
-  export async function verceladdDomain(args: any) {
+  export async function vercelAddDomain(args: any) {
     const data = await vercelFetch(`/v10/projects/${args.projectId}/domains`, {
       method: "POST",
       body: JSON.stringify({ name: args.domain }),
@@ -195,14 +195,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelremoveDomain(args: any) {
+  export async function vercelRemoveDomain(args: any) {
     const data = await vercelFetch(`/v9/domains/${args.domain}`, {
       method: "DELETE",
     });
     return formatResponse(data);
   }
 
-  export async function vercelverifyDomain(args: any) {
+  export async function vercelVerifyDomain(args: any) {
     const data = await vercelFetch(`/v6/domains/${args.domain}/verify`, {
       method: "POST",
     });
@@ -211,12 +211,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== DNS METHODS ====================
 
-  export async function vercellistDnsRecords(args: any) {
+  export async function vercelListDnsRecords(args: any) {
     const data = await vercelFetch(`/v4/domains/${args.domain}/records`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateDnsRecord(args: any) {
+  export async function vercelCreateDnsRecord(args: any) {
     const { domain, ...record } = args;
     const data = await vercelFetch(`/v2/domains/${domain}/records`, {
       method: "POST",
@@ -225,7 +225,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteDnsRecord(args: any) {
+  export async function vercelDeleteDnsRecord(args: any) {
     const data = await vercelFetch(
       `/v2/domains/${args.domain}/records/${args.recordId}`,
       { method: "DELETE" }
@@ -235,24 +235,24 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== TEAM METHODS ====================
 
-  export async function vercellistTeams(args: any) {
+  export async function vercelListTeams(args: any) {
     const data = await vercelFetch(`/v2/teams`);
     return formatResponse(data);
   }
 
-  export async function vercelgetTeam(args: any) {
+  export async function vercelGetTeam(args: any) {
     const data = await vercelFetch(`/v2/teams/${args.teamId}`);
     return formatResponse(data);
   }
 
-  export async function vercellistTeamMembers(args: any) {
+  export async function vercelListTeamMembers(args: any) {
     const data = await vercelFetch(`/v2/teams/${args.teamId}/members`);
     return formatResponse(data);
   }
 
   // ==================== LOGS & MONITORING METHODS ====================
 
-  export async function vercelgetDeploymentLogs(args: any) {
+  export async function vercelGetDeploymentLogs(args: any) {
     const params = new URLSearchParams();
     if (args.limit) params.append("limit", args.limit.toString());
     if (args.since) params.append("since", args.since.toString());
@@ -262,7 +262,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetProjectAnalytics(args: any) {
+  export async function vercelGetProjectAnalytics(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -274,14 +274,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== EDGE CONFIG METHODS ====================
 
-  export async function vercellistEdgeConfigs(args: any) {
+  export async function vercelListEdgeConfigs(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v1/edge-config?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateEdgeConfig(args: any) {
+  export async function vercelCreateEdgeConfig(args: any) {
     const data = await vercelFetch(`/v1/edge-config`, {
       method: "POST",
       body: JSON.stringify(args),
@@ -289,14 +289,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetEdgeConfigItems(args: any) {
+  export async function vercelGetEdgeConfigItems(args: any) {
     const data = await vercelFetch(
       `/v1/edge-config/${args.edgeConfigId}/items`
     );
     return formatResponse(data);
   }
 
-  export async function vercelupdateEdgeConfigItems(args: any) {
+  export async function vercelUpdateEdgeConfigItems(args: any) {
     const { edgeConfigId, items } = args;
     const data = await vercelFetch(`/v1/edge-config/${edgeConfigId}/items`, {
       method: "PATCH",
@@ -307,12 +307,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== WEBHOOK METHODS ====================
 
-  export async function vercellistWebhooks(args: any) {
+  export async function vercelListWebhooks(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/webhooks`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateWebhook(args: any) {
+  export async function vercelCreateWebhook(args: any) {
     const { projectId, ...webhook } = args;
     const data = await vercelFetch(`/v1/projects/${projectId}/webhooks`, {
       method: "POST",
@@ -321,7 +321,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteWebhook(args: any) {
+  export async function vercelDeleteWebhook(args: any) {
     const data = await vercelFetch(`/v1/webhooks/${args.webhookId}`, {
       method: "DELETE",
     });
@@ -330,7 +330,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== ALIAS METHODS ====================
 
-  export async function vercellistAliases(args: any) {
+  export async function vercelListAliases(args: any) {
     const params = new URLSearchParams();
     if (args.projectId) params.append("projectId", args.projectId);
     if (args.limit) params.append("limit", args.limit.toString());
@@ -339,7 +339,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelassignAlias(args: any) {
+  export async function vercelAssignAlias(args: any) {
     const data = await vercelFetch(`/v2/deployments/${args.deploymentId}/aliases`, {
       method: "POST",
       body: JSON.stringify({ alias: args.alias }),
@@ -347,7 +347,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteAlias(args: any) {
+  export async function vercelDeleteAlias(args: any) {
     const data = await vercelFetch(`/v2/aliases/${args.aliasId}`, {
       method: "DELETE",
     });
@@ -356,7 +356,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== SECRET METHODS ====================
 
-  export async function vercellistSecrets(args: any) {
+  export async function vercelListSecrets(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const query = params.toString() ? `?${params.toString()}` : "";
@@ -364,7 +364,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelcreateSecret(args: any) {
+  export async function vercelCreateSecret(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const query = params.toString() ? `?${params.toString()}` : "";
@@ -375,7 +375,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteSecret(args: any) {
+  export async function vercelDeleteSecret(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const query = params.toString() ? `?${params.toString()}` : "";
@@ -385,7 +385,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelrenameSecret(args: any) {
+  export async function vercelRenameSecret(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const query = params.toString() ? `?${params.toString()}` : "";
@@ -398,12 +398,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== CHECK METHODS ====================
 
-  export async function vercellistChecks(args: any) {
+  export async function vercelListChecks(args: any) {
     const data = await vercelFetch(`/v1/deployments/${args.deploymentId}/checks`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateCheck(args: any) {
+  export async function vercelCreateCheck(args: any) {
     const { deploymentId, ...check } = args;
     const data = await vercelFetch(`/v1/deployments/${deploymentId}/checks`, {
       method: "POST",
@@ -412,7 +412,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelupdateCheck(args: any) {
+  export async function vercelUpdateCheck(args: any) {
     const { deploymentId, checkId, ...update } = args;
     const data = await vercelFetch(`/v1/deployments/${deploymentId}/checks/${checkId}`, {
       method: "PATCH",
@@ -423,19 +423,19 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== DEPLOYMENT FILE METHODS ====================
 
-  export async function vercellistDeploymentFiles(args: any) {
+  export async function vercelListDeploymentFiles(args: any) {
     const data = await vercelFetch(`/v6/deployments/${args.deploymentId}/files`);
     return formatResponse(data);
   }
 
-  export async function vercelgetDeploymentFile(args: any) {
+  export async function vercelGetDeploymentFile(args: any) {
     const data = await vercelFetch(`/v6/deployments/${args.deploymentId}/files/${args.fileId}`);
     return formatResponse(data);
   }
 
   // ==================== BLOB STORAGE METHODS ====================
 
-  export async function vercelblobList(args: any) {
+  export async function vercelBlobList(args: any) {
     const params = new URLSearchParams();
     if (args.limit) params.append("limit", args.limit.toString());
     if (args.cursor) params.append("cursor", args.cursor);
@@ -443,7 +443,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelblobPut(args: any) {
+  export async function vercelBlobPut(args: any) {
     const data = await vercelFetch(`/v1/blob`, {
       method: "PUT",
       body: JSON.stringify({
@@ -455,7 +455,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelblobDelete(args: any) {
+  export async function vercelBlobDelete(args: any) {
     const data = await vercelFetch(`/v1/blob`, {
       method: "DELETE",
       body: JSON.stringify({ url: args.url }),
@@ -463,19 +463,19 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelblobHead(args: any) {
+  export async function vercelBlobHead(args: any) {
     const data = await vercelFetch(`/v1/blob/head?url=${encodeURIComponent(args.url)}`);
     return formatResponse(data);
   }
 
   // ==================== KV STORAGE METHODS ====================
 
-  export async function vercelkvGet(args: any) {
+  export async function vercelKvGet(args: any) {
     const data = await vercelFetch(`/v1/kv/${args.storeId}/get/${args.key}`);
     return formatResponse(data);
   }
 
-  export async function vercelkvSet(args: any) {
+  export async function vercelKvSet(args: any) {
     const body: any = { key: args.key, value: args.value };
     if (args.ex) body.ex = args.ex;
     const data = await vercelFetch(`/v1/kv/${args.storeId}/set`, {
@@ -485,14 +485,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelkvDelete(args: any) {
+  export async function vercelKvDelete(args: any) {
     const data = await vercelFetch(`/v1/kv/${args.storeId}/delete/${args.key}`, {
       method: "DELETE",
     });
     return formatResponse(data);
   }
 
-  export async function vercelkvListKeys(args: any) {
+  export async function vercelKvListKeys(args: any) {
     const params = new URLSearchParams();
     if (args.pattern) params.append("pattern", args.pattern);
     if (args.cursor) params.append("cursor", args.cursor);
@@ -502,14 +502,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== POSTGRES METHODS ====================
 
-  export async function vercelpostgresListDatabases(args: any) {
+  export async function vercelPostgresListDatabases(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v1/postgres?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelpostgresCreateDatabase(args: any) {
+  export async function vercelPostgresCreateDatabase(args: any) {
     const data = await vercelFetch(`/v1/postgres`, {
       method: "POST",
       body: JSON.stringify({
@@ -520,28 +520,28 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelpostgresDeleteDatabase(args: any) {
+  export async function vercelPostgresDeleteDatabase(args: any) {
     const data = await vercelFetch(`/v1/postgres/${args.databaseId}`, {
       method: "DELETE",
     });
     return formatResponse(data);
   }
 
-  export async function vercelpostgresGetConnectionString(args: any) {
+  export async function vercelPostgresGetConnectionString(args: any) {
     const data = await vercelFetch(`/v1/postgres/${args.databaseId}/connection-string`);
     return formatResponse(data);
   }
 
   // ==================== FIREWALL & SECURITY METHODS ====================
 
-  export async function vercellistFirewallRules(args: any) {
+  export async function vercelListFirewallRules(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v1/security/firewall/${args.projectId}/rules?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateFirewallRule(args: any) {
+  export async function vercelCreateFirewallRule(args: any) {
     const data = await vercelFetch(`/v1/security/firewall/${args.projectId}/rules`, {
       method: "POST",
       body: JSON.stringify({
@@ -553,7 +553,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelupdateFirewallRule(args: any) {
+  export async function vercelUpdateFirewallRule(args: any) {
     const body: any = {};
     if (args.name) body.name = args.name;
     if (args.action) body.action = args.action;
@@ -565,14 +565,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteFirewallRule(args: any) {
+  export async function vercelDeleteFirewallRule(args: any) {
     const data = await vercelFetch(`/v1/security/firewall/${args.projectId}/rules/${args.ruleId}`, {
       method: "DELETE",
     });
     return formatResponse(data);
   }
 
-  export async function vercelgetFirewallAnalytics(args: any) {
+  export async function vercelGetFirewallAnalytics(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -580,12 +580,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercellistBlockedIps(args: any) {
+  export async function vercelListBlockedIps(args: any) {
     const data = await vercelFetch(`/v1/security/firewall/${args.projectId}/blocked-ips`);
     return formatResponse(data);
   }
 
-  export async function vercelblockIp(args: any) {
+  export async function vercelBlockIp(args: any) {
     const data = await vercelFetch(`/v1/security/firewall/${args.projectId}/blocked-ips`, {
       method: "POST",
       body: JSON.stringify({
@@ -596,14 +596,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelunblockIp(args: any) {
+  export async function vercelUnblockIp(args: any) {
     const data = await vercelFetch(`/v1/security/firewall/${args.projectId}/blocked-ips/${encodeURIComponent(args.ipAddress)}`, {
       method: "DELETE",
     });
     return formatResponse(data);
   }
 
-  export async function vercelenableAttackChallengeMode(args: any) {
+  export async function vercelEnableAttackChallengeMode(args: any) {
     const data = await vercelFetch(`/v1/security/firewall/${args.projectId}/challenge-mode`, {
       method: "PATCH",
       body: JSON.stringify({ enabled: args.enabled }),
@@ -611,7 +611,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetSecurityEvents(args: any) {
+  export async function vercelGetSecurityEvents(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -622,7 +622,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== MONITORING & OBSERVABILITY METHODS ====================
 
-  export async function vercelgetRuntimeLogsStream(args: any) {
+  export async function vercelGetRuntimeLogsStream(args: any) {
     const params = new URLSearchParams();
     if (args.follow) params.append("follow", "1");
     if (args.limit) params.append("limit", args.limit.toString());
@@ -630,12 +630,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetBuildLogs(args: any) {
+  export async function vercelGetBuildLogs(args: any) {
     const data = await vercelFetch(`/v1/deployments/${args.deploymentId}/builds`);
     return formatResponse(data);
   }
 
-  export async function vercelgetErrorLogs(args: any) {
+  export async function vercelGetErrorLogs(args: any) {
     const params = new URLSearchParams();
     params.append("type", "error");
     if (args.from) params.append("from", args.from.toString());
@@ -644,7 +644,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetBandwidthUsage(args: any) {
+  export async function vercelGetBandwidthUsage(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -652,7 +652,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetFunctionInvocations(args: any) {
+  export async function vercelGetFunctionInvocations(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -660,7 +660,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetCacheMetrics(args: any) {
+  export async function vercelGetCacheMetrics(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -668,7 +668,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetTraces(args: any) {
+  export async function vercelGetTraces(args: any) {
     const params = new URLSearchParams();
     if (args.deploymentId) params.append("deploymentId", args.deploymentId);
     if (args.from) params.append("from", args.from.toString());
@@ -677,12 +677,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetPerformanceInsights(args: any) {
+  export async function vercelGetPerformanceInsights(args: any) {
     const data = await vercelFetch(`/v1/insights/${args.projectId}/performance`);
     return formatResponse(data);
   }
 
-  export async function vercelgetWebVitals(args: any) {
+  export async function vercelGetWebVitals(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -692,14 +692,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== BILLING & USAGE METHODS ====================
 
-  export async function vercelgetBillingSummary(args: any) {
+  export async function vercelGetBillingSummary(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v1/billing/summary?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelgetUsageMetrics(args: any) {
+  export async function vercelGetUsageMetrics(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -708,12 +708,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetInvoice(args: any) {
+  export async function vercelGetInvoice(args: any) {
     const data = await vercelFetch(`/v1/billing/invoices/${args.invoiceId}`);
     return formatResponse(data);
   }
 
-  export async function vercellistInvoices(args: any) {
+  export async function vercelListInvoices(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     if (args.limit) params.append("limit", args.limit.toString());
@@ -721,14 +721,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetSpendingLimits(args: any) {
+  export async function vercelGetSpendingLimits(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v1/billing/limits?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelupdateSpendingLimits(args: any) {
+  export async function vercelUpdateSpendingLimits(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v1/billing/limits?${params}`, {
@@ -738,7 +738,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetCostBreakdown(args: any) {
+  export async function vercelGetCostBreakdown(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -747,7 +747,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelexportUsageReport(args: any) {
+  export async function vercelExportUsageReport(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -759,19 +759,19 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== INTEGRATIONS & MARKETPLACE METHODS ====================
 
-  export async function vercellistIntegrations(args: any) {
+  export async function vercelListIntegrations(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v1/integrations?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelgetIntegration(args: any) {
+  export async function vercelGetIntegration(args: any) {
     const data = await vercelFetch(`/v1/integrations/${args.integrationId}`);
     return formatResponse(data);
   }
 
-  export async function vercelinstallIntegration(args: any) {
+  export async function vercelInstallIntegration(args: any) {
     const body: any = { integrationSlug: args.integrationSlug };
     if (args.teamId) body.teamId = args.teamId;
     if (args.configuration) body.configuration = args.configuration;
@@ -782,19 +782,19 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceluninstallIntegration(args: any) {
+  export async function vercelUninstallIntegration(args: any) {
     const data = await vercelFetch(`/v1/integrations/${args.integrationId}`, {
       method: "DELETE",
     });
     return formatResponse(data);
   }
 
-  export async function vercellistIntegrationConfigurations(args: any) {
+  export async function vercelListIntegrationConfigurations(args: any) {
     const data = await vercelFetch(`/v1/integrations/${args.integrationId}/configurations`);
     return formatResponse(data);
   }
 
-  export async function vercelupdateIntegrationConfiguration(args: any) {
+  export async function vercelUpdateIntegrationConfiguration(args: any) {
     const data = await vercelFetch(`/v1/integrations/${args.integrationId}/configurations/${args.configurationId}`, {
       method: "PATCH",
       body: JSON.stringify(args.configuration),
@@ -802,14 +802,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetIntegrationLogs(args: any) {
+  export async function vercelGetIntegrationLogs(args: any) {
     const params = new URLSearchParams();
     if (args.limit) params.append("limit", args.limit.toString());
     const data = await vercelFetch(`/v1/integrations/${args.integrationId}/logs?${params}`);
     return formatResponse(data);
   }
 
-  export async function verceltriggerIntegrationSync(args: any) {
+  export async function vercelTriggerIntegrationSync(args: any) {
     const data = await vercelFetch(`/v1/integrations/${args.integrationId}/sync`, {
       method: "POST",
     });
@@ -818,7 +818,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== AUDIT LOGS METHODS ====================
 
-  export async function vercellistAuditLogs(args: any) {
+  export async function vercelListAuditLogs(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     if (args.from) params.append("from", args.from.toString());
@@ -828,12 +828,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetAuditLog(args: any) {
+  export async function vercelGetAuditLog(args: any) {
     const data = await vercelFetch(`/v1/audit-logs/${args.logId}`);
     return formatResponse(data);
   }
 
-  export async function vercelexportAuditLogs(args: any) {
+  export async function vercelExportAuditLogs(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append("from", args.from.toString());
     if (args.to) params.append("to", args.to.toString());
@@ -843,14 +843,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetComplianceReport(args: any) {
+  export async function vercelGetComplianceReport(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v1/compliance/${args.reportType}?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercellistAccessEvents(args: any) {
+  export async function vercelListAccessEvents(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     if (args.userId) params.append("userId", args.userId);
@@ -861,12 +861,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== CRON JOBS METHODS ====================
 
-  export async function vercellistCronJobs(args: any) {
+  export async function vercelListCronJobs(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/crons`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateCronJob(args: any) {
+  export async function vercelCreateCronJob(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/crons`, {
       method: "POST",
       body: JSON.stringify({
@@ -877,7 +877,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelupdateCronJob(args: any) {
+  export async function vercelUpdateCronJob(args: any) {
     const body: any = {};
     if (args.schedule) body.schedule = args.schedule;
     if (args.enabled !== undefined) body.enabled = args.enabled;
@@ -888,14 +888,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteCronJob(args: any) {
+  export async function vercelDeleteCronJob(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/crons/${args.cronId}`, {
       method: "DELETE",
     });
     return formatResponse(data);
   }
 
-  export async function verceltriggerCronJob(args: any) {
+  export async function vercelTriggerCronJob(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/crons/${args.cronId}/trigger`, {
       method: "POST",
     });
@@ -904,13 +904,13 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== ADVANCED ROUTING METHODS ====================
 
-  export async function vercellistRedirects(args: any) {
+  export async function vercelListRedirects(args: any) {
     const data = await vercelFetch(`/v9/projects/${args.projectId}`);
     // Redirects are part of project configuration
     return formatResponse(data.redirects || []);
   }
 
-  export async function vercelcreateRedirect(args: any) {
+  export async function vercelCreateRedirect(args: any) {
     // Get current project config
     const project = await vercelFetch(`/v9/projects/${args.projectId}`);
     const redirects = project.redirects || [];
@@ -926,7 +926,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteRedirect(args: any) {
+  export async function vercelDeleteRedirect(args: any) {
     // Get current project config
     const project = await vercelFetch(`/v9/projects/${args.projectId}`);
     const redirects = (project.redirects || []).filter((_: any, i: number) => i.toString() !== args.redirectId);
@@ -937,13 +937,13 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercellistCustomHeaders(args: any) {
+  export async function vercelListCustomHeaders(args: any) {
     const data = await vercelFetch(`/v9/projects/${args.projectId}`);
     // Headers are part of project configuration
     return formatResponse(data.headers || []);
   }
 
-  export async function vercelcreateCustomHeader(args: any) {
+  export async function vercelCreateCustomHeader(args: any) {
     // Get current project config
     const project = await vercelFetch(`/v9/projects/${args.projectId}`);
     const headers = project.headers || [];
@@ -958,7 +958,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteCustomHeader(args: any) {
+  export async function vercelDeleteCustomHeader(args: any) {
     // Get current project config
     const project = await vercelFetch(`/v9/projects/${args.projectId}`);
     const headers = (project.headers || []).filter((_: any, i: number) => i.toString() !== args.headerId);
@@ -971,12 +971,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== PREVIEW COMMENTS METHODS ====================
 
-  export async function vercellistComments(args: any) {
+  export async function vercelListComments(args: any) {
     const data = await vercelFetch(`/v1/deployments/${args.deploymentId}/comments`);
     return formatResponse(data);
   }
 
-  export async function vercelcreateComment(args: any) {
+  export async function vercelCreateComment(args: any) {
     const body: any = { text: args.text };
     if (args.path) body.path = args.path;
     const data = await vercelFetch(`/v1/deployments/${args.deploymentId}/comments`, {
@@ -986,7 +986,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelupdateComment(args: any) {
+  export async function vercelUpdateComment(args: any) {
     const data = await vercelFetch(`/v1/comments/${args.commentId}`, {
       method: "PATCH",
       body: JSON.stringify({ text: args.text }),
@@ -994,14 +994,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeleteComment(args: any) {
+  export async function vercelDeleteComment(args: any) {
     const data = await vercelFetch(`/v1/comments/${args.commentId}`, {
       method: "DELETE",
     });
     return formatResponse(data);
   }
 
-  export async function vercelresolveComment(args: any) {
+  export async function vercelResolveComment(args: any) {
     const data = await vercelFetch(`/v1/comments/${args.commentId}`, {
       method: "PATCH",
       body: JSON.stringify({ resolved: args.resolved }),
@@ -1011,14 +1011,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
 
   // ==================== GIT INTEGRATION METHODS ====================
 
-  export async function vercellistGitRepositories(args: any) {
+  export async function vercelListGitRepositories(args: any) {
     const params = new URLSearchParams();
     if (args.teamId) params.append("teamId", args.teamId);
     const data = await vercelFetch(`/v1/git/repositories?${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelconnectGitRepository(args: any) {
+  export async function vercelConnectGitRepository(args: any) {
     const body: any = {
       type: args.type,
       repo: args.repo,
@@ -1031,7 +1031,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldisconnectGitRepository(args: any) {
+  export async function vercelDisconnectGitRepository(args: any) {
     const data = await vercelFetch(`/v9/projects/${args.projectId}`, {
       method: "PATCH",
       body: JSON.stringify({ link: null }),
@@ -1039,14 +1039,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelsyncGitRepository(args: any) {
+  export async function vercelSyncGitRepository(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/git/sync`, {
       method: "POST",
     });
     return formatResponse(data);
   }
 
-  export async function vercelgetGitIntegrationStatus(args: any) {
+  export async function vercelGetGitIntegrationStatus(args: any) {
     const data = await vercelFetch(`/v9/projects/${args.projectId}`);
     return formatResponse({
       connected: !!data.link,
@@ -1055,12 +1055,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
   }
 
   // EDGE MIDDLEWARE
-  export async function vercellistMiddleware(args: any) {
+  export async function vercelListMiddleware(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/middleware`);
     return formatResponse(data);
   }
 
-  export async function vercelgetMiddlewareLogs(args: any) {
+  export async function vercelGetMiddlewareLogs(args: any) {
     const params = new URLSearchParams();
     if (args.deploymentId) params.append('deploymentId', args.deploymentId);
     if (args.limit) params.append('limit', args.limit.toString());
@@ -1068,7 +1068,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetMiddlewareMetrics(args: any) {
+  export async function vercelGetMiddlewareMetrics(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append('from', args.from);
     if (args.to) params.append('to', args.to);
@@ -1076,7 +1076,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceltestMiddleware(args: any) {
+  export async function vercelTestMiddleware(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/middleware/test`, {
       method: 'POST',
       body: JSON.stringify({ code: args.code, testRequest: args.testRequest })
@@ -1084,7 +1084,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function verceldeployMiddleware(args: any) {
+  export async function vercelDeployMiddleware(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/middleware`, {
       method: 'POST',
       body: JSON.stringify({ code: args.code, config: args.config })
@@ -1093,12 +1093,12 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
   }
 
   // MONITORING & OBSERVABILITY
-  export async function vercelgetDeploymentHealth(args: any) {
+  export async function vercelGetDeploymentHealth(args: any) {
     const data = await vercelFetch(`/v1/deployments/${args.deploymentId}/health`);
     return formatResponse(data);
   }
 
-  export async function vercelgetErrorRate(args: any) {
+  export async function vercelGetErrorRate(args: any) {
     const params = new URLSearchParams();
     if (args.deploymentId) params.append('deploymentId', args.deploymentId);
     if (args.from) params.append('from', args.from);
@@ -1107,7 +1107,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetResponseTime(args: any) {
+  export async function vercelGetResponseTime(args: any) {
     const params = new URLSearchParams();
     if (args.deploymentId) params.append('deploymentId', args.deploymentId);
     if (args.from) params.append('from', args.from);
@@ -1116,7 +1116,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetUptimeMetrics(args: any) {
+  export async function vercelGetUptimeMetrics(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append('from', args.from);
     if (args.to) params.append('to', args.to);
@@ -1124,7 +1124,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelcreateAlert(args: any) {
+  export async function vercelCreateAlert(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/alerts`, {
       method: 'POST',
       body: JSON.stringify({
@@ -1138,7 +1138,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
   }
 
   // TEAM MANAGEMENT
-  export async function vercelinviteTeamMember(args: any) {
+  export async function vercelInviteTeamMember(args: any) {
     const data = await vercelFetch(`/v1/teams/${args.teamId}/members`, {
       method: 'POST',
       body: JSON.stringify({ email: args.email, role: args.role || 'MEMBER' })
@@ -1146,14 +1146,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelremoveTeamMember(args: any) {
+  export async function vercelRemoveTeamMember(args: any) {
     const data = await vercelFetch(`/v1/teams/${args.teamId}/members/${args.userId}`, {
       method: 'DELETE'
     });
     return formatResponse(data);
   }
 
-  export async function vercelupdateTeamMemberRole(args: any) {
+  export async function vercelUpdateTeamMemberRole(args: any) {
     const data = await vercelFetch(`/v1/teams/${args.teamId}/members/${args.userId}`, {
       method: 'PATCH',
       body: JSON.stringify({ role: args.role })
@@ -1161,7 +1161,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetTeamActivity(args: any) {
+  export async function vercelGetTeamActivity(args: any) {
     const params = new URLSearchParams();
     if (args.limit) params.append('limit', args.limit.toString());
     if (args.from) params.append('from', args.from);
@@ -1170,7 +1170,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelgetTeamUsage(args: any) {
+  export async function vercelGetTeamUsage(args: any) {
     const params = new URLSearchParams();
     if (args.from) params.append('from', args.from);
     if (args.to) params.append('to', args.to);
@@ -1179,14 +1179,14 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
   }
 
   // ADVANCED DEPLOYMENT
-  export async function vercelpromoteDeployment(args: any) {
+  export async function vercelPromoteDeployment(args: any) {
     const data = await vercelFetch(`/v13/deployments/${args.deploymentId}/promote`, {
       method: 'POST'
     });
     return formatResponse(data);
   }
 
-  export async function vercelrollbackDeployment(args: any) {
+  export async function vercelRollbackDeployment(args: any) {
     const data = await vercelFetch(`/v13/deployments/${args.projectId}/rollback`, {
       method: 'POST',
       body: JSON.stringify({ targetDeploymentId: args.targetDeploymentId })
@@ -1194,44 +1194,44 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelpauseDeployment(args: any) {
+  export async function vercelPauseDeployment(args: any) {
     const data = await vercelFetch(`/v1/deployments/${args.deploymentId}/pause`, {
       method: 'POST'
     });
     return formatResponse(data);
   }
 
-  export async function vercelresumeDeployment(args: any) {
+  export async function vercelResumeDeployment(args: any) {
     const data = await vercelFetch(`/v1/deployments/${args.deploymentId}/resume`, {
       method: 'POST'
     });
     return formatResponse(data);
   }
 
-  export async function vercelgetDeploymentDiff(args: any) {
+  export async function vercelGetDeploymentDiff(args: any) {
     const data = await vercelFetch(`/v1/deployments/diff?deployment1=${args.deploymentId1}&deployment2=${args.deploymentId2}`);
     return formatResponse(data);
   }
 
   // STORAGE MANAGEMENT
-  export async function vercelgetStorageUsage(args: any) {
+  export async function vercelGetStorageUsage(args: any) {
     const params = args.teamId ? `?teamId=${args.teamId}` : '';
     const data = await vercelFetch(`/v1/storage/usage${params}`);
     return formatResponse(data);
   }
 
-  export async function verceloptimizeStorage(args: any) {
+  export async function vercelOptimizeStorage(args: any) {
     const params = args.teamId ? `?teamId=${args.teamId}` : '';
     const data = await vercelFetch(`/v1/storage/optimize${params}`);
     return formatResponse(data);
   }
 
-  export async function vercelexportBlobData(args: any) {
+  export async function vercelExportBlobData(args: any) {
     const data = await vercelFetch(`/v1/blob/${args.storeId}/export?format=${args.format || 'json'}`);
     return formatResponse(data);
   }
 
-  export async function vercelimportBlobData(args: any) {
+  export async function vercelImportBlobData(args: any) {
     const data = await vercelFetch(`/v1/blob/${args.storeId}/import`, {
       method: 'POST',
       body: JSON.stringify({ data: args.data, format: args.format || 'json' })
@@ -1239,7 +1239,7 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
     return formatResponse(data);
   }
 
-  export async function vercelcloneStorage(args: any) {
+  export async function vercelCloneStorage(args: any) {
     const data = await vercelFetch(`/v1/storage/clone`, {
       method: 'POST',
       body: JSON.stringify({
@@ -1251,19 +1251,19 @@ async function vercelFetch(endpoint: string, options: RequestInit = {}) {
   }
 
   // ADVANCED SECURITY
-  export async function vercelscanDeploymentSecurity(args: any) {
+  export async function vercelScanDeploymentSecurity(args: any) {
     const data = await vercelFetch(`/v1/deployments/${args.deploymentId}/security-scan`, {
       method: 'POST'
     });
     return formatResponse(data);
   }
 
-  export async function vercelgetSecurityHeaders(args: any) {
+  export async function vercelGetSecurityHeaders(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/security-headers`);
     return formatResponse(data);
   }
 
-  export async function vercelupdateSecurityHeaders(args: any) {
+  export async function vercelUpdateSecurityHeaders(args: any) {
     const data = await vercelFetch(`/v1/projects/${args.projectId}/security-headers`, {
       method: 'PATCH',
       body: JSON.stringify({ headers: args.headers })

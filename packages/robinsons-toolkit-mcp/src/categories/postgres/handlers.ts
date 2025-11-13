@@ -112,48 +112,48 @@ export async function handlePostgresVectorSearch(args: any) {
  * Get PostgreSQL database information
  * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_postgres_info_postgres_info_get
  */
-export const fastapipostgresinfo = handlePostgresInfo;
+export const fastapiPostgresInfo = handlePostgresInfo;
 
 /**
  * List all schemas in PostgreSQL database
  * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_postgres_schemas_postgres_schemas_get
  */
-export const fastapipostgresschemas = handlePostgresSchemas;
+export const fastapiPostgresSchemas = handlePostgresSchemas;
 
 /**
  * List all tables in PostgreSQL database
  * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_postgres_tables_postgres_tables_get
  */
-export const fastapipostgrestables = handlePostgresTables;
+export const fastapiPostgresTables = handlePostgresTables;
 
 /**
  * Get column information for a specific table
  * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_table_columns_postgres_tables__table_name__columns_get
  */
-export const fastapipostgrestablecolumns = handlePostgresTableColumns;
+export const fastapiPostgresTableColumns = handlePostgresTableColumns;
 
 /**
  * Get index information for a specific table
  * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/get_table_indexes_postgres_tables__table_name__indexes_get
  */
-export const fastapipostgrestableindexes = handlePostgresTableIndexes;
+export const fastapiPostgresTableIndexes = handlePostgresTableIndexes;
 
 /**
  * Execute read-only SQL query on PostgreSQL
  * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/query_postgres_query_get
  */
-export const fastapipostgresquery = handlePostgresQuery;
+export const fastapiPostgresQuery = handlePostgresQuery;
 
 /**
  * Execute write SQL query on PostgreSQL (INSERT, UPDATE, DELETE)
  * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/execute_postgres_execute_post
  */
-export const fastapipostgresexecute = handlePostgresExecute;
+export const fastapiPostgresExecute = handlePostgresExecute;
 
 /**
  * Perform vector similarity search using pgvector
  * @see https://api.srv823383.hstgr.cloud/docs#/PostgreSQL/vector_search_postgres_vector_search_get
  */
-export const fastapipostgresvectorsearch = handlePostgresVectorSearch;
+export const fastapiPostgresVectorSearch = handlePostgresVectorSearch;
 
 
