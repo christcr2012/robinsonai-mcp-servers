@@ -38,6 +38,13 @@
     "@types/pg": "^8.11.10",
     "typescript": "^5.7.3"
   },
-  "private": true
+  "files": [
+    "dist/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robinsonai/robinsonai-mcp-servers.git",
+    "directory": "packages/rad-crawler-core"
+  }
 }
 

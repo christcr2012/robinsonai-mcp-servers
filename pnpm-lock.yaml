@@ -306,9 +306,6 @@ importers:
       '@octokit/rest':
         specifier: ^21.0.2
         version: 21.1.1
-      '@robinson_ai_systems/rad-crawler-core':
-        specifier: workspace:*
-        version: link:../rad-crawler-core
       '@supabase/supabase-js':
         specifier: ^2.47.10
         version: 2.80.0
@@ -324,6 +321,9 @@ importers:
       dotenv:
         specifier: ^16.6.1
         version: 16.6.1
+      fast-glob:
+        specifier: ^3.3.3
+        version: 3.3.3
       googleapis:
         specifier: ^144.0.0
         version: 144.0.0
@@ -345,6 +345,9 @@ importers:
       resend:
         specifier: ^4.0.1
         version: 4.8.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      simple-git:
+        specifier: ^3.27.0
+        version: 3.30.0
       stripe:
         specifier: ^17.5.0
         version: 17.7.0

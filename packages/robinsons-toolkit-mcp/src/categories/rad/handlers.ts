@@ -4,7 +4,7 @@
  */
 
 import { Pool } from 'pg';
-import { RadCrawlerCore } from '@robinson_ai_systems/rad-crawler-core';
+import { RadCrawlerCore } from '../../rad-crawler/index.js';
 
 const DEFAULT_RAD_DATABASE_URL = 'postgresql://neondb_owner:npg_dMv0ArX1TGYP@ep-broad-recipe-ae1wjh66.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
 
