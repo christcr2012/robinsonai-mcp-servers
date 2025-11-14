@@ -74,8 +74,6 @@
     "unified": "^11.0.5"
   },
   "devDependencies": {
-    "@robinson_ai_systems/robinsons-context-engine": "workspace:*",
-    "@robinson_ai_systems/shared-utils": "workspace:*",
     "@types/node": "^22.18.13",
     "rimraf": "^6.0.0",
     "typescript": "^5.7.3",
