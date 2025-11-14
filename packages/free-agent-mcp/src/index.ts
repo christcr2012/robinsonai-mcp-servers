@@ -2431,12 +2431,26 @@ Generate the modified section now:`;
 
       console.log('[runAgentTaskV2] Using shared Agent Core...');
 
+      // Initialize ThinkingClient for web search
+      let thinkingClient: any;
+      try {
+        const { getSharedThinkingClient } = await import('@robinson_ai_systems/shared-llm');
+        thinkingClient = getSharedThinkingClient();
+        await thinkingClient.connect();
+        console.log('[runAgentTaskV2] ThinkingClient connected for web search');
+      } catch (error) {
+        console.warn('[runAgentTaskV2] Failed to connect ThinkingClient:', error);
+      }
+
       const result = await runAgentTask({
         repo: repoRoot,
         task,
         kind,
         tier: 'free',
         quality,
+        clients: {
+          web: thinkingClient,
+        },
       });
 
       // Return comprehensive result with proper error surfacing

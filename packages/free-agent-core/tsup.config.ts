@@ -12,7 +12,14 @@ export default defineConfig({
     "generation/ops-generator-wrapper": "src/generation/ops-generator-wrapper.ts",
   },
   format: ["esm"],
-  dts: true,
+  dts: {
+    resolve: true,
+    // Skip external modules that are optional (injected by MCP server)
+    compilerOptions: {
+      skipLibCheck: true,
+    },
+  },
+  external: ["@robinson_ai_systems/shared-llm"], // Optional dependency
   sourcemap: true,
   clean: true,
   shims: true,

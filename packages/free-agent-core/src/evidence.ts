@@ -416,7 +416,7 @@ async function gatherAgentHandbook(): Promise<{
     }
 
     // Retrieve Agent Handbook from knowledge artifacts
-    const handbook = await cortex.knowledgeArtifacts.getAgentHandbook();
+    const handbook = await cortex.artifacts.getAgentHandbook();
 
     if (!handbook) {
       console.log('Agent Handbook not found in Cortex');
@@ -427,7 +427,7 @@ async function gatherAgentHandbook(): Promise<{
       id: handbook.id,
       content: handbook.content,
       version: handbook.version,
-      lastUpdated: handbook.createdAt,
+      lastUpdated: handbook.createdAt?.toISOString() || new Date().toISOString(),
     };
   } catch (error) {
     console.warn('Failed to retrieve Agent Handbook:', error);

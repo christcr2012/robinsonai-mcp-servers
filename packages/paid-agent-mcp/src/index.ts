@@ -4153,12 +4153,26 @@ async function handleRunAgentTaskV2(args: any) {
 
     console.log('[handleRunAgentTaskV2] Using shared Agent Core (paid tier)...');
 
+    // Initialize ThinkingClient for web search
+    let thinkingClient: any;
+    try {
+      const { getSharedThinkingClient } = await import('@robinson_ai_systems/shared-llm');
+      thinkingClient = getSharedThinkingClient();
+      await thinkingClient.connect();
+      console.log('[handleRunAgentTaskV2] ThinkingClient connected for web search');
+    } catch (error) {
+      console.warn('[handleRunAgentTaskV2] Failed to connect ThinkingClient:', error);
+    }
+
     const result = await runAgentTask({
       repo: repoRoot,
       task,
       kind,
       tier: 'paid',
       quality,
+      clients: {
+        web: thinkingClient,
+      },
     });
 
     // Return comprehensive result with proper error surfacing

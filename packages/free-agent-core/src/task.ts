@@ -12,6 +12,17 @@ export interface AgentTaskConstraints {
   maxWebResults?: number;
 }
 
+/**
+ * MCP clients that can be injected by the MCP server
+ * These are optional and should be provided by the server that bundles the core
+ */
+export interface AgentTaskClients {
+  web?: any;           // ThinkingClient for web search
+  contextEngine?: any; // Context Engine client
+  toolkit?: any;       // Robinson's Toolkit client
+  rad?: any;           // RAD client
+}
+
 export interface AgentTask {
   repo: string;
   task: string;
@@ -19,6 +30,7 @@ export interface AgentTask {
   tier?: AgentTier;
   quality?: 'fast' | 'balanced' | 'best' | 'auto';
   constraints?: AgentTaskConstraints;
+  clients?: AgentTaskClients; // Optional MCP clients injected by server
 }
 
 /**
