@@ -4809,5 +4809,80 @@ function synthesizeOrientationSummary(data: any): string {
   return lines.join('\n');
 }
 
-main().catch(console.error);
+/**
+ * CLI entry point - supports both MCP server and direct CLI usage
+ */
+(async () => {
+  const [,, cmd, ...rest] = process.argv;
+
+  if (cmd === "serve" || !cmd) {
+    // Start MCP server over stdio (default behavior)
+    await main();
+  } else if (cmd === "run") {
+    // One-shot codegen/patch for any repo (like Free Agent)
+    const args: any = {};
+    for (let i = 0; i < rest.length; i += 2) {
+      const key = rest[i].replace(/^--/, '');
+      const value = rest[i + 1];
+      args[key] = value;
+    }
+
+    if (!args.repo || !args.task) {
+      console.error('Usage: paid-agent-mcp run --repo <path> --task "..." [--kind feature|bugfix|refactor]');
+      process.exit(1);
+    }
+
+    // Call the handler directly
+    const result = await handleRunPaidAgentTask({
+      repo_path: args.repo,
+      task: args.task,
+      task_kind: args.kind || 'feature',
+      tier: 'paid',
+      quality: 'best',
+      allow_paid: true,
+      run_tests: true,
+      run_lint: true
+    });
+
+    if (result.content && result.content[0] && result.content[0].text) {
+      const data = JSON.parse(result.content[0].text);
+      if (data.status === 'success') {
+        console.log('✅ Task completed successfully!');
+        process.exit(0);
+      } else {
+        console.error('❌ Task failed:', data.error?.message || 'Unknown error');
+        process.exit(1);
+      }
+    } else {
+      console.error('❌ Unexpected response format');
+      process.exit(1);
+    }
+  } else {
+    console.log(`Paid Agent MCP - Premium code generation with PAID models
+
+Usage:
+  paid-agent-mcp serve
+    Run as MCP server (stdio mode for Augment/VS Code)
+
+  paid-agent-mcp run --repo <path> --task "..." [options]
+    One-shot code generation for any repository
+
+Options for 'run':
+  --repo <path>          Target repository path (required)
+  --task <description>   What to build/fix (required)
+  --kind <type>          Task type: feature|bugfix|refactor (default: feature)
+
+Examples:
+  # Run as MCP server
+  npx paid-agent-mcp serve
+
+  # One-shot code generation
+  npx paid-agent-mcp run \\
+    --repo /path/to/repo \\
+    --task "Add handler for github_list_artifacts" \\
+    --kind feature
+`);
+    process.exit(cmd ? 1 : 0);
+  }
+})().catch(console.error);
 

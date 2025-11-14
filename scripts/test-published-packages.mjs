@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Run ALL 6 Phase 8 scenarios (3 scenarios × 2 agents)
- * Tests both Free Agent and Paid Agent with all 3 task types
+ * Test PUBLISHED packages from npm (not workspace code)
+ * This is what actually matters - can users use the published packages?
  */
 
 import { fileURLToPath } from 'url';
@@ -41,41 +41,29 @@ function resetRepo() {
     cwd: testRepo,
     stdio: 'pipe'
   });
-
+  
   const clean = spawnSync('git', ['clean', '-fd'], {
     cwd: testRepo,
     stdio: 'pipe'
   });
-
+  
   if (reset.status !== 0 || clean.status !== 0) {
     console.error('❌ Failed to reset test repo');
     process.exit(1);
   }
-
-  // Create .free-agent/config.json for both agents
-  const configDir = join(testRepo, '.free-agent');
-  mkdirSync(configDir, { recursive: true });
-
-  const config = {
-    name: 'agent-playground',
-    spec: {
-      generatorModule: '@robinson_ai_systems/free-agent-mcp/generators/ops'
-    }
-  };
-
-  writeFileSync(join(configDir, 'config.json'), JSON.stringify(config, null, 2));
-
+  
   console.log('✅ Test repo reset\n');
 }
 
 function runFreeAgent(scenario, scenarioNum) {
   console.log('='.repeat(80));
-  console.log(`FREE AGENT - ${scenario.name}`);
+  console.log(`FREE AGENT (PUBLISHED) - ${scenario.name}`);
   console.log('='.repeat(80));
   console.log();
   
-  const result = spawnSync('node', [
-    join(rootDir, 'packages', 'free-agent-mcp', 'dist', 'cli.js'),
+  const result = spawnSync('npx', [
+    '-y',
+    '@robinson_ai_systems/free-agent-mcp@0.14.3',
     'run',
     '--repo', testRepo,
     '--task', scenario.task,
@@ -92,7 +80,7 @@ function runFreeAgent(scenario, scenarioNum) {
     }
   });
   
-  const logFile = join(testRepo, `free-agent-s${scenarioNum}-retest.log`);
+  const logFile = join(testRepo, `free-agent-published-s${scenarioNum}.log`);
   writeFileSync(logFile, result.stdout + '\n\n' + result.stderr);
   
   console.log(result.stdout);
@@ -105,7 +93,7 @@ function runFreeAgent(scenario, scenarioNum) {
   console.log();
   
   return {
-    agent: 'Free Agent',
+    agent: 'Free Agent (Published)',
     scenario: scenario.name,
     success,
     exitCode: result.status,
@@ -115,12 +103,13 @@ function runFreeAgent(scenario, scenarioNum) {
 
 function runPaidAgent(scenario, scenarioNum) {
   console.log('='.repeat(80));
-  console.log(`PAID AGENT - ${scenario.name}`);
+  console.log(`PAID AGENT (PUBLISHED) - ${scenario.name}`);
   console.log('='.repeat(80));
   console.log();
   
-  const result = spawnSync('node', [
-    join(rootDir, 'packages', 'paid-agent-mcp', 'dist', 'index.js'),
+  const result = spawnSync('npx', [
+    '-y',
+    '@robinson_ai_systems/paid-agent-mcp@0.12.6',
     'run',
     '--repo', testRepo,
     '--task', scenario.task,
@@ -133,12 +122,11 @@ function runPaidAgent(scenario, scenarioNum) {
       ...process.env,
       OLLAMA_BASE_URL: 'http://localhost:11434',
       FREE_AGENT_QUALITY: 'best',
-      FREE_AGENT_TIER: 'paid',
-      FREE_AGENT_GENERATOR: '@robinson_ai_systems/paid-agent-mcp/generators/ops'
+      FREE_AGENT_TIER: 'paid'
     }
   });
   
-  const logFile = join(testRepo, `paid-agent-s${scenarioNum}-retest.log`);
+  const logFile = join(testRepo, `paid-agent-published-s${scenarioNum}.log`);
   writeFileSync(logFile, result.stdout + '\n\n' + result.stderr);
   
   console.log(result.stdout);
@@ -151,7 +139,7 @@ function runPaidAgent(scenario, scenarioNum) {
   console.log();
   
   return {
-    agent: 'Paid Agent',
+    agent: 'Paid Agent (Published)',
     scenario: scenario.name,
     success,
     exitCode: result.status,
@@ -159,8 +147,9 @@ function runPaidAgent(scenario, scenarioNum) {
   };
 }
 
-console.log('🧪 Phase 8 Complete Test Suite - ALL 6 Scenarios\n');
-console.log('Testing: 3 scenarios × 2 agents = 6 total tests\n');
+console.log('🧪 Testing PUBLISHED Packages from npm\n');
+console.log('Free Agent: @robinson_ai_systems/free-agent-mcp@0.14.3');
+console.log('Paid Agent: @robinson_ai_systems/paid-agent-mcp@0.12.6\n');
 
 for (let i = 0; i < scenarios.length; i++) {
   const scenario = scenarios[i];
@@ -177,12 +166,12 @@ for (let i = 0; i < scenarios.length; i++) {
 
 // Print summary
 console.log('='.repeat(80));
-console.log('FINAL SUMMARY');
+console.log('FINAL SUMMARY - PUBLISHED PACKAGES');
 console.log('='.repeat(80));
 console.log();
 
-const freeResults = results.filter(r => r.agent === 'Free Agent');
-const paidResults = results.filter(r => r.agent === 'Paid Agent');
+const freeResults = results.filter(r => r.agent.includes('Free'));
+const paidResults = results.filter(r => r.agent.includes('Paid'));
 
 console.log(`Free Agent: ${freeResults.filter(r => r.success).length}/3 passed`);
 freeResults.forEach(r => {
@@ -197,10 +186,4 @@ paidResults.forEach(r => {
 
 console.log();
 console.log(`Total: ${results.filter(r => r.success).length}/6 passed`);
-console.log();
-
-// Save results to JSON
-const resultsFile = join(rootDir, 'results', 'phase9-complete-test-results.json');
-writeFileSync(resultsFile, JSON.stringify(results, null, 2));
-console.log(`📊 Results saved to: ${resultsFile}`);
 

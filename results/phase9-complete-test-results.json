@@ -9,8 +9,8 @@
   {
     "agent": "Paid Agent",
     "scenario": "Scenario 1: Feature - Add Subtract Command",
-    "success": true,
-    "exitCode": 0,
+    "success": false,
+    "exitCode": 1,
     "logFile": "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-repos\\agent-playground\\paid-agent-s1-retest.log"
   },
   {
@@ -23,8 +23,8 @@
   {
     "agent": "Paid Agent",
     "scenario": "Scenario 2: Refactor - Extract Command Registration",
-    "success": true,
-    "exitCode": 0,
+    "success": false,
+    "exitCode": 1,
     "logFile": "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-repos\\agent-playground\\paid-agent-s2-retest.log"
   },
   {
@@ -37,8 +37,8 @@
   {
     "agent": "Paid Agent",
     "scenario": "Scenario 3: Bugfix - Fix Calculator.add()",
-    "success": true,
-    "exitCode": 0,
+    "success": false,
+    "exitCode": 1,
     "logFile": "C:\\Users\\chris\\Git Local\\robinsonai-mcp-servers\\test-repos\\agent-playground\\paid-agent-s3-retest.log"
   }
 ]
