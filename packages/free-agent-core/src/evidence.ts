@@ -1,7 +1,9 @@
 /**
  * Evidence Gathering for Agent Core
- * Integrates Context Engine, Robinson's Toolkit, RAD, and Web Search
+ * Integrates Context Engine, Robinson's Toolkit, RAD, Web Search, and Evidence Cache
  */
+
+import { getCortexClient } from './cortex/index.js';
 
 export interface EvidenceBundle {
   repoInsights?: {
@@ -32,6 +34,9 @@ export interface EvidenceOptions {
   allowWebEvidence?: boolean;
   maxContextSnippets?: number;
   maxWebResults?: number;
+  useCache?: boolean; // Whether to use evidence cache (default: true)
+  cacheTTLMinutes?: number; // Cache TTL in minutes (default: 60)
+  constraints?: Record<string, any>; // Additional constraints for cache key
 }
 
 /**
@@ -52,6 +57,26 @@ export async function gatherEvidence(
     web?: any;
   }
 ): Promise<EvidenceBundle> {
+  const {
+    useCache = true,
+    cacheTTLMinutes = 60,
+    constraints,
+  } = options;
+
+  // Check evidence cache first
+  const cortex = getCortexClient();
+  if (useCache && cortex.isEnabled()) {
+    try {
+      const cached = await cortex.evidenceCache.get(task, repoPath, constraints);
+      if (cached) {
+        console.log('✅ Evidence cache hit!');
+        return cached;
+      }
+    } catch (error) {
+      console.warn('Evidence cache check failed:', error);
+    }
+  }
+
   const bundle: EvidenceBundle = {};
 
   // 1. Gather repo insights from Robinson's Toolkit
@@ -95,6 +120,16 @@ export async function gatherEvidence(
       );
     } catch (error) {
       console.warn('Failed to gather web snippets:', error);
+    }
+  }
+
+  // Cache the evidence bundle
+  if (useCache && cortex.isEnabled()) {
+    try {
+      await cortex.evidenceCache.set(task, repoPath, bundle, cacheTTLMinutes, constraints);
+      console.log('✅ Evidence cached for future use');
+    } catch (error) {
+      console.warn('Failed to cache evidence:', error);
     }
   }
 

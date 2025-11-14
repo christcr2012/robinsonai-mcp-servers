@@ -1,9 +1,11 @@
 /**
  * Thinking Tools Integration for Agent Core
  * Implements standard planning chain: Blue Team → Red Team → Decision Matrix
+ * Integrates with Agent Cortex for playbook-driven thinking
  */
 
 import type { EvidenceBundle } from './evidence.js';
+import type { CortexContext } from './cortex/index.js';
 
 export interface ThinkingStep {
   framework: string;
@@ -38,12 +40,14 @@ export interface PlanningResult {
  * @param context - Additional context (can include evidence summary)
  * @param thinkingClient - Thinking Tools MCP client
  * @param evidence - Optional evidence bundle to ground the planning
+ * @param cortexContext - Optional Cortex context with playbooks, workflows, patterns
  */
 export async function runStandardPlanningChain(
   task: string,
   context?: string,
   thinkingClient?: any,
-  evidence?: EvidenceBundle
+  evidence?: EvidenceBundle,
+  cortexContext?: CortexContext
 ): Promise<PlanningResult> {
   if (!thinkingClient) {
     // If no thinking client available, return a basic plan
@@ -66,7 +70,20 @@ export async function runStandardPlanningChain(
     enrichedContext += '\n\n' + formatEvidenceForContext(evidence);
   }
 
+  // Add Cortex context (playbooks, workflows, patterns, capabilities)
+  if (cortexContext) {
+    enrichedContext += '\n\n' + formatCortexForContext(cortexContext);
+  }
+
   const artifacts: string[] = [];
+
+  // Check if we have a matching playbook that overrides the standard chain
+  if (cortexContext?.playbooks && cortexContext.playbooks.length > 0) {
+    const playbook = cortexContext.playbooks[0]; // Use highest priority playbook
+    console.log(`[Thinking] Using playbook: ${playbook.name}`);
+    // TODO: Execute playbook tool sequence instead of standard chain
+    // For now, we'll continue with standard chain but log the playbook
+  }
 
   // Step 1: Blue Team - Generate approaches
   const blueTeamSteps: ThinkingStep[] = [];
@@ -202,6 +219,50 @@ function extractApproaches(steps: ThinkingStep[]): string[] {
 function extractCritiques(steps: ThinkingStep[]): string[] {
   // In a real implementation, this would parse the thinking tool output
   return steps.map((_, i) => `Critique ${i + 1}: Potential issues identified`);
+}
+
+/**
+ * Format Cortex context for inclusion in thinking chain
+ */
+function formatCortexForContext(cortex: CortexContext): string {
+  const parts: string[] = ['## Agent Cortex Context'];
+
+  if (cortex.playbooks.length > 0) {
+    parts.push('\n### Available Playbooks:');
+    cortex.playbooks.forEach(p => {
+      parts.push(`- ${p.name}: ${p.description} (success rate: ${(p.successRate * 100).toFixed(1)}%)`);
+    });
+  }
+
+  if (cortex.workflows.length > 0) {
+    parts.push('\n### Available Workflows:');
+    cortex.workflows.slice(0, 5).forEach(w => {
+      parts.push(`- ${w.name} (${w.category}): ${w.description}`);
+    });
+  }
+
+  if (cortex.patterns.length > 0) {
+    parts.push('\n### Available Code Patterns:');
+    cortex.patterns.slice(0, 5).forEach(p => {
+      parts.push(`- ${p.name} (${p.language}): ${p.description}`);
+    });
+  }
+
+  if (cortex.capabilities.length > 0) {
+    parts.push('\n### Agent Capabilities:');
+    cortex.capabilities.slice(0, 5).forEach(c => {
+      parts.push(`- ${c.name} (${c.complexity}): ${c.description}`);
+    });
+  }
+
+  if (cortex.relatedKnowledge.length > 0) {
+    parts.push('\n### Related Knowledge from RAD:');
+    cortex.relatedKnowledge.forEach(k => {
+      parts.push(`- ${JSON.stringify(k).substring(0, 100)}...`);
+    });
+  }
+
+  return parts.join('\n');
 }
 
 /**

@@ -6,6 +6,8 @@ import { learnPatternContract } from "./patterns/learn.js";
 import { pickExamples } from "./patterns/examples.js";
 import type { AgentTask, AgentRunResult } from './task.js';
 import { getRadClient } from './rad-client.js';
+import { getCortexClient } from './cortex/index.js';
+import { gatherEvidence } from './evidence.js';
 
 export async function runFreeAgent(opts: {
   repo: string;
@@ -53,6 +55,31 @@ export async function runFreeAgent(opts: {
 export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
   let success = true;
   let errorMessage: string | undefined;
+  let taskId: string | undefined;
+  let planningArtifacts: any[] = [];
+  let executionArtifacts: any[] = [];
+
+  // Gather evidence (with caching)
+  const evidence = await gatherEvidence(task.task, task.repo, {
+    useCache: true,
+    cacheTTLMinutes: 60,
+  });
+
+  // Get Cortex context (playbooks, workflows, patterns, capabilities, RAD knowledge)
+  const cortex = getCortexClient();
+  let cortexContext;
+  if (cortex.isEnabled()) {
+    try {
+      cortexContext = await cortex.getCortexContext({
+        task: task.task,
+        evidence,
+        includeRelatedKnowledge: true,
+      });
+      console.log(`[Cortex] Found ${cortexContext.playbooks.length} playbooks, ${cortexContext.workflows.length} workflows`);
+    } catch (error) {
+      console.warn('Failed to get Cortex context:', error);
+    }
+  }
 
   try {
     await runFreeAgent({
@@ -71,7 +98,7 @@ export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
   const radClient = getRadClient();
   if (radClient.isEnabled()) {
     try {
-      await radClient.recordEvent(
+      const eventResult = await radClient.recordEvent(
         {
           repoId: task.repo,
           taskDescription: task.task,
@@ -83,8 +110,28 @@ export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
         [], // TODO: Extract decisions from planning phase
         [] // TODO: Extract lessons from execution
       );
+      // Get task ID from RAD for Cortex artifact recording
+      if (eventResult?.taskId) {
+        taskId = eventResult.taskId;
+      }
     } catch (radError) {
       console.warn('Failed to record RAD event:', radError);
+    }
+  }
+
+  // Record outcome in Cortex (saves artifacts)
+  if (cortex.isEnabled() && taskId) {
+    try {
+      await cortex.recordOutcome({
+        taskId,
+        success,
+        planningArtifacts,
+        executionArtifacts,
+        errorMessage,
+      });
+      console.log('[Cortex] Outcome recorded');
+    } catch (cortexError) {
+      console.warn('Failed to record Cortex outcome:', cortexError);
     }
   }
 
