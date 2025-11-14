@@ -206,6 +206,9 @@ importers:
       openai:
         specifier: ^4.77.3
         version: 4.104.0(ws@8.18.3)(zod@3.25.76)
+      playwright:
+        specifier: ^1.56.1
+        version: 1.56.1
     devDependencies:
       '@robinson_ai_systems/shared-llm':
         specifier: workspace:*
@@ -323,9 +326,6 @@ importers:
       openai:
         specifier: ^4.77.3
         version: 4.104.0(ws@8.18.3)(zod@3.25.76)
-      playwright:
-        specifier: ^1.56.1
-        version: 1.56.1
     devDependencies:
       '@types/node':
         specifier: ^22.10.2

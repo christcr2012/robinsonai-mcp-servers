@@ -26,7 +26,10 @@ interface PricingCache {
  */
 export async function scrapeAnthropicPricing(): Promise<PricingCache | null> {
   try {
+    console.log('[PRICING-SCRAPER] Importing Playwright...');
     const { chromium } = await import('playwright');
+
+    console.log('[PRICING-SCRAPER] Launching browser...');
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
@@ -34,18 +37,27 @@ export async function scrapeAnthropicPricing(): Promise<PricingCache | null> {
 
     try {
       // Navigate to pricing page with API section
+      console.log('[PRICING-SCRAPER] Navigating to pricing page...');
       await page.goto('https://claude.com/pricing#api', {
         waitUntil: 'networkidle', // Wait for all network requests
         timeout: 15000,
       });
 
+      console.log('[PRICING-SCRAPER] Waiting for content to render...');
       // Wait for content to render (avoid domcontentloaded gotcha)
       await page.waitForTimeout(2000);
+
+      // Debug: Save page content
+      const html = await page.content();
+      console.log(`[PRICING-SCRAPER] Page HTML length: ${html.length}`);
+      console.log(`[PRICING-SCRAPER] First 500 chars: ${html.substring(0, 500)}`);
 
       // Parse DOM to extract pricing (text-driven, not brittle CSS selectors)
       const models = await page.evaluate(() => {
         const results: any[] = [];
         const headings = Array.from(document.querySelectorAll('h3'));
+
+        console.log(`[DEBUG] Found ${headings.length} h3 headings`);
 
         for (const h of headings) {
           const modelName = h.textContent?.trim() ?? '';
@@ -59,10 +71,17 @@ export async function scrapeAnthropicPricing(): Promise<PricingCache | null> {
           }
 
           // Only process if it has Input and Output (API model card)
-          if (!/Input/i.test(textBlock) || !/Output/i.test(textBlock)) continue;
+          if (!/Input/i.test(textBlock) || !/Output/i.test(textBlock)) {
+            console.log(`[DEBUG] Skipping "${modelName}" - no Input/Output`);
+            continue;
+          }
+
+          console.log(`[DEBUG] Processing "${modelName}"`);
 
           const inputMatch = textBlock.match(/Input\s+([\$0-9.,]+\s*\/\s*MTok)/i);
           const outputMatch = textBlock.match(/Output\s+([\$0-9.,]+\s*\/\s*MTok)/i);
+
+          console.log(`[DEBUG] Input match: ${inputMatch?.[1]}, Output match: ${outputMatch?.[1]}`);
 
           results.push({
             model: modelName,
@@ -71,10 +90,13 @@ export async function scrapeAnthropicPricing(): Promise<PricingCache | null> {
           });
         }
 
+        console.log(`[DEBUG] Found ${results.length} models with pricing`);
         return results;
       });
 
       await browser.close();
+
+      console.log(`[PRICING-SCRAPER] Found ${models.length} models`);
 
       // Convert to PricingCache format
       const pricing: PricingCache = {};
