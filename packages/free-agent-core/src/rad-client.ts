@@ -57,6 +57,13 @@ export interface RelatedKnowledge {
 }
 
 /**
+ * Default shared RAD database (Neon)
+ * This is used by all published MCP packages for system-wide agent memory
+ * Users can override with RAD_DATABASE_URL environment variable
+ */
+const DEFAULT_RAD_DATABASE_URL = 'postgresql://neondb_owner:npg_dMv0ArX1TGYP@ep-broad-recipe-ae1wjh66.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
+
+/**
  * RAD Client for agent memory operations
  */
 export class RadClient {
@@ -64,11 +71,15 @@ export class RadClient {
   private enabled: boolean;
 
   constructor() {
-    this.enabled = process.env.RAD_ENABLED === 'true';
-    
-    if (this.enabled && process.env.RAD_DATABASE_URL) {
+    // RAD is enabled by default, can be disabled with RAD_ENABLED=false
+    this.enabled = process.env.RAD_ENABLED !== 'false';
+
+    if (this.enabled) {
+      // Use custom database URL if provided, otherwise use shared default
+      const databaseUrl = process.env.RAD_DATABASE_URL || DEFAULT_RAD_DATABASE_URL;
+
       this.pool = new Pool({
-        connectionString: process.env.RAD_DATABASE_URL,
+        connectionString: databaseUrl,
       });
     }
   }
