@@ -37,3 +37,6 @@ export {
 } from './metrics/provider-metrics.js';
 export { OpenAIMetricsAdapter } from './metrics/openai-adapter.js';
 export { OllamaMetricsAdapter } from './metrics/ollama-adapter.js';
+export { AnthropicMetricsAdapter } from './metrics/anthropic-adapter.js';
+export { MoonshotMetricsAdapter } from './metrics/moonshot-adapter.js';
+export { VoyageMetricsAdapter } from './metrics/voyage-adapter.js';

@@ -47,6 +47,9 @@ import {
   type LlmRouter,
   OpenAIMetricsAdapter,
   OllamaMetricsAdapter,
+  AnthropicMetricsAdapter,
+  MoonshotMetricsAdapter,
+  VoyageMetricsAdapter,
   registerMetricsAdapter,
   getMetricsAdapter,
   getAllMetricsAdapters,
@@ -301,6 +304,24 @@ function initializeMetricsAdapters() {
     (period: string) => getTokenTracker().getStats(period)
   );
   registerMetricsAdapter(ollamaAdapter);
+
+  // Anthropic adapter
+  const anthropicAdapter = new AnthropicMetricsAdapter(
+    (period: string) => getTokenTracker().getStats(period)
+  );
+  registerMetricsAdapter(anthropicAdapter);
+
+  // Moonshot adapter (cheapest paid option!)
+  const moonshotAdapter = new MoonshotMetricsAdapter(
+    (period: string) => getTokenTracker().getStats(period)
+  );
+  registerMetricsAdapter(moonshotAdapter);
+
+  // Voyage adapter
+  const voyageAdapter = new VoyageMetricsAdapter(
+    (period: string) => getTokenTracker().getStats(period)
+  );
+  registerMetricsAdapter(voyageAdapter);
 
   console.error('[PAID-AGENT] Initialized metrics adapters:', getAllMetricsAdapters().map(a => a.provider).join(', '));
 }
@@ -1224,7 +1245,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             provider: {
               type: 'string',
-              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'auto'],
+              enum: ['openai', 'anthropic', 'moonshot', 'voyage', 'ollama', 'auto'],
               description: 'Provider to use (default: auto - uses current router config)',
             },
             model: {
@@ -1257,7 +1278,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             provider: {
               type: 'string',
-              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'all'],
+              enum: ['openai', 'anthropic', 'moonshot', 'voyage', 'ollama', 'all'],
               description: 'Filter by provider (default: all)',
             },
           },
@@ -1272,7 +1293,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             provider: {
               type: 'string',
-              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'all'],
+              enum: ['openai', 'anthropic', 'moonshot', 'voyage', 'ollama', 'all'],
               description: 'Filter by provider (default: all)',
             },
           },
@@ -1287,7 +1308,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             provider: {
               type: 'string',
-              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'all'],
+              enum: ['openai', 'anthropic', 'moonshot', 'voyage', 'ollama', 'all'],
               description: 'Provider to refresh (default: all)',
             },
           },
@@ -1307,7 +1328,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             provider: {
               type: 'string',
-              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'all'],
+              enum: ['openai', 'anthropic', 'moonshot', 'voyage', 'ollama', 'all'],
               description: 'Filter by provider (default: all)',
             },
           },
