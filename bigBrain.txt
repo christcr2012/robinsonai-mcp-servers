@@ -1,0 +1,359 @@
+*Phase AC.1 – Schema Migration
+
+Task: Extend RAD Postgres schema with Agent Cortex tables.
+
+Add the following tables to the RAD DB:
+
+thinking_playbooks
+
+tool_workflows
+
+code_patterns
+
+capability_registry
+
+knowledge_artifacts
+
+evidence_cache
+
+Use the exact columns/types specified above; keep existing RAD tables unchanged.
+
+Add corresponding migration SQL files (depending on your migration setup).
+
+*Phase AC.2 – Cortex module inside free-agent-core
+
+Task: Implement Agent Cortex repo layer in free-agent-core.
+
+Create src/cortex/ folder in free-agent-core.
+
+Implement repos:
+
+playbooks-repo.ts
+
+workflows-repo.ts
+
+patterns-repo.ts
+
+capabilities-repo.ts
+
+artifacts-repo.ts
+
+evidence-cache.ts
+
+Implement cortex-client.ts exporting AgentCortexClient and getCortexClient():
+
+getCortexContext(task, evidence):
+
+Uses repos to find playbooks, workflows, patterns, capabilities, artifacts, and combines them.
+
+Includes RAD RelatedKnowledge by calling existing RadClient.getRelatedKnowledge() as part of the context.
+
+recordOutcome(...):
+
+Delegates to RadClient.recordEvent(...) (already implemented).
+
+Persists selected planning/execution artifacts into knowledge_artifacts.
+
+Keep Cortex internal to free-agent-core (no new published package).
+
+*Phase AC.3 – Hook Cortex into Agent Core flows
+
+Task: Integrate Cortex with runAgentTask(), gatherEvidence(), and the Thinking Tools chain.
+
+In evidence.ts (free-agent-core):
+
+Before doing fresh work, check evidence_cache via EvidenceCacheRepo.
+
+After gathering a full EvidenceBundle, cache it with a key derived from:
+
+taskDescription, repo, and constraints.
+
+Make TTL configurable.
+
+In runner.ts (where runAgentTask() lives): 
+
+FUTURE_WORK_AND_NEXT_STEPS
+
+After calling gatherEvidence(), call cortex.getCortexContext(task, evidence).
+
+Pass CortexContext into:
+
+runStandardPlanningChain() (thinking.ts),
+
+workflow selection / execution,
+
+and code pipeline as additional context.
+
+In thinking.ts:
+
+Update runStandardPlanningChain() to:
+
+Accept CortexContext as an optional argument.
+
+Use any matching thinking_playbooks to choose:
+
+which tools to run,
+
+and in what order.
+
+Store key outputs (blue/red/decision artifacts) via artifacts-repo.saveThinkingArtifact().
+
+At the end of runAgentTask():
+
+After RAD recordEvent() call, call cortex.recordOutcome(...) with:
+
+success/failure,
+
+planningArtifacts (thinking chain outputs),
+
+executionArtifacts (workflow/executor summaries).
+
+*Phase AC.4 – Initial seeding (manual knowledge)
+
+Task: Provide your agents a “starter brain” by seeding Cortex tables.
+
+Add seed SQL or a seeding script to populate:
+
+thinking_playbooks:
+
+Playbooks for:
+
+hot bugfix,
+
+difficult refactor,
+
+new feature with unknown impacts,
+
+repo-wide audit.
+
+tool_workflows:
+
+Workflows that connect:
+
+GitHub + Neon + Vercel via Toolkit,
+
+RAD crawler + Context Engine indexing,
+
+Batch Anthropic analysis for large doc sets (Paid Agent).
+
+code_patterns:
+
+MCP handler templates,
+
+Toolkit category handlers (like Upstash/OpenAI you just fixed),
+
+RAD/Postgres client patterns,
+
+robust error-handling wrappers.
+
+capability_registry:
+
+Capabilities like:
+
+provision_production_database,
+
+deploy_web_service,
+
+index_knowledge_base,
+
+run_repo_wide_code_review.
+
+Document these seeds in a new file:
+
+docs/AGENT_CORTEX_SEEDING.md
+
+Explain how to extend them over time.
+
+*Phase AC.5 – Semantic search & advanced learning 
+
+Task: Upgrade Cortex to use embeddings and advanced pattern detection.
+
+Enable pgvector (or equivalent) for knowledge_artifacts.embedding.
+
+Extend artifacts-repo:
+
+Compute embeddings for new artifacts using your preferred model (OpenAI, Anthropic, Voyage, Moonshot, etc.).
+
+Implement findSimilarToTask(task) using vector similarity.
+
+Use semantic search in:
+
+playbooks-repo
+
+workflows-repo
+
+patterns-repo
+
+to supplement rule-based matching.
+
+Add background jobs (offline) that:
+
+Scan RAD + Cortex tables.
+
+Detect frequent decision/lesson patterns.
+
+Suggest new:
+
+thinking_playbooks,
+
+tool_workflows,
+
+code_patterns.
+
+This directly implements “Semantic search”, “Pattern detection”, “Automated suggestions”, “Cross-repo learning” from your Future Work list — but now within a solid Cortex structure.
+
+
+
+***CRITICAL- Complete all AC phases BEFORE beginning the following Task Groups!!****
+
+
+
+📌 Task Group: RAD Crawler DB Extensions
+
+Goal: Extend existing RAD Postgres schema with crawler + document tables, without modifying current tasks/decisions/lessons/repo_metadata tables.
+
+Add SQL migrations to create:
+
+rad_sources
+
+rad_crawls
+
+rad_documents
+
+rad_chunks
+
+Use the exact schemas defined in section A1 above.
+
+Ensure all new tables live in the same database as the existing RAD tables and reuse the same connection mechanism (RadClient / RAD_DATABASE_URL).
+
+📌 Task Group: rad-crawler-core Package
+
+Goal: Implement an internal crawler engine that populates the new RAD tables.
+
+Create packages/rad-crawler-core (private package).
+
+Implement:
+
+RadCrawlerConfig, RunCrawlOptions, CrawlResult types.
+
+RadCrawlerCore interface with:
+
+runCrawl(options: RunCrawlOptions): Promise<CrawlResult>
+
+getCrawlStatus(crawlId: string): Promise<CrawlResult>
+
+Implement support for at least:
+
+source_type = 'git_repo':
+
+clone/update repo to a temp directory,
+
+walk files from configured entrypoints.
+
+source_type = 'filesystem':
+
+walk files from configured entrypoints.
+
+Implement pipeline stages:
+
+discovery → filtering → parsing/classification → chunking → persistence.
+
+Write to:
+
+rad_documents (upsert by (source_id, external_id) using content_hash),
+
+rad_chunks (replace chunks for updated documents).
+
+Update corresponding rad_crawls row with counts & status.
+
+Keep embedding support optional:
+
+Design rad_chunks.embedding as nullable; do not require embeddings in v1.
+
+Expose hooks so embedding can be added later (e.g. via Paid Agent tools).
+
+📌 Task Group: rad-crawler-cli Package
+
+Goal: Provide a CLI wrapper for manual use and debugging.
+
+Create packages/rad-crawler-cli (private).
+
+Implement commands that call rad-crawler-core:
+
+rad-crawler run --source <sourceId> [--overrides <json>]
+
+rad-crawler status --crawl <crawlId>
+
+Wire CLI to the same RAD database and config as rad-crawler-core.
+
+📌 Task Group: Robinson’s Toolkit – RAD Category
+
+Goal: Add a RAD category to robinsons-toolkit-mcp that can manage sources and crawls via rad-crawler-core.
+
+In packages/robinsons-toolkit-mcp/src/categories/:
+
+Add a rad/ folder with handlers.ts (and schema.ts if needed).
+
+Implement tools:
+
+rad_register_source
+
+Creates or updates a rad_sources row.
+
+rad_list_sources
+
+Lists active sources with ids and basic config.
+
+rad_trigger_crawl
+
+Calls RadCrawlerCore.runCrawl() for a given source_id (with optional overrides).
+
+rad_get_crawl_status
+
+Returns status and summary stats for a given crawl_id.
+
+rad_get_crawl_summary
+
+Aggregated stats by doc_type, language, last_crawled_at for a source.
+
+rad_preview_documents
+
+Returns a small sample of docs/chunks for a given source_id and filters.
+
+All tools should:
+
+Use the shared RAD Postgres connection mechanism (re-using or extending RadClient if appropriate).
+
+Return JSON responses compatible with MCP tool conventions already used in this repo.
+
+📌 Task Group: Agent Core – Evidence & Cortex Integration for RAD
+
+Goal: Make agents actually use the RAD Crawler index for context and planning.
+
+Add an internal rad-docs-client in free-agent-core:
+
+Functions to retrieve relevant docs/chunks from rad_documents + rad_chunks based on:
+
+repo_id, task description keywords, and/or a simple text search.
+
+In v1, a basic SQL ILIKE search is acceptable; embeddings can be added later.
+
+Update gatherEvidence():
+
+After existing sources (Context Engine, Toolkit, RAD memory, Web) are queried, call rad-docs-client and attach results to EvidenceBundle (e.g., bundle.radDocuments).
+
+Update Agent Cortex integration (from AC.2/AC.3):
+
+Allow getCortexContext() to optionally include RAD document summaries as part of the context it returns.
+
+In the Capability Registry seeding (AC.4):
+
+Add capabilities that use the new RAD Toolkit tools to:
+
+register a new repo as a RAD source,
+
+trigger a full crawl,
+
+refresh the index,
+
+run large-scale analysis on indexed docs (using Paid Agent + batch).

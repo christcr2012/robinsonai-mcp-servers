@@ -8,6 +8,21 @@ export { gatherEvidence } from './evidence.js';
 export type { EvidenceBundle, EvidenceOptions } from './evidence.js';
 export { getRadClient, RadClient } from './rad-client.js';
 export type { TaskRecord, DecisionRecord, LessonRecord, KnowledgeQuery, RelatedKnowledge } from './rad-client.js';
+export { getCortexClient, AgentCortexClient } from './cortex/index.js';
+export type {
+  ThinkingPlaybook,
+  ThinkingToolStep,
+  ToolWorkflow,
+  WorkflowStep as CortexWorkflowStep,
+  CodePattern,
+  PatternVariable,
+  Capability,
+  KnowledgeArtifact,
+  EvidenceCacheEntry,
+  CortexContext,
+  GetCortexContextOptions,
+  RecordOutcomeOptions
+} from './cortex/index.js';
 export { buildDependencyGraph, findReadySteps, validateWorkflow, estimateWorkflowCost, generateSimpleWorkflow } from './workflow.js';
 export type { Workflow, WorkflowStep, WorkflowResult, AgentAssignment } from './workflow.js';
 export { executeWorkflow, executeBatchOperation } from './executor.js';
