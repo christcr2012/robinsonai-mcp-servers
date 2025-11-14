@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/free-agent-mcp",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "Free Agent MCP - Portable, workspace-agnostic code generation using FREE models (Ollama)",
   "type": "commonjs",
   "main": "./dist/index.js",
