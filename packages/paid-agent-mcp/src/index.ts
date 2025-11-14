@@ -3916,10 +3916,10 @@ async function handleRunPaidAgentTask(args: any) {
     console.log(`[runPaidAgentTask] Prefer Local: ${preferLocal}, Allow Paid: ${allowPaid}, Max Cost: $${maxCostUsd}`);
     console.log(`[runPaidAgentTask] Risk Level: ${riskLevel}, Human Approval: ${requireHumanApproval}, Max Iterations: ${maxIterations}`);
 
-    // Import Free Agent Core's runFreeAgent function and path resolver
-    const { runFreeAgent: coreRunFreeAgent } = await import('@fa/core');
-    const { resolveRepoRoot } = await import('@fa/core/utils/paths.js');
-    const { loadAdapter } = await import('@fa/core/repo/adapter.js');
+    // Import from Paid Agent's own core (self-contained)
+    const { runFreeAgent: coreRunFreeAgent } = await import('./core/agent-core/index.js');
+    const { resolveRepoRoot } = await import('./core/agent-core/utils/paths.js');
+    const { loadAdapter } = await import('./core/agent-core/repo/adapter.js');
 
     // Resolve repo path (handles relative paths, env vars, etc.)
     const repoRoot = resolveRepoRoot(repoPath);
@@ -4143,8 +4143,8 @@ async function handleRunPaidAgentTask(args: any) {
  */
 async function handleRunAgentTaskV2(args: any) {
   try {
-    const { runAgentTask } = await import('@fa/core');
-    const { resolveRepoRoot } = await import('@fa/core/utils/paths.js');
+    const { runAgentTask } = await import('./core/agent-core/index.js');
+    const { resolveRepoRoot } = await import('./core/agent-core/utils/paths.js');
 
     const repoRoot = resolveRepoRoot(args.repo);
     const task = String(args.task || '');
@@ -4388,18 +4388,18 @@ async function main() {
 
 /**
  * Handle free_agent_run tool call
- * Uses Free Agent Core library for portable code generation
+ * Uses Paid Agent's own Agent Core (self-contained)
  */
 async function handleFreeAgentRun(args: any) {
   try {
     const task = String(args.task || '');
     const kind = (args.kind as any) || 'feature';
 
-    console.log('[handleFreeAgentRun] Using Free Agent Core with PCE and pluggable generator...');
+    console.log('[handleFreeAgentRun] Using Paid Agent Core with PCE and pluggable generator...');
 
-    // Import Free Agent Core's runFreeAgent function and path resolver
-    const { runFreeAgent: coreRunFreeAgent } = await import('@fa/core');
-    const { resolveRepoRoot } = await import('@fa/core/utils/paths.js');
+    // Import from Paid Agent's own core (self-contained, no cross-package dependencies)
+    const { runFreeAgent: coreRunFreeAgent } = await import('./core/agent-core/index.js');
+    const { resolveRepoRoot } = await import('./core/agent-core/utils/paths.js');
 
     // Resolve repo path (handles relative paths, env vars, etc.)
     const repoRoot = resolveRepoRoot(args.repo);
@@ -4461,7 +4461,7 @@ async function handleFreeAgentRun(args: any) {
  */
 async function handleFreeAgentSmoke(args: any) {
   try {
-    const { ensureCodegen } = await import('@fa/core/spec');
+    const { ensureCodegen } = await import('./core/agent-core/spec/codegen.js');
 
     const repo = args.repo || process.cwd();
     const specRegistry = process.env.FREE_AGENT_SPEC;
@@ -4536,7 +4536,7 @@ async function handleFreeAgentSmoke(args: any) {
  */
 async function handlePaidAgentSmokeTest(args: any) {
   try {
-    const { runAgentTask } = await import('@fa/core');
+    const { runAgentTask } = await import('./core/agent-core/index.js');
 
     console.log('[handlePaidAgentSmokeTest] Running health check...');
 
@@ -4631,7 +4631,7 @@ async function handlePaidAgentSmokeTest(args: any) {
  */
 async function handleAgentSelfOrient(args: { saveArtifact?: boolean }) {
   try {
-    const { getCortexClient } = await import('@fa/core');
+    const { getCortexClient } = await import('./core/agent-core/index.js');
     const { ToolkitClient } = await import('./shared/shared-llm/toolkit-client.js');
     const saveArtifact = args.saveArtifact !== false; // Default to true
 

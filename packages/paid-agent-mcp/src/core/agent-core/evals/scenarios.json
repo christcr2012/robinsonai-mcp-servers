@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Robinson's Toolkit: Add Upstash Redis handler",
+    "repo": ".",
+    "kind": "feature",
+    "task": "Add a new upstashRedisSet handler method to the UpstashRedisHandler class that sets a key-value pair in Redis using the upstashRedisFetch wrapper"
+  },
+  {
+    "name": "Robinson's Toolkit: Add Upstash Redis GET handler",
+    "repo": ".",
+    "kind": "feature",
+    "task": "Add a new upstashRedisGet handler method to the UpstashRedisHandler class that retrieves a value from Redis using the upstashRedisFetch wrapper"
+  },
+  {
+    "name": "Robinson's Toolkit: Add Upstash Redis DEL handler",
+    "repo": ".",
+    "kind": "feature",
+    "task": "Add a new upstashRedisDel handler method to the UpstashRedisHandler class that deletes a key from Redis using the upstashRedisFetch wrapper"
+  }
+]
+

@@ -15,9 +15,9 @@ export const paths_probe = {
   async handler(args: any) {
     const { repo, registryRel } = args;
     
-    // Import path utilities from free-agent-core
+    // Import path utilities from Paid Agent's own core
     const { resolveRepoRoot, resolveFromRepo, debugPaths } = await import(
-      '@fa/core/utils/paths.js'
+      '../core/agent-core/utils/paths.js'
     );
     
     const repoRoot = resolveRepoRoot(repo);

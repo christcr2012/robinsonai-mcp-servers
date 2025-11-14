@@ -16,7 +16,7 @@ export const generator_probe = {
   async handler(args: any) {
     try {
       const { loadGenerator } = await import(
-        '@fa/core/generation/loader.js'
+        '../core/agent-core/generation/loader.js'
       );
       
       const spec = args.generatorModule || process.env.FREE_AGENT_GENERATOR;
