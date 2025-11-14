@@ -1,0 +1,661 @@
+Below are fully written playbooks you can hand to Augment as “insert these into thinking_playbooks with scope = 'global'”. They all assume your Thinking Tools MCP has these tools:
+
+blue_team
+
+red_team
+
+decision_matrix
+
+If the actual tool names differ slightly, Augment can just rename them.
+
+I’ll give you 6 core playbooks:
+
+Debugging complex bugs
+
+Designing a SaaS feature (multi-tenant aware)
+
+Researching unknown tech (effective web research)
+
+Adding RAG to an app
+
+Designing a new agent
+
+Securing OAuth login
+
+You can literally copy-paste these into an Augment task.
+
+1. playbook_debug_complex_bug
+{
+  "name": "playbook_debug_complex_bug",
+  "description": "Systematic approach to debugging hard bugs (especially backend / full-stack issues) using reproduction, hypothesis testing, and risk-aware fixes.",
+  "trigger_query": {
+    "task_kinds": ["bugfix", "maintenance", "investigation"],
+    "keywords_any": [
+      "bug", "error", "crash", "exception",
+      "failing test", "regression", "incident", "outage"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Understand the bug clearly and propose multiple plausible root causes and investigation paths.",
+      "steps": [
+        "Clarify the bug: describe the observed behavior, expected behavior, and impact (who is affected, how often, since when).",
+        "List all available evidence: stack traces, logs, metrics, recent code changes, relevant feature flags, config changes.",
+        "Propose at least 3 plausible hypotheses for the root cause. Each hypothesis should reference concrete files/modules/areas.",
+        "For each hypothesis, propose a minimal investigation step to confirm or refute it (e.g. add a log, run a specific test, reproduce with certain inputs).",
+        "Prioritize hypotheses by likelihood and potential impact (start with high likelihood + low investigation cost)."
+      ]
+    },
+    "red_team": {
+      "goal": "Stress-test the initial hypotheses and investigation plan before doing risky changes.",
+      "steps": [
+        "For each hypothesis and its investigation step, look for reasons it might be misleading (e.g. logging in the wrong place, flaky tests, missing environment parity).",
+        "Identify hidden assumptions (e.g. 'the DB is healthy', 'the queue is draining normally') and suggest quick checks or metrics to validate them.",
+        "Highlight any potential red flags: touching core modules, changing auth logic, or modifying shared libraries.",
+        "Improve the investigation plan to minimize blast radius: prefer logs, feature flags, temporary guards, and targeted tests over wide code changes.",
+        "Propose a small set of safe, incremental experiments to run first."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Select the best next actions and document a safe execution & rollback plan.",
+      "criteria": [
+        "Likelihood of identifying the root cause",
+        "Time-to-run and complexity",
+        "Risk of disrupting other systems",
+        "Observability / clarity of results"
+      ],
+      "steps": [
+        "Score the top 2–4 investigation options against the criteria.",
+        "Choose a primary and backup investigation path.",
+        "Define what 'success' looks like for each experiment (what evidence proves or disproves a hypothesis).",
+        "Outline a safe execution plan including: experiments to run, logs/tests to check, and a rollback plan if a change is needed.",
+        "Produce a short summary for the task record: suspected root cause(s), chosen approach, and safety considerations."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this playbook for any non-trivial bug or incident. Favor adding logs, writing focused tests, and collecting evidence over guessing and making large risky changes.",
+  "tags": ["debugging", "bugfix", "incident", "backend", "quality"],
+  "scope": "global"
+}
+
+2. playbook_design_saas_feature (multi-tenant aware)
+{
+  "name": "playbook_design_saas_feature",
+  "description": "Guide for designing new SaaS features with multi-tenant awareness, data modeling, API design, and rollout/migration considerations.",
+  "trigger_query": {
+    "task_kinds": ["feature", "architecture", "design"],
+    "keywords_any": [
+      "SaaS", "feature", "multi-tenant", "multitenant",
+      "subscription", "plan", "billing", "tenant"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Propose several candidate designs for the feature including data model, API surface, and UX outline.",
+      "steps": [
+        "Restate the feature request in your own words, clarifying user goals and success criteria.",
+        "Identify the main entities and relationships involved (including tenants, users, and permissions).",
+        "Sketch at least 2 alternative data models (tables/collections, key fields, index candidates) with notes on how tenant isolation is maintained.",
+        "Propose an initial API design (REST/GraphQL): endpoints, request/response shapes, error models, and auth/permission requirements.",
+        "Outline the end-to-end user flow (what screens/pages are needed, how they connect, how errors and edge cases are handled)."
+      ]
+    },
+    "red_team": {
+      "goal": "Stress-test the proposed designs for security, multitenancy safety, performance, and evolvability.",
+      "steps": [
+        "For each design, analyze tenant isolation: is there any chance of cross-tenant data leakage? How is tenant ID enforced in queries and APIs?",
+        "Consider migration/rollout: what data migrations or background jobs are required? How risky are they? Can they be rolled back?",
+        "Check performance and scalability: any obvious hot spots (unbounded scans, missing indexes, N+1 patterns)?",
+        "Consider billing and limits: does the design allow enforcing plan limits, quotas, and feature flags cleanly?",
+        "List potential failure modes and edge cases (partial failures, timeouts, race conditions, rate limits) and how they would surface to users."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Choose a preferred design and document a safe, incremental implementation plan.",
+      "criteria": [
+        "Tenant isolation and security",
+        "Backward compatibility and migration complexity",
+        "Development complexity and time",
+        "Performance and scalability",
+        "User experience quality"
+      ],
+      "steps": [
+        "Score each candidate design against the criteria.",
+        "Select a preferred design and one backup option.",
+        "Outline an implementation plan in phases: schema changes, backend endpoints, frontend changes, migrations, and feature-flagged rollout.",
+        "Capture a short risk assessment (what could go wrong, how to detect it, and how to roll back).",
+        "Produce a concise design summary suitable for storing as a design artifact."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this whenever designing or significantly changing SaaS features. Always treat multi-tenant safety and migrations as first-class concerns, not afterthoughts.",
+  "tags": ["saas", "feature", "architecture", "multitenancy"],
+  "scope": "global"
+}
+
+3. playbook_research_unknown_tech (effective web research)
+{
+  "name": "playbook_research_unknown_tech",
+  "description": "Structured approach to researching unfamiliar technologies, libraries, APIs, or services using web search and synthesis.",
+  "trigger_query": {
+    "task_kinds": ["research", "investigation", "architecture"],
+    "keywords_any": [
+      "what is", "how to use", "compare", "evaluate",
+      "library", "framework", "service", "API", "SDK"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Collect and organize high-level information from web sources.",
+      "steps": [
+        "Clarify the research question: what decision or implementation will this research support?",
+        "Plan search queries targeting: official docs, quickstart guides, reference docs, and real-world examples.",
+        "Use web search tools to gather a small but diverse set of sources: official docs, GitHub, blog posts, Q&A, issue trackers.",
+        "For each source, extract key points: purpose, core concepts, typical usage patterns, pros/cons, common pitfalls.",
+        "Organize findings into sections: 'What it is', 'How it works', 'How to integrate', 'Limitations / Caveats'."
+      ]
+    },
+    "red_team": {
+      "goal": "Evaluate source quality, detect marketing/hype, and highlight risks.",
+      "steps": [
+        "Rank sources by trustworthiness: official docs and well-known maintainers first, random blogs last.",
+        "Identify any conflicting information across sources and note uncertainty.",
+        "Look specifically for known issues: GitHub issues, security advisories, breaking changes, maintenance status.",
+        "Assess fit for your context: does this tech align with current stack, scaling needs, and operational constraints?",
+        "List open questions that still need answering or testing (e.g. performance under load, SDK maturity in your language)."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Summarize and, if relevant, make a recommendation for or against using the tech.",
+      "criteria": [
+        "Maturity and maintenance",
+        "Documentation quality",
+        "Ecosystem fit (stack compatibility)",
+        "Complexity to adopt",
+        "Risks and known issues"
+      ],
+      "steps": [
+        "Score the technology against the criteria.",
+        "If the research is to support a choice, state a clear recommendation (use / do not use / try with a pilot).",
+        "Outline next steps: PoC tests, metrics to validate, fallback options.",
+        "Write a concise research summary that can be saved as a reusable knowledge artifact."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this playbook whenever you encounter unfamiliar technologies or services and need to form a solid understanding or make a choice.",
+  "tags": ["research", "web", "architecture", "evaluation"],
+  "scope": "global"
+}
+
+4. playbook_add_rag_to_app
+{
+  "name": "playbook_add_rag_to_app",
+  "description": "Step-by-step thinking pattern for adding Retrieval-Augmented Generation (RAG) to an application in a safe and maintainable way.",
+  "trigger_query": {
+    "task_kinds": ["feature", "architecture", "ai_integration"],
+    "keywords_any": [
+      "RAG", "retrieval", "vector", "embedding",
+      "knowledge base", "semantic search", "context injection"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Propose a RAG design tailored to the app's domain and constraints.",
+      "steps": [
+        "Clarify the user problems RAG should solve (answering questions, summarizing docs, code search, etc.).",
+        "List the knowledge sources (docs, code, tickets, DB records) and how often they change.",
+        "Propose a data model for documents and chunks (what is a document, how do we chunk, what metadata do we store).",
+        "Select a retrieval strategy (BM25, vector search, hybrid) and an embedding model candidate.",
+        "Design the request flow: how user queries are transformed, how retrieval happens, how context is injected into LLM prompts."
+      ]
+    },
+    "red_team": {
+      "goal": "Identify risks and operational concerns with the RAG design.",
+      "steps": [
+        "Analyze freshness: how often do we need to re-index? What happens when data changes or is deleted?",
+        "Consider security: ensure access control is enforced in retrieval and we avoid leaking cross-tenant or sensitive data.",
+        "Assess performance and costs: index size, query latency, embedding costs, storage considerations.",
+        "Watch for prompt injection & prompt hacking: think about how untrusted content could manipulate the model.",
+        "Identify observability needs: logs/traces/metrics to debug bad answers or retrieval failures."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Lock in a RAG architecture and define an incremental rollout plan.",
+      "criteria": [
+        "Security and access control",
+        "Freshness and maintainability",
+        "Complexity and development effort",
+        "Performance and cost",
+        "User impact and quality"
+      ],
+      "steps": [
+        "Score alternative RAG designs (if more than one) or at least stress-test the chosen one against these criteria.",
+        "Define a minimal viable RAG slice (small subset of knowledge + limited users).",
+        "Outline an implementation and rollout plan: indexing pipeline, retrieval API, integration with the app, monitoring.",
+        "Summarize the final design and assumptions as an artifact for future agents to reuse."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this when adding any retrieval-based intelligence to an app. Do not just bolt on vector search; think through data modeling, security, and maintenance.",
+  "tags": ["rag", "retrieval", "ai", "architecture"],
+  "scope": "global"
+}
+
+5. playbook_design_new_agent
+{
+  "name": "playbook_design_new_agent",
+  "description": "Framework for designing a new AI agent: scope, environment, tools, memory, and evaluation.",
+  "trigger_query": {
+    "task_kinds": ["feature", "architecture", "ai_integration"],
+    "keywords_any": [
+      "new agent", "build an agent", "assistant",
+      "worker", "planner", "tool user"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Define what the agent is for, how it will be used, and its core capabilities.",
+      "steps": [
+        "Clarify the agent's primary role (coder, researcher, planner, executor, reviewer, etc.) and target users.",
+        "List the tasks the agent should be able to handle and which tasks are out of scope.",
+        "Identify the environment: tools (MCP servers), APIs, databases, and context sources (RAD, Cortex, web).",
+        "Outline interaction patterns: direct chat, background jobs, being called by other agents, or all of the above.",
+        "Draft a high-level architecture: which LLM(s), how to route between Free vs Paid, how memory (RAD/Cortex) is used."
+      ]
+    },
+    "red_team": {
+      "goal": "Challenge the proposed agent design for safety, reliability, and complexity.",
+      "steps": [
+        "Look for scope creep: is the agent trying to do too much at once? Suggest smaller, more focused capabilities if needed.",
+        "Identify safety concerns: dangerous tools, destructive actions, privacy-sensitive data, external calls.",
+        "Check for redundant agents: is a new agent really needed, or can an existing one be extended via capabilities & workflows?",
+        "Consider evaluation: how will we know if the agent is performing well or making harmful mistakes?",
+        "Highlight operational concerns: rate limits, cost controls, logging and traceability, failure modes."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Finalize an agent spec and a plan to implement and test it.",
+      "criteria": [
+        "Clarity of scope",
+        "Safety and risk management",
+        "Expected user value",
+        "Complexity of implementation",
+        "Reusability across tasks"
+      ],
+      "steps": [
+        "Score the proposed agent design against the criteria.",
+        "Refine the scope and capabilities to hit a good balance of value vs complexity.",
+        "Produce an agent spec document: role, tools, prompts, memory integration, and success criteria.",
+        "Outline an implementation plan and a simple evaluation strategy (test tasks, metrics, manual review)."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this whenever designing a new agent persona or capability. Focus on clear scope, tool selection, safety, and how the agent fits into the existing system.",
+  "tags": ["agent", "architecture", "ai", "design"],
+  "scope": "global"
+}
+
+6. playbook_secure_oauth_integration
+{
+  "name": "playbook_secure_oauth_integration",
+  "description": "Checklist-style thinking pattern for integrating OAuth2/OIDC into web apps using secure flows and safe token handling.",
+  "trigger_query": {
+    "task_kinds": ["auth", "security", "feature"],
+    "keywords_any": [
+      "OAuth", "OIDC", "login", "SSO",
+      "Google login", "GitHub login", "social login"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Design a secure OAuth/OIDC flow suitable for the application.",
+      "steps": [
+        "Clarify what you are trying to achieve: login only, login + access to external APIs, or delegated permissions.",
+        "Choose a secure OAuth/OIDC flow (typically Authorization Code with PKCE) and note why.",
+        "Map the flow step-by-step: where users start, which endpoints they hit, where callbacks go, and what tokens are issued.",
+        "Define what data you will store about users and where (IDs, emails, profiles, tokens if needed).",
+        "Outline how sessions will be managed on the app side (cookies, session store, CSRF protection)."
+      ]
+    },
+    "red_team": {
+      "goal": "Identify security pitfalls and ensure secure token handling.",
+      "steps": [
+        "Check that no sensitive tokens are stored in localStorage or exposed to frontend JS unnecessarily.",
+        "Verify that PKCE is used for public clients and that HTTPS is assumed everywhere.",
+        "Consider token lifetime and revocation: access token expiry, refresh token rotation, logout behavior.",
+        "Examine consent and scopes: request the minimal scopes needed, avoid overbroad permissions.",
+        "Think about multi-tenant implications: how to associate OAuth identities with tenants safely."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Lock in a secure flow and document constraints and requirements.",
+      "criteria": [
+        "Security best-practices compliance",
+        "Implementation complexity",
+        "User experience (friction vs safety)",
+        "Compatibility with chosen provider(s)",
+        "Multi-tenant safety"
+      ],
+      "steps": [
+        "Evaluate the proposed OAuth design against the criteria.",
+        "Adjust the design if any high-risk issues are identified (e.g. token storage, missing PKCE, overbroad scopes).",
+        "Produce a concise OAuth integration design doc: flows, endpoints, token handling rules, and security assumptions.",
+        "List concrete tests/checks needed before going to production (including simulated attacks where appropriate)."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this whenever implementing or changing OAuth/OIDC flows. Err on the side of secure defaults and explicit token-handling rules.",
+  "tags": ["oauth", "auth", "security", "saas"],
+  "scope": "global"
+}
+
+Below are all the remaining playbooks we talked about, fully written so Augment can just insert them into thinking_playbooks as scope = 'global'.
+
+Each has the same shape:
+
+name
+
+description
+
+trigger_query
+
+tool_chain (using blue_team, red_team, decision_matrix)
+
+chain_template with minimal but useful steps
+
+notes_for_agent
+
+tags
+
+scope
+
+You can hand this whole block to Augment and say:
+“Insert these JSON objects as global playbooks into thinking_playbooks.”
+
+1. playbook_design_responsive_web_ui
+{
+  "name": "playbook_design_responsive_web_ui",
+  "description": "Thought process for designing and refining responsive, production-ready web UIs (e.g. React/Next.js) with good UX and accessibility.",
+  "trigger_query": {
+    "task_kinds": ["feature", "frontend", "design"],
+    "keywords_any": [
+      "UI", "frontend", "page", "component",
+      "layout", "responsive", "Next.js", "React"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Propose user flows and layout options for the UI.",
+      "steps": [
+        "Restate the UI feature in user-centric terms (who is using it, what they are trying to accomplish).",
+        "Sketch the primary user flow in steps (screens / states / key interactions).",
+        "Propose at least 2 layout options (e.g. sidebar vs top-nav, one-column vs two-column) with notes on how they adapt to mobile, tablet, and desktop.",
+        "Identify core components to build (forms, cards, tables, modals, etc.) and how they can be reused elsewhere.",
+        "Call out key states: loading, empty, success, error, and long-running operations."
+      ]
+    },
+    "red_team": {
+      "goal": "Challenge the UX, responsiveness, and accessibility of the proposed UI.",
+      "steps": [
+        "Check whether the layout is usable on small screens, large screens, and high-zoom settings.",
+        "Look for UX pitfalls: hidden actions, unclear error states, inconsistent buttons or labels.",
+        "Consider accessibility: keyboard navigation, focus management, ARIA where appropriate, color contrast.",
+        "Think about performance: heavy components, unnecessary re-renders, large images, blocking requests.",
+        "Suggest improvements that simplify the UI while preserving functionality (fewer steps, clearer wording, better grouping)."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Select a layout and component strategy and define a build plan.",
+      "criteria": [
+        "Clarity and simplicity",
+        "Responsiveness across devices",
+        "Accessibility considerations",
+        "Implementation effort",
+        "Consistency with existing design patterns"
+      ],
+      "steps": [
+        "Compare the layout/component options against the criteria.",
+        "Choose a primary layout and component set for implementation.",
+        "Define a small style/UX checklist to follow while coding (spacing, typography, states).",
+        "Outline an implementation plan: component breakdown, routes/pages, state management approach.",
+        "Produce a short design summary that can be saved as a UI design artifact."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this whenever creating or significantly changing UI. Favor simple, reusable components and explicit handling of all states (loading, empty, errors).",
+  "tags": ["frontend", "web", "ui", "ux", "responsive"],
+  "scope": "global"
+}
+
+2. playbook_design_event_driven_automation (n8n & automation)
+{
+  "name": "playbook_design_event_driven_automation",
+  "description": "Thinking pattern for designing event-driven automations (e.g. with n8n) around a SaaS app, using webhooks and background workflows safely.",
+  "trigger_query": {
+    "task_kinds": ["automation", "integration", "ops"],
+    "keywords_any": [
+      "automation", "workflow", "webhook", "n8n",
+      "zapier", "trigger", "event-driven", "background job"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Identify useful events and propose automation flows.",
+      "steps": [
+        "Clarify the business goal of the automation (what outcome we want and who benefits).",
+        "List key domain events in the app that relate to this goal (e.g. user_signed_up, invoice_paid, subscription_canceled).",
+        "Propose one or more automation flows that start from those events (e.g. send emails, update CRM, trigger external APIs).",
+        "Decide whether automations should run inside the app, in n8n, or both (hybrid) and why.",
+        "Sketch a high-level n8n workflow (triggers, core nodes, external systems)."
+      ]
+    },
+    "red_team": {
+      "goal": "Stress-test automations for reliability, idempotency, and security.",
+      "steps": [
+        "Check idempotency: what happens if the same event is delivered twice or retried?",
+        "Consider failure modes: external service downtime, rate limits, network timeouts, malformed payloads.",
+        "Verify security: webhook authentication, secret handling, avoiding sending sensitive data to third parties.",
+        "Examine data consistency: what if the automation succeeds but the main app operation fails (or vice versa)?",
+        "Suggest logging, monitoring, and alerting points to detect stuck workflows or repeated failures."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Choose an automation design and define a safe rollout strategy.",
+      "criteria": [
+        "Business value",
+        "Operational risk",
+        "Implementation complexity",
+        "Observability",
+        "Vendor lock-in / flexibility"
+      ],
+      "steps": [
+        "Evaluate each automation option against the criteria.",
+        "Select the most valuable and least risky automation to implement first (pilot).",
+        "Define a rollout plan: staging tests, monitoring dashboards, alert thresholds.",
+        "Document the chosen event schemas, webhook contracts, and failure-handling rules.",
+        "Summarize the automation design as an artifact so future agents can see how to extend it."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this when designing or modifying automations around the app, especially when using n8n or webhooks. Prioritize idempotency, safety, and clear logging.",
+  "tags": ["automation", "n8n", "webhooks", "event-driven", "ops"],
+  "scope": "global"
+}
+
+3. playbook_design_custom_gpt
+{
+  "name": "playbook_design_custom_gpt",
+  "description": "Guide for designing a custom GPT (or similar hosted assistant) that complements the local agents and fits safely into the overall system.",
+  "trigger_query": {
+    "task_kinds": ["ai_integration", "meta", "design"],
+    "keywords_any": [
+      "custom GPT", "GPT", "GPTs", "GPT Store",
+      "chatgpt", "assistant", "builder"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Define what the custom GPT is for and how it should behave.",
+      "steps": [
+        "Clarify the main use case: who will talk to this GPT and what tasks they expect it to help with.",
+        "List the inputs it should handle (types of questions, documents, code, etc.) and outputs it should produce.",
+        "Decide what knowledge it needs: static instructions, uploaded files, API docs, example conversations.",
+        "Outline its personality and communication style (tone, level of detail, guardrails).",
+        "List tools or APIs it should be allowed to call (if any) and the high-level safety constraints on those tools."
+      ]
+    },
+    "red_team": {
+      "goal": "Consider safety, privacy, and overlap with your internal agents.",
+      "steps": [
+        "Identify sensitive data that must never be exposed or uploaded to the GPT.",
+        "Check whether any tools/APIs you planned to connect are too powerful or risky without strict constraints.",
+        "Consider failure modes: hallucinations, overconfident claims, and possible misinterpretations of instructions.",
+        "Compare this GPT’s scope with your internal Free/Paid agents: avoid duplication; instead design it to complement them.",
+        "Propose safe defaults: narrow scope, explicit disclaimers, and guidance to escalate complex tasks to your internal agents if needed."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Finalize a safe, high-value GPT design and integration plan.",
+      "criteria": [
+        "User value and productivity",
+        "Safety and privacy",
+        "Clarity of scope",
+        "Implementation effort",
+        "Fit with existing agents and tools"
+      ],
+      "steps": [
+        "Evaluate the proposed GPT design against the criteria.",
+        "Adjust scope, tools, or knowledge sources if any risk is too high.",
+        "Produce a GPT spec document: system prompt, knowledge sources, tools, example tasks, and limitations.",
+        "Outline how this GPT will be tested and monitored, and how its behavior will be adjusted over time.",
+        "Summarize how this GPT cooperates with your other agents rather than competing with them."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this when designing new custom GPTs or revising existing ones. Focus on clear scope, privacy, and collaboration with your local agents.",
+  "tags": ["gpt", "chatgpt", "assistant", "design"],
+  "scope": "global"
+}
+
+4. playbook_design_vscode_extension_for_agent_control
+{
+  "name": "playbook_design_vscode_extension_for_agent_control",
+  "description": "Thinking pattern for designing a VS Code extension that acts as a control panel or interface for your agents and tools.",
+  "trigger_query": {
+    "task_kinds": ["feature", "frontend", "tooling"],
+    "keywords_any": [
+      "VS Code", "extension", "vscode",
+      "command palette", "sidebar", "webview"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Define what the extension should do and how it should fit into the coding workflow.",
+      "steps": [
+        "Clarify the main tasks users should be able to do from the extension (e.g. run agents on files, manage tasks, view logs).",
+        "List the commands and UI entrypoints: command palette commands, sidebar views, status bar items, webview panels.",
+        "Sketch the main screens/panels: what information is shown (agent status, tasks, results, metrics).",
+        "Identify what needs to be configurable (API keys, server URLs, model choices, safety limits).",
+        "Decide how the extension will communicate with your MCP servers / backend (HTTP, WebSocket, custom protocol)."
+      ]
+    },
+    "red_team": {
+      "goal": "Check usability, security, and complexity of the extension plan.",
+      "steps": [
+        "Consider developer ergonomics: avoid cluttering the UI; keep common actions fast (shortcuts, palette entries).",
+        "Look for security concerns: where secrets are stored, how tokens are handled, how untrusted code is displayed or executed.",
+        "Check extensibility: can new commands/panels be added without major rewrites?",
+        "Consider performance: avoid blocking the editor with long-running operations; use async flows and progress indicators.",
+        "Suggest ways to surface errors and logs clearly so users understand what the agents are doing."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Lock in a minimal but powerful VS Code extension design.",
+      "criteria": [
+        "Developer productivity",
+        "Simplicity of UX",
+        "Security and privacy",
+        "Implementation effort",
+        "Extensibility"
+      ],
+      "steps": [
+        "Evaluate candidate extension designs or feature sets against the criteria.",
+        "Pick a minimal viable feature set for the first version and defer non-critical features.",
+        "Produce an extension spec: commands, views, communication protocol, configuration options.",
+        "Outline an implementation plan: initial skeleton, feature phases, testing approach.",
+        "Summarize how this extension will help you and your agents work together more effectively."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this when designing or expanding VS Code extensions related to your agents. Focus on making a small set of high-value actions easy and safe.",
+  "tags": ["vscode", "extension", "tooling", "ui"],
+  "scope": "global"
+}
+
+5. playbook_wrap_new_llm_provider
+{
+  "name": "playbook_wrap_new_llm_provider",
+  "description": "Process for adding a new LLM provider (e.g. Moonshot/Kimi, Anthropic, etc.) behind a shared model interface and integrating it safely into the agents.",
+  "trigger_query": {
+    "task_kinds": ["ai_integration", "infra", "refactor"],
+    "keywords_any": [
+      "LLM provider", "new model", "OpenAI", "Anthropic",
+      "Moonshot", "Voyage", "provider wrapper", "adapter"
+    ]
+  },
+  "tool_chain": ["blue_team", "red_team", "decision_matrix"],
+  "chain_template": {
+    "blue_team": {
+      "goal": "Design an adapter for the new provider that fits the shared-LLM abstraction.",
+      "steps": [
+        "Clarify what this provider will be used for: chat/completion, embeddings, batch jobs, tools, etc.",
+        "Review the provider's API: request/response shapes, limits, pricing, auth requirements.",
+        "Map the provider's features to your shared-LLM interface (how to translate parameters like temperature, max tokens, tools).",
+        "Propose an adapter implementation: configuration object, request builder, response normalizer, error mapper.",
+        "Identify sensible defaults (model name, temperature, timeouts) for each typical use case (coding, analysis, summarization)."
+      ]
+    },
+    "red_team": {
+      "goal": "Identify risks, incompatibilities, and operational concerns with the new provider.",
+      "steps": [
+        "Check rate limits, quotas, and pricing to avoid unexpected cost spikes.",
+        "Look for differences from existing providers (e.g. token counting, streaming, tool-calling semantics) and how they might break assumptions.",
+        "Consider reliability: error modes, transient failures, regions, latency.",
+        "Review security/privacy policies if sensitive data may be sent to this provider.",
+        "Suggest guardrails: max context size, safety filters, and clear logging of which provider is used when."
+      ]
+    },
+    "decision_matrix": {
+      "goal": "Finalize a safe adapter design and rollout plan.",
+      "criteria": [
+        "Compatibility with existing abstractions",
+        "Reliability and performance",
+        "Cost predictability",
+        "Implementation complexity",
+        "User/agent value"
+      ],
+      "steps": [
+        "Score the provider integration against the criteria.",
+        "Refine the adapter API if needed to better match your shared model selector.",
+        "Define a phased rollout: local testing, staging, then limited production usage for certain tasks.",
+        "Document the adapter: supported features, known limitations, and recommended usage patterns.",
+        "Summarize how agents should choose between providers (e.g. when to prefer this provider over others)."
+      ]
+    }
+  },
+  "notes_for_agent": "Use this whenever integrating a new LLM provider. The goal is a clean adapter that hides provider quirks behind a stable interface, with safety and cost controls.",
+  "tags": ["llm", "provider", "adapter", "ai"],
+  "scope": "global"
+}
+
+
