@@ -3,6 +3,8 @@
  * Implements standard planning chain: Blue Team → Red Team → Decision Matrix
  */
 
+import type { EvidenceBundle } from './evidence.js';
+
 export interface ThinkingStep {
   framework: string;
   problem: string;
@@ -23,6 +25,7 @@ export interface PlanningResult {
     score: number;
   };
   artifacts: string[];
+  evidence?: EvidenceBundle;
 }
 
 /**
@@ -30,11 +33,17 @@ export interface PlanningResult {
  * 1. Blue Team: Generate approaches
  * 2. Red Team: Critique approaches
  * 3. Decision Matrix: Pick the best plan
+ *
+ * @param task - The task description
+ * @param context - Additional context (can include evidence summary)
+ * @param thinkingClient - Thinking Tools MCP client
+ * @param evidence - Optional evidence bundle to ground the planning
  */
 export async function runStandardPlanningChain(
   task: string,
   context?: string,
-  thinkingClient?: any
+  thinkingClient?: any,
+  evidence?: EvidenceBundle
 ): Promise<PlanningResult> {
   if (!thinkingClient) {
     // If no thinking client available, return a basic plan
@@ -47,7 +56,14 @@ export async function runStandardPlanningChain(
         score: 0.5,
       },
       artifacts: [],
+      evidence,
     };
+  }
+
+  // Enrich context with evidence if available
+  let enrichedContext = context || '';
+  if (evidence) {
+    enrichedContext += '\n\n' + formatEvidenceForContext(evidence);
   }
 
   const artifacts: string[] = [];
@@ -58,7 +74,7 @@ export async function runStandardPlanningChain(
     const step: ThinkingStep = {
       framework: 'framework_blue_team',
       problem: task,
-      context,
+      context: enrichedContext,
       stepNumber: i,
       totalSteps: 3,
       content: i === 1 ? 'Generating initial approaches...' : '',
@@ -131,7 +147,40 @@ export async function runStandardPlanningChain(
     critiques,
     decision,
     artifacts,
+    evidence,
   };
+}
+
+/**
+ * Format evidence bundle into context string for thinking tools
+ */
+function formatEvidenceForContext(evidence: EvidenceBundle): string {
+  const parts: string[] = [];
+
+  if (evidence.repoInsights) {
+    parts.push('Repository Context:');
+    parts.push(`- Type: ${evidence.repoInsights.projectType || 'unknown'}`);
+    parts.push(`- Languages: ${evidence.repoInsights.mainLanguages?.join(', ') || 'unknown'}`);
+    parts.push(`- Frameworks: ${evidence.repoInsights.frameworks?.join(', ') || 'unknown'}`);
+  }
+
+  if (evidence.contextSnippets && evidence.contextSnippets.length > 0) {
+    parts.push('\nRelevant Code:');
+    evidence.contextSnippets.slice(0, 3).forEach((snippet, i) => {
+      parts.push(`${i + 1}. ${snippet.file} (score: ${snippet.score.toFixed(2)})`);
+      parts.push(`   ${snippet.snippet.substring(0, 100)}...`);
+    });
+  }
+
+  if (evidence.webSnippets && evidence.webSnippets.length > 0) {
+    parts.push('\nWeb Research:');
+    evidence.webSnippets.slice(0, 2).forEach((snippet, i) => {
+      parts.push(`${i + 1}. ${snippet.title}`);
+      parts.push(`   ${snippet.snippet.substring(0, 100)}...`);
+    });
+  }
+
+  return parts.join('\n');
 }
 
 /**

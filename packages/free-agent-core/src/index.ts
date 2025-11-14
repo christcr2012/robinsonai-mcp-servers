@@ -1,9 +1,11 @@
 // Main exports for free-agent-core
 
 export { runFreeAgent, runAgentTask } from "./runner.js";
-export type { AgentTask, AgentRunResult, AgentKind, AgentTier } from './task.js';
+export type { AgentTask, AgentRunResult, AgentKind, AgentTier, AgentTaskConstraints } from './task.js';
 export { runStandardPlanningChain } from './thinking.js';
 export type { ThinkingStep, PlanningResult } from './thinking.js';
+export { gatherEvidence } from './evidence.js';
+export type { EvidenceBundle, EvidenceOptions } from './evidence.js';
 export { loadAdapter } from "./repo/adapter.js";
 export { discover } from "./repo/discover.js";
 export { ensureCodegen } from "./spec/codegen.js";

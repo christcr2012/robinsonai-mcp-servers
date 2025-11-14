@@ -6,12 +6,19 @@
 export type AgentKind = 'feature' | 'bugfix' | 'refactor' | 'research';
 export type AgentTier = 'free' | 'paid';
 
+export interface AgentTaskConstraints {
+  allowWebEvidence?: boolean;
+  maxContextSnippets?: number;
+  maxWebResults?: number;
+}
+
 export interface AgentTask {
   repo: string;
   task: string;
   kind: AgentKind;
   tier?: AgentTier;
   quality?: 'fast' | 'balanced' | 'best' | 'auto';
+  constraints?: AgentTaskConstraints;
 }
 
 export interface AgentRunResult {
