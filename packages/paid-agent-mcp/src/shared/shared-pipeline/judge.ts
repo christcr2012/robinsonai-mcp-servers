@@ -6,8 +6,8 @@
  */
 
 import type { JudgeInput, JudgeVerdict, ExecReport, GenResult, PipelineConfig } from './types.js';
-import { ollamaGenerate, llmGenerate } from '@robinson_ai_systems/shared-llm';
-import { makeProjectBrief } from '@robinson_ai_systems/shared-utils';
+import { ollamaGenerate, llmGenerate } from '../shared-llm/index.js';
+import { makeProjectBrief } from '../shared-utils/index.js';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
 
 // TODO: Move convention-score to shared-utils in future

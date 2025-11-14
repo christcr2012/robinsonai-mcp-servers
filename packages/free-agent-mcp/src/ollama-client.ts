@@ -8,7 +8,7 @@
 
 import { Ollama } from 'ollama';
 import { spawn } from 'child_process';
-import { ollamaGenerate as sharedGenerate, pingOllama } from '@robinson_ai_systems/shared-llm';
+import { ollamaGenerate as sharedGenerate, pingOllama } from './shared/shared-llm/ollama-client.js';
 import { getModelManager, type ModelSelectionCriteria } from './utils/model-manager.js';
 
 export interface ModelConfig {

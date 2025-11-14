@@ -5,7 +5,7 @@
  * Sends dummy requests to warm up the model cache.
  */
 
-import { ollamaGenerate } from '@robinson_ai_systems/shared-llm';
+import { ollamaGenerate } from '../shared/shared-llm/ollama-client.js';
 
 interface WarmupConfig {
   models: string[];

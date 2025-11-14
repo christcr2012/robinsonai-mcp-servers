@@ -11,7 +11,7 @@
 import type { GenResult, PipelineConfig, JudgeVerdict } from './types.js';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
 import { ollamaGenerate, llmGenerate } from '@robinson_ai_systems/shared-llm';
-import { makeProjectBrief } from '@robinson_ai_systems/shared-utils';
+import { makeProjectBrief } from '../shared-utils/index.js';
 
 // TODO: Move these to shared-utils
 type ProjectBrief = any;

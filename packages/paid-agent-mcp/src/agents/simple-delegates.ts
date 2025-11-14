@@ -5,7 +5,7 @@
  * Unlike Free Agent's complex pipeline, these are lightweight wrappers around the LLM router.
  */
 
-import { createLlmRouter, type LlmRouter } from '@robinson_ai_systems/shared-llm';
+import { createLlmRouter, type LlmRouter } from '../shared/shared-llm/index.js';
 
 export interface DelegateCodeGenerationRequest {
   task: string;

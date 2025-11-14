@@ -54,7 +54,7 @@ import {
   getMetricsAdapter,
   getAllMetricsAdapters,
   getAvailableMetricsAdapters,
-} from '@robinson_ai_systems/shared-llm';
+} from './shared/shared-llm/index.js';
 import { buildStrictSystemPrompt } from './prompt-builder.js';
 import { getWorkspaceRoot } from './lib/workspace.js';
 import { SimpleDelegates } from './agents/simple-delegates.js';

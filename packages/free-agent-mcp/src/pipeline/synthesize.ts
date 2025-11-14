@@ -11,7 +11,7 @@
 
 import type { GenResult, PipelineConfig, JudgeVerdict } from './types.js';
 import { DEFAULT_PIPELINE_CONFIG } from './types.js';
-import { ollamaGenerate, llmGenerate } from '@robinson_ai_systems/shared-llm';
+import { ollamaGenerate, llmGenerate } from '../shared/shared-llm/index.js';
 import { makeProjectBrief, formatBriefForPrompt, type ProjectBrief } from '../utils/project-brief.js';
 import { retrieveCodeContext } from '../utils/code-retrieval.js';
 import { getRepoBrief, buildGlossaryFromBrief, retrieveNearbyFiles } from './context.js';

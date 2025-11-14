@@ -41,7 +41,7 @@ import { CodeGenerator } from './agents/code-generator.js';
 import { CodeAnalyzer } from './agents/code-analyzer.js';
 import { CodeRefactor } from './agents/code-refactor.js';
 import { StatsTracker } from './utils/stats-tracker.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams, createLlmRouter, type LlmRouter } from '@robinson_ai_systems/shared-llm';
+import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams, createLlmRouter, type LlmRouter } from './shared/shared-llm/index.js';
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, getModelConfig, estimateTaskCost } from './model-catalog.js';
 import { warmupAvailableModels } from './utils/model-warmup.js';
