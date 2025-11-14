@@ -23,7 +23,9 @@ export default defineConfig({
   // Never bundle Node built-ins or deps with dynamic require()
   external: [
     'fs', 'path', 'url', 'module', 'os', 'util', 'crypto', 'stream',
-    'better-sqlite3'
+    'better-sqlite3',
+    'pg',
+    'pg-native'
   ],
   esbuildOptions(options) {
     // Resolve @fa/core alias to the actual path

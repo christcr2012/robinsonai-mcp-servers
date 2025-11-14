@@ -218,6 +218,9 @@ importers:
       openai:
         specifier: ^4.77.3
         version: 4.104.0(ws@8.18.3)(zod@3.25.76)
+      pg:
+        specifier: ^8.16.3
+        version: 8.16.3
     devDependencies:
       '@robinson_ai_systems/shared-llm':
         specifier: workspace:*

@@ -4,16 +4,33 @@ import { PatternContract } from "./contract.js";
 
 function listFiles(base: string, exts = [".ts", ".tsx", ".js", ".jsx"]): string[] {
   const out: string[] = [];
-  const ignore = ["node_modules", ".git", "dist", "build", ".next"];
+  const ignore = ["node_modules", ".git", "dist", "build", ".next", "archived", "coverage"];
 
   (function rec(d: string) {
     if (!fs.existsSync(d)) return;
-    for (const n of fs.readdirSync(d)) {
-      if (ignore.includes(n)) continue;
-      const p = path.join(d, n);
-      const s = fs.statSync(p);
-      if (s.isDirectory()) rec(p);
-      else if (exts.includes(path.extname(p))) out.push(p);
+
+    try {
+      const entries = fs.readdirSync(d);
+
+      for (const n of entries) {
+        if (ignore.includes(n)) continue;
+        const p = path.join(d, n);
+
+        try {
+          const s = fs.statSync(p);
+          if (s.isDirectory()) {
+            rec(p);
+          } else if (exts.includes(path.extname(p))) {
+            out.push(p);
+          }
+        } catch (err) {
+          // Skip files/directories that can't be accessed
+          continue;
+        }
+      }
+    } catch (err) {
+      // Skip directories that can't be read
+      return;
     }
   })(base);
   return out;
