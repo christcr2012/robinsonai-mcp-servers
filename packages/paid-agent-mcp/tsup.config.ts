@@ -1,4 +1,8 @@
 import { defineConfig } from 'tsup';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -10,6 +14,8 @@ export default defineConfig({
   clean: true,
   // Bundle internal packages so consumers don't need them installed
   noExternal: [
+    /^@fa\/core(\/.*)?$/,
+    '@robinson_ai_systems/free-agent-core',
     '@robinson_ai_systems/shared-llm',
     '@robinson_ai_systems/shared-utils',
     '@robinson_ai_systems/shared-pipeline'
@@ -19,5 +25,11 @@ export default defineConfig({
     'fs', 'path', 'url', 'module', 'os', 'util', 'crypto', 'stream',
     'better-sqlite3'
   ],
+  esbuildOptions(options) {
+    // Resolve @fa/core alias to the actual path
+    options.alias = {
+      '@fa/core': path.resolve(__dirname, '../free-agent-core/src'),
+    };
+  },
 });
 

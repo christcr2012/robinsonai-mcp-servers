@@ -4,6 +4,7 @@ import { ensureCodegen } from "./spec/codegen.js";
 import { buildPipeline } from "./pipeline/index.js";
 import { learnPatternContract } from "./patterns/learn.js";
 import { pickExamples } from "./patterns/examples.js";
+import type { AgentTask, AgentRunResult } from './task.js';
 
 export async function runFreeAgent(opts: {
   repo: string;
@@ -42,5 +43,22 @@ export async function runFreeAgent(opts: {
     tier: opts.tier || (process.env.FREE_AGENT_TIER as any) || "free",
     quality: (opts.quality as any) || (process.env.FREE_AGENT_QUALITY as any) || "auto",
   });
+}
+
+/**
+ * Generic agent task runner - neutral entrypoint for both Free and Paid agents
+ * This is the shared Agent Core interface used by both MCP servers
+ */
+export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
+  await runFreeAgent({
+    repo: task.repo,
+    task: task.task,
+    kind: task.kind,
+    tier: task.tier,
+    quality: task.quality,
+  });
+
+  // Future: return richer data (patches applied, tests run, etc.)
+  return { success: true };
 }
 

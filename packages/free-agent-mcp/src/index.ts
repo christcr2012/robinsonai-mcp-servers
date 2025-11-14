@@ -459,6 +459,10 @@ class AutonomousAgentServer {
             result = await this.runFreeAgentTask(args as any);
             break;
 
+          case 'free_agent_run_task_v2':
+            result = await this.runAgentTaskV2(args as any);
+            break;
+
           case 'free_agent_smoke':
             result = await this.runFreeAgentSmoke(args as any);
             break;
@@ -2068,6 +2072,38 @@ Generate the modified section now:`;
           required: ['task', 'repo_path'],
         },
       },
+      // NEW: Shared Agent Core interface (v2)
+      {
+        name: 'free_agent_run_task_v2',
+        description: 'Run a full coding task using the shared Agent Core (local-first, Ollama). This uses the unified agent core shared between Free and Paid agents.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            repo: {
+              type: 'string',
+              description: 'Path to target repo',
+            },
+            task: {
+              type: 'string',
+              description: 'Natural language description of the coding task',
+            },
+            kind: {
+              type: 'string',
+              enum: ['feature', 'bugfix', 'refactor', 'research'],
+              default: 'feature',
+              description: 'Type of task',
+            },
+            quality: {
+              type: 'string',
+              enum: ['fast', 'balanced', 'best', 'auto'],
+              default: 'auto',
+              description: 'Quality vs speed tradeoff',
+            },
+          },
+          required: ['repo', 'task'],
+        },
+      },
       {
         name: 'free_agent_smoke',
         description: 'Run a fast smoke test (codegen + policy checks) without changing files. Validates spec registry and handlers.',
@@ -2339,6 +2375,57 @@ Generate the modified section now:`;
       };
     } catch (error: any) {
       console.error('[runFreeAgent] Error:', error);
+      return {
+        success: false,
+        error: error.message,
+        augmentCreditsUsed: 0,
+        creditsSaved: 0,
+      };
+    }
+  }
+
+  /**
+   * Run task using shared Agent Core (v2 interface)
+   * This is the new unified interface shared between Free and Paid agents
+   */
+  private async runAgentTaskV2(args: any): Promise<any> {
+    try {
+      const { runAgentTask } = await import('@fa/core');
+      const { resolveRepoRoot } = await import('@fa/core/utils/paths.js');
+
+      const repoRoot = resolveRepoRoot(args.repo);
+      const task = String(args.task || '');
+      const kind = (args.kind || 'feature') as 'feature' | 'bugfix' | 'refactor' | 'research';
+      const quality = args.quality || 'auto';
+
+      console.log('[runAgentTaskV2] Using shared Agent Core...');
+
+      const result = await runAgentTask({
+        repo: repoRoot,
+        task,
+        kind,
+        tier: 'free',
+        quality,
+      });
+
+      return {
+        success: result.success,
+        message: 'Task completed using shared Agent Core',
+        repo: repoRoot,
+        task,
+        kind,
+        quality,
+        logs: result.logs,
+        augmentCreditsUsed: 0,
+        creditsSaved: 13000,
+        cost: {
+          total: 0,
+          currency: 'USD',
+          note: 'FREE - Shared Agent Core (Ollama)',
+        },
+      };
+    } catch (error: any) {
+      console.error('[runAgentTaskV2] Error:', error);
       return {
         success: false,
         error: error.message,

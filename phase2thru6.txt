@@ -1,4 +1,4 @@
-Phase 2 (revised): Promote free-agent-core into the shared Agent Core
+*Phase 2 (revised): Promote free-agent-core into the shared Agent Core
 
 Goal:
 Use packages/free-agent-core as the single Agent Core for both Free Agent and Paid Agent, instead of creating a new agents-core. Keep everything it already does, and extend it where needed.
@@ -234,7 +234,86 @@ shared-llm
 Thinking Tools / Toolkit / RAD, etc.
 
 
-Phase 3 – Thinking Tools: parity + orchestration
+
+*Phase2.5 - Add Anthropic Batch Support to Paid Agent (Provider-Agnostic Architecture)
+
+Extend shared LLM provider interfaces
+
+In packages/shared-llm/src/provider-llm.ts (or equivalent), add:
+
+BatchJobRequest, BatchJobHandle, BatchJobResult types.
+
+Optional methods on ProviderLLM:
+
+createBatchJob(request: BatchJobRequest): Promise<BatchJobHandle>
+
+getBatchJobStatus(batchId: string): Promise<BatchJobHandle>
+
+getBatchJobResults(batchId: string): Promise<BatchJobResult>
+
+Do not require other providers to implement these yet; they remain optional.
+
+Implement Anthropic batch methods
+
+In packages/shared-llm/src/providers/anthropic-provider.ts:
+
+Implement createBatchJob using Anthropic message batch APIs (see Claude docs for creating message batches).
+
+Implement getBatchJobStatus and getBatchJobResults.
+
+Map Anthropic batch statuses and results into the shared types.
+
+Keep parameters minimal: single model per batch, shared temperature, no streaming.
+
+Expose Paid Agent MCP tools
+
+In packages/paid-agent-mcp/src/index.ts:
+
+Add tools:
+
+paid_agent_batch_create
+
+paid_agent_batch_status
+
+paid_agent_batch_results
+
+Each tool should:
+
+Validate that the chosen model/provider supports batch (Anthropic).
+
+Use the shared provider interface methods from step 2.
+
+Return clean JSON with batch_id, status, and structured results.
+
+Planner / heuristic layer
+
+Add a helper in Paid Agent core that:
+
+Takes an array of tasks and returns { mode: 'streaming' | 'batch', provider, model }.
+
+Chooses mode: 'batch' when:
+
+Provider is Anthropic and all tasks are compatible.
+
+tasks.length is above a configurable threshold (start with 10).
+
+Otherwise uses standard per-task calls.
+
+Optionally, expose this as paid_agent_plan_multi_task_execution or integrate into an existing “multi-task” tool.
+
+Documentation
+
+Add a short section to the Paid Agent README:
+
+Explain when to use batch vs normal.
+
+Give example MCP tool calls.
+
+Note that batch is currently Anthropic-only and non-interactive.
+
+
+
+*Phase 3 – Thinking Tools: parity + orchestration
 
 Intent:
 Both agents should:
@@ -296,7 +375,9 @@ buildAgentPlan(...) should call this chain so every agent task goes through a re
 After Phase 3:
 Both agents use your thinking toolbox as a first-class reasoning engine, not just a grab-bag of tools.
 
-Phase 4 – Evidence gathering: Context Engine, Toolkit, RAD hook, web
+
+
+*Phase 4 – Evidence gathering: Context Engine, Toolkit, RAD hook, web
 
 Intent:
 When an agent plans/executed, it should be able to pull in evidence from:
@@ -350,7 +431,9 @@ Later, we can implement webSnippets by calling a web-search MCP if the flag is t
 After Phase 4:
 When either agent reasons about a task, it can look at context, code, and (later) web and RAD, not just the raw user prompt.
 
-Phase 5 – Minimal RAD/Postgres memory
+
+
+TPhase 5 – Minimal RAD/Postgres memory
 
 Intent:
 Start giving your agents a shared long-term memory, even if it’s a simple first version.
@@ -400,7 +483,9 @@ After completion (success or failure), call recordEvent(...) so the system “le
 After Phase 5:
 Both agents share a real memory of prior tasks and decisions, living in RAD/Postgres.
 
-Phase 6 – Migrate Credit Optimizer → Agent Core, decommission MCP later
+
+
+*Phase 6 – Migrate Credit Optimizer → Agent Core, decommission MCP later
 
 Intent:
 Use Credit Optimizer MCP as a prototype and fold its good ideas into agents-core, then retire it as a separate server when you’re ready.

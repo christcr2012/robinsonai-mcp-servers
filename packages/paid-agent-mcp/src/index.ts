@@ -901,6 +901,38 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['task', 'repo_path'],
         },
       },
+      // NEW: Shared Agent Core interface (v2)
+      {
+        name: 'paid_agent_run_task_v2',
+        description: 'Run a full coding task using the shared Agent Core (paid-model tier). This uses the unified agent core shared between Free and Paid agents.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            repo: {
+              type: 'string',
+              description: 'Path to target repo',
+            },
+            task: {
+              type: 'string',
+              description: 'Natural language description of the coding task',
+            },
+            kind: {
+              type: 'string',
+              enum: ['feature', 'bugfix', 'refactor', 'research'],
+              default: 'feature',
+              description: 'Type of task',
+            },
+            quality: {
+              type: 'string',
+              enum: ['fast', 'balanced', 'best', 'auto'],
+              default: 'auto',
+              description: 'Quality vs speed tradeoff',
+            },
+          },
+          required: ['repo', 'task'],
+        },
+      },
       // Universal file editing tools (work in ANY MCP client: Augment, Cline, Cursor, etc.)
       {
         name: 'file_str_replace',
@@ -1444,6 +1476,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       // Phase FA-4: Comprehensive paid_agent_run_task
       case 'paid_agent_run_task':
         return await handleRunPaidAgentTask(args);
+
+      case 'paid_agent_run_task_v2':
+        return await handleRunAgentTaskV2(args);
 
       // Universal file editing tools (work in ANY MCP client!)
       case 'file_str_replace':
@@ -3976,6 +4011,58 @@ async function handleRunPaidAgentTask(args: any) {
     });
   } catch (error: any) {
     console.error('[runPaidAgentTask] Error:', error);
+    return createToolResponse({
+      status: 'failed',
+      task_summary: 'Task failed with error',
+      error: {
+        type: 'unknown',
+        message: error.message,
+        details: error.stack,
+      },
+    });
+  }
+}
+
+/**
+ * Run task using shared Agent Core (v2 interface)
+ * This is the new unified interface shared between Free and Paid agents
+ */
+async function handleRunAgentTaskV2(args: any) {
+  try {
+    const { runAgentTask } = await import('@fa/core');
+    const { resolveRepoRoot } = await import('@fa/core/utils/paths.js');
+
+    const repoRoot = resolveRepoRoot(args.repo);
+    const task = String(args.task || '');
+    const kind = (args.kind || 'feature') as 'feature' | 'bugfix' | 'refactor' | 'research';
+    const quality = args.quality || 'auto';
+
+    console.log('[handleRunAgentTaskV2] Using shared Agent Core (paid tier)...');
+
+    const result = await runAgentTask({
+      repo: repoRoot,
+      task,
+      kind,
+      tier: 'paid',
+      quality,
+    });
+
+    return createToolResponse({
+      status: result.success ? 'completed' : 'failed',
+      task_summary: 'Task completed using shared Agent Core',
+      repo: repoRoot,
+      task,
+      kind,
+      quality,
+      logs: result.logs || [],
+      cost_estimate: {
+        estimated_usd: 0,
+        actual_usd: 0,
+        note: 'Shared Agent Core - cost depends on tier and model selection',
+      },
+    });
+  } catch (error: any) {
+    console.error('[handleRunAgentTaskV2] Error:', error);
     return createToolResponse({
       status: 'failed',
       task_summary: 'Task failed with error',
