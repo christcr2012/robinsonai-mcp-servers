@@ -4,6 +4,7 @@
  */
 
 import { getCortexClient } from './cortex/index.js';
+import { RadDocsClient, RadDocument } from './rad-docs-client.js';
 
 export interface EvidenceBundle {
   repoInsights?: {
@@ -23,6 +24,7 @@ export interface EvidenceBundle {
     content: string;
     timestamp: string;
   }>;
+  radDocuments?: RadDocument[]; // NEW: RAD Crawler indexed documents
   webSnippets?: Array<{
     title: string;
     url: string;
@@ -108,6 +110,13 @@ export async function gatherEvidence(
     } catch (error) {
       console.warn('Failed to gather RAD notes:', error);
     }
+  }
+
+  // 3.5. Gather RAD documents from crawler index
+  try {
+    bundle.radDocuments = await gatherRadDocuments(task, repoPath);
+  } catch (error) {
+    console.warn('Failed to gather RAD documents:', error);
   }
 
   // 4. Gather web snippets (if allowed)
@@ -259,3 +268,52 @@ async function gatherWebSnippets(
   return [];
 }
 
+/**
+ * Gather RAD documents from crawler index
+ * Uses basic keyword search on task description
+ */
+async function gatherRadDocuments(task: string, repoPath: string): Promise<RadDocument[]> {
+  try {
+    const radDocs = new RadDocsClient();
+
+    // Extract keywords from task description
+    const keywords = extractKeywords(task);
+
+    // Search for relevant documents
+    const documents = await radDocs.searchDocuments({
+      keywords,
+      limit: 10,
+    });
+
+    await radDocs.close();
+
+    return documents;
+  } catch (error) {
+    console.warn('Failed to gather RAD documents:', error);
+    return [];
+  }
+}
+
+/**
+ * Extract keywords from task description
+ * Simple implementation - can be enhanced with NLP later
+ */
+function extractKeywords(task: string): string[] {
+  // Remove common words and extract meaningful terms
+  const stopWords = new Set([
+    'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+    'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'be',
+    'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will',
+    'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this',
+    'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they',
+  ]);
+
+  const words = task
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 2 && !stopWords.has(word));
+
+  // Return unique keywords
+  return [...new Set(words)];
+}

@@ -138,7 +138,8 @@ export interface CortexContext {
   patterns: CodePattern[];
   capabilities: Capability[];
   artifacts: KnowledgeArtifact[];
-  relatedKnowledge: any[]; // From RAD
+  relatedKnowledge: any[]; // From RAD memory
+  radDocuments?: any[]; // From RAD Crawler index (NEW)
 }
 
 // ============================================================================
@@ -149,10 +150,12 @@ export interface GetCortexContextOptions {
   task: string;
   evidence?: any;
   includeRelatedKnowledge?: boolean;
+  includeRadDocuments?: boolean; // NEW: Include RAD Crawler documents
   maxPlaybooks?: number;
   maxWorkflows?: number;
   maxPatterns?: number;
   maxArtifacts?: number;
+  maxRadDocuments?: number; // NEW: Max RAD documents to include
 }
 
 export interface RecordOutcomeOptions {

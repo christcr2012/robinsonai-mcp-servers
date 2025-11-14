@@ -331,6 +331,59 @@ VALUES (
   '{"tags": ["code-review", "analysis", "quality"]}'::jsonb
 );
 
+-- Register RAD Source
+INSERT INTO capability_registry (name, description, category, required_tools, required_env_vars, complexity, estimated_duration_minutes, metadata)
+VALUES (
+  'Register RAD Source',
+  'Register a new repository or filesystem as a RAD source for document indexing',
+  'analysis',
+  ARRAY['rad_register_source']::text[],
+  ARRAY['RAD_DATABASE_URL']::text[],
+  'simple',
+  2,
+  '{"tags": ["rad", "indexing", "setup"]}'::jsonb
+);
+
+-- Trigger RAD Crawl
+INSERT INTO capability_registry (name, description, category, required_tools, required_env_vars, complexity, estimated_duration_minutes, metadata)
+VALUES (
+  'Trigger RAD Crawl',
+  'Trigger a full crawl of a registered RAD source to index all documents',
+  'analysis',
+  ARRAY['rad_trigger_crawl', 'rad_get_crawl_status']::text[],
+  ARRAY['RAD_DATABASE_URL']::text[],
+  'simple',
+  5,
+  '{"tags": ["rad", "indexing", "crawl"]}'::jsonb
+);
+
+-- Refresh RAD Index
+INSERT INTO capability_registry (name, description, category, required_tools, required_env_vars, complexity, estimated_duration_minutes, metadata)
+VALUES (
+  'Refresh RAD Index',
+  'Refresh the RAD index by re-crawling all enabled sources',
+  'analysis',
+  ARRAY['rad_list_sources', 'rad_trigger_crawl']::text[],
+  ARRAY['RAD_DATABASE_URL']::text[],
+  'medium',
+  15,
+  '{"tags": ["rad", "indexing", "refresh"]}'::jsonb
+);
+
+-- Large-Scale RAD Analysis
+INSERT INTO capability_registry (name, description, category, required_tools, required_env_vars, complexity, estimated_duration_minutes, metadata)
+VALUES (
+  'Large-Scale RAD Analysis',
+  'Run large-scale analysis on indexed RAD documents using Paid Agent + batch processing',
+  'analysis',
+  ARRAY['rad_preview_documents', 'rad_get_crawl_summary', 'paid_agent_batch_create']::text[],
+  ARRAY['RAD_DATABASE_URL', 'ANTHROPIC_API_KEY']::text[],
+  'complex',
+  60,
+  '{"tags": ["rad", "analysis", "batch", "paid-agent"]}'::jsonb
+);
+
+
 -- ============================================================================
 -- VERIFICATION
 -- ============================================================================

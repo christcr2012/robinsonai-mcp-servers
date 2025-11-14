@@ -11,6 +11,7 @@ import { CapabilitiesRepo } from './capabilities-repo.js';
 import { ArtifactsRepo } from './artifacts-repo.js';
 import { EvidenceCacheRepo } from './evidence-cache.js';
 import { getRadClient } from '../rad-client.js';
+import { RadDocsClient } from '../rad-docs-client.js';
 import type {
   CortexContext,
   GetCortexContextOptions,
@@ -87,6 +88,7 @@ export class AgentCortexClient {
         capabilities: [],
         artifacts: [],
         relatedKnowledge: [],
+        radDocuments: [],
       };
     }
 
@@ -94,14 +96,16 @@ export class AgentCortexClient {
       task,
       evidence,
       includeRelatedKnowledge = true,
+      includeRadDocuments = true,
       maxPlaybooks = 5,
       maxWorkflows = 10,
       maxPatterns = 10,
       maxArtifacts = 20,
+      maxRadDocuments = 10,
     } = options;
 
     // Gather context in parallel
-    const [playbooks, workflows, patterns, capabilities, artifacts, relatedKnowledge] =
+    const [playbooks, workflows, patterns, capabilities, artifacts, relatedKnowledge, radDocuments] =
       await Promise.all([
         // Find matching playbooks
         this.playbooks.findMatchingPlaybooks(task, maxPlaybooks),
@@ -125,6 +129,11 @@ export class AgentCortexClient {
               .then(result => (result ? [result] : []))
               .catch(() => [])
           : Promise.resolve([]),
+
+        // Get RAD documents from crawler index if enabled
+        includeRadDocuments
+          ? this.getRadDocuments(task, maxRadDocuments)
+          : Promise.resolve([]),
       ]);
 
     return {
@@ -134,7 +143,65 @@ export class AgentCortexClient {
       capabilities,
       artifacts,
       relatedKnowledge,
+      radDocuments,
     };
+  }
+
+  /**
+   * Get RAD documents from crawler index
+   */
+  private async getRadDocuments(task: string, limit: number): Promise<any[]> {
+    try {
+      const radDocs = new RadDocsClient();
+
+      // Extract keywords from task
+      const keywords = this.extractKeywords(task);
+
+      // Search for relevant documents
+      const documents = await radDocs.searchDocuments({
+        keywords,
+        limit,
+      });
+
+      await radDocs.close();
+
+      // Format documents for Cortex context
+      return documents.map(doc => ({
+        id: doc.id,
+        path: doc.externalId,
+        type: doc.docType,
+        language: doc.language,
+        size: doc.sizeBytes,
+        lastCrawled: doc.lastCrawledAt,
+        chunkCount: doc.chunks.length,
+        // Include first chunk as preview
+        preview: doc.chunks[0]?.content.substring(0, 200) || '',
+      }));
+    } catch (error) {
+      console.warn('[Cortex] Failed to get RAD documents:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Extract keywords from task description
+   */
+  private extractKeywords(task: string): string[] {
+    const stopWords = new Set([
+      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+      'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'be',
+      'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will',
+      'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this',
+      'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they',
+    ]);
+
+    const words = task
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(word => word.length > 2 && !stopWords.has(word));
+
+    return [...new Set(words)];
   }
 
   /**
