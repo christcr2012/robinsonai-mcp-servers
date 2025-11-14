@@ -79,32 +79,6 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
 
-  packages/credit-optimizer-mcp:
-    dependencies:
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.0.4
-        version: 1.21.1
-    devDependencies:
-      '@types/better-sqlite3':
-        specifier: ^7.6.12
-        version: 7.6.13
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.19.0
-      typescript:
-        specifier: ^5.7.2
-        version: 5.9.3
-    optionalDependencies:
-      better-sqlite3:
-        specifier: ^11.7.0
-        version: 11.10.0
-      glob:
-        specifier: ^11.0.0
-        version: 11.0.3
-      handlebars:
-        specifier: ^4.7.8
-        version: 4.7.8
-
   packages/free-agent-core:
     dependencies:
       diff:
@@ -175,18 +149,6 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
     devDependencies:
-      '@robinson_ai_systems/free-agent-core':
-        specifier: workspace:*
-        version: link:../free-agent-core
-      '@robinson_ai_systems/shared-llm':
-        specifier: workspace:*
-        version: link:../shared-llm
-      '@robinson_ai_systems/shared-pipeline':
-        specifier: workspace:*
-        version: link:../shared-pipeline
-      '@robinson_ai_systems/shared-utils':
-        specifier: workspace:*
-        version: link:../shared-utils
       '@types/minimist':
         specifier: ^1.2.5
         version: 1.2.5
@@ -225,15 +187,6 @@ importers:
         specifier: ^8.16.3
         version: 8.16.3
     devDependencies:
-      '@robinson_ai_systems/shared-llm':
-        specifier: workspace:*
-        version: link:../shared-llm
-      '@robinson_ai_systems/shared-pipeline':
-        specifier: workspace:*
-        version: link:../shared-pipeline
-      '@robinson_ai_systems/shared-utils':
-        specifier: workspace:*
-        version: link:../shared-utils
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
@@ -489,12 +442,6 @@ importers:
         specifier: ^11.0.5
         version: 11.0.5
     devDependencies:
-      '@robinson_ai_systems/robinsons-context-engine':
-        specifier: workspace:*
-        version: link:../robinsons-context-engine
-      '@robinson_ai_systems/shared-utils':
-        specifier: workspace:*
-        version: link:../shared-utils
       '@types/node':
         specifier: ^22.18.13
         version: 22.19.0
