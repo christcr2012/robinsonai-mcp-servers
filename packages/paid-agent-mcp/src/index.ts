@@ -1490,6 +1490,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {},
         },
       },
+      {
+        name: 'agent_self_orient',
+        description: 'Triggers the system_self_orientation workflow. Gathers tool catalog, capabilities, and agent handbook to produce an orientation summary. Helps agents understand what tools and capabilities they have available.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            saveArtifact: {
+              type: 'boolean',
+              description: 'Whether to save the orientation summary as a knowledge artifact (default: true)',
+            },
+          },
+        },
+      },
     ],
   };
 });
@@ -1848,6 +1862,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'paid_agent_smoke_test':
         return await handlePaidAgentSmokeTest(args);
+
+      case 'agent_self_orient':
+        return await handleAgentSelfOrient(args);
 
       default:
         throw new Error(`Unknown tool: ${name}`);
@@ -4592,6 +4609,190 @@ async function handlePaidAgentSmokeTest(args: any) {
       isError: true,
     };
   }
+}
+
+/**
+ * Handle agent_self_orient tool
+ * Runs the system_self_orientation workflow
+ */
+async function handleAgentSelfOrient(args: { saveArtifact?: boolean }) {
+  try {
+    const { getCortexClient } = await import('@fa/core');
+    const { ToolkitClient } = await import('./shared/shared-llm/toolkit-client.js');
+    const saveArtifact = args.saveArtifact !== false; // Default to true
+
+    console.log('[handleAgentSelfOrient] Starting self-orientation workflow...');
+
+    const orientationData: any = {
+      timestamp: new Date().toISOString(),
+      toolCatalog: null,
+      capabilities: null,
+      agentHandbook: null,
+    };
+
+    // Initialize toolkit client
+    const toolkitClient = new ToolkitClient();
+    await toolkitClient.connect();
+
+    // Step 1: Get tool catalog
+    try {
+      const catalogResult = await toolkitClient.call('system_get_tool_catalog', {});
+      orientationData.toolCatalog = catalogResult;
+      console.log('[handleAgentSelfOrient] Tool catalog retrieved');
+    } catch (error: any) {
+      console.warn('[handleAgentSelfOrient] Failed to get tool catalog:', error.message);
+      orientationData.toolCatalog = { error: error.message };
+    }
+
+    // Step 2: Get capabilities
+    try {
+      const capabilitiesResult = await toolkitClient.call('system_get_capabilities', {});
+      orientationData.capabilities = capabilitiesResult;
+      console.log('[handleAgentSelfOrient] Capabilities retrieved');
+    } catch (error: any) {
+      console.warn('[handleAgentSelfOrient] Failed to get capabilities:', error.message);
+      orientationData.capabilities = { error: error.message };
+    }
+
+    // Step 3: Get agent handbook
+    try {
+      const handbookResult = await toolkitClient.call('system_get_agent_handbook', {});
+      orientationData.agentHandbook = handbookResult;
+      console.log('[handleAgentSelfOrient] Agent handbook retrieved');
+    } catch (error: any) {
+      console.warn('[handleAgentSelfOrient] Failed to get agent handbook:', error.message);
+      orientationData.agentHandbook = { error: error.message };
+    }
+
+    await toolkitClient.disconnect();
+
+    // Step 4: Synthesize orientation summary
+    const summary = synthesizeOrientationSummary(orientationData);
+
+    // Step 5: Save as artifact if requested
+    let artifactId: string | undefined;
+    if (saveArtifact) {
+      try {
+        const cortex = getCortexClient();
+        if (cortex.isEnabled()) {
+          const artifact = await cortex.artifacts.saveThinkingArtifact(
+            `orientation-${Date.now()}`,
+            'System Orientation Summary',
+            summary,
+            ['orientation', 'system_overview', 'meta'],
+            { timestamp: orientationData.timestamp }
+          );
+          artifactId = artifact.id;
+          console.log('[handleAgentSelfOrient] Orientation summary saved as artifact:', artifactId);
+        }
+      } catch (error: any) {
+        console.warn('[handleAgentSelfOrient] Failed to save artifact:', error.message);
+      }
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              ok: true,
+              summary,
+              artifactId,
+              data: orientationData,
+            },
+            null,
+            2
+          ),
+        },
+      ],
+    };
+  } catch (error: any) {
+    console.error('[handleAgentSelfOrient] Error:', error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              ok: false,
+              errorSummary: error.message || 'Self-orientation workflow failed',
+              error: {
+                message: error.message || 'Unknown error',
+                stack: error.stack,
+                type: error.name || 'Error',
+              },
+            },
+            null,
+            2
+          ),
+        },
+      ],
+      isError: true,
+    };
+  }
+}
+
+/**
+ * Synthesize orientation summary from gathered data
+ */
+function synthesizeOrientationSummary(data: any): string {
+  const lines: string[] = [];
+
+  lines.push('# System Orientation Summary');
+  lines.push('');
+  lines.push(`Generated: ${data.timestamp}`);
+  lines.push('');
+
+  // Tool Catalog
+  lines.push('## Available Tools');
+  if (data.toolCatalog?.error) {
+    lines.push(`⚠️ Error retrieving tool catalog: ${data.toolCatalog.error}`);
+  } else if (data.toolCatalog?.categories) {
+    lines.push(`Total Categories: ${data.toolCatalog.categories.length}`);
+    lines.push('');
+    data.toolCatalog.categories.forEach((cat: any) => {
+      lines.push(`- **${cat.name}**: ${cat.toolCount} tools - ${cat.description}`);
+    });
+  } else {
+    lines.push('No tool catalog available');
+  }
+  lines.push('');
+
+  // Capabilities
+  lines.push('## Registered Capabilities');
+  if (data.capabilities?.error) {
+    lines.push(`⚠️ Error retrieving capabilities: ${data.capabilities.error}`);
+  } else if (data.capabilities?.capabilities) {
+    lines.push(`Total Capabilities: ${data.capabilities.capabilities.length}`);
+    lines.push('');
+    data.capabilities.capabilities.forEach((cap: any) => {
+      lines.push(`- **${cap.title}** (${cap.capability_key})`);
+      lines.push(`  - ${cap.description}`);
+      lines.push(`  - Risk Level: ${cap.risk_level}`);
+      lines.push(`  - Agent Tier: ${cap.default_agent_tier}`);
+    });
+  } else {
+    lines.push('No capabilities registered');
+  }
+  lines.push('');
+
+  // Agent Handbook
+  lines.push('## Agent Handbook');
+  if (data.agentHandbook?.error) {
+    lines.push(`⚠️ Error retrieving handbook: ${data.agentHandbook.error}`);
+  } else if (data.agentHandbook?.handbook) {
+    lines.push(`Title: ${data.agentHandbook.handbook.title}`);
+    lines.push(`Created: ${data.agentHandbook.handbook.createdAt}`);
+    lines.push('');
+    lines.push('### Content Preview');
+    const preview = data.agentHandbook.handbook.content.substring(0, 500);
+    lines.push(preview + (data.agentHandbook.handbook.content.length > 500 ? '...' : ''));
+  } else {
+    lines.push('⚠️ Agent Handbook not found. Run `bootstrap_agent_cortex` capability to create it.');
+  }
+
+  return lines.join('\n');
 }
 
 main().catch(console.error);

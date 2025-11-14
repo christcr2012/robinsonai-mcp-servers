@@ -471,6 +471,10 @@ class AutonomousAgentServer {
             result = await this.runFreeAgentSmokeTest(args as any);
             break;
 
+          case 'agent_self_orient':
+            result = await this.runAgentSelfOrient(args as any);
+            break;
+
           case 'run_parallel':
             result = await run_parallel.handler({ args, server: this });
             break;
@@ -2131,6 +2135,20 @@ Generate the modified section now:`;
           properties: {},
         },
       },
+      {
+        name: 'agent_self_orient',
+        description: 'Triggers the system_self_orientation workflow. Gathers tool catalog, capabilities, and agent handbook to produce an orientation summary. Helps agents understand what tools and capabilities they have available.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            saveArtifact: {
+              type: 'boolean',
+              description: 'Whether to save the orientation summary as a knowledge artifact (default: true)',
+            },
+          },
+        },
+      },
       // Parallel execution tool
       run_parallel,
       // Path debugging tool
@@ -2555,6 +2573,163 @@ Generate the modified section now:`;
         },
       };
     }
+  }
+
+  /**
+   * Run agent self-orientation workflow
+   * Gathers tool catalog, capabilities, and agent handbook
+   */
+  private async runAgentSelfOrient(args: { saveArtifact?: boolean }): Promise<any> {
+    try {
+      const { getCortexClient } = await import('@fa/core');
+      const saveArtifact = args.saveArtifact !== false; // Default to true
+
+      console.log('[runAgentSelfOrient] Starting self-orientation workflow...');
+
+      const orientationData: any = {
+        timestamp: new Date().toISOString(),
+        toolCatalog: null,
+        capabilities: null,
+        agentHandbook: null,
+      };
+
+      // Step 1: Get tool catalog
+      try {
+        const toolkitClient = await this.getToolkitClient();
+        const catalogResult = await toolkitClient.call('system_get_tool_catalog', {});
+        orientationData.toolCatalog = catalogResult;
+        console.log('[runAgentSelfOrient] Tool catalog retrieved');
+      } catch (error: any) {
+        console.warn('[runAgentSelfOrient] Failed to get tool catalog:', error.message);
+        orientationData.toolCatalog = { error: error.message };
+      }
+
+      // Step 2: Get capabilities
+      try {
+        const toolkitClient = await this.getToolkitClient();
+        const capabilitiesResult = await toolkitClient.call('system_get_capabilities', {});
+        orientationData.capabilities = capabilitiesResult;
+        console.log('[runAgentSelfOrient] Capabilities retrieved');
+      } catch (error: any) {
+        console.warn('[runAgentSelfOrient] Failed to get capabilities:', error.message);
+        orientationData.capabilities = { error: error.message };
+      }
+
+      // Step 3: Get agent handbook
+      try {
+        const toolkitClient = await this.getToolkitClient();
+        const handbookResult = await toolkitClient.call('system_get_agent_handbook', {});
+        orientationData.agentHandbook = handbookResult;
+        console.log('[runAgentSelfOrient] Agent handbook retrieved');
+      } catch (error: any) {
+        console.warn('[runAgentSelfOrient] Failed to get agent handbook:', error.message);
+        orientationData.agentHandbook = { error: error.message };
+      }
+
+      // Step 4: Synthesize orientation summary
+      const summary = this.synthesizeOrientationSummary(orientationData);
+
+      // Step 5: Save as artifact if requested
+      let artifactId: string | undefined;
+      if (saveArtifact) {
+        try {
+          const cortex = getCortexClient();
+          if (cortex.isEnabled()) {
+            const artifact = await cortex.artifacts.saveThinkingArtifact(
+              `orientation-${Date.now()}`,
+              'System Orientation Summary',
+              summary,
+              ['orientation', 'system_overview', 'meta'],
+              { timestamp: orientationData.timestamp }
+            );
+            artifactId = artifact.id;
+            console.log('[runAgentSelfOrient] Orientation summary saved as artifact:', artifactId);
+          }
+        } catch (error: any) {
+          console.warn('[runAgentSelfOrient] Failed to save artifact:', error.message);
+        }
+      }
+
+      return {
+        ok: true,
+        summary,
+        artifactId,
+        data: orientationData,
+      };
+    } catch (error: any) {
+      console.error('[runAgentSelfOrient] Error:', error);
+      return {
+        ok: false,
+        errorSummary: error.message || 'Self-orientation workflow failed',
+        error: {
+          message: error.message || 'Unknown error',
+          stack: error.stack,
+          type: error.name || 'Error',
+        },
+      };
+    }
+  }
+
+  /**
+   * Synthesize orientation summary from gathered data
+   */
+  private synthesizeOrientationSummary(data: any): string {
+    const lines: string[] = [];
+
+    lines.push('# System Orientation Summary');
+    lines.push('');
+    lines.push(`Generated: ${data.timestamp}`);
+    lines.push('');
+
+    // Tool Catalog
+    lines.push('## Available Tools');
+    if (data.toolCatalog?.error) {
+      lines.push(`⚠️ Error retrieving tool catalog: ${data.toolCatalog.error}`);
+    } else if (data.toolCatalog?.categories) {
+      lines.push(`Total Categories: ${data.toolCatalog.categories.length}`);
+      lines.push('');
+      data.toolCatalog.categories.forEach((cat: any) => {
+        lines.push(`- **${cat.name}**: ${cat.toolCount} tools - ${cat.description}`);
+      });
+    } else {
+      lines.push('No tool catalog available');
+    }
+    lines.push('');
+
+    // Capabilities
+    lines.push('## Registered Capabilities');
+    if (data.capabilities?.error) {
+      lines.push(`⚠️ Error retrieving capabilities: ${data.capabilities.error}`);
+    } else if (data.capabilities?.capabilities) {
+      lines.push(`Total Capabilities: ${data.capabilities.capabilities.length}`);
+      lines.push('');
+      data.capabilities.capabilities.forEach((cap: any) => {
+        lines.push(`- **${cap.title}** (${cap.capability_key})`);
+        lines.push(`  - ${cap.description}`);
+        lines.push(`  - Risk Level: ${cap.risk_level}`);
+        lines.push(`  - Agent Tier: ${cap.default_agent_tier}`);
+      });
+    } else {
+      lines.push('No capabilities registered');
+    }
+    lines.push('');
+
+    // Agent Handbook
+    lines.push('## Agent Handbook');
+    if (data.agentHandbook?.error) {
+      lines.push(`⚠️ Error retrieving handbook: ${data.agentHandbook.error}`);
+    } else if (data.agentHandbook?.handbook) {
+      lines.push(`Title: ${data.agentHandbook.handbook.title}`);
+      lines.push(`Created: ${data.agentHandbook.handbook.createdAt}`);
+      lines.push('');
+      lines.push('### Content Preview');
+      const preview = data.agentHandbook.handbook.content.substring(0, 500);
+      lines.push(preview + (data.agentHandbook.handbook.content.length > 500 ? '...' : ''));
+    } else {
+      lines.push('⚠️ Agent Handbook not found. Run `bootstrap_agent_cortex` capability to create it.');
+    }
+
+    return lines.join('\n');
   }
 
   /**
