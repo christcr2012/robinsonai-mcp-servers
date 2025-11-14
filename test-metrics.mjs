@@ -4,6 +4,22 @@
  * Tests all 5 providers: OpenAI, Ollama, Anthropic, Moonshot, Voyage
  */
 
+import { config } from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// Load .env.local
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+config({ path: join(__dirname, '.env.local') });
+
+console.log('🔑 Environment Variables Loaded:');
+console.log(`   OPENAI_API_KEY: ${process.env.OPENAI_API_KEY ? '✅ Set' : '❌ Missing'}`);
+console.log(`   ANTHROPIC_API_KEY: ${process.env.ANTHROPIC_API_KEY ? '✅ Set' : '❌ Missing'}`);
+console.log(`   MOONSHOT_API_KEY: ${process.env.MOONSHOT_API_KEY ? '✅ Set' : '❌ Missing'}`);
+console.log(`   VOYAGE_API_KEY: ${process.env.VOYAGE_API_KEY ? '✅ Set' : '❌ Missing'}`);
+console.log('');
+
 import {
   OpenAIMetricsAdapter,
   OllamaMetricsAdapter,
