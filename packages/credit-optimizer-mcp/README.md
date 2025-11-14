@@ -1,5 +1,9 @@
 # 🧠 Credit Optimizer MCP Server
 
+> **⚠️ LEGACY STATUS**: This MCP server is now in maintenance mode. Core workflow and optimization logic has been migrated to **Agent Core** (`@robinson_ai_systems/free-agent-core`). New development should use Free Agent MCP and Paid Agent MCP, which have built-in workflow execution and optimization capabilities.
+>
+> See `docs/AGENT_OPTIMIZER_PROTOTYPE.md` for migration details.
+
 **Optimize Augment Code credit usage by 70-85%!**
 
 The Credit Optimizer helps you use Augment Code more efficiently through tool discovery, autonomous workflows, templates, caching, and smart execution.
