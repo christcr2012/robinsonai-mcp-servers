@@ -190,7 +190,8 @@ export class VoyageMetricsAdapter implements ProviderMetricsAdapter {
 
   private async fetchLivePricing(): Promise<PricingCache | null> {
     try {
-      const response = await fetch('https://www.voyageai.com/pricing', {
+      // Voyage AI pricing documentation
+      const response = await fetch('https://docs.voyageai.com/docs/pricing', {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         },

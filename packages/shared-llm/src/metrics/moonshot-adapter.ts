@@ -198,7 +198,8 @@ export class MoonshotMetricsAdapter implements ProviderMetricsAdapter {
 
   private async fetchLivePricing(): Promise<PricingCache | null> {
     try {
-      const response = await fetch('https://platform.moonshot.cn/docs/price/chat', {
+      // Moonshot pricing page (English version)
+      const response = await fetch('https://platform.moonshot.ai/', {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         },
