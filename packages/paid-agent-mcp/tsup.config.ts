@@ -25,7 +25,8 @@ export default defineConfig({
     'fs', 'path', 'url', 'module', 'os', 'util', 'crypto', 'stream',
     'better-sqlite3',
     'pg',
-    'pg-native'
+    'pg-native',
+    'fast-glob'
   ],
   esbuildOptions(options) {
     // Resolve @fa/core alias to the actual path
