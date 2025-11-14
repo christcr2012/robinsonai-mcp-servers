@@ -2434,7 +2434,7 @@ Generate the modified section now:`;
       // Initialize ThinkingClient for web search
       let thinkingClient: any;
       try {
-        const { getSharedThinkingClient } = await import('@robinson_ai_systems/shared-llm');
+        const { getSharedThinkingClient } = await import('./shared/shared-llm/index.js');
         thinkingClient = getSharedThinkingClient();
         await thinkingClient.connect();
         console.log('[runAgentTaskV2] ThinkingClient connected for web search');

@@ -4156,7 +4156,7 @@ async function handleRunAgentTaskV2(args: any) {
     // Initialize ThinkingClient for web search
     let thinkingClient: any;
     try {
-      const { getSharedThinkingClient } = await import('@robinson_ai_systems/shared-llm');
+      const { getSharedThinkingClient } = await import('./shared/shared-llm/index.js');
       thinkingClient = getSharedThinkingClient();
       await thinkingClient.connect();
       console.log('[handleRunAgentTaskV2] ThinkingClient connected for web search');
@@ -4245,7 +4245,7 @@ async function handleRunAgentTaskV2(args: any) {
  */
 async function handleBatchCreate(args: any) {
   try {
-    const { getMetricsAdapter } = await import('@robinson_ai_systems/shared-llm/metrics/provider-metrics.js');
+    const { getMetricsAdapter } = await import('./shared/shared-llm/metrics/provider-metrics.js');
 
     const adapter = getMetricsAdapter('anthropic');
     if (!adapter || !adapter.createBatchJob) {
@@ -4289,7 +4289,7 @@ async function handleBatchCreate(args: any) {
  */
 async function handleBatchStatus(args: any) {
   try {
-    const { getMetricsAdapter } = await import('@robinson_ai_systems/shared-llm/metrics/provider-metrics.js');
+    const { getMetricsAdapter } = await import('./shared/shared-llm/metrics/provider-metrics.js');
 
     const adapter = getMetricsAdapter('anthropic');
     if (!adapter || !adapter.getBatchJobStatus) {
@@ -4330,7 +4330,7 @@ async function handleBatchStatus(args: any) {
  */
 async function handleBatchResults(args: any) {
   try {
-    const { getMetricsAdapter } = await import('@robinson_ai_systems/shared-llm/metrics/provider-metrics.js');
+    const { getMetricsAdapter } = await import('./shared/shared-llm/metrics/provider-metrics.js');
 
     const adapter = getMetricsAdapter('anthropic');
     if (!adapter || !adapter.getBatchJobResults) {
