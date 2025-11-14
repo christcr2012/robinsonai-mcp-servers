@@ -30,6 +30,12 @@ export interface EvidenceBundle {
     url: string;
     snippet: string;
   }>;
+  agentHandbook?: {
+    id: string;
+    content: string;
+    version?: string;
+    lastUpdated?: string;
+  }; // NEW: Agent Handbook for system-level context
 }
 
 export interface EvidenceOptions {
@@ -129,6 +135,15 @@ export async function gatherEvidence(
       );
     } catch (error) {
       console.warn('Failed to gather web snippets:', error);
+    }
+  }
+
+  // 5. Gather Agent Handbook (for long-running, high-risk, or meta/system tasks)
+  if (shouldIncludeHandbook(task, options)) {
+    try {
+      bundle.agentHandbook = await gatherAgentHandbook();
+    } catch (error) {
+      console.warn('Failed to gather Agent Handbook:', error);
     }
   }
 
@@ -316,4 +331,83 @@ function extractKeywords(task: string): string[] {
 
   // Return unique keywords
   return [...new Set(words)];
+}
+
+/**
+ * Determine if Agent Handbook should be included in evidence
+ * Include for: long-running, high-risk, or meta/system-related tasks
+ */
+function shouldIncludeHandbook(task: string, options: EvidenceOptions): boolean {
+  const taskLower = task.toLowerCase();
+
+  // Always include for meta/system tasks
+  const metaKeywords = [
+    'system', 'architecture', 'overview', 'handbook', 'capabilities',
+    'workflows', 'cortex', 'rad', 'toolkit', 'agent', 'bootstrap',
+    'self-orient', 'introspect', 'meta',
+  ];
+
+  if (metaKeywords.some(keyword => taskLower.includes(keyword))) {
+    return true;
+  }
+
+  // Include for high-risk tasks (indicated by keywords)
+  const riskKeywords = [
+    'migration', 'refactor', 'delete', 'remove', 'production',
+    'deploy', 'database', 'schema', 'security', 'auth',
+  ];
+
+  if (riskKeywords.some(keyword => taskLower.includes(keyword))) {
+    return true;
+  }
+
+  // Include for complex/long-running tasks (indicated by keywords)
+  const complexKeywords = [
+    'implement', 'design', 'architect', 'plan', 'strategy',
+    'comprehensive', 'complete', 'full', 'entire',
+  ];
+
+  if (complexKeywords.some(keyword => taskLower.includes(keyword))) {
+    return true;
+  }
+
+  // Default: don't include for simple tasks
+  return false;
+}
+
+/**
+ * Gather Agent Handbook from Cortex knowledge artifacts
+ */
+async function gatherAgentHandbook(): Promise<{
+  id: string;
+  content: string;
+  version?: string;
+  lastUpdated?: string;
+} | undefined> {
+  try {
+    const cortex = getCortexClient();
+
+    if (!cortex.isEnabled()) {
+      console.log('Cortex not enabled, skipping Agent Handbook retrieval');
+      return undefined;
+    }
+
+    // Retrieve Agent Handbook from knowledge artifacts
+    const handbook = await cortex.knowledgeArtifacts.getAgentHandbook();
+
+    if (!handbook) {
+      console.log('Agent Handbook not found in Cortex');
+      return undefined;
+    }
+
+    return {
+      id: handbook.id,
+      content: handbook.content,
+      version: handbook.version,
+      lastUpdated: handbook.createdAt,
+    };
+  } catch (error) {
+    console.warn('Failed to retrieve Agent Handbook:', error);
+    return undefined;
+  }
 }

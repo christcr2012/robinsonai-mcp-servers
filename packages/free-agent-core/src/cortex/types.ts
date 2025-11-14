@@ -105,13 +105,14 @@ export interface Capability {
 export interface KnowledgeArtifact {
   id: string;
   taskId: string;
-  artifactType: 'thinking_output' | 'plan' | 'decision' | 'execution_summary';
+  artifactType: 'thinking_output' | 'plan' | 'decision' | 'execution_summary' | 'agent_handbook' | 'guide' | 'checklist';
   title: string;
   content: string;
   format: 'markdown' | 'json' | 'yaml';
   tags: string[];
   createdAt: Date;
   metadata: Record<string, any>;
+  version?: string; // Optional version field for handbook and guides
 }
 
 // ============================================================================

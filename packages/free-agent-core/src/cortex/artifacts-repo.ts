@@ -132,12 +132,12 @@ export class ArtifactsRepo {
    * Find artifacts by type
    */
   async findByType(
-    artifactType: 'thinking_output' | 'plan' | 'decision' | 'execution_summary',
+    artifactType: 'thinking_output' | 'plan' | 'decision' | 'execution_summary' | 'agent_handbook' | 'guide' | 'checklist',
     limit: number = 50
   ): Promise<KnowledgeArtifact[]> {
     const result = await this.pool.query(
       `
-      SELECT 
+      SELECT
         id, task_id, artifact_type, title, content, format, tags,
         created_at, metadata
       FROM knowledge_artifacts
@@ -149,6 +149,70 @@ export class ArtifactsRepo {
     );
 
     return result.rows.map(this.mapRow);
+  }
+
+  /**
+   * Save or update the Agent Handbook
+   * Only one handbook should exist at a time (latest version)
+   */
+  async saveAgentHandbook(
+    content: string,
+    version?: string,
+    metadata: Record<string, any> = {}
+  ): Promise<KnowledgeArtifact> {
+    // Use a special task_id for the handbook
+    const taskId = 'system-agent-handbook';
+    const title = 'Agent Handbook';
+    const tags = ['handbook', 'system_overview'];
+
+    // Add version to metadata if provided
+    const fullMetadata = version ? { ...metadata, version } : metadata;
+
+    const result = await this.pool.query(
+      `
+      INSERT INTO knowledge_artifacts (
+        task_id, artifact_type, title, content, format, tags, metadata
+      ) VALUES ($1, 'agent_handbook', $2, $3, 'markdown', $4, $5)
+      RETURNING
+        id, task_id, artifact_type, title, content, format, tags,
+        created_at, metadata
+      `,
+      [taskId, title, content, tags, JSON.stringify(fullMetadata)]
+    );
+
+    return this.mapRow(result.rows[0]);
+  }
+
+  /**
+   * Get the latest Agent Handbook
+   */
+  async getAgentHandbook(): Promise<KnowledgeArtifact | null> {
+    const result = await this.pool.query(
+      `
+      SELECT
+        id, task_id, artifact_type, title, content, format, tags,
+        created_at, metadata
+      FROM knowledge_artifacts
+      WHERE artifact_type = 'agent_handbook'
+        AND tags @> ARRAY['handbook', 'system_overview']
+      ORDER BY created_at DESC
+      LIMIT 1
+      `
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const row = result.rows[0];
+    const artifact = this.mapRow(row);
+
+    // Extract version from metadata if present
+    if (artifact.metadata?.version) {
+      artifact.version = artifact.metadata.version;
+    }
+
+    return artifact;
   }
 
   /**
