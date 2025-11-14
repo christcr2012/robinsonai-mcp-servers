@@ -37,7 +37,21 @@ import { initializePricing, getModelPricing, getPricingInfo, refreshPricing } fr
 import { getTokenTracker } from './token-tracker.js';
 import { selectBestModel, estimateTaskCost, getModelConfig, COST_POLICY, requiresApproval, withinBudget } from './model-catalog.js';
 import { getSharedOllamaClient } from './ollama-client.js';
-import { getSharedToolkitClient, type ToolkitCallParams, getSharedFileEditor, getSharedThinkingClient, type ThinkingToolCallParams, createLlmRouter, type LlmRouter } from '@robinson_ai_systems/shared-llm';
+import {
+  getSharedToolkitClient,
+  type ToolkitCallParams,
+  getSharedFileEditor,
+  getSharedThinkingClient,
+  type ThinkingToolCallParams,
+  createLlmRouter,
+  type LlmRouter,
+  OpenAIMetricsAdapter,
+  OllamaMetricsAdapter,
+  registerMetricsAdapter,
+  getMetricsAdapter,
+  getAllMetricsAdapters,
+  getAvailableMetricsAdapters,
+} from '@robinson_ai_systems/shared-llm';
 import { buildStrictSystemPrompt } from './prompt-builder.js';
 import { getWorkspaceRoot } from './lib/workspace.js';
 import { SimpleDelegates } from './agents/simple-delegates.js';
@@ -272,6 +286,27 @@ try {
 }
 initializePricing(); // Non-blocking, starts with fallback
 
+// Initialize provider-agnostic metrics adapters
+function initializeMetricsAdapters() {
+  // OpenAI adapter
+  const openaiAdapter = new OpenAIMetricsAdapter(
+    getMonthlySpend,
+    () => getPolicy().MONTHLY_BUDGET,
+    (period: string) => getTokenTracker().getStats(period)
+  );
+  registerMetricsAdapter(openaiAdapter);
+
+  // Ollama adapter (always free)
+  const ollamaAdapter = new OllamaMetricsAdapter(
+    (period: string) => getTokenTracker().getStats(period)
+  );
+  registerMetricsAdapter(ollamaAdapter);
+
+  console.error('[PAID-AGENT] Initialized metrics adapters:', getAllMetricsAdapters().map(a => a.provider).join(', '));
+}
+
+initializeMetricsAdapters();
+
 // Concurrency control
 let activeJobs = 0;
 const jobQueue: Array<{ resolve: Function; reject: Function }> = [];
@@ -458,14 +493,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'openai_worker_get_spend_stats',
-        description: 'Get monthly spend statistics',
+        description: '⚠️ DEPRECATED: Use agent_get_usage_stats instead. Get monthly spend statistics (OpenAI only)',
         inputSchema: {
       type: 'object'
         , additionalProperties: false },
       },
       {
         name: 'openai_worker_estimate_cost',
-        description: 'Estimate cost for a job before running it (helps decide between free Ollama vs paid OpenAI)',
+        description: '⚠️ DEPRECATED: Use agent_get_cost_estimate instead. Estimate cost for a job before running it (OpenAI only)',
         inputSchema: {
           type: 'object', additionalProperties: false,
           properties: {
@@ -488,21 +523,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'openai_worker_get_capacity',
-        description: 'Get current capacity and availability of OpenAI workers',
+        description: '⚠️ DEPRECATED: Use agent_get_capacity instead. Get current capacity and availability (OpenAI only)',
         inputSchema: {
       type: 'object'
         , additionalProperties: false },
       },
       {
         name: 'openai_worker_refresh_pricing',
-        description: 'Force refresh OpenAI pricing from live source (normally auto-refreshes every 24 hours)',
+        description: '⚠️ DEPRECATED: Use agent_refresh_pricing instead. Force refresh pricing from live source (OpenAI only)',
         inputSchema: {
       type: 'object'
         , additionalProperties: false },
       },
       {
         name: 'openai_worker_get_token_analytics',
-        description: 'Get detailed token usage analytics. Shows actual tokens used, real costs, and spending patterns.',
+        description: '⚠️ DEPRECATED: Use agent_get_token_analytics instead. Get detailed token usage analytics (OpenAI only)',
         inputSchema: {
           type: 'object', additionalProperties: false,
           properties: {
@@ -1179,6 +1214,105 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           additionalProperties: false,
         },
       },
+      // Provider-Agnostic Metrics Tools (NEW - replaces openai_worker_* tools)
+      {
+        name: 'agent_get_cost_estimate',
+        description: 'Estimate cost for any provider/model combination. Provider-agnostic replacement for openai_worker_estimate_cost.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            provider: {
+              type: 'string',
+              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'auto'],
+              description: 'Provider to use (default: auto - uses current router config)',
+            },
+            model: {
+              type: 'string',
+              description: 'Model name (e.g., "gpt-4o-mini", "claude-3-5-sonnet", "qwen2.5-coder:7b")',
+            },
+            estimated_input_tokens: {
+              type: 'number',
+              description: 'Estimated input tokens',
+            },
+            estimated_output_tokens: {
+              type: 'number',
+              description: 'Estimated output tokens',
+            },
+          },
+          required: ['model', 'estimated_input_tokens', 'estimated_output_tokens'],
+        },
+      },
+      {
+        name: 'agent_get_usage_stats',
+        description: 'Get usage statistics across all providers. Provider-agnostic replacement for openai_worker_get_spend_stats.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            period: {
+              type: 'string',
+              enum: ['day', 'week', 'month', 'all'],
+              description: 'Time period to analyze',
+            },
+            provider: {
+              type: 'string',
+              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'all'],
+              description: 'Filter by provider (default: all)',
+            },
+          },
+        },
+      },
+      {
+        name: 'agent_get_capacity',
+        description: 'Get capacity and availability across all providers. Provider-agnostic replacement for openai_worker_get_capacity.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            provider: {
+              type: 'string',
+              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'all'],
+              description: 'Filter by provider (default: all)',
+            },
+          },
+        },
+      },
+      {
+        name: 'agent_refresh_pricing',
+        description: 'Refresh pricing for all configured providers. Provider-agnostic replacement for openai_worker_refresh_pricing.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            provider: {
+              type: 'string',
+              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'all'],
+              description: 'Provider to refresh (default: all)',
+            },
+          },
+        },
+      },
+      {
+        name: 'agent_get_token_analytics',
+        description: 'Get detailed token analytics across all providers. Provider-agnostic replacement for openai_worker_get_token_analytics.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            period: {
+              type: 'string',
+              enum: ['day', 'week', 'month', 'all'],
+              description: 'Time period to analyze',
+            },
+            provider: {
+              type: 'string',
+              enum: ['openai', 'anthropic', 'moonshot', 'ollama', 'all'],
+              description: 'Filter by provider (default: all)',
+            },
+          },
+        },
+      },
       // Diagnostics tools
       {
         name: 'get_agent_stats',
@@ -1246,6 +1380,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'openai_worker_get_token_analytics':
       case 'paid_agent_get_token_analytics':
         return await handleGetTokenAnalytics(args);
+
+      // Provider-Agnostic Metrics Tools (NEW)
+      case 'agent_get_cost_estimate':
+        return await handleAgentGetCostEstimate(args);
+      case 'agent_get_usage_stats':
+        return await handleAgentGetUsageStats(args);
+      case 'agent_get_capacity':
+        return await handleAgentGetCapacity(args);
+      case 'agent_refresh_pricing':
+        return await handleAgentRefreshPricing(args);
+      case 'agent_get_token_analytics':
+        return await handleAgentGetTokenAnalytics(args);
+
       case 'execute_versatile_task_openai-worker-mcp':
       case 'execute_versatile_task_paid-agent-mcp':
         return await handleExecuteVersatileTask(args);
@@ -1738,11 +1885,17 @@ async function handleGetJobStatus(args: any) {
 }
 
 /**
- * Get spend stats
+ * Get spend stats (DEPRECATED - calls agent_get_usage_stats)
+ * @deprecated Use agent_get_usage_stats instead
  */
 async function handleGetSpendStats() {
+  // Delegate to new provider-agnostic tool
+  const result = await handleAgentGetUsageStats({ period: 'month', provider: 'openai' });
+
+  // Transform to legacy format for backward compatibility
+  const stats = JSON.parse(result.content[0].text);
   const policy = getPolicy();
-  const monthlySpend = getMonthlySpend();
+  const monthlySpend = stats.totalCost;
 
   return {
     content: [
@@ -1753,6 +1906,7 @@ async function handleGetSpendStats() {
           total_budget: policy.MONTHLY_BUDGET,
           remaining: Math.max(0, policy.MONTHLY_BUDGET - monthlySpend),
           percentage_used: (monthlySpend / policy.MONTHLY_BUDGET) * 100,
+          _deprecation_notice: 'This tool is deprecated. Use agent_get_usage_stats instead.',
         }, null, 2),
       },
     ],
@@ -1761,6 +1915,7 @@ async function handleGetSpendStats() {
 
 /**
  * Estimate cost for a job (uses live pricing)
+ * @deprecated Use agent_get_cost_estimate instead
  */
 async function handleEstimateCost(args: any) {
   const { agent, estimated_input_tokens, estimated_output_tokens } = args;
@@ -1769,16 +1924,19 @@ async function handleEstimateCost(args: any) {
     throw new Error(`Invalid agent: ${agent}`);
   }
 
-  // Get agent config with live pricing
+  // Get agent config to determine model
   const agentConfig = await getAgentConfig(agent as keyof typeof AGENTS);
 
-  const inputCost = (estimated_input_tokens / 1000) * agentConfig.cost_per_1k_input;
-  const outputCost = (estimated_output_tokens / 1000) * agentConfig.cost_per_1k_output;
-  const totalCost = inputCost + outputCost;
+  // Delegate to new provider-agnostic tool
+  const result = await handleAgentGetCostEstimate({
+    provider: 'openai',
+    model: agentConfig.model,
+    estimated_input_tokens,
+    estimated_output_tokens,
+  });
 
-  const policy = getPolicy();
-  const monthlySpend = getMonthlySpend();
-  const remaining = Math.max(0, policy.MONTHLY_BUDGET - monthlySpend);
+  // Transform to legacy format for backward compatibility
+  const estimate = JSON.parse(result.content[0].text);
 
   return {
     content: [
@@ -1788,31 +1946,20 @@ async function handleEstimateCost(args: any) {
           agent,
           model: agentConfig.model,
           pricing: {
-            source: agentConfig.pricing_source,
-            updated: agentConfig.pricing_updated,
-            input_per_1k: agentConfig.cost_per_1k_input,
-            output_per_1k: agentConfig.cost_per_1k_output
+            source: estimate.pricing.source,
+            updated: estimate.pricing.lastUpdated,
+            input_per_1k: estimate.pricing.inputPer1k,
+            output_per_1k: estimate.pricing.outputPer1k,
           },
           estimated_cost: {
-            input: inputCost,
-            output: outputCost,
-            total: totalCost,
-            currency: 'USD'
+            input: estimate.inputCost,
+            output: estimate.outputCost,
+            total: estimate.totalCost,
+            currency: estimate.currency,
           },
-          budget_impact: {
-            monthly_budget: policy.MONTHLY_BUDGET,
-            current_spend: monthlySpend,
-            remaining_budget: remaining,
-            percentage_of_remaining: remaining > 0 ? (totalCost / remaining) * 100 : 0,
-            can_afford: totalCost <= remaining
-          },
-          recommendation: totalCost > remaining
-            ? 'BLOCKED - Would exceed monthly budget. Use free Ollama agents instead.'
-            : totalCost > (remaining * 0.5)
-            ? 'CAUTION - Uses >50% of remaining budget. Consider free Ollama agents.'
-            : totalCost > (remaining * 0.1)
-            ? 'OK - Moderate cost. Ollama agents are free alternative.'
-            : 'OK - Low cost impact.'
+          budget_impact: estimate.budgetImpact,
+          recommendation: estimate.recommendation,
+          _deprecation_notice: 'This tool is deprecated. Use agent_get_cost_estimate instead.',
         }, null, 2),
       },
     ],
@@ -1821,21 +1968,22 @@ async function handleEstimateCost(args: any) {
 
 /**
  * Refresh pricing from live source
+ * @deprecated Use agent_refresh_pricing instead
  */
 async function handleRefreshPricing() {
-  const success = await refreshPricing();
-  const pricingInfo = getPricingInfo();
+  // Delegate to new provider-agnostic tool
+  const result = await handleAgentRefreshPricing({ provider: 'openai' });
+  const data = JSON.parse(result.content[0].text);
 
   return {
     content: [
       {
         type: 'text',
         text: JSON.stringify({
-          success,
-          message: success
-            ? 'Successfully refreshed pricing from live source'
-            : 'Failed to refresh pricing, using cached/fallback values',
-          pricing_info: pricingInfo
+          success: data.success,
+          message: data.message,
+          pricing_info: getPricingInfo(),
+          _deprecation_notice: 'This tool is deprecated. Use agent_refresh_pricing instead.',
         }, null, 2),
       },
     ],
@@ -1844,17 +1992,20 @@ async function handleRefreshPricing() {
 
 /**
  * Get capacity info (uses live pricing)
+ * @deprecated Use agent_get_capacity instead
  */
 async function handleGetCapacity() {
-  const policy = getPolicy();
-  const monthlySpend = getMonthlySpend();
-  const remaining = Math.max(0, policy.MONTHLY_BUDGET - monthlySpend);
+  // Delegate to new provider-agnostic tool
+  const result = await handleAgentGetCapacity({ provider: 'openai' });
+  const capacity = JSON.parse(result.content[0].text);
 
-  // Get live pricing for all agents
+  const policy = getPolicy();
+  const pricingInfo = getPricingInfo();
+
+  // Get live pricing for all agents (for legacy format)
   const miniConfig = await getAgentConfig('mini-worker');
   const balancedConfig = await getAgentConfig('balanced-worker');
   const premiumConfig = await getAgentConfig('premium-worker');
-  const pricingInfo = getPricingInfo();
 
   return {
     content: [
@@ -1863,16 +2014,11 @@ async function handleGetCapacity() {
         text: JSON.stringify({
           max_concurrency: policy.MAX_CONCURRENCY,
           config: `Set MAX_OPENAI_CONCURRENCY=1-10 (current: ${policy.MAX_CONCURRENCY})`,
-          budget: {
-            monthly_limit: policy.MONTHLY_BUDGET,
-            spent: monthlySpend,
-            remaining,
-            percentage_used: (monthlySpend / policy.MONTHLY_BUDGET) * 100
-          },
+          budget: capacity.providers[0].budget,
           pricing_info: {
             last_updated: pricingInfo.last_updated,
             cache_age_hours: Math.round(pricingInfo.cache_age_hours * 10) / 10,
-            sources: pricingInfo.sources
+            sources: pricingInfo.sources,
           },
           agents: {
             'mini-worker': {
@@ -1880,28 +2026,29 @@ async function handleGetCapacity() {
               cost_per_1k_input: miniConfig.cost_per_1k_input,
               cost_per_1k_output: miniConfig.cost_per_1k_output,
               pricing_source: miniConfig.pricing_source,
-              note: 'Cheapest - good for simple tasks'
+              note: 'Cheapest - good for simple tasks',
             },
             'balanced-worker': {
               model: balancedConfig.model,
               cost_per_1k_input: balancedConfig.cost_per_1k_input,
               cost_per_1k_output: balancedConfig.cost_per_1k_output,
               pricing_source: balancedConfig.pricing_source,
-              note: 'Mid-tier - good balance of cost/quality'
+              note: 'Mid-tier - good balance of cost/quality',
             },
             'premium-worker': {
               model: premiumConfig.model,
               cost_per_1k_input: premiumConfig.cost_per_1k_input,
               cost_per_1k_output: premiumConfig.cost_per_1k_output,
               pricing_source: premiumConfig.pricing_source,
-              note: 'Most expensive - use sparingly'
-            }
+              note: 'Most expensive - use sparingly',
+            },
           },
           free_alternative: {
             server: 'autonomous-agent-mcp',
             cost: 0,
-            note: 'FREE - runs on local Ollama. Use this first!'
-          }
+            note: 'FREE - runs on local Ollama. Use this first!',
+          },
+          _deprecation_notice: 'This tool is deprecated. Use agent_get_capacity instead.',
         }, null, 2),
       },
     ],
@@ -1928,6 +2075,203 @@ async function handleGetTokenAnalytics(args: any) {
       },
     ],
   };
+}
+
+/**
+ * Provider-Agnostic Metrics Handlers (NEW)
+ */
+
+/**
+ * Get cost estimate (provider-agnostic)
+ */
+async function handleAgentGetCostEstimate(args: any) {
+  const { provider = 'auto', model, estimated_input_tokens, estimated_output_tokens } = args;
+
+  // Determine which provider to use
+  let targetProvider = provider;
+  if (provider === 'auto') {
+    // Use OpenAI by default for now (could be smarter based on model name)
+    targetProvider = 'openai';
+  }
+
+  const adapter = getMetricsAdapter(targetProvider);
+  if (!adapter) {
+    throw new Error(`Provider not found: ${targetProvider}. Available: ${getAllMetricsAdapters().map(a => a.provider).join(', ')}`);
+  }
+
+  if (!adapter.isAvailable()) {
+    throw new Error(`Provider ${targetProvider} is not available (check API key configuration)`);
+  }
+
+  const estimate = await adapter.getCostEstimate({
+    model,
+    inputTokens: estimated_input_tokens,
+    outputTokens: estimated_output_tokens || 0,
+  });
+
+  const policy = getPolicy();
+  const monthlySpend = getMonthlySpend();
+  const remaining = Math.max(0, policy.MONTHLY_BUDGET - monthlySpend);
+
+  return createToolResponse({
+    ...estimate,
+    budgetImpact: {
+      monthlyBudget: policy.MONTHLY_BUDGET,
+      currentSpend: monthlySpend,
+      remainingBudget: remaining,
+      percentageOfRemaining: remaining > 0 ? (estimate.totalCost / remaining) * 100 : 0,
+      canAfford: estimate.totalCost <= remaining,
+    },
+    recommendation:
+      estimate.totalCost > remaining
+        ? 'BLOCKED - Would exceed monthly budget. Use free Ollama instead.'
+        : estimate.totalCost > remaining * 0.5
+        ? 'CAUTION - Uses >50% of remaining budget. Consider free Ollama.'
+        : estimate.totalCost > remaining * 0.1
+        ? 'OK - Moderate cost. Ollama is free alternative.'
+        : 'OK - Low cost impact.',
+  });
+}
+
+/**
+ * Get usage stats (provider-agnostic)
+ */
+async function handleAgentGetUsageStats(args: any) {
+  const { period = 'month', provider = 'all' } = args;
+
+  if (provider === 'all') {
+    // Aggregate across all available providers
+    const adapters = getAvailableMetricsAdapters();
+    const allStats = await Promise.all(
+      adapters.map(async (adapter) => {
+        try {
+          return await adapter.getUsageStats({ period: period as any });
+        } catch (error) {
+          return null;
+        }
+      })
+    );
+
+    // Merge stats
+    const merged = {
+      period,
+      totalCost: 0,
+      totalTokens: 0,
+      totalRequests: 0,
+      byProvider: {} as any,
+      byModel: {} as any,
+    };
+
+    for (const stats of allStats) {
+      if (!stats) continue;
+      merged.totalCost += stats.totalCost;
+      merged.totalTokens += stats.totalTokens;
+      merged.totalRequests += stats.totalRequests;
+      Object.assign(merged.byProvider, stats.byProvider);
+      Object.assign(merged.byModel, stats.byModel);
+    }
+
+    return createToolResponse(merged);
+  } else {
+    // Single provider
+    const adapter = getMetricsAdapter(provider);
+    if (!adapter) {
+      throw new Error(`Provider not found: ${provider}`);
+    }
+
+    const stats = await adapter.getUsageStats({ period: period as any });
+    return createToolResponse(stats);
+  }
+}
+
+/**
+ * Get capacity (provider-agnostic)
+ */
+async function handleAgentGetCapacity(args: any) {
+  const { provider = 'all' } = args;
+
+  if (provider === 'all') {
+    // Get capacity for all available providers
+    const adapters = getAvailableMetricsAdapters();
+    const allCapacity = await Promise.all(
+      adapters.map(async (adapter) => {
+        try {
+          return await adapter.getCapacity();
+        } catch (error) {
+          return null;
+        }
+      })
+    );
+
+    return createToolResponse({
+      providers: allCapacity.filter((c) => c !== null),
+      note: 'Showing capacity for all available providers',
+    });
+  } else {
+    // Single provider
+    const adapter = getMetricsAdapter(provider);
+    if (!adapter) {
+      throw new Error(`Provider not found: ${provider}`);
+    }
+
+    const capacity = await adapter.getCapacity();
+    return createToolResponse(capacity);
+  }
+}
+
+/**
+ * Refresh pricing (provider-agnostic)
+ */
+async function handleAgentRefreshPricing(args: any) {
+  const { provider = 'all' } = args;
+
+  if (provider === 'all') {
+    // Refresh all providers
+    const adapters = getAllMetricsAdapters();
+    const results = await Promise.all(
+      adapters.map(async (adapter) => ({
+        provider: adapter.provider,
+        success: await adapter.refreshPricing(),
+      }))
+    );
+
+    return createToolResponse({
+      results,
+      message: 'Refreshed pricing for all providers',
+    });
+  } else {
+    // Single provider
+    const adapter = getMetricsAdapter(provider);
+    if (!adapter) {
+      throw new Error(`Provider not found: ${provider}`);
+    }
+
+    const success = await adapter.refreshPricing();
+    return createToolResponse({
+      provider,
+      success,
+      message: success ? 'Successfully refreshed pricing' : 'Failed to refresh pricing',
+    });
+  }
+}
+
+/**
+ * Get token analytics (provider-agnostic)
+ */
+async function handleAgentGetTokenAnalytics(args: any) {
+  const { period = 'all', provider = 'all' } = args;
+
+  // For now, delegate to existing token tracker
+  // In the future, this could aggregate across multiple providers
+  const tracker = getTokenTracker();
+  const stats = tracker.getStats(period);
+
+  return createToolResponse({
+    ...stats,
+    provider: provider === 'all' ? 'aggregated' : provider,
+    database_path: tracker.getDatabasePath(),
+    note: 'Provider-agnostic token analytics',
+  });
 }
 
 /**

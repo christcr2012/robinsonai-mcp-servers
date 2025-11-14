@@ -23,3 +23,17 @@ export {
   type Providers
 } from './llm-router.js';
 
+// Provider-agnostic metrics system
+export {
+  type ProviderMetricsAdapter,
+  type CostEstimate,
+  type UsageStats,
+  type CapacityInfo,
+  registerMetricsAdapter,
+  getMetricsAdapter,
+  getAllMetricsAdapters,
+  getAvailableMetricsAdapters,
+  aggregateCostEstimates,
+} from './metrics/provider-metrics.js';
+export { OpenAIMetricsAdapter } from './metrics/openai-adapter.js';
+export { OllamaMetricsAdapter } from './metrics/ollama-adapter.js';
