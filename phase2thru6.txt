@@ -1,0 +1,469 @@
+Phase 2 (revised): Promote free-agent-core into the shared Agent Core
+
+Goal:
+Use packages/free-agent-core as the single Agent Core for both Free Agent and Paid Agent, instead of creating a new agents-core. Keep everything it already does, and extend it where needed.
+
+Step 2.1 – Confirm free-agent-core is treated as an internal shared library
+
+In packages/free-agent-core/package.json:
+
+Keep:
+
+"private": true,
+"version": "0.0.0-internal"
+
+
+It should not be published as a standalone NPM package anymore (even though the README still shows old install instructions).
+
+Make sure the root build/publish scripts:
+
+Do not try to publish @robinson_ai_systems/free-agent-core.
+
+Only publish MCP packages (free-agent-mcp, paid-agent-mcp, toolkit, etc.).
+
+This keeps free-agent-core as a pure internal Agent Core, bundled into agents.
+
+Step 2.2 – Add a generic runAgentTask wrapper to free-agent-core
+
+Right now free-agent-core exposes runFreeAgent(opts), which is tied to a CLI-ish shape.
+
+Have Augment:
+
+In packages/free-agent-core/src/task.ts (new file), define types:
+
+export type AgentKind = 'feature' | 'bugfix' | 'refactor' | 'research';
+export type AgentTier = 'free' | 'paid';
+
+export interface AgentTask {
+  repo: string;
+  task: string;
+  kind: AgentKind;
+  tier?: AgentTier;
+  quality?: 'fast' | 'balanced' | 'best' | 'auto';
+}
+
+export interface AgentRunResult {
+  success: boolean;
+  logs?: string[];
+  // TODO: add richer info as needed (applied patches, tests, etc.)
+}
+
+
+In packages/free-agent-core/src/runner.ts:
+
+Keep runFreeAgent(opts) as-is.
+
+Add a new function:
+
+import type { AgentTask, AgentRunResult } from './task.js';
+
+export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
+  await runFreeAgent({
+    repo: task.repo,
+    task: task.task,
+    kind: task.kind,
+    tier: task.tier,
+    quality: task.quality,
+  });
+
+  // Later we can return richer data; for now just return a basic success flag.
+  return { success: true };
+}
+
+
+In packages/free-agent-core/src/index.ts, export the new types/functions:
+
+export { runFreeAgent } from './runner.js';
+export { runAgentTask } from './runner.js';
+export type { AgentTask, AgentRunResult, AgentKind, AgentTier } from './task.js';
+
+
+Now free-agent-core has a neutral entrypoint runAgentTask that doesn’t “feel” Free-only.
+
+Step 2.3 – Wire Free Agent MCP to use runAgentTask internally
+
+In packages/free-agent-mcp/src/index.ts:
+
+Import from @fa/core:
+
+import { runAgentTask, type AgentKind } from '@fa/core/index.js';
+
+
+(This alias is already set up in tsup.config.ts.)
+
+Add a new tool, for example:
+
+{
+  name: 'free_agent_run_task_v2',
+  description: 'Run a full coding task using the shared Agent Core (local-first, Ollama).',
+  inputSchema: {
+    type: 'object',
+    required: ['repo', 'task'],
+    additionalProperties: false,
+    properties: {
+      repo: { type: 'string' },
+      task: { type: 'string' },
+      kind: {
+        type: 'string',
+        enum: ['feature', 'bugfix', 'refactor', 'research'],
+        default: 'feature',
+      },
+      quality: {
+        type: 'string',
+        enum: ['fast', 'balanced', 'best', 'auto'],
+        default: 'auto',
+      },
+    },
+  },
+}
+
+
+In the tool handler switch, implement:
+
+if (tool.name === 'free_agent_run_task_v2') {
+  const { repo, task, kind = 'feature', quality = 'auto' } = args as any;
+  const result = await runAgentTask({
+    repo,
+    task,
+    kind: kind as AgentKind,
+    tier: 'free',
+    quality,
+  });
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: JSON.stringify(result, null, 2),
+      },
+    ],
+  };
+}
+
+
+This makes Free Agent MCP actually use the core, not just local ad-hoc agents.
+
+Step 2.4 – Wire Paid Agent MCP into free-agent-core too
+
+In packages/paid-agent-mcp/src/index.ts:
+
+Import the same:
+
+import { runAgentTask, type AgentKind } from '@robinson_ai_systems/free-agent-core'; 
+// or via an alias like @fa/core if you prefer and configure tsup accordingly
+
+
+(Here we’re not using the alias yet; Augment can either set up an alias like Free Agent’s, or import from the package name if that’s easier with the current bundling.)
+
+Add a tool:
+
+{
+  name: 'paid_agent_run_task_v2',
+  description: 'Run a full coding task using the shared Agent Core (paid-model tier).',
+  inputSchema: {
+    type: 'object',
+    required: ['repo', 'task'],
+    additionalProperties: false,
+    properties: {
+      repo: { type: 'string' },
+      task: { type: 'string' },
+      kind: {
+        type: 'string',
+        enum: ['feature', 'bugfix', 'refactor', 'research'],
+        default: 'feature',
+      },
+      quality: {
+        type: 'string',
+        enum: ['fast', 'balanced', 'best', 'auto'],
+        default: 'auto',
+      },
+    },
+  },
+}
+
+
+In the Paid Agent handler:
+
+if (tool.name === 'paid_agent_run_task_v2') {
+  const { repo, task, kind = 'feature', quality = 'auto' } = args as any;
+  const result = await runAgentTask({
+    repo,
+    task,
+    kind: kind as AgentKind,
+    tier: 'paid',
+    quality,
+  });
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: JSON.stringify(result, null, 2),
+      },
+    ],
+  };
+}
+
+
+Make sure the Paid Agent’s model selection & cost policies are still respected via:
+
+shared-llm’s router (using AGENT_NAME, environment, etc.).
+
+The OpenAI/Anthropic/Moonshot model-catalog logic we discussed in Phase 1.
+
+Now both agents are literally calling the same core runner, just with different tier and routing behavior.
+
+Step 2.5 – Don’t delete anything yet
+
+Important for your peace of mind:
+
+Don’t delete the existing “agents” in free-agent-mcp/src/agents/* or the older tools yet.
+
+Let free_agent_run_task_v2 / paid_agent_run_task_v2 live alongside the existing tools.
+
+Once you’ve tested and validated that the new path works better, we can:
+
+Gradually retire the older paths.
+
+Simplify free-agent-mcp and paid-agent-mcp to be mostly thin shells around:
+
+free-agent-core
+
+shared-llm
+
+Thinking Tools / Toolkit / RAD, etc.
+
+
+Phase 3 – Thinking Tools: parity + orchestration
+
+Intent:
+Both agents should:
+
+Have access to all Thinking Tools.
+
+“Know” which ones to use and when.
+
+Use them as part of planning / decision-making, not as random calls.
+
+What Augment should do
+
+Parity: make sure both agents can use all thinking tools
+
+In thinking-tools-mcp:
+
+Confirm the full list of tools (blue_team, red_team, decision_matrix, root_cause_analysis, systems_thinking, etc.).
+
+In Free & Paid MCPs:
+
+Ensure both can discover and call thinking tools via ThinkingClient from shared-llm.
+
+If there are any “backdoor” Free-only wrappers, mirror them for Paid unless there’s a very good reason not to.
+
+Thinking Tools playbook (for the agents)
+
+Create docs/THINKING_TOOLS_PLAYBOOK.md:
+
+List each thinking tool.
+
+Explain when to use it (for the agent).
+
+For example:
+
+blue_team for brainstorming strategies.
+
+red_team to find weaknesses.
+
+decision_matrix when choosing between 3+ options.
+
+root_cause_analysis when debugging recurring issues.
+
+etc.
+
+Hook Thinking Tools into agents-core planner
+
+In agents-core/src/thinking.ts:
+
+Implement a concrete “standard planning chain”:
+
+Use blue_team to generate approaches.
+
+Use red_team to critique.
+
+Use decision_matrix to pick the plan.
+
+buildAgentPlan(...) should call this chain so every agent task goes through a reasoning stage powered by Thinking Tools (unless short-circuited by some flag in the future).
+
+After Phase 3:
+Both agents use your thinking toolbox as a first-class reasoning engine, not just a grab-bag of tools.
+
+Phase 4 – Evidence gathering: Context Engine, Toolkit, RAD hook, web
+
+Intent:
+When an agent plans/executed, it should be able to pull in evidence from:
+
+Codebase (via Toolkit).
+
+Indexed docs/knowledge (via Context Engine / Context7).
+
+RAD/Postgres (later).
+
+Web search (when allowed).
+
+What Augment should do
+
+Implement gatherEvidence(task) in agents-core/src/evidence.ts
+
+Integrate:
+
+Context Engine MCP (from thinking-tools-mcp or a dedicated package).
+
+Robinson’s Toolkit MCP (for repo metadata, project configs, etc.).
+
+Return something like:
+
+export interface EvidenceBundle {
+  repoInsights?: any;
+  contextSnippets?: any;
+  radNotes?: any;
+  webSnippets?: any;
+}
+
+
+For now, RAD and web can be placeholders; just wire Context Engine + basic repo info first.
+
+Make buildAgentPlan aware of evidence
+
+In agents-core/src/planner.ts:
+
+Call gatherEvidence(task) first.
+
+Pass relevant evidence summaries into Thinking Tools as context (problem description, file summaries, etc.).
+
+This way, blue_team/red_team/decision_matrix are grounded in the repo/problem, not operating in a vacuum.
+
+Allow a web-evidence flag
+
+Add a flag to AgentTask.constraints like allowWebEvidence?: boolean.
+
+Later, we can implement webSnippets by calling a web-search MCP if the flag is true.
+
+After Phase 4:
+When either agent reasons about a task, it can look at context, code, and (later) web and RAD, not just the raw user prompt.
+
+Phase 5 – Minimal RAD/Postgres memory
+
+Intent:
+Start giving your agents a shared long-term memory, even if it’s a simple first version.
+
+What Augment should do
+
+Consolidate RAD plans
+
+Search for “RAD crawler”, “RAD_CRAWLER”, etc.
+
+Create docs/RAD_MEMORY_SPEC.md that:
+
+Defines a minimal Postgres schema:
+
+Tasks, results, decisions, lessons, tags, repo IDs.
+
+Defines how agents should read/write:
+
+rad_record_task_outcome
+
+rad_query_similar_tasks
+
+Implement RAD MCP or internal client
+
+Either:
+
+A small MCP package like rad-memory-mcp, or
+
+A client module in agents-core that talks directly to Postgres.
+
+Provide at least:
+
+recordEvent(task, plan, outcome).
+
+getRelatedKnowledge(task).
+
+Wire RAD into gatherEvidence and executePlan
+
+In gatherEvidence:
+
+Call getRelatedKnowledge(task) and include it as radNotes.
+
+In executePlan:
+
+After completion (success or failure), call recordEvent(...) so the system “learns” over time.
+
+After Phase 5:
+Both agents share a real memory of prior tasks and decisions, living in RAD/Postgres.
+
+Phase 6 – Migrate Credit Optimizer → Agent Core, decommission MCP later
+
+Intent:
+Use Credit Optimizer MCP as a prototype and fold its good ideas into agents-core, then retire it as a separate server when you’re ready.
+
+What Augment should do
+
+Document what Credit Optimizer already does well
+
+In packages/credit-optimizer-mcp:
+
+Identify:
+
+Workflow DSL.
+
+Workflow planner.
+
+Autonomous executor.
+
+Caching (SQLite).
+
+Summarize in docs/AGENT_OPTIMIZER_PROTOTYPE.md.
+
+Port reusable ideas into agents-core
+
+If there’s a good workflow representation or executor:
+
+Move/refactor it into:
+
+agents-core/src/workflow.ts
+
+agents-core/src/executor.ts
+
+Strip out:
+
+Any Augment-credit-specific logic.
+
+Any direct OpenAI-only assumptions.
+
+Stop evolving credit-optimizer-mcp
+
+Mark in its README that:
+
+It is legacy.
+
+The optimizer logic lives in agents-core.
+
+You can keep it around while Augment is still primary, but:
+
+Plan to delete it once Free/Paid agents are fully capable and affordable enough.
+
+After Phase 6:
+The “optimize Augment credits” experiment turns into a general agent optimizer living in Agent Core, and the old MCP becomes optional/retirable.
+
+How this interacts with the bundling work
+
+Bundling (the task Augment is doing now) handles how you ship MCP packages.
+
+Everything above is about how you structure the brain & tools inside the repo.
+
+Crucially:
+
+shared-llm, shared-pipeline, agents-core stay private (never published directly).
+
+Free/Paid MCPs import them in source, and the bundler (tsup) includes them in dist/.
+
+From the outside, each server is still a single, simple package.

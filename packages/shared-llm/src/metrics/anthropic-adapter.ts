@@ -52,18 +52,10 @@ export class AnthropicMetricsAdapter implements ProviderMetricsAdapter {
   private pricingCache: PricingCache = { ...FALLBACK_PRICING };
   private lastFetchTime = 0;
   private readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-  private livePricingScraper?: () => Promise<PricingCache | null>;
 
   constructor(
     private getTokenStats?: (period: string) => any
   ) {}
-
-  /**
-   * Inject live pricing scraper (optional, for MCP servers with Playwright)
-   */
-  setLivePricingScraper(scraper: () => Promise<PricingCache | null>): void {
-    this.livePricingScraper = scraper;
-  }
 
   async getCostEstimate(params: {
     model: string;
@@ -203,17 +195,8 @@ export class AnthropicMetricsAdapter implements ProviderMetricsAdapter {
   }
 
   private async fetchLivePricing(): Promise<PricingCache | null> {
-    // Use injected scraper if available (from MCP server with Playwright)
-    if (this.livePricingScraper) {
-      try {
-        return await this.livePricingScraper();
-      } catch (error) {
-        console.error('[ANTHROPIC-ADAPTER] Live pricing scraper error:', error);
-        return null;
-      }
-    }
-
-    // No scraper available - return null to use fallback
+    // No live scraping - use fallback pricing
+    // Pricing changes infrequently (quarterly), so manual updates are acceptable
     return null;
   }
 }
