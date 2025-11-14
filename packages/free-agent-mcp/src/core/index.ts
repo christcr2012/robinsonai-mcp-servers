@@ -48,3 +48,7 @@ export type { DiffGenerator, GenInput, FileTarget } from "./generation/types.js"
 export { loadGenerator, createFallbackGenerator } from "./generation/loader.js";
 export { OpsGenerator } from "./generation/ops-generator.js";
 
+// Patch generation exports (for debugging)
+export { applyOpsInPlace } from "./patch/applyOps.js";
+export { bundleUnified } from "./patch/unified.js";
+export type { PatchOps, EditOp } from "./patch/ops.js";
