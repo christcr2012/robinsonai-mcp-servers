@@ -22,6 +22,7 @@ export { healthTools } from './categories/health/tools.js';
 export { NEON_TOOLS } from './categories/neon/tools.js';
 export { UPSTASH_TOOLS } from './categories/upstash/tools.js';
 export { RAD_TOOLS } from './categories/rad/tools.js';
+export { SYSTEM_TOOLS } from './categories/system/tools.js';
 
 export { VERCEL_TOOLS } from './categories/vercel/tools.js';
 export { GITHUB_TOOLS } from './categories/github/tools.js';

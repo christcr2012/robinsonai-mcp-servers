@@ -111,6 +111,7 @@ const TOOL_FILE_MAPPING = {
   'categories/neon/tools.ts': { category: 'neon', handlerModule: './categories/neon/handlers.js', exportName: 'NEON_TOOLS' },
   'categories/rad/tools.ts': { category: 'rad', handlerModule: './categories/rad/handlers.js', exportName: 'RAD_TOOLS' },
   'categories/upstash/tools.ts': { category: 'upstash', handlerModule: './categories/upstash/handlers.js', exportName: 'UPSTASH_TOOLS' },
+  'categories/system/tools.ts': { category: 'system', handlerModule: './categories/system/handlers.js', exportName: 'SYSTEM_TOOLS' },
 };
 
 // Skip these files - they're parts that get combined into the main files
