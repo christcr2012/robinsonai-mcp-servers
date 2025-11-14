@@ -211,3 +211,466 @@ From day one, you’ll be able to say things like:
 
 
 …and the system will have the hooks, workflows, and meta-knowledge to actually do it.
+
+
+
+🧠 Task Group: Global Knowledge Pack – Schema Hooks
+
+Goal: Allow Cortex entries to be tagged as “global” (non-repo-specific) vs repo/task-specific.
+
+In each Cortex table (thinking_playbooks, tool_workflows, code_patterns, capability_registry, knowledge_artifacts), add:
+
+scope VARCHAR(20) DEFAULT 'global' CHECK (scope IN ('global','repo','task'));
+
+scope_repo_id VARCHAR(255) NULL;
+
+Use:
+
+scope = 'global' for initial knowledge pack entries.
+
+scope = 'repo' or 'task' for entries learned from specific repos or tasks later.
+
+📚 Task Group: Seed Knowledge Artifacts (Guides & Checklists)
+
+Goal: Create and insert high-value guides and checklists as knowledge_artifacts with scope = 'global'.
+
+For each of these topics, use the Paid Agent (with web research tools where appropriate) to generate a thorough but concise guide:
+
+SaaS Multitenancy Patterns
+
+Production-Ready Node/TS & Python Checklist
+
+Effective Web Research for Agents
+
+Designing & Evolving REST APIs
+
+Basic Service Observability (logging, metrics, tracing)
+
+For each topic:
+
+Store final text in knowledge_artifacts with:
+
+artifact_type = 'guide' (for the guides),
+
+artifact_type = 'checklist' (for checklists),
+
+scope = 'global',
+
+tags like ['saas','multitenancy'], ['web_research'], etc.
+
+Document the process in docs/GLOBAL_KNOWLEDGE_PACK.md:
+
+Which topics were created.
+
+Which artifact IDs correspond to them.
+
+🧩 Task Group: Seed Generic Thinking Playbooks
+
+Goal: Pre-populate thinking_playbooks with robust playbooks for core dev activities.
+
+Create at least these playbooks:
+
+playbook_debug_complex_bug
+
+playbook_design_saas_feature
+
+playbook_refactor_large_component
+
+playbook_research_unknown_tech
+
+For each playbook:
+
+Fill trigger_query with:
+
+task_kinds, keywords, and tags.
+
+Fill tool_chain with appropriate thinking tools:
+
+Debugging: ["root_cause_analysis","blue_team","red_team","decision_matrix"]
+
+SaaS design: ["systems_thinking","blue_team","tradeoff_analysis","decision_matrix"]
+
+Research: ["blue_team","source_triage","synthesis"] (you can map source_triage & synthesis to existing thinking tools or implement them as new ones).
+
+Add notes_for_agent with clear bullet-point instructions on how to use the chain.
+
+Set scope = 'global'.
+
+🛠️ Task Group: Seed Generic Tool Workflows
+
+Goal: Pre-populate tool_workflows with reusable dev workflows (independent of a specific repo).
+
+Seed workflows:
+
+workflow_create_saas_feature
+
+workflow_setup_multitenant_db
+
+workflow_effective_web_research
+
+workflow_review_api_design
+
+Each workflow’s steps should:
+
+Reference:
+
+Free / Paid Agent tools (*_run_task_v2, batch tools),
+
+Thinking Tools MCP,
+
+Robinson’s Toolkit (for repo introspection, DB/Neon integration, etc.).
+
+Include placeholders ({{repo_id}}, {{feature_description}}) where Agent Core can fill in values from tasks.
+
+Set min_agent_tier appropriately:
+
+E.g., workflow_create_saas_feature can be any.
+
+workflow_effective_web_research likely uses Paid Agent for bigger syntheses.
+
+Set scope = 'global'.
+
+💻 Task Group: Seed Generic Code Patterns
+
+Goal: Pre-populate code_patterns with language- and context-specific templates.
+
+Seed patterns for:
+
+language = 'typescript', context = 'mcp-handler'
+
+language = 'typescript', context = 'toolkit-category'
+
+language = 'typescript', context = 'saas-api-route'
+
+language = 'python', context = 'background-worker'
+
+For each code pattern:
+
+Include:
+
+a fully working code snippet (minimal but production-quality),
+
+explanation (what it does, how to adapt),
+
+style_notes (error handling, logging, naming).
+
+Tags like ['mcp','handler'], ['saas','multitenancy'], etc.
+
+scope = 'global'.
+
+Use your actual current codebase style (import paths, logging conventions, etc.) so patterns match how you want to write code.
+
+🧩 Task Group: Seed Capabilities
+
+Goal: Give the system high-level “skills” that map to the knowledge you just seeded.
+
+Add capabilities:
+
+design_saas_feature
+
+implement_multitenant_support
+
+review_security_of_endpoint
+
+perform_deep_web_research_on_topic
+
+For each:
+
+Link to relevant:
+
+thinking_playbooks,
+
+tool_workflows,
+
+code_patterns,
+
+knowledge_artifacts.
+
+Mark scope = 'global'.
+
+Ensure system_get_capabilities (in Robinson’s Toolkit) can filter and return these capabilities to the agents.
+
+🔧 Task Group: Global Knowledge Bootstrap Workflow
+
+Goal: Wrap the above seeding process into a single workflow, so you can re-run or extend it later.
+
+Add a tool_workflows entry named bootstrap_global_knowledge_pack:
+
+Steps:
+
+Create global guides/checklists (if missing).
+
+Insert global playbooks (if missing).
+
+Insert global workflows (if missing).
+
+Insert global code patterns (if missing).
+
+Insert global capabilities (if missing).
+
+Each step can call internal Cortex/DB functions or use Paid Agent to (re)generate content if needed.
+
+Expose a small MCP tool on Paid Agent:
+
+paid_agent_bootstrap_global_knowledge
+
+Implementation:
+
+Trigger bootstrap_global_knowledge_pack workflow.
+
+Return summary of what was seeded/updated.
+
+4. How agents use this from day one
+
+Once this is seeded:
+
+On every task, Agent Core:
+
+Calls gatherEvidence() (RAD + docs + handbook), plus:
+
+getCortexContext() which now returns:
+
+global playbooks, workflows, patterns, capabilities, and guides that match the task.
+
+So if you say:
+
+“Design a multi-tenant SaaS onboarding flow and implement the backend & frontend.”
+
+The pipeline roughly becomes:
+
+Cortex matches:
+
+capability: design_saas_feature, implement_multitenant_support;
+
+playbook: playbook_design_saas_feature;
+
+workflows: workflow_create_saas_feature, workflow_setup_multitenant_db;
+
+artifacts: “SaaS Multitenancy Patterns”, “Production-Ready Node/TS Checklist”;
+
+code patterns: SaaS API, MCP/Toolkit patterns.
+
+Thinking Tools:
+
+Use the SaaS playbook to structure reasoning (tradeoffs, patterns).
+
+Execution:
+
+Use workflows to:
+
+inspect repo,
+
+update DB schema,
+
+implement endpoints/page,
+
+run tests.
+
+Use code patterns as templates.
+
+Learning:
+
+RAD records new tasks/decisions/lessons.
+
+Cortex adds new artifacts as you solve real problems.
+
+So you don’t have a blank-slate LLM; you have an agent stepping into a pre-stocked library of skills & patterns, tuned for your stack and your system.
+
+
+🧠 Task: Global Knowledge Pack v2 – New Domains
+
+Goal: Extend Agent Cortex’s global knowledge with new domains: web design, OAuth/auth, automation & n8n, AI/LLMs & agents, custom GPTs, VS Code extensions, AI wrappers.
+
+1) Seed new knowledge_artifacts
+
+For each topic below, use Paid Agent (with web research tools where needed) to generate high-quality guides/checklists and insert them into knowledge_artifacts with:
+
+scope = 'global'
+
+meaningful tags
+
+appropriate artifact_type ('guide' or 'checklist').
+
+Topics:
+
+Web/UI:
+
+“Web Design Foundations for Modern SaaS Frontends”
+
+“Responsive Next.js Apps: Layout, Routing, and Performance”
+
+“Frontend Production-Ready Checklist”
+
+Auth:
+
+“OAuth 2.0 and OpenID Connect for Web Apps (Auth Code + PKCE)”
+
+“OAuth Threats and Mitigations (Malicious Apps, Consent Phishing, Token Safety)”
+
+“Secure OAuth Integration Checklist”
+
+Automation & n8n:
+
+“Using n8n as an Automation Sidecar for SaaS Apps”
+
+“Event-Driven Automation Patterns (Webhooks, Queues, Retries)”
+
+AI / LLMs:
+
+“Practical LLM Capabilities and Limitations”
+
+“RAG and Agentic RAG: When and How to Use Retrieval”
+
+“Agent Architectures: Single, Planner-Worker, Multi-Agent, Judge/Refine”
+
+Custom GPTs & ChatGPT:
+
+“Custom GPTs and the GPT Store: Capabilities and Constraints”
+
+“Designing Developer Productivity GPTs (Repo-Aware, Spec Reviewer, Architecture GPTs)”
+
+“Safe Custom GPT Design Checklist”
+
+VS Code Extensions:
+
+“VS Code Extension Architecture Basics”
+
+“Designing VS Code Extensions as AI Agent Control Panels”
+
+AI Wrappers:
+
+“AI Wrappers and Orchestration Patterns (Prompt Templates, Tools, Memory)”
+
+“Designing Reusable AI Modules for Multiple LLM Providers”
+
+“Production-Ready AI Wrapper Checklist”
+
+Document artifact IDs and topics in docs/GLOBAL_KNOWLEDGE_PACK_V2.md.
+
+2) Seed new thinking_playbooks (global)
+
+Insert at least these playbooks into thinking_playbooks with scope = 'global':
+
+playbook_design_saas_feature
+
+playbook_debug_complex_bug
+
+playbook_research_unknown_tech
+
+playbook_add_rag_to_app
+
+playbook_design_new_agent
+
+playbook_wrap_new_llm_provider
+
+Each playbook should:
+
+Define trigger_query (keywords, task kinds).
+
+Define tool_chain using existing Thinking Tools (e.g. blue_team, red_team, decision_matrix, systems_thinking).
+
+Include notes_for_agent that reference relevant guides/checklists from knowledge_artifacts seeded in step 1.
+
+3) Seed new tool_workflows (global)
+
+Insert global workflows into tool_workflows (JSON steps referencing existing MCP tools + Agent Core tools):
+
+workflow_create_saas_feature
+
+workflow_setup_multitenant_db
+
+workflow_effective_web_research
+
+workflow_use_n8n_for_long_running_tasks
+
+workflow_design_and_implement_new_agent
+
+workflow_wrap_new_llm_provider
+
+Each workflow should:
+
+Be provider-agnostic where possible but able to choose Free vs Paid Agents as needed.
+
+Use Thinking Tools for planning.
+
+Use Robinson’s Toolkit (and n8n tools if present) for automation steps.
+
+4) Seed new code_patterns (global)
+
+Add patterns into code_patterns with scope = 'global' for:
+
+Web/UI:
+
+typescript + context = 'nextjs_page_with_api_integration'
+
+typescript + context = 'react_form_with_validation'
+
+Auth:
+
+typescript + context = 'oauth_login_handler'
+
+typescript + context = 'oauth_callback_handler_with_pkce'
+
+typescript + context = 'auth_middleware_multi_tenant'
+
+VS Code:
+
+typescript + context = 'vscode_command_extension'
+
+typescript + context = 'vscode_webview_panel'
+
+typescript + context = 'vscode_agent_control_panel'
+
+AI Wrappers:
+
+typescript + context = 'llm_provider_wrapper'
+
+typescript + context = 'tool_calling_orchestration'
+
+Each pattern must include:
+
+A minimal but production-quality snippet aligned with existing project style.
+
+An explanation of when/how to use it.
+
+Style notes (logging, error-handling, naming).
+
+5) Seed new capability_registry entries
+
+Add capabilities with scope = 'global':
+
+design_saas_feature
+
+implement_multitenant_support
+
+implement_secure_oauth_login
+
+design_and_build_responsive_web_ui
+
+perform_deep_web_research_on_topic
+
+design_custom_gpts_for_workflow
+
+design_and_build_vscode_extension_for_agent_control
+
+integrate_new_llm_provider
+
+design_ai_wrapper_for_feature
+
+Each capability should:
+
+Reference relevant playbooks, workflows, patterns, and knowledge artifacts by ID or stable name in the metadata field.
+
+Set reasonable default_agent_tier (e.g. paid for security reviews or big research, any for basic coding tasks).
+
+Once Augment has done this, your Free and Paid agents will boot up with:
+
+A library of expert guides/checklists,
+
+A set of thinking playbooks for hard problems,
+
+Executable workflows for typical dev/ops/AI tasks,
+
+Code patterns for high-quality implementations,
+
+And capabilities that tell them “here’s what I’m good at and how to do it”.

@@ -4,7 +4,11 @@
  * Uses Voyage AI (free tier: 100M tokens/month)
  */
 
+import { config } from 'dotenv';
 import { getCortexClient } from '../packages/free-agent-core/src/cortex/index.js';
+
+// Load .env file
+config();
 
 async function generateAllEmbeddings() {
   console.log('🧠 Generating embeddings for Agent Cortex seed data...\n');
