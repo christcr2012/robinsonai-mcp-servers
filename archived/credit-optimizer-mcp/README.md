@@ -1,8 +1,16 @@
 # 🧠 Credit Optimizer MCP Server
 
-> **⚠️ LEGACY STATUS**: This MCP server is now in maintenance mode. Core workflow and optimization logic has been migrated to **Agent Core** (`@robinson_ai_systems/free-agent-core`). New development should use Free Agent MCP and Paid Agent MCP, which have built-in workflow execution and optimization capabilities.
+> **🗄️ ARCHIVED**: This MCP server has been retired as of 2025-01-14. All functionality has been migrated to **Free Agent MCP** and **Paid Agent MCP**.
 >
-> See `docs/AGENT_OPTIMIZER_PROTOTYPE.md` for migration details.
+> **Migration Path:**
+> - Tool discovery → Use Robinson's Toolkit MCP directly
+> - Autonomous workflows → Use Free Agent MCP or Paid Agent MCP
+> - Template scaffolding → Use Free Agent MCP pattern learning
+> - Cost optimization → Built into Agent Core (shared by both agents)
+>
+> **This package is no longer maintained and has been removed from the active workspace.**
+>
+> See `docs/AGENT_REFACTORING_PLAN.md` for the complete architecture migration.
 
 **Optimize Augment Code credit usage by 70-85%!**
 
