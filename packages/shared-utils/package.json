@@ -1,7 +1,8 @@
 {
   "name": "@robinson_ai_systems/shared-utils",
   "version": "0.1.1",
-  "description": "Shared utilities for Robinson AI MCP Servers",
+  "private": true,
+  "description": "Internal shared utilities (bundled into MCP packages, not published)",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,13 +12,9 @@
       "import": "./dist/index.js"
     }
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsc -b ../../tsconfig.json --force",
-    "clean": "rm -rf dist",
-    "prepack": "npm run clean && npm run build"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@robinson_ai_systems/shared-llm": "^0.1.11",

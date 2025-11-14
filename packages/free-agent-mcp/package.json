@@ -142,9 +142,9 @@
   },
   "devDependencies": {
     "@robinson_ai_systems/free-agent-core": "workspace:*",
-    "@robinson_ai_systems/shared-llm": "^0.1.12",
-    "@robinson_ai_systems/shared-pipeline": "^0.1.1",
-    "@robinson_ai_systems/shared-utils": "^0.1.1",
+    "@robinson_ai_systems/shared-llm": "workspace:*",
+    "@robinson_ai_systems/shared-pipeline": "workspace:*",
+    "@robinson_ai_systems/shared-utils": "workspace:*",
     "@types/minimist": "^1.2.5",
     "@types/node": "^22.10.2",
     "tsup": "^8.5.0",

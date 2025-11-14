@@ -21,6 +21,7 @@ export default defineConfig({
   // Bundle the internal core + shared libs so consumers don't need them
   noExternal: [
     /^@fa\/core(\/.*)?$/,
+    '@robinson_ai_systems/free-agent-core',
     '@robinson_ai_systems/shared-llm',
     '@robinson_ai_systems/shared-utils',
     '@robinson_ai_systems/shared-pipeline'

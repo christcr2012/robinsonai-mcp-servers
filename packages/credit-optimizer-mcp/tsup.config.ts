@@ -8,11 +8,16 @@ export default defineConfig({
   sourcemap: true,
   dts: false,
   clean: true,
-  // Inline our shared libs so users don't need them installed
+  // Bundle internal packages so consumers don't need them installed
   noExternal: [
     '@robinson_ai_systems/shared-llm',
     '@robinson_ai_systems/shared-utils',
     '@robinson_ai_systems/shared-pipeline'
+  ],
+  // Never bundle Node built-ins or deps with dynamic require()
+  external: [
+    'fs', 'path', 'url', 'module', 'os', 'util', 'crypto', 'stream',
+    'better-sqlite3', 'glob', 'handlebars'
   ],
 });
 
