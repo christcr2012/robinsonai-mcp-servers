@@ -15,6 +15,13 @@ if (!API_KEY) {
 
 const openai = API_KEY ? new OpenAI({ apiKey: API_KEY }) : null;
 
+function getOpenAIClient(): OpenAI {
+  if (!openai) {
+    throw new Error('OpenAI client not configured - OPENAI_API_KEY or OPENAI_ADMIN_KEY required');
+  }
+  return openai;
+}
+
 function formatResponse(data: any) {
   return {
     content: [
@@ -60,7 +67,7 @@ function formatResponse(data: any) {
       }
 
       // Make API call
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model,
         messages,
         temperature,
@@ -123,7 +130,7 @@ function formatResponse(data: any) {
       }
 
       // Make API call with functions
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model,
         messages,
         functions,
@@ -176,7 +183,7 @@ function formatResponse(data: any) {
       }
 
       // Make API call
-      const response = await openai.embeddings.create({
+      const response = await getOpenAIClient().embeddings.create({
         model,
         input,
         encoding_format,
@@ -225,7 +232,7 @@ function formatResponse(data: any) {
       }
 
       // Make API call
-      const response = await openai.embeddings.create({
+      const response = await getOpenAIClient().embeddings.create({
         model,
         input: inputs,
       });
@@ -275,7 +282,7 @@ function formatResponse(data: any) {
       }
 
       // Make API call
-      const response = await openai.images.generate({
+      const response = await getOpenAIClient().images.generate({
         model,
         prompt,
         n,
@@ -340,7 +347,7 @@ function formatResponse(data: any) {
       }
 
       // Make API call
-      const response = await openai.audio.speech.create({
+      const response = await getOpenAIClient().audio.speech.create({
         model,
         input,
         voice: voice as any,
@@ -392,7 +399,7 @@ function formatResponse(data: any) {
 
     try {
       // Moderation API is free, no cost estimation needed
-      const response = await openai.moderations.create({
+      const response = await getOpenAIClient().moderations.create({
         input,
       });
 
@@ -411,7 +418,7 @@ function formatResponse(data: any) {
   // Models
   export async function openaiListModels(args: any) {
     try {
-      const response = await openai.models.list();
+      const response = await getOpenAIClient().models.list();
       return formatResponse({
         models: response.data,
         count: response.data.length,
@@ -425,7 +432,7 @@ function formatResponse(data: any) {
     const { model } = args;
 
     try {
-      const response = await openai.models.retrieve(model);
+      const response = await getOpenAIClient().models.retrieve(model);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -436,7 +443,7 @@ function formatResponse(data: any) {
     const { model } = args;
 
     try {
-      const response = await openai.models.del(model);
+      const response = await getOpenAIClient().models.del(model);
       return formatResponse({
         deleted: response.deleted,
         model: response.id,
@@ -458,7 +465,7 @@ function formatResponse(data: any) {
     const { purpose } = args;
 
     try {
-      const response = await openai.files.list({ purpose });
+      const response = await getOpenAIClient().files.list({ purpose });
       return formatResponse({
         files: response.data,
         count: response.data.length,
@@ -472,7 +479,7 @@ function formatResponse(data: any) {
     const { file_id } = args;
 
     try {
-      const response = await openai.files.retrieve(file_id);
+      const response = await getOpenAIClient().files.retrieve(file_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -483,7 +490,7 @@ function formatResponse(data: any) {
     const { file_id } = args;
 
     try {
-      const response = await openai.files.del(file_id);
+      const response = await getOpenAIClient().files.del(file_id);
       return formatResponse({
         deleted: response.deleted,
         file_id: response.id,
@@ -497,7 +504,7 @@ function formatResponse(data: any) {
     const { file_id } = args;
 
     try {
-      const response = await openai.files.content(file_id);
+      const response = await getOpenAIClient().files.content(file_id);
       const content = await response.text();
       return formatResponse({
         file_id,
@@ -514,7 +521,7 @@ function formatResponse(data: any) {
     const { training_file, model = "gpt-3.5-turbo", validation_file, hyperparameters, suffix } = args;
 
     try {
-      const response = await openai.fineTuning.jobs.create({
+      const response = await getOpenAIClient().fineTuning.jobs.create({
         training_file,
         model,
         validation_file,
@@ -532,7 +539,7 @@ function formatResponse(data: any) {
     const { limit } = args;
 
     try {
-      const response = await openai.fineTuning.jobs.list({ limit });
+      const response = await getOpenAIClient().fineTuning.jobs.list({ limit });
       return formatResponse({
         jobs: response.data,
         count: response.data.length,
@@ -546,7 +553,7 @@ function formatResponse(data: any) {
     const { fine_tune_id } = args;
 
     try {
-      const response = await openai.fineTuning.jobs.retrieve(fine_tune_id);
+      const response = await getOpenAIClient().fineTuning.jobs.retrieve(fine_tune_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -557,7 +564,7 @@ function formatResponse(data: any) {
     const { fine_tune_id } = args;
 
     try {
-      const response = await openai.fineTuning.jobs.cancel(fine_tune_id);
+      const response = await getOpenAIClient().fineTuning.jobs.cancel(fine_tune_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -568,7 +575,7 @@ function formatResponse(data: any) {
     const { fine_tune_id } = args;
 
     try {
-      const response = await openai.fineTuning.jobs.listEvents(fine_tune_id);
+      const response = await getOpenAIClient().fineTuning.jobs.listEvents(fine_tune_id);
       return formatResponse({
         events: response.data,
         count: response.data.length,
@@ -582,7 +589,7 @@ function formatResponse(data: any) {
     const { fine_tune_id } = args;
 
     try {
-      const response = await openai.fineTuning.jobs.checkpoints.list(fine_tune_id);
+      const response = await getOpenAIClient().fineTuning.jobs.checkpoints.list(fine_tune_id);
       return formatResponse({
         checkpoints: response.data,
         count: response.data.length,
@@ -597,7 +604,7 @@ function formatResponse(data: any) {
     const { input_file_id, endpoint, completion_window = "24h", metadata } = args;
 
     try {
-      const response = await openai.batches.create({
+      const response = await getOpenAIClient().batches.create({
         input_file_id,
         endpoint,
         completion_window,
@@ -617,7 +624,7 @@ function formatResponse(data: any) {
     const { batch_id } = args;
 
     try {
-      const response = await openai.batches.retrieve(batch_id);
+      const response = await getOpenAIClient().batches.retrieve(batch_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -628,7 +635,7 @@ function formatResponse(data: any) {
     const { batch_id } = args;
 
     try {
-      const response = await openai.batches.cancel(batch_id);
+      const response = await getOpenAIClient().batches.cancel(batch_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -639,7 +646,7 @@ function formatResponse(data: any) {
     const { limit } = args;
 
     try {
-      const response = await openai.batches.list({ limit });
+      const response = await getOpenAIClient().batches.list({ limit });
       return formatResponse({
         batches: response.data,
         count: response.data.length,
@@ -654,7 +661,7 @@ function formatResponse(data: any) {
     const { name, model = "gpt-4-turbo", instructions, tools, tool_resources, metadata } = args;
 
     try {
-      const response = await openai.beta.assistants.create({
+      const response = await getOpenAIClient().beta.assistants.create({
         name,
         model,
         instructions,
@@ -671,7 +678,7 @@ function formatResponse(data: any) {
 
   export async function openaiListAssistants(args: any) {
     try {
-      const response = await openai.beta.assistants.list(args);
+      const response = await getOpenAIClient().beta.assistants.list(args);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -680,7 +687,7 @@ function formatResponse(data: any) {
 
   export async function openaiRetrieveAssistant(args: any) {
     try {
-      const response = await openai.beta.assistants.retrieve(args.assistant_id);
+      const response = await getOpenAIClient().beta.assistants.retrieve(args.assistant_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -690,7 +697,7 @@ function formatResponse(data: any) {
   export async function openaiModifyAssistant(args: any) {
     const { assistant_id, ...updates } = args;
     try {
-      const response = await openai.beta.assistants.update(assistant_id, updates);
+      const response = await getOpenAIClient().beta.assistants.update(assistant_id, updates);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -699,7 +706,7 @@ function formatResponse(data: any) {
 
   export async function openaiDeleteAssistant(args: any) {
     try {
-      const response = await openai.beta.assistants.del(args.assistant_id);
+      const response = await getOpenAIClient().beta.assistants.del(args.assistant_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -709,7 +716,7 @@ function formatResponse(data: any) {
   // Threads
   export async function openaiCreateThread(args: any) {
     try {
-      const response = await openai.beta.threads.create(args);
+      const response = await getOpenAIClient().beta.threads.create(args);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -718,7 +725,7 @@ function formatResponse(data: any) {
 
   export async function openaiRetrieveThread(args: any) {
     try {
-      const response = await openai.beta.threads.retrieve(args.thread_id);
+      const response = await getOpenAIClient().beta.threads.retrieve(args.thread_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -728,7 +735,7 @@ function formatResponse(data: any) {
   export async function openaiModifyThread(args: any) {
     const { thread_id, ...updates } = args;
     try {
-      const response = await openai.beta.threads.update(thread_id, updates);
+      const response = await getOpenAIClient().beta.threads.update(thread_id, updates);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -737,7 +744,7 @@ function formatResponse(data: any) {
 
   export async function openaiDeleteThread(args: any) {
     try {
-      const response = await openai.beta.threads.del(args.thread_id);
+      const response = await getOpenAIClient().beta.threads.del(args.thread_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -748,7 +755,7 @@ function formatResponse(data: any) {
   export async function openaiCreateMessage(args: any) {
     const { thread_id, ...messageData } = args;
     try {
-      const response = await openai.beta.threads.messages.create(thread_id, messageData);
+      const response = await getOpenAIClient().beta.threads.messages.create(thread_id, messageData);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -758,7 +765,7 @@ function formatResponse(data: any) {
   export async function openaiListMessages(args: any) {
     const { thread_id, ...params } = args;
     try {
-      const response = await openai.beta.threads.messages.list(thread_id, params);
+      const response = await getOpenAIClient().beta.threads.messages.list(thread_id, params);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -767,7 +774,7 @@ function formatResponse(data: any) {
 
   export async function openaiRetrieveMessage(args: any) {
     try {
-      const response = await openai.beta.threads.messages.retrieve(args.thread_id, args.message_id);
+      const response = await getOpenAIClient().beta.threads.messages.retrieve(args.thread_id, args.message_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -777,7 +784,7 @@ function formatResponse(data: any) {
   export async function openaiModifyMessage(args: any) {
     const { thread_id, message_id, ...updates } = args;
     try {
-      const response = await openai.beta.threads.messages.update(thread_id, message_id, updates);
+      const response = await getOpenAIClient().beta.threads.messages.update(thread_id, message_id, updates);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -792,7 +799,7 @@ function formatResponse(data: any) {
   export async function openaiCreateRun(args: any) {
     const { thread_id, ...runData } = args;
     try {
-      const response = await openai.beta.threads.runs.create(thread_id, runData);
+      const response = await getOpenAIClient().beta.threads.runs.create(thread_id, runData);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -801,7 +808,7 @@ function formatResponse(data: any) {
 
   export async function openaiCreateThreadAndRun(args: any) {
     try {
-      const response = await openai.beta.threads.createAndRun(args);
+      const response = await getOpenAIClient().beta.threads.createAndRun(args);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -811,7 +818,7 @@ function formatResponse(data: any) {
   export async function openaiListRuns(args: any) {
     const { thread_id, ...params } = args;
     try {
-      const response = await openai.beta.threads.runs.list(thread_id, params);
+      const response = await getOpenAIClient().beta.threads.runs.list(thread_id, params);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -820,7 +827,7 @@ function formatResponse(data: any) {
 
   export async function openaiRetrieveRun(args: any) {
     try {
-      const response = await openai.beta.threads.runs.retrieve(args.thread_id, args.run_id);
+      const response = await getOpenAIClient().beta.threads.runs.retrieve(args.thread_id, args.run_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -830,7 +837,7 @@ function formatResponse(data: any) {
   export async function openaiModifyRun(args: any) {
     const { thread_id, run_id, ...updates } = args;
     try {
-      const response = await openai.beta.threads.runs.update(thread_id, run_id, updates);
+      const response = await getOpenAIClient().beta.threads.runs.update(thread_id, run_id, updates);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -839,7 +846,7 @@ function formatResponse(data: any) {
 
   export async function openaiCancelRun(args: any) {
     try {
-      const response = await openai.beta.threads.runs.cancel(args.thread_id, args.run_id);
+      const response = await getOpenAIClient().beta.threads.runs.cancel(args.thread_id, args.run_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -849,7 +856,7 @@ function formatResponse(data: any) {
   export async function openaiSubmitToolOutputs(args: any) {
     const { thread_id, run_id, tool_outputs } = args;
     try {
-      const response = await openai.beta.threads.runs.submitToolOutputs(thread_id, run_id, { tool_outputs });
+      const response = await getOpenAIClient().beta.threads.runs.submitToolOutputs(thread_id, run_id, { tool_outputs });
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -859,7 +866,7 @@ function formatResponse(data: any) {
   export async function openaiListRunSteps(args: any) {
     const { thread_id, run_id, ...params } = args;
     try {
-      const response = await openai.beta.threads.runs.steps.list(thread_id, run_id, params);
+      const response = await getOpenAIClient().beta.threads.runs.steps.list(thread_id, run_id, params);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -868,7 +875,7 @@ function formatResponse(data: any) {
 
   export async function openaiRetrieveRunStep(args: any) {
     try {
-      const response = await openai.beta.threads.runs.steps.retrieve(args.thread_id, args.run_id, args.step_id);
+      const response = await getOpenAIClient().beta.threads.runs.steps.retrieve(args.thread_id, args.run_id, args.step_id);
       return formatResponse(response);
     } catch (error: any) {
       return formatResponse({ error: error.message });
@@ -1819,7 +1826,7 @@ function formatResponse(data: any) {
 
   // ADVANCED BATCH OPERATIONS
   export async function openaiGetBatchResults(args: any) {
-    const batch = await openai.batches.retrieve(args.batch_id);
+    const batch = await getOpenAIClient().batches.retrieve(args.batch_id);
     if (batch.status !== 'completed') {
       return formatResponse({ status: batch.status, message: 'Batch not yet completed' });
     }
@@ -1827,12 +1834,12 @@ function formatResponse(data: any) {
     if (!outputFileId) {
       return formatResponse({ error: 'No output file available' });
     }
-    const fileContent = await openai.files.content(outputFileId);
+    const fileContent = await getOpenAIClient().files.content(outputFileId);
     return formatResponse({ batch_id: args.batch_id, results: fileContent });
   }
 
   export async function openaiEstimateBatchCost(args: any) {
-    const file = await openai.files.retrieve(args.input_file_id);
+    const file = await getOpenAIClient().files.retrieve(args.input_file_id);
     // Estimate based on file size (rough approximation)
     const estimatedRequests = Math.ceil((file.bytes || 0) / 1000);
     const costPerRequest = args.endpoint.includes('embeddings') ? 0.0001 : 0.001;
@@ -1847,7 +1854,7 @@ function formatResponse(data: any) {
   }
 
   export async function openaiGetBatchProgress(args: any) {
-    const batch = await openai.batches.retrieve(args.batch_id);
+    const batch = await getOpenAIClient().batches.retrieve(args.batch_id);
     const progress = {
       batch_id: args.batch_id,
       status: batch.status,
@@ -2033,7 +2040,7 @@ ${text}
 
 Optimized version:`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini", // Use cheaper model for optimization
         messages: [{ role: "user", content: optimizationPrompt }],
         temperature: 0.3,
@@ -2320,7 +2327,7 @@ Respond with JSON:
   "estimated_cost_per_1k_requests": 0.00
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.3,
@@ -2357,7 +2364,7 @@ Respond with JSON:
           const startTime = Date.now();
 
           try {
-            const response = await openai.chat.completions.create({
+            const response = await getOpenAIClient().chat.completions.create({
               model: model,
               messages: [{ role: "user", content: testCase }],
               max_tokens: 500,
@@ -2445,7 +2452,7 @@ Respond with JSON:
   export async function openaiModelQualityScore(args: any) {
     const { model, prompt, expected_output = "", criteria = ["accuracy", "coherence", "relevance", "completeness"] } = args;
     try {
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: model,
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1000,
@@ -2497,7 +2504,7 @@ Respond with JSON:
       for (let i = 0; i < iterations; i++) {
         const startTime = Date.now();
 
-        const response = await openai.chat.completions.create({
+        const response = await getOpenAIClient().chat.completions.create({
           model: model,
           messages: [{ role: "user", content: prompt }],
           max_tokens: 500,
@@ -2546,7 +2553,7 @@ Respond with JSON:
       const results = [];
 
       for (const model of models) {
-        const response = await openai.chat.completions.create({
+        const response = await getOpenAIClient().chat.completions.create({
           model: model,
           messages: [{ role: "user", content: test_prompt }],
           max_tokens: 500,
@@ -2692,7 +2699,7 @@ Respond with JSON:
     const { content, categories = [] } = args;
     try {
       // Use OpenAI Moderation API
-      const moderation = await openai.moderations.create({
+      const moderation = await getOpenAIClient().moderations.create({
         input: content,
       });
 
@@ -2763,7 +2770,7 @@ Return format:
   ]
 }`;
 
-        const response = await openai.chat.completions.create({
+        const response = await getOpenAIClient().chat.completions.create({
           model: "gpt-4o-mini",
           messages: [{ role: "user", content: aiPrompt }],
           temperature: 0.1,
@@ -2858,7 +2865,7 @@ Return format:
   export async function openaiToxicityScore(args: any) {
     const { text, dimensions = ["hate", "harassment", "violence", "sexual", "self-harm"] } = args;
     try {
-      const moderation = await openai.moderations.create({ input: text });
+      const moderation = await getOpenAIClient().moderations.create({ input: text });
       const result = moderation.results[0];
 
       const scores: any = {};
@@ -2897,7 +2904,7 @@ Return JSON:
   "recommendations": ["suggestion 1", "suggestion 2"]
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.1,
@@ -2933,7 +2940,7 @@ Return JSON:
   "risk_level": "low/medium/high"
 }`;
 
-        const response = await openai.chat.completions.create({
+        const response = await getOpenAIClient().chat.completions.create({
           model: "gpt-4o-mini",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.1,
@@ -3554,7 +3561,7 @@ Return JSON:
   "token_savings": number
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: model,
         messages: [{ role: "user", content: optimizationPrompt }],
         temperature: 0.3,
@@ -3593,7 +3600,7 @@ Return JSON:
   "preserved_elements": ["element 1", "element 2"]
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: shortenPrompt }],
         temperature: 0.2,
@@ -3638,7 +3645,7 @@ Return JSON:
   }
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: expandPrompt }],
         temperature: 0.3,
@@ -3663,7 +3670,7 @@ Return JSON:
       const results: any[] = [];
 
       for (const model of models) {
-        const response = await openai.chat.completions.create({
+        const response = await getOpenAIClient().chat.completions.create({
           model: model,
           messages: [{ role: "user", content: prompt }],
           max_tokens: 500,
@@ -3706,7 +3713,7 @@ Return JSON:
   "recommendation": "..."
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: comparePrompt }],
         temperature: 0.2,
@@ -3743,7 +3750,7 @@ Return JSON:
   "quick_wins": ["suggestion 1", "suggestion 2"]
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: suggestPrompt }],
         temperature: 0.3,
@@ -3779,7 +3786,7 @@ Return JSON:
   "variable_count": 2
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: extractPrompt }],
         temperature: 0.1,
@@ -3814,7 +3821,7 @@ Return JSON:
   ]
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: genPrompt }],
         temperature: 0.7,
@@ -3859,7 +3866,7 @@ Return JSON:
   "best_practices": {"followed": [...], "missing": [...]}
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: validatePrompt }],
         temperature: 0.2,
@@ -3893,7 +3900,7 @@ Return JSON:
   "preserved_elements": ["element 1", "element 2"]
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: translatePrompt }],
         temperature: 0.3,
@@ -3966,7 +3973,7 @@ Return JSON:
   export async function openaiEmbeddingCluster(args: any) {
     const { texts, num_clusters = 3, method = "kmeans", model = "text-embedding-3-small" } = args;
     try {
-      const embeddings = await openai.embeddings.create({ model, input: texts });
+      const embeddings = await getOpenAIClient().embeddings.create({ model, input: texts });
       const vectors = embeddings.data.map(d => d.embedding);
 
       // Simple k-means clustering
@@ -4091,7 +4098,7 @@ Return JSON:
   export async function openaiEmbeddingOutlierDetection(args: any) {
     const { texts, threshold = 2.5, model = "text-embedding-3-small" } = args;
     try {
-      const embeddings = await openai.embeddings.create({ model, input: texts });
+      const embeddings = await getOpenAIClient().embeddings.create({ model, input: texts });
       const vectors = embeddings.data.map(d => d.embedding);
 
       // Calculate centroid
@@ -4140,7 +4147,7 @@ Return JSON:
   export async function openaiEmbeddingDimensionalityReduction(args: any) {
     const { texts, target_dimensions = 2, method = "pca", model = "text-embedding-3-small" } = args;
     try {
-      const embeddings = await openai.embeddings.create({ model, input: texts });
+      const embeddings = await getOpenAIClient().embeddings.create({ model, input: texts });
       const vectors = embeddings.data.map(d => d.embedding);
 
       // Simple PCA implementation
@@ -4169,7 +4176,7 @@ Return JSON:
   export async function openaiEmbeddingVisualization(args: any) {
     const { texts, labels = [], model = "text-embedding-3-small" } = args;
     try {
-      const embeddings = await openai.embeddings.create({ model, input: texts });
+      const embeddings = await getOpenAIClient().embeddings.create({ model, input: texts });
       const vectors = embeddings.data.map(d => d.embedding);
 
       // Reduce to 2D for visualization
@@ -4193,7 +4200,7 @@ Return JSON:
   export async function openaiEmbeddingBatchSimilarity(args: any) {
     const { texts, model = "text-embedding-3-small" } = args;
     try {
-      const embeddings = await openai.embeddings.create({ model, input: texts });
+      const embeddings = await getOpenAIClient().embeddings.create({ model, input: texts });
       const vectors = embeddings.data.map(d => d.embedding);
 
       const similarityMatrix: number[][] = [];
@@ -4236,7 +4243,7 @@ Return JSON:
   export async function openaiEmbeddingIndexCreate(args: any) {
     const { index_name, documents, model = "text-embedding-3-small", metadata = [] } = args;
     try {
-      const embeddings = await openai.embeddings.create({ model, input: documents });
+      const embeddings = await getOpenAIClient().embeddings.create({ model, input: documents });
       const vectors = embeddings.data.map(d => d.embedding);
 
       embeddingIndexes.set(index_name, {
@@ -4589,7 +4596,7 @@ Return JSON:
   export async function openaiVisionAnalyzeImage(args: any) {
     const { image_url, prompt = "Analyze this image in detail", model = "gpt-4o", detail = "auto" } = args;
     try {
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: model,
         messages: [
           {
@@ -4623,7 +4630,7 @@ Return JSON:
         creative: "Describe this image in a creative, engaging way that captures its essence and tells a story.",
       };
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: model,
         messages: [
           {
@@ -4654,7 +4661,7 @@ Return JSON:
         ? `Extract all text from this image. The text is in ${language}. Return only the extracted text, preserving formatting where possible.`
         : "Extract all text from this image. Return only the extracted text, preserving formatting where possible.";
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: model,
         messages: [
           {
@@ -4685,7 +4692,7 @@ Return JSON:
         ? `Identify and list all objects in this image, focusing on these categories: ${categories.join(", ")}. For each object, provide: name, location (general area), confidence level.`
         : "Identify and list all objects in this image. For each object, provide: name, location (general area), confidence level.";
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: model,
         messages: [
           {
@@ -4721,7 +4728,7 @@ Return JSON:
         both: "Compare these two images. Identify both similarities and differences. Organize your response clearly.",
       };
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: model,
         messages: [
           {
@@ -4767,7 +4774,7 @@ Return JSON:
         },
       };
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: model,
         messages: [
           {
@@ -4795,7 +4802,7 @@ Return JSON:
   export async function openaiVisionAnswerQuestion(args: any) {
     const { image_url, question, model = "gpt-4o" } = args;
     try {
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: model,
         messages: [
           {
@@ -4825,7 +4832,7 @@ Return JSON:
       const results = await Promise.all(
         image_urls.map(async (url: string, idx: number) => {
           try {
-            const response = await openai.chat.completions.create({
+            const response = await getOpenAIClient().chat.completions.create({
               model: model,
               messages: [
                 {
@@ -4909,7 +4916,7 @@ Return JSON:
   export async function openaiFineTuningEstimateCost(args: any) {
     const { training_file_id, model = "gpt-4o-mini-2024-07-18", n_epochs = 3 } = args;
     try {
-      const file = await openai.files.retrieve(training_file_id);
+      const file = await getOpenAIClient().files.retrieve(training_file_id);
       const estimatedTokens = parseInt(file.bytes as any) / 4; // Rough estimate: 4 bytes per token
 
       const pricing: any = {
@@ -4937,7 +4944,7 @@ Return JSON:
   export async function openaiFineTuningGetMetrics(args: any) {
     const { fine_tuning_job_id } = args;
     try {
-      const job = await openai.fineTuning.jobs.retrieve(fine_tuning_job_id);
+      const job = await getOpenAIClient().fineTuning.jobs.retrieve(fine_tuning_job_id);
 
       return formatResponse({
         job_id: fine_tuning_job_id,
@@ -4997,7 +5004,7 @@ Return JSON:
   export async function openaiFineTuningAnalyzeResults(args: any) {
     const { fine_tuning_job_id } = args;
     try {
-      const job = await openai.fineTuning.jobs.retrieve(fine_tuning_job_id);
+      const job = await getOpenAIClient().fineTuning.jobs.retrieve(fine_tuning_job_id);
 
       const recommendations: string[] = [];
       if (job.status === "succeeded") {
@@ -5027,7 +5034,7 @@ Return JSON:
   export async function openaiFineTuningExportModel(args: any) {
     const { fine_tuned_model, include_metrics = true } = args;
     try {
-      const jobs = await openai.fineTuning.jobs.list({ limit: 100 });
+      const jobs = await getOpenAIClient().fineTuning.jobs.list({ limit: 100 });
       const job = jobs.data.find((j: any) => j.fine_tuned_model === fine_tuned_model);
 
       if (!job) {
@@ -5054,7 +5061,7 @@ Return JSON:
   export async function openaiFineTuningListCheckpoints(args: any) {
     const { fine_tuning_job_id } = args;
     try {
-      const checkpoints = await openai.fineTuning.jobs.checkpoints.list(fine_tuning_job_id);
+      const checkpoints = await getOpenAIClient().fineTuning.jobs.checkpoints.list(fine_tuning_job_id);
 
       return formatResponse({
         job_id: fine_tuning_job_id,
@@ -5074,7 +5081,7 @@ Return JSON:
   export async function openaiFineTuningGetBestCheckpoint(args: any) {
     const { fine_tuning_job_id, metric = "loss" } = args;
     try {
-      const checkpoints = await openai.fineTuning.jobs.checkpoints.list(fine_tuning_job_id);
+      const checkpoints = await getOpenAIClient().fineTuning.jobs.checkpoints.list(fine_tuning_job_id);
 
       if (checkpoints.data.length === 0) {
         return formatResponse({ error: "No checkpoints found" });
@@ -5206,7 +5213,7 @@ Return JSON:
   export async function openaiBatchMonitor(args: any) {
     const { batch_id, include_errors = true } = args;
     try {
-      const batch = await openai.batches.retrieve(batch_id);
+      const batch = await getOpenAIClient().batches.retrieve(batch_id);
 
       const progress = batch.request_counts ? {
         total: batch.request_counts.total,
@@ -5233,7 +5240,7 @@ Return JSON:
   export async function openaiBatchRetryFailed(args: any) {
     const { batch_id, max_retries = 3 } = args;
     try {
-      const batch = await openai.batches.retrieve(batch_id);
+      const batch = await getOpenAIClient().batches.retrieve(batch_id);
 
       if (!batch.error_file_id) {
         return formatResponse({ message: "No errors to retry", batch_id: batch_id });
@@ -5280,7 +5287,7 @@ Return JSON:
       const results: any[] = [];
 
       for (const batch_id of batch_ids) {
-        const batch = await openai.batches.retrieve(batch_id);
+        const batch = await getOpenAIClient().batches.retrieve(batch_id);
         results.push({
           batch_id: batch_id,
           status: batch.status,
@@ -5355,7 +5362,7 @@ Return JSON:
   export async function openaiBatchAnalytics(args: any) {
     const { time_range = "7d", include_costs = true } = args;
     try {
-      const batches = await openai.batches.list({ limit: 100 });
+      const batches = await getOpenAIClient().batches.list({ limit: 100 });
 
       const stats = {
         total_batches: batches.data.length,
@@ -5385,7 +5392,7 @@ Return JSON:
   export async function openaiAgentCreate(args: any) {
     const { name, instructions, tools = [], model = "gpt-4o" } = args;
     try {
-      const assistant = await openai.beta.assistants.create({
+      const assistant = await getOpenAIClient().beta.assistants.create({
         name: name,
         instructions: instructions,
         tools: tools,
@@ -5412,27 +5419,27 @@ Return JSON:
   export async function openaiAgentRun(args: any) {
     const { agent_id, task, context = {} } = args;
     try {
-      const thread = await openai.beta.threads.create();
+      const thread = await getOpenAIClient().beta.threads.create();
 
-      await openai.beta.threads.messages.create(thread.id, {
+      await getOpenAIClient().beta.threads.messages.create(thread.id, {
         role: "user",
         content: task,
       });
 
-      const run = await openai.beta.threads.runs.create(thread.id, {
+      const run = await getOpenAIClient().beta.threads.runs.create(thread.id, {
         assistant_id: agent_id,
       });
 
       // Wait for completion (simplified - in production would poll)
-      let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      let runStatus = await getOpenAIClient().beta.threads.runs.retrieve(thread.id, run.id);
       let attempts = 0;
       while (runStatus.status === "in_progress" || runStatus.status === "queued") {
         if (attempts++ > 30) break; // Timeout after 30 attempts
         await new Promise(resolve => setTimeout(resolve, 1000));
-        runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+        runStatus = await getOpenAIClient().beta.threads.runs.retrieve(thread.id, run.id);
       }
 
-      const messages = await openai.beta.threads.messages.list(thread.id);
+      const messages = await getOpenAIClient().beta.threads.messages.list(thread.id);
       const lastMessage = messages.data[0];
 
       return formatResponse({
@@ -5466,7 +5473,7 @@ Return JSON:
     const { agent_id, task, tools } = args;
     try {
       // Update assistant with specific tools
-      await openai.beta.assistants.update(agent_id, {
+      await getOpenAIClient().beta.assistants.update(agent_id, {
         tools: tools,
       });
 
@@ -5691,7 +5698,7 @@ Return JSON:
   export async function openaiAgentOptimize(args: any) {
     const { agent_id, optimization_goal = "balanced" } = args;
     try {
-      const assistant = await openai.beta.assistants.retrieve(agent_id);
+      const assistant = await getOpenAIClient().beta.assistants.retrieve(agent_id);
 
       const recommendations: string[] = [];
       if (optimization_goal === "cost") {
@@ -5719,7 +5726,7 @@ Return JSON:
   export async function openaiAgentExport(args: any) {
     const { agent_id, include_history = false } = args;
     try {
-      const assistant = await openai.beta.assistants.retrieve(agent_id);
+      const assistant = await getOpenAIClient().beta.assistants.retrieve(agent_id);
       const memory = agentMemoryStore.get(agent_id) || {};
       const state = agentStateStore.get(agent_id) || {};
 
@@ -5743,7 +5750,7 @@ Return JSON:
   export async function openaiAgentImport(args: any) {
     const { config, name } = args;
     try {
-      const assistant = await openai.beta.assistants.create({
+      const assistant = await getOpenAIClient().beta.assistants.create({
         name: name || config.name,
         instructions: config.instructions,
         tools: config.tools,
@@ -5774,9 +5781,9 @@ Return JSON:
   export async function openaiAssistantClone(args: any) {
     const { assistant_id, name } = args;
     try {
-      const original = await openai.beta.assistants.retrieve(assistant_id);
+      const original = await getOpenAIClient().beta.assistants.retrieve(assistant_id);
 
-      const cloned = await openai.beta.assistants.create({
+      const cloned = await getOpenAIClient().beta.assistants.create({
         name: name || `${original.name} (Clone)`,
         instructions: original.instructions,
         tools: original.tools,
@@ -5797,7 +5804,7 @@ Return JSON:
   export async function openaiAssistantExport(args: any) {
     const { assistant_id, include_files = false } = args;
     try {
-      const assistant = await openai.beta.assistants.retrieve(assistant_id);
+      const assistant = await getOpenAIClient().beta.assistants.retrieve(assistant_id);
 
       const config: any = {
         name: assistant.name,
@@ -5824,7 +5831,7 @@ Return JSON:
   export async function openaiAssistantImport(args: any) {
     const { config } = args;
     try {
-      const assistant = await openai.beta.assistants.create({
+      const assistant = await getOpenAIClient().beta.assistants.create({
         name: config.name,
         instructions: config.instructions,
         tools: config.tools,
@@ -5849,26 +5856,26 @@ Return JSON:
       const results: any[] = [];
 
       for (const testCase of test_cases) {
-        const thread = await openai.beta.threads.create();
-        await openai.beta.threads.messages.create(thread.id, {
+        const thread = await getOpenAIClient().beta.threads.create();
+        await getOpenAIClient().beta.threads.messages.create(thread.id, {
           role: "user",
           content: testCase,
         });
 
-        const run = await openai.beta.threads.runs.create(thread.id, {
+        const run = await getOpenAIClient().beta.threads.runs.create(thread.id, {
           assistant_id: assistant_id,
         });
 
         // Wait for completion (simplified)
-        let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+        let runStatus = await getOpenAIClient().beta.threads.runs.retrieve(thread.id, run.id);
         let attempts = 0;
         while (runStatus.status === "in_progress" || runStatus.status === "queued") {
           if (attempts++ > 30) break;
           await new Promise(resolve => setTimeout(resolve, 1000));
-          runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+          runStatus = await getOpenAIClient().beta.threads.runs.retrieve(thread.id, run.id);
         }
 
-        const messages = await openai.beta.threads.messages.list(thread.id);
+        const messages = await getOpenAIClient().beta.threads.messages.list(thread.id);
         const response = messages.data[0].content[0].type === "text"
           ? (messages.data[0].content[0] as any).text.value
           : null;
@@ -5893,7 +5900,7 @@ Return JSON:
   export async function openaiAssistantOptimize(args: any) {
     const { assistant_id, optimization_goal = "balanced" } = args;
     try {
-      const assistant = await openai.beta.assistants.retrieve(assistant_id);
+      const assistant = await getOpenAIClient().beta.assistants.retrieve(assistant_id);
 
       const recommendations: string[] = [];
       if (optimization_goal === "cost") {
@@ -5938,7 +5945,7 @@ Return JSON:
   export async function openaiAssistantVersion(args: any) {
     const { assistant_id, version_name, changes = {} } = args;
     try {
-      const current = await openai.beta.assistants.retrieve(assistant_id);
+      const current = await getOpenAIClient().beta.assistants.retrieve(assistant_id);
 
       // Store current version
       const versions = assistantVersionStore.get(assistant_id) || [];
@@ -5956,7 +5963,7 @@ Return JSON:
 
       // Apply changes if provided
       if (Object.keys(changes).length > 0) {
-        await openai.beta.assistants.update(assistant_id, changes);
+        await getOpenAIClient().beta.assistants.update(assistant_id, changes);
       }
 
       return formatResponse({
@@ -5980,7 +5987,7 @@ Return JSON:
         return formatResponse({ error: `Version ${version_name} not found` });
       }
 
-      await openai.beta.assistants.update(assistant_id, targetVersion.config);
+      await getOpenAIClient().beta.assistants.update(assistant_id, targetVersion.config);
 
       return formatResponse({
         assistant_id: assistant_id,
@@ -6029,7 +6036,7 @@ Return JSON:
   export async function openaiAssistantBenchmark(args: any) {
     const { assistant_id, benchmark_suite = "comprehensive" } = args;
     try {
-      const assistant = await openai.beta.assistants.retrieve(assistant_id);
+      const assistant = await getOpenAIClient().beta.assistants.retrieve(assistant_id);
 
       const benchmarks: any = {
         assistant_id: assistant_id,
@@ -6069,7 +6076,7 @@ Return JSON:
   export async function openaiAssistantMonitor(args: any) {
     const { assistant_id, metrics = [] } = args;
     try {
-      const assistant = await openai.beta.assistants.retrieve(assistant_id);
+      const assistant = await getOpenAIClient().beta.assistants.retrieve(assistant_id);
 
       return formatResponse({
         assistant_id: assistant_id,
@@ -6263,10 +6270,10 @@ Return JSON:
   export async function openaiRunRetry(args: any) {
     const { thread_id, run_id } = args;
     try {
-      const originalRun = await openai.beta.threads.runs.retrieve(thread_id, run_id);
+      const originalRun = await getOpenAIClient().beta.threads.runs.retrieve(thread_id, run_id);
 
       // Create new run with same parameters
-      const newRun = await openai.beta.threads.runs.create(thread_id, {
+      const newRun = await getOpenAIClient().beta.threads.runs.create(thread_id, {
         assistant_id: originalRun.assistant_id,
         model: originalRun.model,
         instructions: originalRun.instructions,
@@ -6287,7 +6294,7 @@ Return JSON:
   export async function openaiRunResume(args: any) {
     const { thread_id, run_id } = args;
     try {
-      const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
+      const run = await getOpenAIClient().beta.threads.runs.retrieve(thread_id, run_id);
 
       return formatResponse({
         run_id: run_id,
@@ -6303,16 +6310,16 @@ Return JSON:
   export async function openaiRunClone(args: any) {
     const { thread_id, run_id } = args;
     try {
-      const originalRun = await openai.beta.threads.runs.retrieve(thread_id, run_id);
+      const originalRun = await getOpenAIClient().beta.threads.runs.retrieve(thread_id, run_id);
 
       // Create new thread with same messages
-      const newThread = await openai.beta.threads.create();
-      const messages = await openai.beta.threads.messages.list(thread_id);
+      const newThread = await getOpenAIClient().beta.threads.create();
+      const messages = await getOpenAIClient().beta.threads.messages.list(thread_id);
 
       // Copy messages to new thread
       for (const message of messages.data.reverse()) {
         if (message.role === "user") {
-          await openai.beta.threads.messages.create(newThread.id, {
+          await getOpenAIClient().beta.threads.messages.create(newThread.id, {
             role: "user",
             content: message.content[0].type === "text" ? (message.content[0] as any).text.value : "",
           });
@@ -6320,7 +6327,7 @@ Return JSON:
       }
 
       // Create new run
-      const newRun = await openai.beta.threads.runs.create(newThread.id, {
+      const newRun = await getOpenAIClient().beta.threads.runs.create(newThread.id, {
         assistant_id: originalRun.assistant_id,
         model: originalRun.model,
         instructions: originalRun.instructions,
@@ -6342,8 +6349,8 @@ Return JSON:
   export async function openaiRunAnalyze(args: any) {
     const { thread_id, run_id } = args;
     try {
-      const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
-      const steps = await openai.beta.threads.runs.steps.list(thread_id, run_id);
+      const run = await getOpenAIClient().beta.threads.runs.retrieve(thread_id, run_id);
+      const steps = await getOpenAIClient().beta.threads.runs.steps.list(thread_id, run_id);
 
       const analysis = {
         run_id: run_id,
@@ -6366,7 +6373,7 @@ Return JSON:
   export async function openaiRunOptimize(args: any) {
     const { thread_id, run_id } = args;
     try {
-      const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
+      const run = await getOpenAIClient().beta.threads.runs.retrieve(thread_id, run_id);
 
       const recommendations: string[] = [];
       if (run.model.includes("gpt-4o")) {
@@ -6394,8 +6401,8 @@ Return JSON:
   export async function openaiRunMonitor(args: any) {
     const { thread_id, run_id } = args;
     try {
-      const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
-      const steps = await openai.beta.threads.runs.steps.list(thread_id, run_id);
+      const run = await getOpenAIClient().beta.threads.runs.retrieve(thread_id, run_id);
+      const steps = await getOpenAIClient().beta.threads.runs.steps.list(thread_id, run_id);
 
       return formatResponse({
         run_id: run_id,
@@ -6416,9 +6423,9 @@ Return JSON:
   export async function openaiRunExport(args: any) {
     const { thread_id, run_id, format = "json" } = args;
     try {
-      const run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
-      const steps = await openai.beta.threads.runs.steps.list(thread_id, run_id);
-      const messages = await openai.beta.threads.messages.list(thread_id);
+      const run = await getOpenAIClient().beta.threads.runs.retrieve(thread_id, run_id);
+      const steps = await getOpenAIClient().beta.threads.runs.steps.list(thread_id, run_id);
+      const messages = await getOpenAIClient().beta.threads.messages.list(thread_id);
 
       const exportData = {
         run: {

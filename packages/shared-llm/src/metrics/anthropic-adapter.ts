@@ -9,6 +9,9 @@ import type {
   CostEstimate,
   UsageStats,
   CapacityInfo,
+  BatchJobRequest,
+  BatchJobHandle,
+  BatchJobResult,
 } from './provider-metrics.js';
 
 interface ModelPricing {
@@ -198,6 +201,199 @@ export class AnthropicMetricsAdapter implements ProviderMetricsAdapter {
     // No live scraping - use fallback pricing
     // Pricing changes infrequently (quarterly), so manual updates are acceptable
     return null;
+  }
+
+  /**
+   * Create a batch job using Anthropic's Message Batches API
+   * https://docs.anthropic.com/en/docs/build-with-claude/message-batches
+   */
+  async createBatchJob(request: BatchJobRequest): Promise<BatchJobHandle> {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY not configured');
+    }
+
+    // Convert generic batch request to Anthropic format
+    const anthropicRequests = request.requests.map((req) => ({
+      custom_id: req.custom_id,
+      params: {
+        model: request.model,
+        max_tokens: req.params.max_tokens || 4096,
+        messages: req.params.messages,
+        temperature: req.params.temperature,
+      },
+    }));
+
+    const response = await fetch('https://api.anthropic.com/v1/messages/batches', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        requests: anthropicRequests,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Anthropic batch creation failed: ${error}`);
+    }
+
+    const data = await response.json() as any;
+
+    return {
+      batch_id: data.id,
+      status: this.mapAnthropicStatus(data.processing_status),
+      created_at: data.created_at,
+      expires_at: data.expires_at,
+      request_counts: {
+        total: data.request_counts?.total || 0,
+        completed: data.request_counts?.succeeded || 0,
+        failed: data.request_counts?.errored || 0,
+      },
+      metadata: data,
+    };
+  }
+
+  /**
+   * Get batch job status
+   */
+  async getBatchJobStatus(batchId: string): Promise<BatchJobHandle> {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY not configured');
+    }
+
+    const response = await fetch(`https://api.anthropic.com/v1/messages/batches/${batchId}`, {
+      method: 'GET',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Anthropic batch status failed: ${error}`);
+    }
+
+    const data = await response.json() as any;
+
+    return {
+      batch_id: data.id,
+      status: this.mapAnthropicStatus(data.processing_status),
+      created_at: data.created_at,
+      expires_at: data.expires_at,
+      request_counts: {
+        total: data.request_counts?.total || 0,
+        completed: data.request_counts?.succeeded || 0,
+        failed: data.request_counts?.errored || 0,
+      },
+      metadata: data,
+    };
+  }
+
+  /**
+   * Get batch job results
+   */
+  async getBatchJobResults(batchId: string): Promise<BatchJobResult> {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY not configured');
+    }
+
+    // First get the batch status to check if it's complete
+    const status = await this.getBatchJobStatus(batchId);
+
+    if (status.status !== 'ended') {
+      throw new Error(`Batch job ${batchId} is not complete yet (status: ${status.status})`);
+    }
+
+    // Get the results URL from the batch metadata
+    const resultsUrl = (status.metadata as any)?.results_url;
+    if (!resultsUrl) {
+      throw new Error(`No results URL found for batch ${batchId}`);
+    }
+
+    // Fetch the results
+    const response = await fetch(resultsUrl, {
+      method: 'GET',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Anthropic batch results failed: ${error}`);
+    }
+
+    const resultsText = await response.text();
+    const results = resultsText
+      .split('\n')
+      .filter((line) => line.trim())
+      .map((line) => JSON.parse(line));
+
+    // Calculate total cost
+    let totalCost = 0;
+    const formattedResults = results.map((result: any) => {
+      const usage = result.result?.usage;
+      if (usage) {
+        const pricing = this.pricingCache[result.result.model] || this.pricingCache['claude-3-5-sonnet-20241022'];
+        const inputCost = (usage.input_tokens / 1000) * pricing.cost_per_1k_input;
+        const outputCost = (usage.output_tokens / 1000) * pricing.cost_per_1k_output;
+        totalCost += inputCost + outputCost;
+      }
+
+      return {
+        custom_id: result.custom_id,
+        result: result.result
+          ? {
+              content: result.result.content?.[0]?.text || '',
+              usage: usage
+                ? {
+                    input_tokens: usage.input_tokens,
+                    output_tokens: usage.output_tokens,
+                  }
+                : undefined,
+            }
+          : undefined,
+        error: result.error
+          ? {
+              type: result.error.type,
+              message: result.error.message,
+            }
+          : undefined,
+      };
+    });
+
+    return {
+      batch_id: batchId,
+      status: 'completed',
+      results: formattedResults,
+      total_cost: totalCost,
+    };
+  }
+
+  /**
+   * Map Anthropic batch status to generic status
+   */
+  private mapAnthropicStatus(
+    status: string
+  ): 'validating' | 'in_progress' | 'canceling' | 'ended' {
+    switch (status) {
+      case 'in_progress':
+        return 'in_progress';
+      case 'canceling':
+        return 'canceling';
+      case 'ended':
+        return 'ended';
+      default:
+        return 'validating';
+    }
   }
 }
 

@@ -76,6 +76,60 @@ export interface CapacityInfo {
 }
 
 /**
+ * Batch job request
+ */
+export interface BatchJobRequest {
+  model: string;
+  requests: Array<{
+    custom_id: string;
+    params: {
+      messages: Array<{ role: string; content: string }>;
+      temperature?: number;
+      max_tokens?: number;
+    };
+  }>;
+}
+
+/**
+ * Batch job handle
+ */
+export interface BatchJobHandle {
+  batch_id: string;
+  status: 'validating' | 'in_progress' | 'canceling' | 'ended';
+  created_at: string;
+  expires_at?: string;
+  request_counts?: {
+    total: number;
+    completed: number;
+    failed: number;
+  };
+  metadata?: Record<string, any>;
+}
+
+/**
+ * Batch job result
+ */
+export interface BatchJobResult {
+  batch_id: string;
+  status: 'completed' | 'failed' | 'expired' | 'canceled';
+  results: Array<{
+    custom_id: string;
+    result?: {
+      content: string;
+      usage?: {
+        input_tokens: number;
+        output_tokens: number;
+      };
+    };
+    error?: {
+      type: string;
+      message: string;
+    };
+  }>;
+  total_cost?: number;
+}
+
+/**
  * Provider metrics adapter interface
  * Each provider (OpenAI, Anthropic, etc.) implements this interface
  */
@@ -115,6 +169,21 @@ export interface ProviderMetricsAdapter {
    * Check if provider is available (API key configured, etc.)
    */
   isAvailable(): boolean;
+
+  /**
+   * Create a batch job (optional - not all providers support this)
+   */
+  createBatchJob?(request: BatchJobRequest): Promise<BatchJobHandle>;
+
+  /**
+   * Get batch job status (optional - not all providers support this)
+   */
+  getBatchJobStatus?(batchId: string): Promise<BatchJobHandle>;
+
+  /**
+   * Get batch job results (optional - not all providers support this)
+   */
+  getBatchJobResults?(batchId: string): Promise<BatchJobResult>;
 }
 
 /**

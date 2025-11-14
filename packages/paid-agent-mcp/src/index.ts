@@ -933,6 +933,83 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['repo', 'task'],
         },
       },
+      // Anthropic Batch API tools
+      {
+        name: 'paid_agent_batch_create',
+        description: 'Create a batch job for processing multiple requests asynchronously (cheaper, slower). Uses Anthropic Message Batches API.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            model: {
+              type: 'string',
+              description: 'Model to use (e.g., "claude-3-5-sonnet-20241022")',
+            },
+            requests: {
+              type: 'array',
+              description: 'Array of requests to process',
+              items: {
+                type: 'object',
+                properties: {
+                  custom_id: {
+                    type: 'string',
+                    description: 'Unique identifier for this request',
+                  },
+                  params: {
+                    type: 'object',
+                    properties: {
+                      messages: {
+                        type: 'array',
+                        description: 'Array of messages',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            role: { type: 'string' },
+                            content: { type: 'string' },
+                          },
+                        },
+                      },
+                      temperature: { type: 'number' },
+                      max_tokens: { type: 'number' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          required: ['model', 'requests'],
+        },
+      },
+      {
+        name: 'paid_agent_batch_status',
+        description: 'Get the status of a batch job',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            batch_id: {
+              type: 'string',
+              description: 'Batch job ID',
+            },
+          },
+          required: ['batch_id'],
+        },
+      },
+      {
+        name: 'paid_agent_batch_results',
+        description: 'Get the results of a completed batch job',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            batch_id: {
+              type: 'string',
+              description: 'Batch job ID',
+            },
+          },
+          required: ['batch_id'],
+        },
+      },
       // Universal file editing tools (work in ANY MCP client: Augment, Cline, Cursor, etc.)
       {
         name: 'file_str_replace',
@@ -1479,6 +1556,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'paid_agent_run_task_v2':
         return await handleRunAgentTaskV2(args);
+
+      // Anthropic Batch API
+      case 'paid_agent_batch_create':
+        return await handleBatchCreate(args);
+      case 'paid_agent_batch_status':
+        return await handleBatchStatus(args);
+      case 'paid_agent_batch_results':
+        return await handleBatchResults(args);
 
       // Universal file editing tools (work in ANY MCP client!)
       case 'file_str_replace':
@@ -4066,6 +4151,131 @@ async function handleRunAgentTaskV2(args: any) {
     return createToolResponse({
       status: 'failed',
       task_summary: 'Task failed with error',
+      error: {
+        type: 'unknown',
+        message: error.message,
+        details: error.stack,
+      },
+    });
+  }
+}
+
+/**
+ * Create a batch job using Anthropic Message Batches API
+ */
+async function handleBatchCreate(args: any) {
+  try {
+    const { getMetricsAdapter } = await import('@robinson_ai_systems/shared-llm/metrics/provider-metrics.js');
+
+    const adapter = getMetricsAdapter('anthropic');
+    if (!adapter || !adapter.createBatchJob) {
+      return createToolResponse({
+        status: 'failed',
+        error: {
+          type: 'not_supported',
+          message: 'Anthropic batch API not available or not configured',
+        },
+      });
+    }
+
+    const result = await adapter.createBatchJob({
+      model: args.model,
+      requests: args.requests,
+    });
+
+    return createToolResponse({
+      status: 'completed',
+      batch_id: result.batch_id,
+      batch_status: result.status,
+      created_at: result.created_at,
+      expires_at: result.expires_at,
+      request_counts: result.request_counts,
+    });
+  } catch (error: any) {
+    console.error('[handleBatchCreate] Error:', error);
+    return createToolResponse({
+      status: 'failed',
+      error: {
+        type: 'unknown',
+        message: error.message,
+        details: error.stack,
+      },
+    });
+  }
+}
+
+/**
+ * Get batch job status
+ */
+async function handleBatchStatus(args: any) {
+  try {
+    const { getMetricsAdapter } = await import('@robinson_ai_systems/shared-llm/metrics/provider-metrics.js');
+
+    const adapter = getMetricsAdapter('anthropic');
+    if (!adapter || !adapter.getBatchJobStatus) {
+      return createToolResponse({
+        status: 'failed',
+        error: {
+          type: 'not_supported',
+          message: 'Anthropic batch API not available or not configured',
+        },
+      });
+    }
+
+    const result = await adapter.getBatchJobStatus(args.batch_id);
+
+    return createToolResponse({
+      status: 'completed',
+      batch_id: result.batch_id,
+      batch_status: result.status,
+      created_at: result.created_at,
+      expires_at: result.expires_at,
+      request_counts: result.request_counts,
+    });
+  } catch (error: any) {
+    console.error('[handleBatchStatus] Error:', error);
+    return createToolResponse({
+      status: 'failed',
+      error: {
+        type: 'unknown',
+        message: error.message,
+        details: error.stack,
+      },
+    });
+  }
+}
+
+/**
+ * Get batch job results
+ */
+async function handleBatchResults(args: any) {
+  try {
+    const { getMetricsAdapter } = await import('@robinson_ai_systems/shared-llm/metrics/provider-metrics.js');
+
+    const adapter = getMetricsAdapter('anthropic');
+    if (!adapter || !adapter.getBatchJobResults) {
+      return createToolResponse({
+        status: 'failed',
+        error: {
+          type: 'not_supported',
+          message: 'Anthropic batch API not available or not configured',
+        },
+      });
+    }
+
+    const result = await adapter.getBatchJobResults(args.batch_id);
+
+    return createToolResponse({
+      status: 'completed',
+      batch_id: result.batch_id,
+      batch_status: result.status,
+      results: result.results,
+      total_cost: result.total_cost,
+    });
+  } catch (error: any) {
+    console.error('[handleBatchResults] Error:', error);
+    return createToolResponse({
+      status: 'failed',
       error: {
         type: 'unknown',
         message: error.message,
