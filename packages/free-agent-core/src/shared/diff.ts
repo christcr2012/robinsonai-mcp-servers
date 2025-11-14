@@ -7,14 +7,15 @@ export async function applyUnifiedDiff(
   cwd: string,
   diff: string
 ): Promise<void> {
-  const p = spawnSync("git", ["apply", "-p0", "--reject", "--whitespace=fix"], {
+  const p = spawnSync("git", ["apply", "-p1", "--reject", "--whitespace=fix"], {
     cwd,
     input: diff,
     encoding: "utf8",
   });
 
   if ((p.status ?? 1) !== 0) {
-    throw new Error(`[Diff] git apply failed:\n${p.stderr}`);
+    const errorMsg = p.stderr || p.stdout || "(no error message)";
+    throw new Error(`[Diff] git apply failed:\n${errorMsg}`);
   }
 
   console.log(`[Diff] Applied patch successfully`);

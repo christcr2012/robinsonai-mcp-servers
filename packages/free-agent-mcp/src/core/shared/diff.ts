@@ -19,7 +19,7 @@ export async function applyUnifiedDiff(
     console.log(`[applyUnifiedDiff] Patch size: ${diff.length} chars`);
   }
 
-  const p = spawnSync("git", ["apply", "-p0", "--reject", "--whitespace=fix"], {
+  const p = spawnSync("git", ["apply", "-p1", "--reject", "--whitespace=fix"], {
     cwd,
     input: diff,
     encoding: "utf8",

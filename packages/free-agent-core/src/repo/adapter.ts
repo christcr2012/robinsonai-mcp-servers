@@ -65,8 +65,13 @@ function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
             generator = await loadGeneratorLegacy(cfg.generatorModule, repoRoot);
           }
         } catch (err: any) {
-          console.warn(`[Adapter] ${err.message}`);
-          generator = createFallbackGenerator();
+          console.error("[Adapter] Failed to load generator", err);
+          if (process.env.FREE_AGENT_ALLOW_FALLBACK === "1") {
+            console.warn("[Adapter] Using fallback generator (FREE_AGENT_ALLOW_FALLBACK=1)");
+            generator = createFallbackGenerator();
+          } else {
+            throw err;
+          }
         }
       }
     },
@@ -88,8 +93,13 @@ function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
             generator = await loadGeneratorLegacy(cfg.generatorModule, repoRoot);
           }
         } catch (err: any) {
-          console.warn(`[Adapter] ${err.message}`);
-          generator = createFallbackGenerator();
+          console.error("[Adapter] Failed to load generator", err);
+          if (process.env.FREE_AGENT_ALLOW_FALLBACK === "1") {
+            console.warn("[Adapter] Using fallback generator (FREE_AGENT_ALLOW_FALLBACK=1)");
+            generator = createFallbackGenerator();
+          } else {
+            throw err;
+          }
         }
       }
 
@@ -119,8 +129,13 @@ function makeAdapterFromConfig(cfg: any, repoRoot: string): Adapter {
             generator = await loadGeneratorLegacy(cfg.generatorModule, repoRoot);
           }
         } catch (err: any) {
-          console.warn(`[Adapter] ${err.message}`);
-          generator = createFallbackGenerator();
+          console.error("[Adapter] Failed to load generator", err);
+          if (process.env.FREE_AGENT_ALLOW_FALLBACK === "1") {
+            console.warn("[Adapter] Using fallback generator (FREE_AGENT_ALLOW_FALLBACK=1)");
+            generator = createFallbackGenerator();
+          } else {
+            throw err;
+          }
         }
       }
 
@@ -162,8 +177,13 @@ function defaultAdapter(): Adapter {
           const factory = await loadGenerator();
           generator = factory({ logger: console });
         } catch (err: any) {
-          console.warn(`[Adapter] ${err.message}`);
-          generator = createFallbackGenerator();
+          console.error("[Adapter] Failed to load generator", err);
+          if (process.env.FREE_AGENT_ALLOW_FALLBACK === "1") {
+            console.warn("[Adapter] Using fallback generator (FREE_AGENT_ALLOW_FALLBACK=1)");
+            generator = createFallbackGenerator();
+          } else {
+            throw err;
+          }
         }
       }
     },
@@ -178,8 +198,13 @@ function defaultAdapter(): Adapter {
           const factory = await loadGenerator();
           generator = factory({ logger: console });
         } catch (err: any) {
-          console.warn(`[Adapter] ${err.message}`);
-          generator = createFallbackGenerator();
+          console.error("[Adapter] Failed to load generator", err);
+          if (process.env.FREE_AGENT_ALLOW_FALLBACK === "1") {
+            console.warn("[Adapter] Using fallback generator (FREE_AGENT_ALLOW_FALLBACK=1)");
+            generator = createFallbackGenerator();
+          } else {
+            throw err;
+          }
         }
       }
 
@@ -202,8 +227,13 @@ function defaultAdapter(): Adapter {
           const factory = await loadGenerator();
           generator = factory({ logger: console });
         } catch (err: any) {
-          console.warn(`[Adapter] ${err.message}`);
-          generator = createFallbackGenerator();
+          console.error("[Adapter] Failed to load generator", err);
+          if (process.env.FREE_AGENT_ALLOW_FALLBACK === "1") {
+            console.warn("[Adapter] Using fallback generator (FREE_AGENT_ALLOW_FALLBACK=1)");
+            generator = createFallbackGenerator();
+          } else {
+            throw err;
+          }
         }
       }
 
