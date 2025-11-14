@@ -146,9 +146,17 @@ export class MoonshotMetricsAdapter implements ProviderMetricsAdapter {
   }
 
   async refreshPricing(): Promise<boolean> {
-    // Moonshot doesn't have a public pricing API
-    // Pricing is manually updated in FALLBACK_PRICING
-    return true;
+    const livePricing = await this.fetchLivePricing();
+
+    if (livePricing && Object.keys(livePricing).length > 0) {
+      this.pricingCache = { ...FALLBACK_PRICING, ...livePricing };
+      this.lastFetchTime = Date.now();
+      console.error('[MOONSHOT-ADAPTER] Successfully fetched live pricing');
+      return true;
+    }
+
+    console.error('[MOONSHOT-ADAPTER] Failed to fetch live pricing, using fallback');
+    return false;
   }
 
   isAvailable(): boolean {
@@ -156,6 +164,25 @@ export class MoonshotMetricsAdapter implements ProviderMetricsAdapter {
   }
 
   private async getModelPricing(model: string): Promise<ModelPricing> {
+    const now = Date.now();
+
+    // Auto-refresh if cache is stale (non-blocking)
+    if (now - this.lastFetchTime > this.CACHE_DURATION) {
+      this.fetchLivePricing()
+        .then((livePricing) => {
+          if (livePricing && Object.keys(livePricing).length > 0) {
+            this.pricingCache = { ...FALLBACK_PRICING, ...livePricing };
+            this.lastFetchTime = now;
+            console.error('[MOONSHOT-ADAPTER] Auto-refreshed live pricing');
+          }
+        })
+        .catch(() => {
+          this.lastFetchTime = now;
+          console.error('[MOONSHOT-ADAPTER] Auto-refresh failed, using fallback');
+        });
+    }
+
+    // Return cached pricing or fallback
     if (this.pricingCache[model]) {
       return this.pricingCache[model];
     }
@@ -167,6 +194,79 @@ export class MoonshotMetricsAdapter implements ProviderMetricsAdapter {
       last_updated: Date.now(),
       source: 'fallback',
     };
+  }
+
+  private async fetchLivePricing(): Promise<PricingCache | null> {
+    try {
+      const response = await fetch('https://platform.moonshot.cn/docs/price/chat', {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+        signal: AbortSignal.timeout(5000),
+      });
+
+      if (!response.ok) return null;
+
+      const html = await response.text();
+      const pricing: PricingCache = {};
+
+      // Moonshot pricing is in Chinese Yuan (¥), need to convert to USD
+      // Approximate exchange rate: 1 USD ≈ 7.2 CNY (update as needed)
+      const CNY_TO_USD = 1 / 7.2;
+
+      // Scrape moonshot-v1-8k pricing (¥0.012/1K tokens)
+      const v1_8kMatch = html.match(/moonshot-v1-8k.*?¥([0-9.]+).*?1K/is) ||
+                         html.match(/8K.*?¥([0-9.]+).*?千tokens/is);
+      if (v1_8kMatch) {
+        const costCNY = parseFloat(v1_8kMatch[1]);
+        const costUSD = costCNY * CNY_TO_USD;
+        if (costUSD > 0 && costUSD < 1) {
+          pricing['moonshot-v1-8k'] = {
+            cost_per_1k_input: costUSD,
+            cost_per_1k_output: costUSD,
+            last_updated: Date.now(),
+            source: 'live',
+          };
+        }
+      }
+
+      // Scrape moonshot-v1-32k pricing (¥0.024/1K tokens)
+      const v1_32kMatch = html.match(/moonshot-v1-32k.*?¥([0-9.]+).*?1K/is) ||
+                          html.match(/32K.*?¥([0-9.]+).*?千tokens/is);
+      if (v1_32kMatch) {
+        const costCNY = parseFloat(v1_32kMatch[1]);
+        const costUSD = costCNY * CNY_TO_USD;
+        if (costUSD > 0 && costUSD < 1) {
+          pricing['moonshot-v1-32k'] = {
+            cost_per_1k_input: costUSD,
+            cost_per_1k_output: costUSD,
+            last_updated: Date.now(),
+            source: 'live',
+          };
+        }
+      }
+
+      // Scrape moonshot-v1-128k pricing (¥0.06/1K tokens)
+      const v1_128kMatch = html.match(/moonshot-v1-128k.*?¥([0-9.]+).*?1K/is) ||
+                           html.match(/128K.*?¥([0-9.]+).*?千tokens/is);
+      if (v1_128kMatch) {
+        const costCNY = parseFloat(v1_128kMatch[1]);
+        const costUSD = costCNY * CNY_TO_USD;
+        if (costUSD > 0 && costUSD < 1) {
+          pricing['moonshot-v1-128k'] = {
+            cost_per_1k_input: costUSD,
+            cost_per_1k_output: costUSD,
+            last_updated: Date.now(),
+            source: 'live',
+          };
+        }
+      }
+
+      return Object.keys(pricing).length > 0 ? pricing : null;
+    } catch (error) {
+      console.error('[MOONSHOT-ADAPTER] Pricing scrape error:', error);
+      return null;
+    }
   }
 }
 

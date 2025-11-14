@@ -144,9 +144,17 @@ export class AnthropicMetricsAdapter implements ProviderMetricsAdapter {
   }
 
   async refreshPricing(): Promise<boolean> {
-    // Anthropic doesn't have a public pricing API
-    // Pricing is manually updated in FALLBACK_PRICING
-    return true;
+    const livePricing = await this.fetchLivePricing();
+
+    if (livePricing && Object.keys(livePricing).length > 0) {
+      this.pricingCache = { ...FALLBACK_PRICING, ...livePricing };
+      this.lastFetchTime = Date.now();
+      console.error('[ANTHROPIC-ADAPTER] Successfully fetched live pricing');
+      return true;
+    }
+
+    console.error('[ANTHROPIC-ADAPTER] Failed to fetch live pricing, using fallback');
+    return false;
   }
 
   isAvailable(): boolean {
@@ -154,6 +162,25 @@ export class AnthropicMetricsAdapter implements ProviderMetricsAdapter {
   }
 
   private async getModelPricing(model: string): Promise<ModelPricing> {
+    const now = Date.now();
+
+    // Auto-refresh if cache is stale (non-blocking)
+    if (now - this.lastFetchTime > this.CACHE_DURATION) {
+      this.fetchLivePricing()
+        .then((livePricing) => {
+          if (livePricing && Object.keys(livePricing).length > 0) {
+            this.pricingCache = { ...FALLBACK_PRICING, ...livePricing };
+            this.lastFetchTime = now;
+            console.error('[ANTHROPIC-ADAPTER] Auto-refreshed live pricing');
+          }
+        })
+        .catch(() => {
+          this.lastFetchTime = now;
+          console.error('[ANTHROPIC-ADAPTER] Auto-refresh failed, using fallback');
+        });
+    }
+
+    // Return cached pricing or fallback
     if (this.pricingCache[model]) {
       return this.pricingCache[model];
     }
@@ -165,6 +192,72 @@ export class AnthropicMetricsAdapter implements ProviderMetricsAdapter {
       last_updated: Date.now(),
       source: 'fallback',
     };
+  }
+
+  private async fetchLivePricing(): Promise<PricingCache | null> {
+    try {
+      const response = await fetch('https://www.anthropic.com/pricing', {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+        signal: AbortSignal.timeout(5000),
+      });
+
+      if (!response.ok) return null;
+
+      const html = await response.text();
+      const pricing: PricingCache = {};
+
+      // Scrape Claude 3.5 Sonnet pricing
+      const sonnetMatch = html.match(/Claude 3\.5 Sonnet.*?\$([0-9.]+).*?input.*?\$([0-9.]+).*?output/is);
+      if (sonnetMatch) {
+        const inputCost = parseFloat(sonnetMatch[1]) / 1000; // Convert from per 1M to per 1K
+        const outputCost = parseFloat(sonnetMatch[2]) / 1000;
+        if (inputCost > 0 && inputCost < 1 && outputCost > 0 && outputCost < 1) {
+          pricing['claude-3-5-sonnet-20241022'] = {
+            cost_per_1k_input: inputCost,
+            cost_per_1k_output: outputCost,
+            last_updated: Date.now(),
+            source: 'live',
+          };
+        }
+      }
+
+      // Scrape Claude 3.5 Haiku pricing
+      const haikuMatch = html.match(/Claude 3\.5 Haiku.*?\$([0-9.]+).*?input.*?\$([0-9.]+).*?output/is);
+      if (haikuMatch) {
+        const inputCost = parseFloat(haikuMatch[1]) / 1000;
+        const outputCost = parseFloat(haikuMatch[2]) / 1000;
+        if (inputCost > 0 && inputCost < 1 && outputCost > 0 && outputCost < 1) {
+          pricing['claude-3-5-haiku-20241022'] = {
+            cost_per_1k_input: inputCost,
+            cost_per_1k_output: outputCost,
+            last_updated: Date.now(),
+            source: 'live',
+          };
+        }
+      }
+
+      // Scrape Claude 3 Opus pricing
+      const opusMatch = html.match(/Claude 3 Opus.*?\$([0-9.]+).*?input.*?\$([0-9.]+).*?output/is);
+      if (opusMatch) {
+        const inputCost = parseFloat(opusMatch[1]) / 1000;
+        const outputCost = parseFloat(opusMatch[2]) / 1000;
+        if (inputCost > 0 && inputCost < 1 && outputCost > 0 && outputCost < 1) {
+          pricing['claude-3-opus-20240229'] = {
+            cost_per_1k_input: inputCost,
+            cost_per_1k_output: outputCost,
+            last_updated: Date.now(),
+            source: 'live',
+          };
+        }
+      }
+
+      return Object.keys(pricing).length > 0 ? pricing : null;
+    } catch (error) {
+      console.error('[ANTHROPIC-ADAPTER] Pricing scrape error:', error);
+      return null;
+    }
   }
 }
 

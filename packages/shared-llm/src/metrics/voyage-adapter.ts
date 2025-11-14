@@ -138,9 +138,17 @@ export class VoyageMetricsAdapter implements ProviderMetricsAdapter {
   }
 
   async refreshPricing(): Promise<boolean> {
-    // Voyage doesn't have a public pricing API
-    // Pricing is manually updated in FALLBACK_PRICING
-    return true;
+    const livePricing = await this.fetchLivePricing();
+
+    if (livePricing && Object.keys(livePricing).length > 0) {
+      this.pricingCache = { ...FALLBACK_PRICING, ...livePricing };
+      this.lastFetchTime = Date.now();
+      console.error('[VOYAGE-ADAPTER] Successfully fetched live pricing');
+      return true;
+    }
+
+    console.error('[VOYAGE-ADAPTER] Failed to fetch live pricing, using fallback');
+    return false;
   }
 
   isAvailable(): boolean {
@@ -148,6 +156,25 @@ export class VoyageMetricsAdapter implements ProviderMetricsAdapter {
   }
 
   private async getModelPricing(model: string): Promise<ModelPricing> {
+    const now = Date.now();
+
+    // Auto-refresh if cache is stale (non-blocking)
+    if (now - this.lastFetchTime > this.CACHE_DURATION) {
+      this.fetchLivePricing()
+        .then((livePricing) => {
+          if (livePricing && Object.keys(livePricing).length > 0) {
+            this.pricingCache = { ...FALLBACK_PRICING, ...livePricing };
+            this.lastFetchTime = now;
+            console.error('[VOYAGE-ADAPTER] Auto-refreshed live pricing');
+          }
+        })
+        .catch(() => {
+          this.lastFetchTime = now;
+          console.error('[VOYAGE-ADAPTER] Auto-refresh failed, using fallback');
+        });
+    }
+
+    // Return cached pricing or fallback
     if (this.pricingCache[model]) {
       return this.pricingCache[model];
     }
@@ -159,6 +186,57 @@ export class VoyageMetricsAdapter implements ProviderMetricsAdapter {
       last_updated: Date.now(),
       source: 'fallback',
     };
+  }
+
+  private async fetchLivePricing(): Promise<PricingCache | null> {
+    try {
+      const response = await fetch('https://www.voyageai.com/pricing', {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+        signal: AbortSignal.timeout(5000),
+      });
+
+      if (!response.ok) return null;
+
+      const html = await response.text();
+      const pricing: PricingCache = {};
+
+      // Scrape voyage-3 pricing
+      const voyage3Match = html.match(/voyage-3(?!-lite).*?\$([0-9.]+).*?(?:per|\/)\s*(?:1M|million)/is);
+      if (voyage3Match) {
+        const costPer1M = parseFloat(voyage3Match[1]);
+        const costPer1K = costPer1M / 1000;
+        if (costPer1K > 0 && costPer1K < 1) {
+          pricing['voyage-3'] = {
+            cost_per_1k_input: costPer1K,
+            cost_per_1k_output: costPer1K * 2, // Voyage typically charges 2x for output
+            last_updated: Date.now(),
+            source: 'live',
+          };
+        }
+      }
+
+      // Scrape voyage-3-lite pricing
+      const voyage3LiteMatch = html.match(/voyage-3-lite.*?\$([0-9.]+).*?(?:per|\/)\s*(?:1M|million)/is);
+      if (voyage3LiteMatch) {
+        const costPer1M = parseFloat(voyage3LiteMatch[1]);
+        const costPer1K = costPer1M / 1000;
+        if (costPer1K > 0 && costPer1K < 1) {
+          pricing['voyage-3-lite'] = {
+            cost_per_1k_input: costPer1K,
+            cost_per_1k_output: costPer1K * 2,
+            last_updated: Date.now(),
+            source: 'live',
+          };
+        }
+      }
+
+      return Object.keys(pricing).length > 0 ? pricing : null;
+    } catch (error) {
+      console.error('[VOYAGE-ADAPTER] Pricing scrape error:', error);
+      return null;
+    }
   }
 }
 
