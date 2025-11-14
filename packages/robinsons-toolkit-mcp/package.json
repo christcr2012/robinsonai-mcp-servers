@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/robinsons-toolkit-mcp",
-  "version": "1.18.2",
+  "version": "1.19.0",
   "description": "Unified MCP server with 1717 tools across 28 categories. Features 90 curated core tools for quick discovery. Includes GitHub, Vercel, Neon, Upstash Redis, Google Workspace, OpenAI, Stripe, Supabase, Playwright, Twilio, Resend, Context7, Cloudflare, PostgreSQL, Neo4j, Qdrant, N8N, and more!",
   "type": "module",
   "main": "./dist/index.js",
