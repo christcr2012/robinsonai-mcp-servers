@@ -1481,6 +1481,15 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           additionalProperties: false,
         },
       },
+      {
+        name: 'paid_agent_smoke_test',
+        description: 'Simple health check for Paid Agent. Calls agent with trivial task to verify it\'s working.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {},
+        },
+      },
     ],
   };
 });
@@ -1836,6 +1845,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             },
           ],
         };
+
+      case 'paid_agent_smoke_test':
+        return await handlePaidAgentSmokeTest(args);
 
       default:
         throw new Error(`Unknown tool: ${name}`);
@@ -4132,29 +4144,66 @@ async function handleRunAgentTaskV2(args: any) {
       quality,
     });
 
-    return createToolResponse({
-      status: result.success ? 'completed' : 'failed',
-      task_summary: 'Task completed using shared Agent Core',
-      repo: repoRoot,
-      task,
-      kind,
-      quality,
-      logs: result.logs || [],
-      cost_estimate: {
-        estimated_usd: 0,
-        actual_usd: 0,
-        note: 'Shared Agent Core - cost depends on tier and model selection',
-      },
-    });
+    // Return comprehensive result with proper error surfacing
+    if (result.status === 'success') {
+      return createToolResponse({
+        status: 'completed',
+        task_summary: 'Task completed using shared Agent Core',
+        repo: repoRoot,
+        task,
+        kind,
+        quality,
+        logs: result.logs || [],
+        output: result.output,
+        meta: {
+          timingMs: result.timingMs,
+          model: result.model,
+          agentType: 'paid',
+          ...result.meta,
+        },
+        cost_estimate: {
+          estimated_usd: 0,
+          actual_usd: 0,
+          note: 'Shared Agent Core - cost depends on tier and model selection',
+        },
+      });
+    } else {
+      // IMPORTANT: surface the error instead of throwing it away
+      return createToolResponse({
+        status: 'failed',
+        task_summary: result.error?.message ?? 'Paid Agent failed with unknown error',
+        repo: repoRoot,
+        task,
+        kind,
+        quality,
+        logs: result.logs || [],
+        error: {
+          type: result.error?.type || 'unknown',
+          message: result.error?.message || 'Unknown error',
+          details: result.error?.stack,
+          context: result.error?.context,
+        },
+        meta: {
+          timingMs: result.timingMs,
+          model: result.model,
+          agentType: 'paid',
+          ...result.meta,
+        },
+      });
+    }
   } catch (error: any) {
-    console.error('[handleRunAgentTaskV2] Error:', error);
+    console.error('[handleRunAgentTaskV2] Unexpected error:', error);
     return createToolResponse({
       status: 'failed',
-      task_summary: 'Task failed with error',
+      task_summary: 'Task failed with unexpected error',
       error: {
-        type: 'unknown',
-        message: error.message,
+        type: error.name || 'Error',
+        message: error.message || 'Unknown error',
         details: error.stack,
+        context: {
+          handler: 'handleRunAgentTaskV2',
+          args,
+        },
       },
     });
   }
@@ -4439,6 +4488,101 @@ async function handleFreeAgentSmoke(args: any) {
             {
               success: false,
               error: error.message,
+            },
+            null,
+            2
+          ),
+        },
+      ],
+      isError: true,
+    };
+  }
+}
+
+/**
+ * Simple health check for Paid Agent
+ * Calls agent with trivial task to verify it's working
+ */
+async function handlePaidAgentSmokeTest(args: any) {
+  try {
+    const { runAgentTask } = await import('@fa/core');
+
+    console.log('[handlePaidAgentSmokeTest] Running health check...');
+
+    const result = await runAgentTask({
+      repo: process.cwd(),
+      task: 'Say the word READY and nothing else.',
+      kind: 'feature',
+      tier: 'paid',
+      quality: 'fast',
+    });
+
+    // Check if output exactly equals "READY" (trimmed)
+    const outputTrimmed = result.output?.trim();
+    if (result.status === 'success' && outputTrimmed === 'READY') {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                ok: true,
+                message: 'Paid Agent health check passed',
+                meta: {
+                  timingMs: result.timingMs,
+                  model: result.model,
+                },
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+
+    // Agent ran but didn't return expected output
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              ok: false,
+              errorSummary: `Unexpected response from Paid Agent. Expected "READY", got: "${outputTrimmed}"`,
+              result: {
+                status: result.status,
+                output: result.output,
+                logs: result.logs,
+                error: result.error,
+              },
+              meta: {
+                timingMs: result.timingMs,
+                model: result.model,
+              },
+            },
+            null,
+            2
+          ),
+        },
+      ],
+      isError: true,
+    };
+  } catch (error: any) {
+    console.error('[handlePaidAgentSmokeTest] Error:', error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              ok: false,
+              errorSummary: error.message || 'Paid Agent smoke test failed',
+              error: {
+                message: error.message || 'Unknown error',
+                stack: error.stack,
+                type: error.name || 'Error',
+              },
             },
             null,
             2

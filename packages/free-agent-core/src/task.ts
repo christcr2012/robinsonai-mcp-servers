@@ -21,9 +21,31 @@ export interface AgentTask {
   constraints?: AgentTaskConstraints;
 }
 
+/**
+ * Error details for failed agent runs
+ */
+export interface AgentRunError {
+  message: string;
+  stack?: string;
+  type?: string;
+  context?: Record<string, unknown>;
+}
+
+/**
+ * Comprehensive result type for agent task execution
+ * Used by both Free Agent and Paid Agent
+ */
 export interface AgentRunResult {
-  success: boolean;
-  logs?: string[];
-  // Future: add richer info (applied patches, tests, etc.)
+  status: 'success' | 'failed';
+  output?: string;                  // final answer / code / plan
+  logs?: string[];                  // high-level steps / actions (NOT raw hidden CoT)
+  timingMs?: number;
+  model?: string;
+  taskDescription?: string;
+  meta?: Record<string, unknown>;   // free-form metadata (tools used, token counts, etc.)
+  error?: AgentRunError;            // present only when status === "failed"
+
+  // Legacy field for backward compatibility
+  success?: boolean;
 }
 

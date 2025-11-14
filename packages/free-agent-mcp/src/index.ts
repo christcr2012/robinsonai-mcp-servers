@@ -467,6 +467,10 @@ class AutonomousAgentServer {
             result = await this.runFreeAgentSmoke(args as any);
             break;
 
+          case 'free_agent_smoke_test':
+            result = await this.runFreeAgentSmokeTest(args as any);
+            break;
+
           case 'run_parallel':
             result = await run_parallel.handler({ args, server: this });
             break;
@@ -2118,6 +2122,15 @@ Generate the modified section now:`;
           },
         },
       },
+      {
+        name: 'free_agent_smoke_test',
+        description: 'Simple health check for Free Agent. Calls agent with trivial task to verify it\'s working.',
+        inputSchema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {},
+        },
+      },
       // Parallel execution tool
       run_parallel,
       // Path debugging tool
@@ -2408,29 +2421,138 @@ Generate the modified section now:`;
         quality,
       });
 
+      // Return comprehensive result with proper error surfacing
+      if (result.status === 'success') {
+        return {
+          ok: true,
+          output: result.output,
+          logs: result.logs ?? [],
+          meta: {
+            timingMs: result.timingMs,
+            model: result.model,
+            agentType: 'free',
+            ...result.meta,
+          },
+          // Legacy fields for backward compatibility
+          success: true,
+          message: 'Task completed using shared Agent Core',
+          repo: repoRoot,
+          task,
+          kind,
+          quality,
+          augmentCreditsUsed: 0,
+          creditsSaved: 13000,
+          cost: {
+            total: 0,
+            currency: 'USD',
+            note: 'FREE - Shared Agent Core (Ollama)',
+          },
+        };
+      } else {
+        // IMPORTANT: surface the error instead of throwing it away
+        return {
+          ok: false,
+          errorSummary: result.error?.message ?? 'Free Agent failed with unknown error',
+          error: result.error,
+          logs: result.logs ?? [],
+          meta: {
+            timingMs: result.timingMs,
+            model: result.model,
+            agentType: 'free',
+            ...result.meta,
+          },
+          // Legacy fields for backward compatibility
+          success: false,
+          repo: repoRoot,
+          task,
+          kind,
+          quality,
+          augmentCreditsUsed: 0,
+          creditsSaved: 0,
+        };
+      }
+    } catch (error: any) {
+      console.error('[runAgentTaskV2] Unexpected error:', error);
       return {
-        success: result.success,
-        message: 'Task completed using shared Agent Core',
-        repo: repoRoot,
-        task,
-        kind,
-        quality,
-        logs: result.logs,
+        ok: false,
+        errorSummary: error.message || 'Unexpected error in Free Agent MCP handler',
+        error: {
+          message: error.message || 'Unknown error',
+          stack: error.stack,
+          type: error.name || 'Error',
+          context: {
+            handler: 'runAgentTaskV2',
+            args,
+          },
+        },
+        logs: [],
+        meta: {
+          agentType: 'free',
+        },
+        // Legacy fields
+        success: false,
         augmentCreditsUsed: 0,
-        creditsSaved: 13000,
-        cost: {
-          total: 0,
-          currency: 'USD',
-          note: 'FREE - Shared Agent Core (Ollama)',
+        creditsSaved: 0,
+      };
+    }
+  }
+
+  /**
+   * Simple health check for Free Agent
+   * Calls agent with trivial task to verify it's working
+   */
+  private async runFreeAgentSmokeTest(args: any): Promise<any> {
+    try {
+      const { runAgentTask } = await import('@fa/core');
+
+      console.log('[runFreeAgentSmokeTest] Running health check...');
+
+      const result = await runAgentTask({
+        repo: process.cwd(),
+        task: 'Say the word READY and nothing else.',
+        kind: 'feature',
+        tier: 'free',
+        quality: 'fast',
+      });
+
+      // Check if output exactly equals "READY" (trimmed)
+      const outputTrimmed = result.output?.trim();
+      if (result.status === 'success' && outputTrimmed === 'READY') {
+        return {
+          ok: true,
+          message: 'Free Agent health check passed',
+          meta: {
+            timingMs: result.timingMs,
+            model: result.model,
+          },
+        };
+      }
+
+      // Agent ran but didn't return expected output
+      return {
+        ok: false,
+        errorSummary: `Unexpected response from Free Agent. Expected "READY", got: "${outputTrimmed}"`,
+        result: {
+          status: result.status,
+          output: result.output,
+          logs: result.logs,
+          error: result.error,
+        },
+        meta: {
+          timingMs: result.timingMs,
+          model: result.model,
         },
       };
     } catch (error: any) {
-      console.error('[runAgentTaskV2] Error:', error);
+      console.error('[runFreeAgentSmokeTest] Error:', error);
       return {
-        success: false,
-        error: error.message,
-        augmentCreditsUsed: 0,
-        creditsSaved: 0,
+        ok: false,
+        errorSummary: error.message || 'Free Agent smoke test failed',
+        error: {
+          message: error.message || 'Unknown error',
+          stack: error.stack,
+          type: error.name || 'Error',
+        },
       };
     }
   }

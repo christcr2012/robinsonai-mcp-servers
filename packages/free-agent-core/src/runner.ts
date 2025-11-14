@@ -53,35 +53,54 @@ export async function runFreeAgent(opts: {
  * This is the shared Agent Core interface used by both MCP servers
  */
 export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
+  const started = Date.now();
   let success = true;
   let errorMessage: string | undefined;
+  let errorStack: string | undefined;
+  let errorType: string | undefined;
   let taskId: string | undefined;
   let planningArtifacts: any[] = [];
   let executionArtifacts: any[] = [];
+  const logs: string[] = [];
+
+  logs.push(`[${new Date().toISOString()}] Starting agent task: ${task.task}`);
+  logs.push(`[${new Date().toISOString()}] Repo: ${task.repo}, Kind: ${task.kind}, Tier: ${task.tier || 'free'}`);
 
   // Gather evidence (with caching)
-  const evidence = await gatherEvidence(task.task, task.repo, {
-    useCache: true,
-    cacheTTLMinutes: 60,
-  });
+  try {
+    logs.push(`[${new Date().toISOString()}] Gathering evidence...`);
+    const evidence = await gatherEvidence(task.task, task.repo, {
+      useCache: true,
+      cacheTTLMinutes: 60,
+    });
+    logs.push(`[${new Date().toISOString()}] Evidence gathered successfully`);
+  } catch (error) {
+    logs.push(`[${new Date().toISOString()}] Warning: Failed to gather evidence: ${error instanceof Error ? error.message : String(error)}`);
+  }
 
   // Get Cortex context (playbooks, workflows, patterns, capabilities, RAD knowledge)
   const cortex = getCortexClient();
   let cortexContext;
   if (cortex.isEnabled()) {
     try {
+      logs.push(`[${new Date().toISOString()}] Querying Cortex for context...`);
+      const evidence = await gatherEvidence(task.task, task.repo, {
+        useCache: true,
+        cacheTTLMinutes: 60,
+      });
       cortexContext = await cortex.getCortexContext({
         task: task.task,
         evidence,
         includeRelatedKnowledge: true,
       });
-      console.log(`[Cortex] Found ${cortexContext.playbooks.length} playbooks, ${cortexContext.workflows.length} workflows`);
+      logs.push(`[${new Date().toISOString()}] Cortex: Found ${cortexContext.playbooks.length} playbooks, ${cortexContext.workflows.length} workflows`);
     } catch (error) {
-      console.warn('Failed to get Cortex context:', error);
+      logs.push(`[${new Date().toISOString()}] Warning: Failed to get Cortex context: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   try {
+    logs.push(`[${new Date().toISOString()}] Executing agent pipeline...`);
     await runFreeAgent({
       repo: task.repo,
       task: task.task,
@@ -89,15 +108,20 @@ export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
       tier: task.tier,
       quality: task.quality,
     });
+    logs.push(`[${new Date().toISOString()}] Agent pipeline completed successfully`);
   } catch (error) {
     success = false;
     errorMessage = error instanceof Error ? error.message : String(error);
+    errorStack = error instanceof Error ? error.stack : undefined;
+    errorType = error instanceof Error ? error.name : 'Error';
+    logs.push(`[${new Date().toISOString()}] ERROR: Agent pipeline failed: ${errorMessage}`);
   }
 
   // Record event in RAD if enabled
   const radClient = getRadClient();
   if (radClient.isEnabled()) {
     try {
+      logs.push(`[${new Date().toISOString()}] Recording event in RAD...`);
       const eventResult = await radClient.recordEvent(
         {
           repoId: task.repo,
@@ -113,15 +137,17 @@ export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
       // Get task ID from RAD for Cortex artifact recording
       if (eventResult?.taskId) {
         taskId = eventResult.taskId;
+        logs.push(`[${new Date().toISOString()}] RAD event recorded with task ID: ${taskId}`);
       }
     } catch (radError) {
-      console.warn('Failed to record RAD event:', radError);
+      logs.push(`[${new Date().toISOString()}] Warning: Failed to record RAD event: ${radError instanceof Error ? radError.message : String(radError)}`);
     }
   }
 
   // Record outcome in Cortex (saves artifacts)
   if (cortex.isEnabled() && taskId) {
     try {
+      logs.push(`[${new Date().toISOString()}] Recording outcome in Cortex...`);
       await cortex.recordOutcome({
         taskId,
         success,
@@ -129,13 +155,60 @@ export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
         executionArtifacts,
         errorMessage,
       });
-      console.log('[Cortex] Outcome recorded');
+      logs.push(`[${new Date().toISOString()}] Cortex outcome recorded`);
     } catch (cortexError) {
-      console.warn('Failed to record Cortex outcome:', cortexError);
+      logs.push(`[${new Date().toISOString()}] Warning: Failed to record Cortex outcome: ${cortexError instanceof Error ? cortexError.message : String(cortexError)}`);
     }
   }
 
-  // Future: return richer data (patches applied, tests run, etc.)
-  return { success };
+  const timingMs = Date.now() - started;
+  logs.push(`[${new Date().toISOString()}] Task completed in ${timingMs}ms with status: ${success ? 'success' : 'failed'}`);
+
+  // Return comprehensive result
+  if (success) {
+    return {
+      status: 'success',
+      output: 'Task completed successfully', // TODO: Extract actual output from pipeline
+      logs,
+      timingMs,
+      model: task.tier === 'paid' ? 'paid-model' : 'ollama-local',
+      taskDescription: task.task,
+      meta: {
+        agentType: task.tier || 'free',
+        taskId,
+        repo: task.repo,
+        kind: task.kind,
+        quality: task.quality,
+      },
+      success: true, // Legacy field
+    };
+  } else {
+    return {
+      status: 'failed',
+      logs,
+      timingMs,
+      model: task.tier === 'paid' ? 'paid-model' : 'ollama-local',
+      taskDescription: task.task,
+      meta: {
+        agentType: task.tier || 'free',
+        taskId,
+        repo: task.repo,
+        kind: task.kind,
+        quality: task.quality,
+      },
+      error: {
+        message: errorMessage || 'Unknown error in Agent Core',
+        stack: errorStack,
+        type: errorType || 'Error',
+        context: {
+          repo: task.repo,
+          task: task.task,
+          kind: task.kind,
+          tier: task.tier,
+        },
+      },
+      success: false, // Legacy field
+    };
+  }
 }
 
