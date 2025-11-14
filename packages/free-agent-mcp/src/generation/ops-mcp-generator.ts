@@ -8,10 +8,10 @@
 import {
   DiffGenerator,
   GenInput,
-} from "@fa/core/generation/types.js";
-import { OpsGenerator } from "@fa/core/generation/ops-generator.js";
+} from "../core/generation/types.js";
+import { OpsGenerator } from "../core/generation/ops-generator.js";
 import { OllamaClient } from "../ollama-client.js";
-import { llmGenerate } from "@robinson_ai_systems/shared-llm";
+import { llmGenerate } from "../shared/shared-llm/index.js";
 
 /**
  * LLM client adapter for OpsGenerator

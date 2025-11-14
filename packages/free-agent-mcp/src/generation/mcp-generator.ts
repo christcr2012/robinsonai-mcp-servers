@@ -10,7 +10,7 @@
 import {
   DiffGenerator,
   GenInput,
-} from "@fa/core/generation/types.js";
+} from "../core/generation/types.js";
 import { CodeGenerator } from "../agents/code-generator.js";
 import { OllamaClient } from "../ollama-client.js";
 
