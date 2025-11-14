@@ -10,7 +10,7 @@ export default defineConfig({
     'src/cli.ts',
     'src/generators/ops/index.ts'
   ],
-  format: ['cjs'],           // Ship CJS for the server to avoid dynamic require issues
+  format: ['esm'],           // Ship ESM for published package
   platform: 'node',
   target: 'node18',
   splitting: false,
