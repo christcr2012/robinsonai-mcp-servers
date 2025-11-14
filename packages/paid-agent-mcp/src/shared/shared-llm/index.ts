@@ -16,4 +16,27 @@ export {
   resolveWorkspacePath,
   workspacePathExists
 } from './workspace.js';
+export {
+  createLlmRouter,
+  type LlmRouter,
+  type ProviderName,
+  type Providers
+} from './llm-router.js';
 
+// Provider-agnostic metrics system
+export {
+  type ProviderMetricsAdapter,
+  type CostEstimate,
+  type UsageStats,
+  type CapacityInfo,
+  registerMetricsAdapter,
+  getMetricsAdapter,
+  getAllMetricsAdapters,
+  getAvailableMetricsAdapters,
+  aggregateCostEstimates,
+} from './metrics/provider-metrics.js';
+export { OpenAIMetricsAdapter } from './metrics/openai-adapter.js';
+export { OllamaMetricsAdapter } from './metrics/ollama-adapter.js';
+export { AnthropicMetricsAdapter } from './metrics/anthropic-adapter.js';
+export { MoonshotMetricsAdapter } from './metrics/moonshot-adapter.js';
+export { VoyageMetricsAdapter } from './metrics/voyage-adapter.js';
