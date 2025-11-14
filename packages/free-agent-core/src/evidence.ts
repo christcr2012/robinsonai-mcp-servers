@@ -255,7 +255,8 @@ async function gatherRadNotes(task: string, rad: any): Promise<Array<{ id: strin
 }
 
 /**
- * Gather web snippets (placeholder for now)
+ * Gather web snippets using Thinking Tools MCP web search
+ * Uses webSearchAll which tries Brave/Bing/SerpAPI first, then falls back to DuckDuckGo
  */
 async function gatherWebSnippets(
   task: string,
@@ -263,21 +264,43 @@ async function gatherWebSnippets(
   maxResults: number
 ): Promise<Array<{ title: string; url: string; snippet: string }>> {
   try {
-    // Call context_web_search_and_import
-    const result = await web.call('context_web_search_and_import', {
-      query: task,
-      k: maxResults,
+    // Call context_web_search tool (uses webSearchAll from lib/websearch.ts)
+    // This returns WebHit[] = { title, url, snippet, score }
+    const result = await web.call({
+      tool: 'context_web_search',
+      args: {
+        query: task, // Note: uses 'query' not 'q' for the webSearchTool
+        k: maxResults,
+      },
     });
 
-    if (result?.results) {
-      return result.results.map((r: any) => ({
-        title: r.title || '',
-        url: r.url || '',
-        snippet: r.snippet || r.description || '',
+    console.log('[gatherWebSnippets] Raw result:', JSON.stringify(result, null, 2));
+
+    // The tool returns { content: [{ type: 'text', text: JSON.stringify(hits) }] }
+    // We need to parse the text content
+    if (result?.content && Array.isArray(result.content) && result.content[0]?.text) {
+      const hits = JSON.parse(result.content[0].text);
+      if (Array.isArray(hits)) {
+        return hits.slice(0, maxResults).map((hit: any) => ({
+          title: hit.title || '',
+          url: hit.url || '',
+          snippet: hit.snippet || '',
+        }));
+      }
+    }
+
+    // Fallback: try parsing result directly as array
+    if (Array.isArray(result)) {
+      return result.slice(0, maxResults).map((item: any) => ({
+        title: item.title || item.url || '',
+        url: item.url || item.uri || '',
+        snippet: item.snippet || item.description || '',
       }));
     }
-  } catch (error) {
-    console.warn('Web search failed:', error);
+
+    console.warn('[gatherWebSnippets] Unexpected format:', result);
+  } catch (error: any) {
+    console.warn('[gatherWebSnippets] Web search failed:', error.message || error);
   }
 
   return [];

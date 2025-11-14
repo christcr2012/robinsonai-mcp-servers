@@ -9,6 +9,17 @@ import { getRadClient } from './rad-client.js';
 import { getCortexClient } from './cortex/index.js';
 import { gatherEvidence } from './evidence.js';
 
+// Import ThinkingClient for web search integration
+let ThinkingClient: any;
+let getSharedThinkingClient: any;
+try {
+  const sharedLlm = await import('@robinson_ai_systems/shared-llm');
+  ThinkingClient = sharedLlm.ThinkingClient;
+  getSharedThinkingClient = sharedLlm.getSharedThinkingClient;
+} catch (error) {
+  console.warn('[Runner] Failed to import ThinkingClient - web search will be disabled:', error);
+}
+
 export async function runFreeAgent(opts: {
   repo: string;
   task: string;
@@ -66,14 +77,43 @@ export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
   logs.push(`[${new Date().toISOString()}] Starting agent task: ${task.task}`);
   logs.push(`[${new Date().toISOString()}] Repo: ${task.repo}, Kind: ${task.kind}, Tier: ${task.tier || 'free'}`);
 
-  // Gather evidence (with caching)
+  // Initialize MCP clients for evidence gathering
+  let thinkingClient: any;
+  try {
+    if (getSharedThinkingClient) {
+      thinkingClient = getSharedThinkingClient();
+      await thinkingClient.connect();
+      logs.push(`[${new Date().toISOString()}] ThinkingClient connected for web search`);
+    }
+  } catch (error) {
+    logs.push(`[${new Date().toISOString()}] Warning: Failed to connect ThinkingClient: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  // Gather evidence (with caching and web search)
   try {
     logs.push(`[${new Date().toISOString()}] Gathering evidence...`);
+
+    // Determine if web evidence should be gathered based on task kind
+    const allowWebEvidence = task.kind === 'research' ||
+                             task.task.toLowerCase().includes('research') ||
+                             task.task.toLowerCase().includes('guide') ||
+                             task.task.toLowerCase().includes('best practices') ||
+                             task.task.toLowerCase().includes('patterns');
+
     const evidence = await gatherEvidence(task.task, task.repo, {
       useCache: true,
       cacheTTLMinutes: 60,
+      allowWebEvidence,
+      maxWebResults: 8,
+    }, {
+      web: thinkingClient,
+      // TODO: Wire contextEngine, toolkit, rad clients when available
     });
-    logs.push(`[${new Date().toISOString()}] Evidence gathered successfully`);
+
+    logs.push(`[${new Date().toISOString()}] Evidence gathered successfully (web: ${allowWebEvidence ? 'enabled' : 'disabled'})`);
+    if (evidence.webSnippets && evidence.webSnippets.length > 0) {
+      logs.push(`[${new Date().toISOString()}] Found ${evidence.webSnippets.length} web snippets`);
+    }
   } catch (error) {
     logs.push(`[${new Date().toISOString()}] Warning: Failed to gather evidence: ${error instanceof Error ? error.message : String(error)}`);
   }
