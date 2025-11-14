@@ -66,6 +66,7 @@ import { join } from 'path';
 import { homedir } from 'os';
 import { loadBetterSqlite } from './utils/sqlite.js';
 import { StatsTracker } from './utils/stats-tracker.js';
+import { scrapeAnthropicPricing } from './utils/pricing-scraper.js';
 
 const server = new Server(
   {
@@ -305,10 +306,11 @@ function initializeMetricsAdapters() {
   );
   registerMetricsAdapter(ollamaAdapter);
 
-  // Anthropic adapter
+  // Anthropic adapter with live pricing scraper
   const anthropicAdapter = new AnthropicMetricsAdapter(
     (period: string) => getTokenTracker().getStats(period)
   );
+  anthropicAdapter.setLivePricingScraper(scrapeAnthropicPricing);
   registerMetricsAdapter(anthropicAdapter);
 
   // Moonshot adapter (cheapest paid option!)

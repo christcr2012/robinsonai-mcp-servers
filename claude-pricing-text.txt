@@ -1,0 +1,302 @@
+Meet Claude
+Platform
+Solutions
+Pricing
+Learn
+Contact sales
+Contact sales
+Try Claude
+Try Claude
+Pricing
+Explore here
+
+Individual
+Team & Enterprise
+API
+
+Latest models
+
+Contact sales
+Contact sales
+Start building
+Start building
+Save 50% with batch processing.
+Learn more
+Batch processing
+Opus 4.1
+Powerful model for complex and creative tasks
+Input
+$15 / MTok
+Output
+$75 / MTok
+Prompt caching
+Write
+$18.75 / MTok
+Read
+$1.50 / MTok
+Sonnet 4.5
+Most intelligent model for building agents and coding
+Input
+Prompts ≤ 200K tokens
+$3 / MTok
+Prompts > 200K tokens
+$6 / MTok
+Output
+Prompts ≤ 200K tokens
+$15 / MTok
+Prompts > 200K tokens
+$22.50 / MTok
+Prompt caching
+≤ 200K tokens
+Write
+$3.75 / MTok
+Read
+$0.30 / MTok
+> 200K tokens
+Write
+$7.50 / MTok
+Read
+$0.60 / MTok
+Haiku 4.5
+Fastest, most cost-efficient model
+Input
+$1 / MTok
+Output
+$5 / MTok
+Prompt Caching
+Write
+$1.25 / MTok
+Read
+$0.10 / MTok
+
+Prompt caching pricing reflects 5-minute TTL. Learn about extended prompt caching.
+
+Pricing for tools
+
+Get even more out of Claude with advanced features and capabilities.
+
+Learn more
+Learn more
+
+Service tiers
+
+Balance availability, performance, and predictable costs based on your needs.
+
+Learn more
+Learn more
+Contact sales
+Contact sales
+
+Priority
+
+When time, availability, and predictable pricing are most important
+
+Standard
+
+Default tier for both piloting and scaling everyday use cases
+
+Batch
+
+For asynchronous workloads that can be processed together for better efficiency
+
+Legacy models
+
+Learn more
+Learn more
+Save 50% with batch processing.
+Learn more
+Batch processing
+Sonnet 4
+Input
+$3 / MTok
+Output
+$15 / MTok
+Prompt caching
+Write
+$3.75 / MTok
+Read
+$0.30 / MTok
+Opus 4
+Input
+$15 / MTok
+Output
+$75 / MTok
+Prompt caching
+Write
+$18.75 / MTok
+Read
+$1.50 / MTok
+Sonnet 3.7
+Input
+$3 / MTok
+Output
+$15 / MTok
+Prompt caching
+Write
+$3.75 / MTok
+Read
+$0.30 / MTok
+Haiku 3.5
+Input
+$0.80 / MTok
+Output
+$4 / MTok
+Prompt Caching
+Write
+$1 / MTok
+Read
+$0.08 / MTok
+Opus 3
+Input
+$15 / MTok
+Output
+$75 / MTok
+Prompt caching
+Write
+$18.75 / MTok
+Read
+$1.50 / MTok
+Haiku 3
+Input
+$0.25 / MTok
+Output
+$1.25 / MTok
+Prompt caching
+Write
+$0.30 / MTok
+Read
+$0.03 / MTok
+
+Prompt caching pricing reflects 5-minute TTL. Learn about extended prompt caching.
+
+Homepage
+Next
+Write
+Button Text
+Learn
+Button Text
+Code
+Button Text
+Anthropic
+© 2025 ANTHROPIC PBC
+Products
+Claude
+Claude
+Claude Code
+Claude Code
+Max plan
+Max plan
+Team plan
+Team plan
+Enterprise plan
+Enterprise plan
+Download app
+Download app
+Pricing
+Pricing
+Log in
+Log in
+Features
+Claude and Slack
+Claude and Slack
+Claude in Excel
+Claude in Excel
+Models
+Opus
+Opus
+Sonnet
+Sonnet
+Haiku
+Haiku
+Solutions
+AI agents
+AI agents
+Code modernization
+Code modernization
+Coding
+Coding
+Customer support
+Customer support
+Education
+Education
+Financial services
+Financial services
+Government
+Government
+Life sciences
+Life sciences
+Claude Developer Platform
+Overview
+Overview
+Developer docs
+Developer docs
+Pricing
+Pricing
+Amazon Bedrock
+Amazon Bedrock
+Google Cloud’s Vertex AI
+Google Cloud’s Vertex AI
+Console login
+Console login
+Learn
+Blog
+Blog
+Courses
+Courses
+Use cases
+Use cases
+Connectors
+Connectors
+Customer stories
+Customer stories
+Engineering at Anthropic
+Engineering at Anthropic
+Events
+Events
+Powered by Claude
+Powered by Claude
+Service partners
+Service partners
+Startups program
+Startups program
+Company
+Anthropic
+Anthropic
+Careers
+Careers
+Economic Futures
+Economic Futures
+Research
+Research
+News
+News
+Responsible Scaling Policy
+Responsible Scaling Policy
+Security and compliance
+Security and compliance
+Transparency
+Transparency
+Help and security
+Availability
+Availability
+Status
+Status
+Support center
+Support center
+Terms and policies
+Privacy choices
+Privacy policy
+Privacy policy
+Responsible disclosure policy
+Responsible disclosure policy
+Terms of service: Commercial
+Terms of service: Commercial
+Terms of service: Consumer
+Terms of service: Consumer
+Usage policy
+Usage policy
+x.com
+LinkedIn
+YouTube
+Instagram
+English (US)
