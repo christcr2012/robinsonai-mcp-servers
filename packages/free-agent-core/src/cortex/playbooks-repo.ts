@@ -5,6 +5,7 @@
 
 import { Pool } from 'pg';
 import { ThinkingPlaybook, ThinkingToolStep } from './types.js';
+import { generateEmbedding } from './embeddings.js';
 
 export class PlaybooksRepo {
   constructor(private pool: Pool) {}
@@ -106,7 +107,7 @@ export class PlaybooksRepo {
     await this.pool.query(
       `
       UPDATE thinking_playbooks
-      SET 
+      SET
         usage_count = usage_count + 1,
         success_rate = (
           (success_rate * usage_count + $2::int) / (usage_count + 1)
@@ -116,6 +117,100 @@ export class PlaybooksRepo {
       `,
       [id, success ? 1 : 0]
     );
+  }
+
+  /**
+   * Find playbooks similar to a task using semantic search
+   * Combines rule-based matching with vector similarity
+   */
+  async findSimilarToTask(
+    taskDescription: string,
+    limit: number = 5
+  ): Promise<ThinkingPlaybook[]> {
+    // Generate embedding for task
+    const embedding = await generateEmbedding(taskDescription);
+    if (!embedding) {
+      // Fall back to rule-based matching if embedding fails
+      return this.findMatchingPlaybooks(taskDescription, limit);
+    }
+
+    // Query using vector similarity + rule-based matching
+    const result = await this.pool.query(
+      `
+      SELECT
+        id, name, description, task_pattern, tool_sequence, priority,
+        success_rate, usage_count, created_at, updated_at, metadata,
+        (embedding <=> $1::vector) as distance
+      FROM thinking_playbooks
+      WHERE embedding IS NOT NULL
+      ORDER BY
+        CASE
+          WHEN $2 ~* task_pattern THEN 0  -- Exact regex match gets priority
+          ELSE 1
+        END,
+        distance ASC,  -- Then by semantic similarity
+        priority DESC,  -- Then by priority
+        success_rate DESC  -- Then by success rate
+      LIMIT $3
+      `,
+      [JSON.stringify(embedding), taskDescription, limit]
+    );
+
+    return result.rows.map(this.mapRow);
+  }
+
+  /**
+   * Generate and store embedding for a playbook
+   */
+  async generateEmbedding(id: string): Promise<void> {
+    // Get playbook
+    const playbook = await this.getById(id);
+    if (!playbook) {
+      throw new Error(`Playbook ${id} not found`);
+    }
+
+    // Generate embedding from name + description + task pattern
+    const text = `${playbook.name}\n${playbook.description}\n${playbook.taskPattern}`;
+    const embedding = await generateEmbedding(text);
+
+    if (!embedding) {
+      throw new Error('Failed to generate embedding');
+    }
+
+    // Store embedding
+    await this.pool.query(
+      `
+      UPDATE thinking_playbooks
+      SET embedding = $1::vector
+      WHERE id = $2
+      `,
+      [JSON.stringify(embedding), id]
+    );
+  }
+
+  /**
+   * Generate embeddings for all playbooks that don't have one
+   */
+  async generateAllEmbeddings(): Promise<number> {
+    const result = await this.pool.query(
+      `
+      SELECT id
+      FROM thinking_playbooks
+      WHERE embedding IS NULL
+      `
+    );
+
+    let count = 0;
+    for (const row of result.rows) {
+      try {
+        await this.generateEmbedding(row.id);
+        count++;
+      } catch (error) {
+        console.error(`Failed to generate embedding for playbook ${row.id}:`, error);
+      }
+    }
+
+    return count;
   }
 
   /**

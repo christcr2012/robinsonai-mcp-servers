@@ -14,6 +14,10 @@ export { CapabilitiesRepo } from './capabilities-repo.js';
 export { ArtifactsRepo } from './artifacts-repo.js';
 export { EvidenceCacheRepo } from './evidence-cache.js';
 
+// Embeddings
+export { generateEmbedding, cosineSimilarity } from './embeddings.js';
+export type { EmbeddingOptions } from './embeddings.js';
+
 // Types
 export type {
   ThinkingPlaybook,

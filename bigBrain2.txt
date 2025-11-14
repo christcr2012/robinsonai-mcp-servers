@@ -1,0 +1,213 @@
+🧠 Task Group: Hero Workflows & Capabilities
+Goal: Implement three high-level capabilities + workflows in Agent Cortex using existing RAD, Cortex, and Toolkit infrastructure.
+
+
+Add new capabilities to capability_registry:
+
+
+rad_repo_refactor_and_migration
+
+
+bootstrap_agent_cortex
+
+
+incident_root_cause_and_fix
+
+
+Use the structures and fields described above (capability_key, title, description, preferred_workflows, preferred_tools, default_agent_tier, risk_level, tags).
+
+
+
+
+Add corresponding workflow definitions to tool_workflows:
+
+
+rad_index_repo, rad_refactor_plan, rad_refactor_execute
+
+
+rad_index_all_sources, cortex_extract_patterns, cortex_generate_handbook
+
+
+incident_triage, incident_fix, incident_lesson
+
+
+Each workflow should be represented as JSON steps referencing:
+
+
+Robinson’s Toolkit tools (RAD category + system category),
+
+
+Free/Paid Agent tools (free_agent_run_task_v2, paid_agent_run_task_v2, batch tools),
+
+
+Thinking Tools MCP (blue_team, red_team, decision_matrix),
+
+
+Cortex APIs where appropriate.
+
+
+
+
+
+
+Ensure Agent Core can execute these workflows:
+
+
+Integrate the new workflows into the existing workflow/executor layer (from Credit Optimizer migration), so that:
+
+
+When a capability is selected, the associated workflows can be executed step-by-step by the Agent Core.
+
+
+
+
+
+
+
+🧭 Task Group: System Introspection Tools (Robinson’s Toolkit)
+Goal: Give agents tool-level access to system meta-knowledge.
+
+
+Add a new system category to robinsons-toolkit-mcp with tools:
+
+
+system_get_tool_catalog
+
+
+Returns a grouped list of all tools across connected MCP servers.
+
+
+
+
+system_get_capabilities
+
+
+Queries capability_registry and returns summaries.
+
+
+
+
+system_get_agent_handbook
+
+
+Reads the latest “Agent Handbook” artifact from Cortex/RAD; if missing, responds with a clear “needs creation” signal.
+
+
+
+
+Optionally, system_get_architecture_overview
+
+
+Returns a short, curated system architecture overview.
+
+
+
+
+
+
+Implement these tools using:
+
+
+Existing DB connections (for capability & handbook lookups).
+
+
+Existing MCP metadata (for tool catalog).
+
+
+
+
+
+📚 Task Group: Agent Handbook & Evidence Integration
+Goal: Ensure every complex task gets system-level context.
+
+
+Create or update Agent Cortex functions to:
+
+
+Store the Agent Handbook as a knowledge_artifacts row with artifact_type = 'agent_handbook' and tags ['handbook','system_overview'].
+
+
+
+
+Update gatherEvidence() in Agent Core to:
+
+
+Always attempt to retrieve the Agent Handbook artifact (directly or via system_get_agent_handbook).
+
+
+Attach it to the EvidenceBundle for tasks that are:
+
+
+long-running,
+
+
+high-risk,
+
+
+or explicitly meta/system-related.
+
+
+
+
+
+
+
+🔁 Task Group: Self-Orientation Workflow
+Goal: Provide a reusable “orient yourself” workflow.
+
+
+Define a tool_workflows entry named system_self_orientation that:
+
+
+Calls:
+
+
+system_get_tool_catalog
+
+
+system_get_capabilities
+
+
+system_get_agent_handbook
+
+
+
+
+Produces an orientation summary as a knowledge_artifacts row for that task/session.
+
+
+
+
+Expose a simple MCP tool in Free and Paid Agent MCPs:
+
+
+agent_self_orient
+
+
+Which triggers the system_self_orientation workflow and returns the orientation summary.
+
+
+
+
+
+With these in place:
+
+
+Your agents won’t just have a Cortex, RAD Crawler, and Toolkit—they’ll know they have them, know what they can do, and have explicit workflows that tie it all together.
+
+
+From day one, you’ll be able to say things like:
+
+
+“Index this repo and plan a safe migration using what you find.”
+
+
+“Bootstrap your own brain from my code and docs.”
+
+
+“Investigate this incident, fix it, and update your memory so you don’t repeat it.”
+
+
+
+
+…and the system will have the hooks, workflows, and meta-knowledge to actually do it.

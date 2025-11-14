@@ -5,6 +5,7 @@
 
 import { Pool } from 'pg';
 import { ToolWorkflow, WorkflowStep } from './types.js';
+import { generateEmbedding } from './embeddings.js';
 
 export class WorkflowsRepo {
   constructor(private pool: Pool) {}
@@ -143,6 +144,79 @@ export class WorkflowsRepo {
     );
 
     return result.rows.map(row => row.category);
+  }
+
+  /**
+   * Find workflows similar to a task using semantic search
+   */
+  async findSimilarToTask(
+    taskDescription: string,
+    limit: number = 5
+  ): Promise<ToolWorkflow[]> {
+    const embedding = await generateEmbedding(taskDescription);
+    if (!embedding) {
+      // Fall back to category-based search
+      return this.listAll();
+    }
+
+    const result = await this.pool.query(
+      `
+      SELECT
+        id, name, description, category, steps, prerequisites,
+        success_rate, usage_count, created_at, updated_at, metadata,
+        (embedding <=> $1::vector) as distance
+      FROM tool_workflows
+      WHERE embedding IS NOT NULL
+      ORDER BY distance ASC, success_rate DESC
+      LIMIT $2
+      `,
+      [JSON.stringify(embedding), limit]
+    );
+
+    return result.rows.map(this.mapRow);
+  }
+
+  /**
+   * Generate and store embedding for a workflow
+   */
+  async generateEmbedding(id: string): Promise<void> {
+    const workflow = await this.getById(id);
+    if (!workflow) {
+      throw new Error(`Workflow ${id} not found`);
+    }
+
+    const text = `${workflow.name}\n${workflow.description}\n${workflow.category}`;
+    const embedding = await generateEmbedding(text);
+
+    if (!embedding) {
+      throw new Error('Failed to generate embedding');
+    }
+
+    await this.pool.query(
+      `UPDATE tool_workflows SET embedding = $1::vector WHERE id = $2`,
+      [JSON.stringify(embedding), id]
+    );
+  }
+
+  /**
+   * Generate embeddings for all workflows
+   */
+  async generateAllEmbeddings(): Promise<number> {
+    const result = await this.pool.query(
+      `SELECT id FROM tool_workflows WHERE embedding IS NULL`
+    );
+
+    let count = 0;
+    for (const row of result.rows) {
+      try {
+        await this.generateEmbedding(row.id);
+        count++;
+      } catch (error) {
+        console.error(`Failed to generate embedding for workflow ${row.id}:`, error);
+      }
+    }
+
+    return count;
   }
 
   /**

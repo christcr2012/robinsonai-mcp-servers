@@ -5,6 +5,7 @@
 
 import { Pool } from 'pg';
 import { CodePattern, PatternVariable } from './types.js';
+import { generateEmbedding } from './embeddings.js';
 
 export class PatternsRepo {
   constructor(private pool: Pool) {}
@@ -141,7 +142,7 @@ export class PatternsRepo {
   async listAll(): Promise<CodePattern[]> {
     const result = await this.pool.query(
       `
-      SELECT 
+      SELECT
         id, name, description, pattern_type, language, template,
         variables, tags, usage_count, created_at, updated_at, metadata
       FROM code_patterns
@@ -150,6 +151,80 @@ export class PatternsRepo {
     );
 
     return result.rows.map(this.mapRow);
+  }
+
+  /**
+   * Find patterns similar to a task using semantic search
+   */
+  async findSimilarToTask(
+    taskDescription: string,
+    language?: string,
+    limit: number = 5
+  ): Promise<CodePattern[]> {
+    const embedding = await generateEmbedding(taskDescription);
+    if (!embedding) {
+      return language ? this.findByTypeAndLanguage('', language, limit) : this.listAll();
+    }
+
+    const result = await this.pool.query(
+      `
+      SELECT
+        id, name, description, pattern_type, language, template,
+        variables, tags, usage_count, created_at, updated_at, metadata,
+        (embedding <=> $1::vector) as distance
+      FROM code_patterns
+      WHERE embedding IS NOT NULL
+        ${language ? 'AND language = $3' : ''}
+      ORDER BY distance ASC, usage_count DESC
+      LIMIT $2
+      `,
+      language ? [JSON.stringify(embedding), limit, language] : [JSON.stringify(embedding), limit]
+    );
+
+    return result.rows.map(this.mapRow);
+  }
+
+  /**
+   * Generate and store embedding for a pattern
+   */
+  async generateEmbedding(id: string): Promise<void> {
+    const pattern = await this.getById(id);
+    if (!pattern) {
+      throw new Error(`Pattern ${id} not found`);
+    }
+
+    const text = `${pattern.name}\n${pattern.description}\n${pattern.patternType}\n${pattern.language}`;
+    const embedding = await generateEmbedding(text);
+
+    if (!embedding) {
+      throw new Error('Failed to generate embedding');
+    }
+
+    await this.pool.query(
+      `UPDATE code_patterns SET embedding = $1::vector WHERE id = $2`,
+      [JSON.stringify(embedding), id]
+    );
+  }
+
+  /**
+   * Generate embeddings for all patterns
+   */
+  async generateAllEmbeddings(): Promise<number> {
+    const result = await this.pool.query(
+      `SELECT id FROM code_patterns WHERE embedding IS NULL`
+    );
+
+    let count = 0;
+    for (const row of result.rows) {
+      try {
+        await this.generateEmbedding(row.id);
+        count++;
+      } catch (error) {
+        console.error(`Failed to generate embedding for pattern ${row.id}:`, error);
+      }
+    }
+
+    return count;
   }
 
   /**

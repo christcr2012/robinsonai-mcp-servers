@@ -5,6 +5,7 @@
 
 import { Pool } from 'pg';
 import { Capability } from './types.js';
+import { generateEmbedding } from './embeddings.js';
 
 export class CapabilitiesRepo {
   constructor(private pool: Pool) {}
@@ -151,7 +152,7 @@ export class CapabilitiesRepo {
   async listAll(): Promise<Capability[]> {
     const result = await this.pool.query(
       `
-      SELECT 
+      SELECT
         id, name, description, category, required_tools, required_env_vars,
         workflow_id, complexity, estimated_duration_minutes, success_rate,
         usage_count, created_at, updated_at, metadata
@@ -161,6 +162,79 @@ export class CapabilitiesRepo {
     );
 
     return result.rows.map(this.mapRow);
+  }
+
+  /**
+   * Find capabilities similar to a task using semantic search
+   */
+  async findSimilarToTask(
+    taskDescription: string,
+    limit: number = 5
+  ): Promise<Capability[]> {
+    const embedding = await generateEmbedding(taskDescription);
+    if (!embedding) {
+      return this.listAll();
+    }
+
+    const result = await this.pool.query(
+      `
+      SELECT
+        id, name, description, category, required_tools, required_env_vars,
+        workflow_id, complexity, estimated_duration_minutes, success_rate,
+        usage_count, created_at, updated_at, metadata,
+        (embedding <=> $1::vector) as distance
+      FROM capability_registry
+      WHERE embedding IS NOT NULL
+      ORDER BY distance ASC, success_rate DESC
+      LIMIT $2
+      `,
+      [JSON.stringify(embedding), limit]
+    );
+
+    return result.rows.map(this.mapRow);
+  }
+
+  /**
+   * Generate and store embedding for a capability
+   */
+  async generateEmbedding(id: string): Promise<void> {
+    const capability = await this.getById(id);
+    if (!capability) {
+      throw new Error(`Capability ${id} not found`);
+    }
+
+    const text = `${capability.name}\n${capability.description}\n${capability.category}`;
+    const embedding = await generateEmbedding(text);
+
+    if (!embedding) {
+      throw new Error('Failed to generate embedding');
+    }
+
+    await this.pool.query(
+      `UPDATE capability_registry SET embedding = $1::vector WHERE id = $2`,
+      [JSON.stringify(embedding), id]
+    );
+  }
+
+  /**
+   * Generate embeddings for all capabilities
+   */
+  async generateAllEmbeddings(): Promise<number> {
+    const result = await this.pool.query(
+      `SELECT id FROM capability_registry WHERE embedding IS NULL`
+    );
+
+    let count = 0;
+    for (const row of result.rows) {
+      try {
+        await this.generateEmbedding(row.id);
+        count++;
+      } catch (error) {
+        console.error(`Failed to generate embedding for capability ${row.id}:`, error);
+      }
+    }
+
+    return count;
   }
 
   /**
