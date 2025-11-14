@@ -1,0 +1,73 @@
+Task: Seed global thinking playbooks into Agent Cortex
+
+I already have a text file("C:\Users\chris\Git Local\robinsonai-mcp-servers\bigBrainContent.txt") containing 11 JSON-like playbook objects that define:
+playbook_debug_complex_bug, playbook_design_saas_feature, playbook_research_unknown_tech, playbook_add_rag_to_app, playbook_design_new_agent, playbook_secure_oauth_integration, playbook_design_responsive_web_ui, playbook_design_event_driven_automation, playbook_design_custom_gpt, playbook_design_vscode_extension_for_agent_control, and playbook_wrap_new_llm_provider.
+
+Please do the following:
+
+Thinking Playbooks table
+
+If there is already a thinking_playbooks table for Agent Cortex, use it.
+
+If not, create one roughly matching this schema (adapt to our migrations system and naming conventions):
+
+CREATE TABLE IF NOT EXISTS thinking_playbooks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  description TEXT NOT NULL,
+  trigger_query JSONB NOT NULL,
+  tool_chain JSONB NOT NULL,
+  chain_template JSONB NOT NULL,
+  notes_for_agent TEXT,
+  tags TEXT[] DEFAULT '{}',
+  scope TEXT NOT NULL DEFAULT 'global',
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+
+Use our existing migration tooling (not raw SQL) if that’s what the project is using.
+
+Create a JSON file for the playbooks
+
+Create a file: packages/agent-cortex/seeds/global-playbooks.json.
+
+Convert the playbook definitions I pasted (from my txt file) into a valid JSON array in that file, e.g.:
+
+[
+  { ...playbook_debug_complex_bug... },
+  { ...playbook_design_saas_feature... },
+  ...
+  { ...playbook_wrap_new_llm_provider... }
+]
+
+
+Make sure each object contains: name, description, trigger_query, tool_chain, chain_template, notes_for_agent, tags, and "scope": "global".
+
+Add a seed script
+
+Create a TypeScript seed script at packages/agent-cortex/seeds/seedGlobalPlaybooks.ts that:
+
+Connects to our existing database using our existing DB client utilities.
+
+Loads global-playbooks.json.
+
+Iterates all playbooks and upserts them into thinking_playbooks by name.
+
+On conflict (name), update description, trigger_query, tool_chain, chain_template, notes_for_agent, tags, scope, and updated_at.
+
+Add a pnpm script to run the seed, e.g.:
+
+{
+  "scripts": {
+    "seed:cortex:playbooks": "ts-node packages/agent-cortex/seeds/seedGlobalPlaybooks.ts"
+  }
+}
+
+
+Run the seed locally
+
+Ensure I can run the app’s usual DB migration command, then run pnpm seed:cortex:playbooks and confirm the rows exist in thinking_playbooks.
+
+Don’t invent new playbooks; use exactly the content I provided in my txt file, just normalized into proper JSON and inserted as global playbooks.

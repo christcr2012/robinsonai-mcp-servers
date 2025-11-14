@@ -51,6 +51,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "@octokit/rest": "^21.0.2",
+    "@robinson_ai_systems/rad-crawler-core": "workspace:*",
     "@supabase/supabase-js": "^2.47.10",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",

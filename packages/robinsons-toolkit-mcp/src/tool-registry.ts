@@ -79,6 +79,11 @@ export class ToolRegistry {
       description: 'Playwright browser automation and web scraping tools',
       enabled: true,
     },
+    rad: {
+      displayName: 'RAD (Repository Agent Database)',
+      description: 'RAD source and crawl management tools for document indexing',
+      enabled: true,
+    },
     twilio: {
       displayName: 'Twilio',
       description: 'Twilio SMS, voice, video, and messaging tools',

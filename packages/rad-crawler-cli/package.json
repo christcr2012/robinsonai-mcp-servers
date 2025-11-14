@@ -1,0 +1,37 @@
+{
+  "name": "@robinson_ai_systems/rad-crawler-cli",
+  "version": "0.1.0",
+  "description": "RAD Crawler CLI - Command-line interface for RAD document indexing",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "rad-crawler": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "rad",
+    "crawler",
+    "cli",
+    "indexing",
+    "documents"
+  ],
+  "author": "Robinson AI Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@robinson_ai_systems/rad-crawler-core": "workspace:*",
+    "commander": "^12.1.0",
+    "chalk": "^5.4.1",
+    "ora": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  },
+  "private": true
+}
+

@@ -68,6 +68,7 @@ const CATEGORY_METADATA = {
   gateway: { id: 'gateway', displayName: 'Gateway', description: 'API gateway and proxy tools for N8N, Crawl4AI, SearXNG, and other services' },
   fastapi: { id: 'fastapi', displayName: 'FastAPI', description: 'FastAPI gateway tools (alias for gateway category)' },
   health: { id: 'health', displayName: 'Health', description: 'Health check and monitoring tools' },
+  rad: { id: 'rad', displayName: 'RAD (Repository Agent Database)', description: 'RAD source and crawl management tools for document indexing' },
 
   // Google Workspace subcategories
   admin: { id: 'admin', displayName: 'Google Admin', description: 'Google Workspace admin console tools for user, group, device, and organization management' },
@@ -108,6 +109,7 @@ const TOOL_FILE_MAPPING = {
   'categories/gateway/tools.ts': { category: 'gateway', handlerModule: './categories/gateway/handlers.js', exportName: 'gatewayTools' },
   'categories/health/tools.ts': { category: 'health', handlerModule: './categories/health/handlers.js', exportName: 'healthTools' },
   'categories/neon/tools.ts': { category: 'neon', handlerModule: './categories/neon/handlers.js', exportName: 'NEON_TOOLS' },
+  'categories/rad/tools.ts': { category: 'rad', handlerModule: './categories/rad/handlers.js', exportName: 'RAD_TOOLS' },
   'categories/upstash/tools.ts': { category: 'upstash', handlerModule: './categories/upstash/handlers.js', exportName: 'UPSTASH_TOOLS' },
 };
 
