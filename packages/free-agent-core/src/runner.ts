@@ -5,6 +5,7 @@ import { buildPipeline } from "./pipeline/index.js";
 import { learnPatternContract } from "./patterns/learn.js";
 import { pickExamples } from "./patterns/examples.js";
 import type { AgentTask, AgentRunResult } from './task.js';
+import { getRadClient } from './rad-client.js';
 
 export async function runFreeAgent(opts: {
   repo: string;
@@ -50,15 +51,44 @@ export async function runFreeAgent(opts: {
  * This is the shared Agent Core interface used by both MCP servers
  */
 export async function runAgentTask(task: AgentTask): Promise<AgentRunResult> {
-  await runFreeAgent({
-    repo: task.repo,
-    task: task.task,
-    kind: task.kind,
-    tier: task.tier,
-    quality: task.quality,
-  });
+  let success = true;
+  let errorMessage: string | undefined;
+
+  try {
+    await runFreeAgent({
+      repo: task.repo,
+      task: task.task,
+      kind: task.kind,
+      tier: task.tier,
+      quality: task.quality,
+    });
+  } catch (error) {
+    success = false;
+    errorMessage = error instanceof Error ? error.message : String(error);
+  }
+
+  // Record event in RAD if enabled
+  const radClient = getRadClient();
+  if (radClient.isEnabled()) {
+    try {
+      await radClient.recordEvent(
+        {
+          repoId: task.repo,
+          taskDescription: task.task,
+          taskKind: task.kind,
+          agentTier: task.tier || 'free',
+          success,
+          errorMessage,
+        },
+        [], // TODO: Extract decisions from planning phase
+        [] // TODO: Extract lessons from execution
+      );
+    } catch (radError) {
+      console.warn('Failed to record RAD event:', radError);
+    }
+  }
 
   // Future: return richer data (patches applied, tests run, etc.)
-  return { success: true };
+  return { success };
 }
 

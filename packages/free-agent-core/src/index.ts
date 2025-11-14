@@ -6,6 +6,8 @@ export { runStandardPlanningChain } from './thinking.js';
 export type { ThinkingStep, PlanningResult } from './thinking.js';
 export { gatherEvidence } from './evidence.js';
 export type { EvidenceBundle, EvidenceOptions } from './evidence.js';
+export { getRadClient, RadClient } from './rad-client.js';
+export type { TaskRecord, DecisionRecord, LessonRecord, KnowledgeQuery, RelatedKnowledge } from './rad-client.js';
 export { loadAdapter } from "./repo/adapter.js";
 export { discover } from "./repo/discover.js";
 export { ensureCodegen } from "./spec/codegen.js";

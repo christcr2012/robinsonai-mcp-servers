@@ -146,11 +146,53 @@ async function gatherContextSnippets(
 }
 
 /**
- * Gather RAD notes (placeholder for Phase 5)
+ * Gather RAD notes using RAD client
  */
 async function gatherRadNotes(task: string, rad: any): Promise<Array<{ id: string; content: string; timestamp: string }>> {
-  // Placeholder for Phase 5 - RAD/Postgres integration
-  return [];
+  try {
+    const knowledge = await rad.getRelatedKnowledge({
+      taskDescription: task,
+      limit: 5,
+    });
+
+    if (!knowledge) {
+      return [];
+    }
+
+    const notes: Array<{ id: string; content: string; timestamp: string }> = [];
+
+    // Add similar tasks
+    knowledge.similarTasks?.forEach((t: any) => {
+      notes.push({
+        id: t.id,
+        content: `Similar task (${t.success ? 'success' : 'failed'}): ${t.description}`,
+        timestamp: new Date().toISOString(),
+      });
+    });
+
+    // Add relevant decisions
+    knowledge.relevantDecisions?.forEach((d: any, i: number) => {
+      notes.push({
+        id: `decision-${i}`,
+        content: `Decision: ${d.chosenOption} (confidence: ${d.confidence}) - ${d.reasoning}`,
+        timestamp: new Date().toISOString(),
+      });
+    });
+
+    // Add applicable lessons
+    knowledge.applicableLessons?.forEach((l: any, i: number) => {
+      notes.push({
+        id: `lesson-${i}`,
+        content: `Lesson (${l.lessonType}): ${l.title} - ${l.description}`,
+        timestamp: new Date().toISOString(),
+      });
+    });
+
+    return notes;
+  } catch (error) {
+    console.warn('Failed to gather RAD notes:', error);
+    return [];
+  }
 }
 
 /**
