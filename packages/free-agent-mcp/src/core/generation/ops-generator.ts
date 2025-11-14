@@ -76,6 +76,12 @@ export class OpsGenerator implements DiffGenerator {
     // 7) Apply guardrails (MIGRATE mode: rewrite TODO/new any)
     unified = validatePatchUnifiedDiff(unified, contract);
 
+    // DEBUG: Log the generated patch
+    console.log(`[OpsGenerator] Generated patch (${unified.length} chars):`);
+    console.log('--- PATCH START ---');
+    console.log(unified);
+    console.log('--- PATCH END ---');
+
     // 8) Validate patch is syntactically correct
     gitApplyCheck(unified, repo);
     console.log(`[OpsGenerator] git apply --check OK`);

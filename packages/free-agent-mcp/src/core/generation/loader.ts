@@ -8,7 +8,20 @@ import { resolveFromRepo, resolveRepoRoot, findWorkspaceRoot } from "../utils/pa
  * Check if a specifier is a bare module specifier (not a path)
  */
 function isBare(spec: string): boolean {
-  return !spec.startsWith(".") && !spec.startsWith("/") && !spec.startsWith("file:");
+  // Check for relative paths (./foo, ../foo)
+  if (spec.startsWith(".")) return false;
+
+  // Check for absolute Unix paths (/foo)
+  if (spec.startsWith("/")) return false;
+
+  // Check for file URLs (file://...)
+  if (spec.startsWith("file:")) return false;
+
+  // Check for Windows absolute paths (C:\foo, D:\foo, etc.)
+  if (path.isAbsolute(spec)) return false;
+
+  // Everything else is a bare module specifier
+  return true;
 }
 
 /**
@@ -46,11 +59,26 @@ export async function loadGenerator(raw?: string): Promise<GeneratorFactory> {
   console.log(`[Generator] Loading generator from: ${spec}`);
 
   const mod = await import(spec);
-  const factory = (mod.default || mod.createGenerator) as GeneratorFactory | undefined;
+
+  // Try to find the factory function
+  // In CommonJS builds, default export might be wrapped in { default: ... }
+  let factory: GeneratorFactory | undefined;
+
+  if (typeof mod.default === 'function') {
+    factory = mod.default;
+  } else if (typeof mod.createGenerator === 'function') {
+    factory = mod.createGenerator;
+  } else if (mod.default && typeof mod.default.default === 'function') {
+    // Handle double-wrapped default export
+    factory = mod.default.default;
+  } else if (mod.default && typeof mod.default.createGenerator === 'function') {
+    // Handle wrapped named export
+    factory = mod.default.createGenerator;
+  }
 
   if (!factory) {
     throw new Error(
-      `Generator module "${spec}" missing default/createGenerator export.`
+      `Generator module "${spec}" missing default/createGenerator export. Found: ${Object.keys(mod).join(', ')}`
     );
   }
 

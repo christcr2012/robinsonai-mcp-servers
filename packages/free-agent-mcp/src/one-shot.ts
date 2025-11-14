@@ -4,9 +4,10 @@
  */
 
 import minimist from "minimist";
-import { resolveRepoRoot } from "@fa/core/utils/paths.js";
-import { loadGenerator } from "@fa/core/generation/loader.js";
+import { resolveRepoRoot } from "./core/utils/paths.js";
+import { loadGenerator } from "./core/generation/loader.js";
 import type { GenRequest } from "./generation/types.js";
+import path from "path";
 
 export async function runOneShot(argvRaw: string[]) {
   const argv = minimist(argvRaw);
@@ -31,9 +32,13 @@ export async function runOneShot(argvRaw: string[]) {
   const verbose = argv.verbose || argv.v || process.env.CODEGEN_VERBOSE === "1";
   
   // Get generator module
-  const generatorModule = argv.generator || argv.g || 
-                         process.env.FREE_AGENT_GENERATOR || 
-                         "free-agent-mcp/generators/ops";
+  // Default to the ops generator in this package (resolve from this file's location)
+  // In CommonJS, __dirname is available; in ESM we'd use import.meta.url
+  const thisDir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+  const defaultGenerator = path.resolve(thisDir, "./generators/ops/index.js");
+  const generatorModule = argv.generator || argv.g ||
+                         process.env.FREE_AGENT_GENERATOR ||
+                         defaultGenerator;
   
   if (verbose) {
     console.error(`[one-shot] repo=${repo}`);
@@ -48,7 +53,7 @@ export async function runOneShot(argvRaw: string[]) {
     // Load generator
     const create = await loadGenerator(generatorModule);
     const gen = create({ logger: verbose ? console : undefined });
-    
+
     // Generate code
     const request: GenRequest = {
       repo,
@@ -57,20 +62,27 @@ export async function runOneShot(argvRaw: string[]) {
       kind: kind as any,
       tier: tier as any
     };
-    
+
     const { diff, meta } = await gen.generate(request);
-    
+
     // Output diff to stdout
     process.stdout.write(diff);
-    
+
     // Output metadata to stderr if verbose
     if (verbose && meta) {
       console.error(`[one-shot] meta:`, JSON.stringify(meta, null, 2));
     }
-    
+
     process.exit(0);
   } catch (error: any) {
     console.error(`[one-shot] Error: ${error.message}`);
+
+    // If there's a diff in the error context, output it for debugging
+    if (error.diff) {
+      console.error(`[one-shot] Generated diff (before failure):`);
+      console.error(error.diff);
+    }
+
     if (verbose && error.stack) {
       console.error(error.stack);
     }
