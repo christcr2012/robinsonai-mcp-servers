@@ -1908,6 +1908,7 @@ async function handleGetJobStatus(args: any) {
 /**
  * Get spend stats (DEPRECATED - calls agent_get_usage_stats)
  * @deprecated Use agent_get_usage_stats instead
+ * DO NOT USE IN NEW CODE - This tool is deprecated and will be removed in a future version
  */
 async function handleGetSpendStats() {
   // Delegate to new provider-agnostic tool
@@ -1937,6 +1938,7 @@ async function handleGetSpendStats() {
 /**
  * Estimate cost for a job (uses live pricing)
  * @deprecated Use agent_get_cost_estimate instead
+ * DO NOT USE IN NEW CODE - This tool is deprecated and will be removed in a future version
  */
 async function handleEstimateCost(args: any) {
   const { agent, estimated_input_tokens, estimated_output_tokens } = args;
@@ -1990,6 +1992,7 @@ async function handleEstimateCost(args: any) {
 /**
  * Refresh pricing from live source
  * @deprecated Use agent_refresh_pricing instead
+ * DO NOT USE IN NEW CODE - This tool is deprecated and will be removed in a future version
  */
 async function handleRefreshPricing() {
   // Delegate to new provider-agnostic tool
@@ -2014,6 +2017,7 @@ async function handleRefreshPricing() {
 /**
  * Get capacity info (uses live pricing)
  * @deprecated Use agent_get_capacity instead
+ * DO NOT USE IN NEW CODE - This tool is deprecated and will be removed in a future version
  */
 async function handleGetCapacity() {
   // Delegate to new provider-agnostic tool
@@ -2078,6 +2082,8 @@ async function handleGetCapacity() {
 
 /**
  * Get token analytics
+ * @deprecated Use agent_get_token_analytics instead
+ * DO NOT USE IN NEW CODE - This tool is deprecated and will be removed in a future version
  */
 async function handleGetTokenAnalytics(args: any) {
   const tracker = getTokenTracker();
