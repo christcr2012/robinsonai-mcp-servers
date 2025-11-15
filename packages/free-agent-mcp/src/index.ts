@@ -3317,14 +3317,8 @@ export async function startServer() {
   await server.run();
 }
 
-// Auto-start server if run directly (not imported)
-// ESM: check if this file is the entry point
-if (import.meta.url === `file://${process.argv[1]}` || import.meta.url.endsWith(process.argv[1])) {
-  startServer().catch((error) => {
-    console.error('Fatal error:', error);
-    process.exit(1);
-  });
-}
+// Note: Server is started by cli.ts, not auto-started here
+// This allows index.ts to be imported without side effects
 
 // Export tool bridge for use in generated code
 export { toolBridge, tryToolkitCall, tryThinkingTool, docsSearch } from './tools/bridge.js';
