@@ -29,12 +29,20 @@ export default defineConfig({
   // Never bundle Node built-ins or deps with dynamic requires
   external: [
     'fs', 'path', 'url', 'module', 'os', 'util', 'crypto', 'stream',
-    'fast-glob', 'globby', 'chokidar', '@parcel/watcher', '@swc/core', 'diff'
+    'fast-glob', 'globby', 'chokidar', '@parcel/watcher', '@swc/core', 'diff',
+    'pg', 'pg-native'  // PostgreSQL has dynamic requires
   ],
   esbuildOptions(options) {
     // Resolve @fa/core alias to the actual path
     options.alias = {
       '@fa/core': path.resolve(__dirname, '../free-agent-core/src'),
+    };
+    // Inject __dirname and __filename for ESM
+    options.banner = {
+      js: `import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);`
     };
   },
 });

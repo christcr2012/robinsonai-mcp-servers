@@ -1,6 +1,6 @@
 {
   "name": "@robinson_ai_systems/free-agent-mcp",
-  "version": "0.14.7",
+  "version": "0.14.10",
   "description": "Free Agent MCP - Portable, workspace-agnostic code generation using FREE models (Ollama)",
   "type": "module",
   "main": "./dist/index.js",
@@ -141,6 +141,7 @@
     "minimist": "^1.2.8",
     "ollama": "^0.5.9",
     "openai": "^4.77.3",
+    "pg": "^8.16.3",
     "zod": "^4.1.12"
   },
   "devDependencies": {

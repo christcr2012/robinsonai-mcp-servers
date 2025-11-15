@@ -3318,7 +3318,8 @@ export async function startServer() {
 }
 
 // Auto-start server if run directly (not imported)
-if (require.main === module) {
+// ESM: check if this file is the entry point
+if (import.meta.url === `file://${process.argv[1]}` || import.meta.url.endsWith(process.argv[1])) {
   startServer().catch((error) => {
     console.error('Fatal error:', error);
     process.exit(1);
