@@ -1,77 +1,161 @@
 {
-  "name": "@robinson_ai_systems/thinking-tools-mcp",
-  "version": "1.16.0",
-  "description": "Comprehensive Thinking Tools MCP - 24 cognitive frameworks + Context Engine with semantic search",
+  "name": "@robinson_ai_systems/free-agent-mcp",
+  "version": "0.14.6",
+  "description": "Free Agent MCP - Portable, workspace-agnostic code generation using FREE models (Ollama)",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js"
+    },
+    "./generators/ops": {
+      "types": "./dist/generators/ops/index.d.ts",
+      "import": "./dist/generators/ops/index.js"
+    },
+    "./utils/symbol-indexer": {
+      "types": "./dist/utils/symbol-indexer.d.ts",
+      "import": "./dist/utils/symbol-indexer.js"
+    },
+    "./utils/symbol-indexer.js": {
+      "types": "./dist/utils/symbol-indexer.d.ts",
+      "import": "./dist/utils/symbol-indexer.js"
+    },
+    "./utils/code-retrieval": {
+      "types": "./dist/utils/code-retrieval.d.ts",
+      "import": "./dist/utils/code-retrieval.js"
+    },
+    "./utils/code-retrieval.js": {
+      "types": "./dist/utils/code-retrieval.d.ts",
+      "import": "./dist/utils/code-retrieval.js"
+    },
+    "./utils/project-brief": {
+      "types": "./dist/utils/project-brief.d.ts",
+      "import": "./dist/utils/project-brief.js"
+    },
+    "./utils/project-brief.js": {
+      "types": "./dist/utils/project-brief.d.ts",
+      "import": "./dist/utils/project-brief.js"
+    },
+    "./dist/utils/symbol-indexer": {
+      "types": "./dist/utils/symbol-indexer.d.ts",
+      "import": "./dist/utils/symbol-indexer.js"
+    },
+    "./dist/utils/symbol-indexer.js": {
+      "types": "./dist/utils/symbol-indexer.d.ts",
+      "import": "./dist/utils/symbol-indexer.js"
+    },
+    "./dist/utils/code-retrieval": {
+      "types": "./dist/utils/code-retrieval.d.ts",
+      "import": "./dist/utils/code-retrieval.js"
+    },
+    "./dist/utils/code-retrieval.js": {
+      "types": "./dist/utils/code-retrieval.d.ts",
+      "import": "./dist/utils/code-retrieval.js"
+    },
+    "./dist/utils/project-brief": {
+      "types": "./dist/utils/project-brief.d.ts",
+      "import": "./dist/utils/project-brief.js"
+    },
+    "./dist/utils/project-brief.js": {
+      "types": "./dist/utils/project-brief.d.ts",
+      "import": "./dist/utils/project-brief.js"
+    },
+    "./pipeline/index": {
+      "types": "./dist/pipeline/index.d.ts",
+      "import": "./dist/pipeline/index.js"
+    },
+    "./pipeline/index.js": {
+      "types": "./dist/pipeline/index.d.ts",
+      "import": "./dist/pipeline/index.js"
+    },
+    "./dist/pipeline/index": {
+      "types": "./dist/pipeline/index.d.ts",
+      "import": "./dist/pipeline/index.js"
+    },
+    "./dist/pipeline/index.js": {
+      "types": "./dist/pipeline/index.d.ts",
+      "import": "./dist/pipeline/index.js"
+    },
+    "./agents/design-card": {
+      "types": "./dist/agents/design-card.d.ts",
+      "import": "./dist/agents/design-card.js"
+    },
+    "./agents/design-card.js": {
+      "types": "./dist/agents/design-card.d.ts",
+      "import": "./dist/agents/design-card.js"
+    },
+    "./dist/agents/design-card": {
+      "types": "./dist/agents/design-card.d.ts",
+      "import": "./dist/agents/design-card.js"
+    },
+    "./dist/agents/design-card.js": {
+      "types": "./dist/agents/design-card.d.ts",
+      "import": "./dist/agents/design-card.js"
     }
   },
   "bin": {
-    "thinking-tools-mcp": "bin/thinking-tools-mcp.js"
+    "free-agent-mcp": "./bin/free-agent-mcp.js"
   },
   "files": [
     "dist/",
     "bin/"
   ],
   "scripts": {
-    "clean": "rimraf dist",
-    "build": "tsc -p tsconfig.json",
-    "prepublishOnly": "node ../../scripts/ensure-no-workspace.mjs",
-    "start": "node bin/thinking-tools-mcp.js",
-    "smoke": "node scripts/handshake-smoke.mjs"
-  },
-  "engines": {
-    "node": ">=18.18.0"
+    "prebuild": "tsx scripts/gen-tools.ts && tsx scripts/check-spec-coverage.ts && tsx scripts/check-policy.ts",
+    "build": "npm run prebuild && tsup",
+    "clean": "rm -rf dist",
+    "build:sandbox": "docker build -t free-agent-sandbox:latest .docker",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Tests coming soon\"",
+    "check-training": "node dist/learning/auto-train-monitor.js check",
+    "spec:smoke": "tsx src/evals/spec.smoke.ts",
+    "prepack": "npm run clean && npm run build"
   },
   "keywords": [
     "mcp",
-    "thinking",
-    "reasoning",
-    "cognitive-frameworks",
+    "model-context-protocol",
     "ai",
-    "devils-advocate",
-    "critical-thinking",
-    "first-principles"
+    "llm",
+    "ollama",
+    "free-models",
+    "code-generation",
+    "free-agent",
+    "credit-optimization"
   ],
-  "author": "Robinson AI Systems",
+  "author": "Robinson AI",
   "license": "MIT",
   "dependencies": {
-    "@extractus/article-extractor": "^8.0.20",
-    "@modelcontextprotocol/sdk": "^1.20.1",
-    "@mozilla/readability": "^0.4.4",
-    "axios": "^1.12.2",
-    "cheerio": "^1.1.2",
-    "chokidar": "^3.3.1",
-    "diff": "^5.2.0",
-    "fast-glob": "^3.3.3",
-    "fast-xml-parser": "^5.3.0",
-    "globby": "^15.0.0",
-    "jsdom": "^22.1.0",
-    "micromatch": "^4.0.8",
-    "node-fetch": "^3.3.2",
-    "p-limit": "^4.0.0",
-    "p-queue": "^6.6.2",
-    "remark": "^15.0.1",
-    "remark-parse": "^11.0.0",
-    "robots-parser": "^3.0.1",
-    "slash": "^5.1.0",
-    "slugify": "^1.6.6",
-    "string-strip-html": "^13.5.0",
-    "undici": "^6.22.0",
-    "unified": "^11.0.5"
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@types/diff": "^7.0.2",
+    "@types/jsdom": "^27.0.0",
+    "diff": "^4.0.2",
+    "glob": "^11.0.3",
+    "handlebars": "^4.7.8",
+    "jsdom": "^27.1.0",
+    "minimist": "^1.2.8",
+    "ollama": "^0.5.9",
+    "openai": "^4.77.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/node": "^22.18.13",
-    "rimraf": "^6.0.0",
-    "typescript": "^5.7.3",
-    "zod": "^3.25.76"
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^22.10.2",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.7.2"
   },
-  "publishConfig": {
-    "access": "public"
+  "optionalDependencies": {
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robinsonai/robinsonai-mcp-servers.git",
+    "directory": "packages/free-agent-mcp"
   }
 }

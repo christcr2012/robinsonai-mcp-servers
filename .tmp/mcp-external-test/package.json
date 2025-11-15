@@ -12,6 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "@robinson_ai_systems/free-agent-mcp": "^0.14.6",
-    "@robinson_ai_systems/paid-agent-mcp": "^0.12.6"
+    "@robinson_ai_systems/paid-agent-mcp": "^0.12.6",
+    "@robinson_ai_systems/robinsons-toolkit-mcp": "^1.19.3"
   }
 }
