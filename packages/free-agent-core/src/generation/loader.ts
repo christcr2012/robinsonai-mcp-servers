@@ -81,8 +81,9 @@ export async function loadGeneratorLegacy(modulePath?: string, repoRoot?: string
   }
 
   try {
-    // Dynamic import with proper URL handling
-    const mod = await import(abs);
+    // Dynamic import with proper URL handling (convert filesystem path to file:// URL for Windows)
+    const fileUrl = pathToFileURL(abs).href;
+    const mod = await import(fileUrl);
     const gen: DiffGenerator =
       mod.default || mod.generator || mod.createGenerator?.() || mod;
 

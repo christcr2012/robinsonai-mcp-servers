@@ -9,8 +9,8 @@
  */
 
 import { config } from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { dirname, join, resolve } from 'path';
 import { readFileSync } from 'fs';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -536,10 +536,14 @@ class RobinsonsToolkitServer {
       }
     }
 
-    // Dynamic import of handler module
+    // Dynamic import of handler module (filesystem path - use pathToFileURL for Windows)
     try {
       console.error(`[Robinson Toolkit] Lazy-loading handler for ${toolName} from ${tool.handler}`);
-      const handlerModule = await import(tool.handler);
+
+      // Convert filesystem path to file:// URL for Windows compatibility
+      const handlerPath = resolve(tool.handler);
+      const handlerUrl = pathToFileURL(handlerPath).href;
+      const handlerModule = await import(handlerUrl);
 
       // Find the handler function
       // Convention: handler modules export functions in camelCase
