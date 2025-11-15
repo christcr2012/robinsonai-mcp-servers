@@ -1,21 +1,17 @@
 #!/usr/bin/env node
-// ESM-friendly launcher
+// ESM-friendly launcher for Free Agent MCP
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
 
-// Parse command-line arguments for --workspace-root
+// If no args provided, default to "serve" mode for MCP
 const args = process.argv.slice(2);
-const workspaceRootIndex = args.indexOf('--workspace-root');
-
-if (workspaceRootIndex !== -1 && args[workspaceRootIndex + 1]) {
-  // Set WORKSPACE_ROOT environment variable from command-line argument
-  process.env.WORKSPACE_ROOT = args[workspaceRootIndex + 1];
-  console.error(`[Wrapper] Set WORKSPACE_ROOT from CLI: ${process.env.WORKSPACE_ROOT}`);
+if (args.length === 0) {
+  process.argv.push('serve');
 }
 
-// load compiled entry
-const dist = pathToFileURL(resolve(__dirname, '../dist/index.js')).href;
-await import(dist);
+// Load the built CLI
+const cliPath = pathToFileURL(resolve(__dirname, '../dist/cli.js')).href;
+await import(cliPath);
