@@ -75,8 +75,9 @@ function runFreeAgent(scenario, scenarioNum) {
   console.log('='.repeat(80));
   console.log();
 
-  // Use pnpm dlx to test PUBLISHED package
-  const result = spawnSync('pnpm', [
+  // Use pnpm dlx to test PUBLISHED package (Windows needs .cmd)
+  const pnpmCmd = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+  const result = spawnSync(pnpmCmd, [
     'dlx',
     '@robinson_ai_systems/free-agent-mcp@0.15.0',
     'run',
@@ -124,8 +125,9 @@ function runPaidAgent(scenario, scenarioNum) {
   console.log('='.repeat(80));
   console.log();
 
-  // Use pnpm dlx to test PUBLISHED package
-  const result = spawnSync('pnpm', [
+  // Use pnpm dlx to test PUBLISHED package (Windows needs .cmd)
+  const pnpmCmd = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+  const result = spawnSync(pnpmCmd, [
     'dlx',
     '@robinson_ai_systems/paid-agent-mcp@0.13.1',
     'run',
