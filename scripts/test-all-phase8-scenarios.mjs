@@ -74,9 +74,11 @@ function runFreeAgent(scenario, scenarioNum) {
   console.log(`FREE AGENT - ${scenario.name}`);
   console.log('='.repeat(80));
   console.log();
-  
-  const result = spawnSync('node', [
-    join(rootDir, 'packages', 'free-agent-mcp', 'dist', 'cli.js'),
+
+  // Use pnpm dlx to test PUBLISHED package
+  const result = spawnSync('pnpm', [
+    'dlx',
+    '@robinson_ai_systems/free-agent-mcp@0.15.0',
     'run',
     '--repo', testRepo,
     '--task', scenario.task,
@@ -89,7 +91,9 @@ function runFreeAgent(scenario, scenarioNum) {
       ...process.env,
       OLLAMA_BASE_URL: 'http://localhost:11434',
       FREE_AGENT_QUALITY: 'balanced',
-      FREE_AGENT_TIER: 'free'
+      FREE_AGENT_TIER: 'free',
+      // Use published package export for testing (Free Agent has its own bundled generators)
+      FREE_AGENT_GENERATOR: '@robinson_ai_systems/free-agent-mcp/generators/ops'
     }
   });
   
@@ -119,9 +123,11 @@ function runPaidAgent(scenario, scenarioNum) {
   console.log(`PAID AGENT - ${scenario.name}`);
   console.log('='.repeat(80));
   console.log();
-  
-  const result = spawnSync('node', [
-    join(rootDir, 'packages', 'paid-agent-mcp', 'dist', 'index.js'),
+
+  // Use pnpm dlx to test PUBLISHED package
+  const result = spawnSync('pnpm', [
+    'dlx',
+    '@robinson_ai_systems/paid-agent-mcp@0.13.1',
     'run',
     '--repo', testRepo,
     '--task', scenario.task,
