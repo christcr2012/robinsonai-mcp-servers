@@ -5,7 +5,10 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: [
+    'src/index.ts',
+    'src/generators/ops/index.ts'
+  ],
   format: ['esm'],
   target: 'node22',
   splitting: false,

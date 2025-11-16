@@ -59,6 +59,7 @@ function resetRepo() {
   const config = {
     name: 'agent-playground',
     spec: {
+      // Use published package export for testing
       generatorModule: '@robinson_ai_systems/free-agent-mcp/generators/ops'
     }
   };
@@ -134,6 +135,7 @@ function runPaidAgent(scenario, scenarioNum) {
       OLLAMA_BASE_URL: 'http://localhost:11434',
       FREE_AGENT_QUALITY: 'best',
       FREE_AGENT_TIER: 'paid',
+      // Use published package export for testing (Paid Agent has its own bundled generators)
       FREE_AGENT_GENERATOR: '@robinson_ai_systems/paid-agent-mcp/generators/ops'
     }
   });

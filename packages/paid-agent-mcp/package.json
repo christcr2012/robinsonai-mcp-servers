@@ -9,6 +9,10 @@
   },
   "exports": {
     ".": "./dist/index.js",
+    "./generators/ops": {
+      "types": "./dist/generators/ops/index.d.ts",
+      "import": "./dist/generators/ops/index.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
