@@ -1,6 +1,6 @@
 /**
  * Generator types for Free Agent MCP
- * Mirrors types from free-agent-core for local use
+ * Mirrors types from agent-core for local use
  */
 
 export interface GenRequest {

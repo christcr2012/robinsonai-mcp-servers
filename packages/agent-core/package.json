@@ -1,7 +1,7 @@
 {
-  "name": "@robinson_ai_systems/free-agent-core",
+  "name": "@robinson_ai_systems/agent-core",
   "version": "0.0.0-internal",
-  "description": "Internal core library for Free Agent MCP (bundled, not published)",
+  "description": "Internal core library for Agent MCPs (bundled, not published)",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",

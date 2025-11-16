@@ -1,6 +1,6 @@
-# Free Agent Core
+# Agent Core
 
-Portable, repo-agnostic Free Agent with spec-first codegen and quality gates.
+Portable, repo-agnostic agent core with spec-first codegen and quality gates. Shared by Free Agent and Paid Agent MCPs.
 
 ## Features
 
@@ -16,7 +16,7 @@ Portable, repo-agnostic Free Agent with spec-first codegen and quality gates.
 ## Installation
 
 ```bash
-pnpm add @robinson_ai_systems/free-agent-core
+pnpm add @robinson_ai_systems/agent-core
 ```
 
 ## Usage
@@ -35,7 +35,7 @@ pnpm free-agent --repo /path/to/repo --task "Fix bug Y" --kind bugfix
 ### Programmatic
 
 ```typescript
-import { runFreeAgent } from "@robinson_ai_systems/free-agent-core";
+import { runFreeAgent } from "@robinson_ai_systems/agent-core";
 
 await runFreeAgent({
   repo: "/path/to/repo",
@@ -113,7 +113,7 @@ type Adapter = {
 Handlers are generated from a registry:
 
 ```typescript
-import { generateFromRegistry } from "@robinson_ai_systems/free-agent-core/spec";
+import { generateFromRegistry } from "@robinson_ai_systems/agent-core/spec";
 
 const code = generateFromRegistry({
   services: {
@@ -137,7 +137,7 @@ const code = generateFromRegistry({
 Validates diffs before applying:
 
 ```typescript
-import { validatePatchUnifiedDiff } from "@robinson_ai_systems/free-agent-core";
+import { validatePatchUnifiedDiff } from "@robinson_ai_systems/agent-core";
 
 validatePatchUnifiedDiff(diff); // Throws if invalid
 ```

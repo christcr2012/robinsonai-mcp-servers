@@ -21,7 +21,7 @@ export default defineConfig({
   // Bundle the internal core + shared libs so consumers don't need them
   noExternal: [
     /^@fa\/core(\/.*)?$/,
-    '@robinson_ai_systems/free-agent-core',
+    '@robinson_ai_systems/agent-core',
     '@robinson_ai_systems/shared-llm',
     '@robinson_ai_systems/shared-utils',
     '@robinson_ai_systems/shared-pipeline'
@@ -35,7 +35,7 @@ export default defineConfig({
   esbuildOptions(options) {
     // Resolve @fa/core alias to the actual path
     options.alias = {
-      '@fa/core': path.resolve(__dirname, '../free-agent-core/src'),
+      '@fa/core': path.resolve(__dirname, '../agent-core/src'),
     };
     // Inject __dirname and __filename for ESM
     options.banner = {

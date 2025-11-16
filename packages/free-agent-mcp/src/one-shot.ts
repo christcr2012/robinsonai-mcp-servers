@@ -5,7 +5,7 @@
 
 import minimist from "minimist";
 import { resolveRepoRoot } from "./core/utils/paths.js";
-import { loadGenerator } from "./core/generation/loader.js";
+import { loadGenerator } from "@fa/core/generation/loader.js";
 import type { GenRequest } from "./generation/types.js";
 import path from "path";
 

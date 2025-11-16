@@ -1,4 +1,4 @@
-// Main exports for free-agent-core
+// Main exports for agent-core
 
 export { runFreeAgent, runAgentTask } from "./runner.js";
 export type { AgentTask, AgentRunResult, AgentKind, AgentTier, AgentTaskConstraints } from './task.js';
@@ -45,7 +45,7 @@ export type { Adapter, Cmds } from "./repo/types.js";
 export type { PatternContract } from "./patterns/contract.js";
 export type { Example } from "./patterns/examples.js";
 export type { DiffGenerator, GenInput, FileTarget } from "./generation/types.js";
-export { loadGenerator, createFallbackGenerator } from "./generation/loader.js";
+export { loadGenerator, createFallbackGenerator } from "@fa/core/generation/loader.js";
 export { OpsGenerator } from "./generation/ops-generator.js";
 
 // Patch generation exports (for debugging)

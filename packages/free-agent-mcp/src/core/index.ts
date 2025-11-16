@@ -1,4 +1,4 @@
-// Main exports for free-agent-core
+// Main exports for agent-core
 
 export { runFreeAgent, runAgentTask } from "./runner.js";
 export type { AgentTask, AgentRunResult, AgentKind, AgentTier, AgentTaskConstraints } from './task.js';

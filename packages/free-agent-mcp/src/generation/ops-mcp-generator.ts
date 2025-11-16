@@ -1,7 +1,7 @@
 /**
- * Ops-based MCP Generator - Pluggable generator for Free Agent Core
+ * Ops-based MCP Generator - Pluggable generator for Agent Core
  *
- * Uses OpsGenerator from free-agent-core to eliminate corrupt patch errors
+ * Uses OpsGenerator from agent-core to eliminate corrupt patch errors
  * LLM outputs structured EditOps → we build valid diffs deterministically
  */
 

@@ -4,7 +4,7 @@ import { spawnSync } from "child_process";
 import { Adapter } from "./types.js";
 import { validatePatchUnifiedDiff } from "../shared/patchGuard.js";
 import { applyUnifiedDiff } from "../shared/diff.js";
-import { loadGenerator, loadGeneratorLegacy, createFallbackGenerator } from "../generation/loader.js";
+import { loadGenerator, loadGeneratorLegacy, createFallbackGenerator } from "@fa/core/generation/loader.js";
 import { DiffGenerator, Generator } from "../generation/types.js";
 import { resolveFromRepo, debugPaths } from "../utils/paths.js";
 

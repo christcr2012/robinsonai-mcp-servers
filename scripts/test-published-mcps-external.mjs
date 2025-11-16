@@ -23,7 +23,7 @@ const npmCmd = isWindows ? 'npm.cmd' : 'npm';
 
 // Published package versions to test
 const PACKAGES = {
-  'free-agent': '@robinson_ai_systems/free-agent-mcp@0.14.6',
+  'free-agent': '@robinson_ai_systems/free-agent-mcp@0.14.17',
   'paid-agent': '@robinson_ai_systems/paid-agent-mcp@0.12.6',
   'thinking-tools': '@robinson_ai_systems/thinking-tools-mcp@1.27.3',
   'robinsons-toolkit': '@robinson_ai_systems/robinsons-toolkit-mcp@1.19.3'

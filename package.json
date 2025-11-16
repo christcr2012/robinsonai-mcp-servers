@@ -11,7 +11,7 @@
     "clean": "pnpm -r run clean",
     "build": "tsc -b -v",
     "rebuild": "pnpm run clean && tsc -b -v",
-    "build:shared": "pnpm -r --filter \"@robinson_ai_systems/shared-*\" run build && pnpm --filter \"@robinson_ai_systems/robinsons-context-engine\" run build && pnpm --filter \"@robinson_ai_systems/free-agent-core\" run build",
+    "build:shared": "pnpm -r --filter \"@robinson_ai_systems/shared-*\" run build && pnpm --filter \"@robinson_ai_systems/robinsons-context-engine\" run build && pnpm --filter \"@robinson_ai_systems/agent-core\" run build",
     "build:free-agent-mcp": "pnpm --filter @robinson_ai_systems/free-agent-mcp build",
     "build:paid-agent-mcp": "pnpm --filter @robinson_ai_systems/paid-agent-mcp build",
     "build:toolkit-mcp": "pnpm --filter @robinson_ai_systems/robinsons-toolkit-mcp build",
