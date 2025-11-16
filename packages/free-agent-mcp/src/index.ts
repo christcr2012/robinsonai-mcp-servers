@@ -3229,7 +3229,7 @@ Generate the modified section now:`;
    */
   private async runFreeAgentSmoke(args: any): Promise<any> {
     try {
-      const { ensureCodegen } = await import('@fa/core/spec');
+      const { ensureCodegen } = await import('@fa/core');
 
       const repo = args.repo || process.cwd();
       const specRegistry = process.env.FREE_AGENT_SPEC;

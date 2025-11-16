@@ -157,7 +157,7 @@ Example (update versions as needed – these are the ones in this repo right now
       "command": "pnpm.cmd",
       "args": [
         "dlx",
-        "@robinson_ai_systems/free-agent-mcp@0.14.14"
+        "@robinson_ai_systems/free-agent-mcp@'currentVersion'"
       ],
       "env": {
         "MCP_TRANSPORT": "stdio",
@@ -174,7 +174,7 @@ Example (update versions as needed – these are the ones in this repo right now
       "command": "pnpm.cmd",
       "args": [
         "dlx",
-        "@robinson_ai_systems/paid-agent-mcp@0.12.9"
+        "@robinson_ai_systems/paid-agent-mcp@'currentVersion'"
       ],
       "env": {
         "MCP_TRANSPORT": "stdio",
@@ -187,7 +187,7 @@ Example (update versions as needed – these are the ones in this repo right now
       "command": "pnpm.cmd",
       "args": [
         "dlx",
-        "@robinson_ai_systems/thinking-tools-mcp@1.27.3"
+        "@robinson_ai_systems/thinking-tools-mcp@'currentVersion'"
       ],
       "env": {
         "MCP_TRANSPORT": "stdio",
@@ -199,7 +199,7 @@ Example (update versions as needed – these are the ones in this repo right now
       "command": "pnpm.cmd",
       "args": [
         "dlx",
-        "@robinson_ai_systems/robinsons-toolkit-mcp@1.19.3"
+        "@robinson_ai_systems/robinsons-toolkit-mcp@'currentVersion'"
       ],
       "env": {
         "MCP_TRANSPORT": "stdio",
