@@ -88,6 +88,7 @@ function runFreeAgent(scenario, scenarioNum) {
     cwd: rootDir,
     stdio: 'pipe',
     encoding: 'utf8',
+    shell: true,  // Required for Windows to properly execute pnpm.cmd
     env: {
       ...process.env,
       OLLAMA_BASE_URL: 'http://localhost:11434',
@@ -138,6 +139,7 @@ function runPaidAgent(scenario, scenarioNum) {
     cwd: rootDir,
     stdio: 'pipe',
     encoding: 'utf8',
+    shell: true,  // Required for Windows to properly execute pnpm.cmd
     env: {
       ...process.env,
       OLLAMA_BASE_URL: 'http://localhost:11434',
